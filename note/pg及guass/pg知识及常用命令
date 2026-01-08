@@ -1,0 +1,334 @@
+--默认的超级用户登录
+psql -U postgres -d postgres 
+ 
+--库 
+  PG中可以采用分库的方式，即不同的模块创建不同的库；也可以使用同一个库下创建多个SCHEMA的方式；
+但一个数据连接只能访问一个库，不能跨库访问，即不同数据库之间不能关联查询
+  建议采用同一个库下创建不同SCHEMA的方式!!!
+   
+--表空间
+     
+  建表时，可以指定该表存放在哪个表空间上；
+  如果不指定，创建在默认的表空间上；
+  PG中可以为某个库设置默认表空间，也可以为某个用户设置默认表空间；
+
+                                      创建用户、数据库、表空间、schema的过程
+
+--撤销public 模式上的所有用户权限
+ REVOKE CREATE ON SCHEMA public FROM PUBLIC;  
+
+--创建用户
+create user zhf with  ENCRYPTED password '123123';  
+
+--创建表空间  
+创建表空间的目录
+[postgres@oggtarget postgresql]$ mkdir pgdata
+指定该表空间为用户zhf的默认表空间
+postgres=# CREATE TABLESPACE zhf_tbsp owner zhf LOCATION '/usr/local/postgresql/pgdata';
+
+
+                   --给普通用户zhf赋予创建数据库的权限（不建议这么做，创建数据库的权限应该由超级用户来完成）
+                                        alter user zhf createdb; 
+
+--创建数据库 指定表空间和用户
+create database zhf_db with owner='zhf' TEMPLATE = "template0" ENCODING = 'UTF8'  TABLESPACE ="zhf_tbsp" ;
+COMMENT ON DATABASE "zhf_db" IS '测试数据库';
+
+--赋权限
+WITH GRANT OPTION  该语句表示：表示被授权人能够将该权限授予其他人，不能对PUBLIC使用该选项。
+grant all privileges on database zhf_db to zhf; 
+grant all privileges on tablespace zhf_tbsp to zhf;
+
+--使用新建用户登录数据库 
+ psql -U zhf -d zhf_db  
+
+--在zhf用户登录后，在zhf_db中创建模式
+CREATE SCHEMA zhf;
+
+--建表插数
+ create table t1(id int,name varchar(20));
+ insert into t1 values(1,'zhanghaifeng');
+ insert into t1 values(2,'gongbenxuan');
+ 
+--删除用户
+drop user username;  
+
+
+
+
+
+ 
+select user;  或者   select * from current_user;  查看当前用户
+\c - test      切换用户
+\c testdb      切换数据库
+\du   \du+         列出用户信息
+\db    \db+          查看表空间信息
+\l     \l+       列出数据库信息
+\d     \d+       列出当前数据库的所有表
+\dn    \dn+     列出当前数据库中的所有schema
+\d tablename  查看表字段
+\d+ tablename  查看指定表的基本情况
+\conninfo   查询当前连接信息
+\q          退出当前数据库连接
+pg_ctl start -l /usr/local/postgresql/log/pg_server.log            pg数据库启动命令
+pg_ctl stop -l  /usr/local/postgresql/log/pg_server.log            pg数据库停止命令
+pg_ctl restart -l  /usr/local/postgresql/log/pg_server.log         pg数据库重启命令
+psql -U zhf -d zhf_db                                              PG数据库登陆命令格式
+psql -U postgres -d postgres                                       PG数据库默认管理登陆方式
+
+select version();  查看服务器端版本
+
+                                pg数据库模式的概念：
+
+
+   一个数据库包含一个或多个已命名的模式，模式包含对象，包括表，数据类型、函数、操作符等。
+同一个对象名可以在不同的模式里使用而不会导致冲突；比如，schema1和myschema都可以包含一个名为mytable的表。
+和数据库不同，模式不是严格分离的：只要有权限，一个用户可以访问他所连接的数据库中的任意模式中的对象。
+
+我们需要模式的原因有好多：
+
+  允许多个用户使用一个数据库而不会干扰其它用户。
+  把数据库对象组织成逻辑组，让它们更便于管理。
+  第三方的应用可以放在不同的模式中，这样它们就不会和其它对象的名字冲突。
+  
+官方建议是这样的：在管理员创建一个具体数据库后，应该为所有可以连接到该数据库的用户分别创建一个与用户名相同的模式，
+然后，将search_path设置为"$user"(即缺省模式为与用户名相同的模式)，这样，任何当某个用户连接上来后，
+会默认将查找或者定义的对象都定位到与之同名的模式中。这是一个好的设计架构。角色（role）与用户（user）：
+对于PostgreSQL来说，这是完全相同的两个对象。唯一的区别是在创建的时候：
+CREATE ROLE kanon PASSWORD 'kanon';   --(ROLE创建时缺省不具有LOGIN权限)
+CREATE USER kanon PASSWORD 'kanon2';  --(USER创建时缺省就具备了LOGIN权限)
+所以：
+CREATE ROLE kanon PASSWORD 'kanon' LOGIN;
+等同于
+CREATE USER kanon PASSWORD 'kanon';
+
+
+
+
+CREATE SCHEMA zhf;                 创建一个模式  注意：一定要在数据库中创建
+DROP SCHEMA zhf;         如果一个模式是空的(所有它里面的对象都已经删除)，那么删除一个模式的命令
+DROP SCHEMA zhf CASCADE;  要删除一个模式及其包含的所有对象，可以使用
+注意：删除模式名及对象，需要使用管理员账户进行操作，不能使用普通用户。
+报错如下：
+ERROR:  cannot drop schema zhf_schema because other objects depend on it
+DETAIL:  table zhf_schema.test1 depends on schema zhf_schema
+HINT:  Use DROP ... CASCADE to drop the dependent objects too.
+
+
+
+我们没有声明任何模式名字就创建了表。缺省时，这样的表(以及其它对象)都自动放到一个叫做"public"的模式中去了。
+每个新数据库都包含一个这样的模式。因此，下面的命令是等效的：
+CREATE TABLE products ( ... );
+和：
+CREATE TABLE public.products ( ... );
+
+SHOW search_path;    显示当前用户所对应的模式名称（显示当前模式的搜索路径）；
+SET search_path TO zhf_schema,public; 设置模式搜索路径（也可以理解为，切换到某个模式下）
+
+缺省时每个人都在public模式上有CREATE和USAGE权限。这样就允许所有可以连接到指定数据库上的用户在这里创建对象。
+如果你不打算这么做，可以撤销这个权限：
+REVOKE CREATE ON SCHEMA public FROM PUBLIC;                        
+第一个"public"是模式，第二个"public"意思是"所有用户"。
+第一句里它是个标识符，而第二句里是个关键字，所以有不同的大小写。
+
+
+
+
+
+--pg自动提交相关
+
+  我们知道oracle中sqlplus里面执行dml语句；是需要提交commit；若错了；也可以回滚rollback； 
+然而在postgresql里面默认是自动提交；执行完就马上提交了，不能回滚，这样容易导致误操作的发生，
+有没有什么办法避免这个风险呢？当然有，在psql中默认是打开自动提交的，我们可以关闭自动提交。
+
+
+\set AUTOCOMMIT off
+
+
+                                                         表空间
+														 
+不同的数据库表空间有不同的定义。在postgres中，表空间允许在文件系统中定义数据库对象存储的位置，实质上就是指定一个目录。
+
+应用场景：
+存储磁盘没有空间时，可以使用表空间把数据存在其它地方；
+利用表空间对数据库进行性能优化。常用来将频繁使用的数据表或者索引放在高性能的硬盘上，而较少使用的放在普通硬盘上。
+
+自带两个表空间：pg_default,pg_global
+pg_default 用来存储系统目录对象，用户表、用户表index、临时表、临时表index、内部临时表的默认空间。对应存储目录$PGDATA/base/
+pg_global 用来存储系统字典表 对应存储目录$PGDATA/global/
+pg_tblspc 存储手动创建表空间的软连接信息。初始是空的，当手动增加表空间时，该目录下会自动生成一个软连接，指向表空间设定的路径。
+
+一个表空间可以让多个数据库使用，而一个数据库可以使用多个表空间，属于“多对多”的关系。
+Oracle中一个表空间只属于一个数据库，而一个数据库可以使用多个表空间，属于“一对多”的关系。
+
+--通过命令show default_tablespace可以看到参数default_tablespace指向的默认表空间，该值为空的话，
+说明就是默认表空间就是当前数据库的表空间
+
+show default_tablespace;
+
+--创建表空间
+              注意：必须是超级用户才可以
+当创建一个表空间时，$PADATA/pg_tblspc目录下会自动生成一个表空间对应的oid名称的文件，这个文件是个软链接符号，
+实际指向表空间设定的路径。oid名称软链接的表空间实际目录下面会再生成一个子目录，
+这个子目录命名规则是PG_Major version_Catalog version number(比如PG_10_201707211，
+可以通过pg_controldata命令看到Catalog version number)的格式，
+在这个PG_Major version_Catalog version number子目录下会有绑定在这个表空间上的数据库对应的oid的子目录，
+创建表空间时表空间的名称不能以pg_开头否则会报错DETAIL: The prefix “pg_” is reserved for system tablespaces.
+
+
+CREATE TABLESPACE zhf_test owner zhf LOCATION '/usr/local/postgresql/pgdata';
+创建表空间成功后，可在数据库集群目录下看到目录pg_tblspc下有一个连接文件
+   lrwxrwxrwx 1 postgres postgres 28 Apr 20 19:25 16398 -> /usr/local/postgresql/pgdata
+
+--将数据库指定表空间
+alter database zhf_db set default_tablespace='zhf_test';
+
+--将用户指定表空间
+alter user zhf set default_tablespace='zhf_test';
+
+--删除表空间
+ drop tablespace zhf_test;
+
+
+
+--查看数据库大小
+SELECT pg_size_pretty(pg_database_size('postgres'));
+
+--查看表大小
+SELECT pg_size_pretty(pg_relation_size('table_test'));  
+
+--查看索引大小
+SELECT pg_size_pretty(pg_relation_size('table_test_pkey'));
+
+--查看表空间大小
+SELECT pg_size_pretty(pg_tablespace_size('pg_default')); 
+
+
+
+
+
+
+                                 权限相关
+
+psql -U postgres -d postgres  管理员登录								 
+								 
+								 
+--创建不需要密码登陆的用户test
+CREATE ROLE test LOGIN;
+
+psql -U test  -d postgres   使用该命令可以登录到数据库
+
+--创建需要密码登陆的用户test1：
+CREATE USER test1 WITH PASSWORD 'test1';
+
+
+--拥有创建数据库、角色的用户，也可以删除和修改这些对象。
+
+CREATE ROLE admin WITH CREATEDB CREATEROLE;
+
+--创建具有超级权限的用户：admin
+CREATE ROLE admin WITH SUPERUSER LOGIN PASSWORD 'admin';
+
+
+--查询用户zhf在database中的权限
+select a.datname,b.rolname,string_agg(a.pri_t,',') from (select datname,(aclexplode(COALESCE(datacl, 
+acldefault('d'::"char",datdba)))).grantee as grantee,
+(aclexplode(COALESCE(datacl, acldefault('d'::"char", datdba)))).privilege_type as pri_t 
+from pg_database where datname not like 'template%') a,pg_roles b 
+where (a.grantee=b.oid or a.grantee=0) and b.rolname='zhf' 
+group by a.datname,b.rolname;
+
+
+--查询用户zhf的schema权限
+select a.nspname,b.rolname,string_agg(a.pri_t,',') 
+from 
+(select nspname,(aclexplode(COALESCE(nspacl, acldefault('n'::"char",nspowner)))).grantee as grantee,
+(aclexplode(COALESCE(nspacl, acldefault('n'::"char",nspowner)))).privilege_type as pri_t from pg_namespace 
+where 
+nspname not like 'pg%' and nspname <> 'information_schema' ) a,pg_authid b 
+where (a.grantee=b.oid or a.grantee=0) and b.rolname='zhf' group by a.nspname,b.rolname;
+
+
+说明：
+1、database默认权限是TEMPORARY和CONNECT
+
+2、所有用户默认拥有public schema的USAGE和CREATE权限
+
+3、需要访问表时，必须拥有表的SELECT权限和对应schema的USAGE权限，缺一不可
+
+4、database、schema、table的owner默认拥有database或schema或table所有权限
+
+
+
+/usr/local/postgresql/data
+
+连接方式	连接的数据库	连接的用户	连接的主机IP	认证方式
+local           all             all                       trust
+host            all             all    127.0.0.1/32       trust
+host            all             all      ::1/128          trust
+local        replication        all                       trust
+host         replication        all    127.0.0.1/32       trust
+host         replication        all      ::1/128          trust
+
+
+host表示：这条记录匹配通过TCP/IP网络进行的联接尝试。他既匹配通过ssl方式的连接，也匹配通过非ssl方式的连接。
+local表示：这条记录匹配通过 Unix 域套接字进行的联接企图， 没有这种类型的记录，就不允许 Unix 域套接字的联接。
+
+--连接的数据库
+  指定这一记录匹配的数据库名。值all指定它匹配所有数据库。可以提供多个数据库名，用逗号分隔它们。
+在文件名前面放一个@，可以指定一个含有数据库名的单独的文件。
+
+--连接的用户
+  指定这一记录匹配的数据库角色名。值all指定它匹配所有角色。
+ 如果指定的角色是一个组并且希望该组中的所有成员都被包括在内，在该角色名前面放一个+。
+ 可以提供多个角色名，用逗号分隔它们。在文件名前面放一个@，可以指定一个含有角色名的单独的文件。
+
+--连接的主机IP 
+  指定这一记录匹配的客户端机器的IP地址范围。它包含一个标准点分十进制表示的IP地址和一个CIDR掩码长度。
+IP地址只能用数字指定，不能写成域或者主机名。掩码长度指示客户端IP地址必须匹配的高位位数。给定IP地址中，在这些位的右边必须是零。IP地址、/和CIDR掩码长度之间不能有任何空格。
+典型的CIDR地址例子是：192.0.2.89/32是一个单一主机，192.0.2.0/24是一个小网络，10.6.0.0/16是一个大网络。要指定一个单一主机，对IPv4使用一个CIDR掩码32，对IPv6使用128。在一个网络地址中，不要省略拖尾的零。
+
+--认证方式：
+  --trust
+  无条件地允许联接，这个方法允许任何可以与PostgreSQL 数据库联接的用户以他们期望的任意 
+PostgreSQL 数据库用户身份进行联接，而不需要口令。
+
+  --reject
+  联接无条件拒绝，常用于从一个组中"过滤"某些主机。 
+
+  --md5
+  要求客户端提供一个 MD5 加密的口令进行认证，这个方法是允许加密口令存储在pg_shadow里的唯一的一个方法。
+
+  --password
+  和"md5"一样，但是口令是以明文形式在网络上传递的，我们不应该在不安全的网络上使用这个方式。
+
+
+--连接方式
+连接方式有四种：local 、host、hostssl、hostnossl
+  --local
+这条记录匹配通过 Unix 域套接字进行的联接企图， 没有这种类型的记录，就不允许 Unix 域套接字的联接。
+  --host
+这条记录匹配通过TCP/IP网络进行的联接尝试。他既匹配通过ssl方式的连接，也匹配通过非ssl方式的连接。
+注意：要使用该选项你要在postgresql.conf文件里设置listen_address选项，不在listen_address里的IP地址是无法匹配到的。
+因为默认的行为是只在localhost上监听本地连接。
+
+  --hostssl
+这条记录匹配通过在TCP/IP上进行的SSL联接企图。
+要使用该选项，服务器编译时必须使用–with-openssl选项，并且在服务器启动时ssl设置是打开的，具体内容可见这里。
+
+  --hostnossl
+这个和上面的hostssl相反，只匹配通过在TCP/IP上进行的非SSL联接企图。
+
+
+
+                                             pg中单引号、双引号的区别
+											 
+SQL 中的字符串常量是由单引号 ( ' ) 限定的任意字符序列，例如 'This is a string' 。
+要在字符串常量中包含单引号字符，请写入两个相邻的单引号，例如 'Dianne''s horse' 。
+请注意，这与双引号字符（ " ）不同。
+
+同一页面的 其他地方：
+
+还有第二种标识符： 分隔标识符 或 _引用标识符_。它是通过用双引号 ( " ) 将任意字符序列括起来形成的。
+分隔标识符始终是标识符，而不是关键字。因此 "select" 可用于引用名为“select”的列或表，
+而未引用的 select 将被视为关键字，因此在使用时会引发解析错误 where需要一个表或列名。

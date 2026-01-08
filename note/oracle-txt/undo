@@ -1,0 +1,222 @@
+回退段主要有4个作用，分别是：事物回滚、数据库恢复、读一致性、闪回查询。
+
+  --事物回滚：当事物执行失败或用户执行回滚操作(rollback)时，Oracle会利用保存在回退段中的信息将数据恢复到原来的值；
+
+  --数据库恢复：当数据库实例运行失败，在数据库重启恢复时，Oracle先利用重做日志文件的信息对数据库进行恢复（包括已提交和未提交的事务），再利用回滚段中的信息回滚未提交的事务；
+
+  --读一致性：当一个用户对数据进行修改时，会预先将其原始值保存到回退段中，这时，如果有其它用户访问该数据，则访问回退段中的信息，使当前用户未提交的修改其他用户无法看到，保证了数据的一致性；
+
+  --闪回查询：通过保留在回退段中的信息，用户可以查询某个数据在过去某个时刻的状态
+
+--undo段查看 默认是10个
+select * from dba_segments where segment_type='TYPE2 UNDO';
+
+也可以通过 vrollstat和vrollstat 和 vrollstat和vrollname 两个视图来查看信息, 
+这 2 个视图会显示所有 rollback 段的信息,包括 system 段和 undo 段。
+select s.usn,n.name,s.extents,s.hwmsize,s.status from v$rollstat s, v$rollname n where s.usn=n.usn;
+
+
+--查看当前正在使用的undo tablespace回滚段
+SQL> select * from v$rollname;
+
+
+--当前实例的undo配置查看
+show parameter undo  
+
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+temp_undo_enabled                    boolean     FALSE
+undo_management                      string      AUTO
+undo_retention                       integer     900
+undo_tablespace                      string      UNDOTBS1
+
+--查看UNDO表空间对应的数据文件和大小
+set lines 200 pages 200 
+col file_name for a60
+col tablespace_name for a20
+select tablespace_name,file_name,bytes/1024/1024 MB 
+from dba_data_files where tablespace_name like '%UNDOTBS%';
+
+TABLESPACE_NAME      FILE_NAME                                                            MB
+-------------------- ------------------------------------------------------------ ----------
+UNDOTBS1             /u01/oradata/ORCL/zhf_pdb1/undotbs01.dbf                            900
+
+--查询undo表空间的状态 （空闲和非空闲比例）
+select owner,tablespace_name, status, sum(bytes) / 1024 / 1024 MB
+  from dba_undo_extents
+ group by tablespace_name,owner, status;
+
+
+OWN TABLESPACE_NAME      STATUS            MB
+--- -------------------- --------- ----------
+SYS UNDOTBS1             UNEXPIRED         11
+SYS UNDOTBS1             EXPIRED        23.25
+
+--查询undo表空间的属性
+select retention,tablespace_name from dba_tablespaces where tablespace_name like '%UNDOTBS%';
+
+RETENTION   TABLESPACE_NAME
+----------- --------------------
+NOGUARANTEE UNDOTBS1
+
+
+
+free：     区未分配给任何一个段
+active：   已经被分配给段，并且这个段被事务所使用，且事务没有提交，不能覆盖。 （区被未提交的事务使用）   
+unexpired：事务已经提交，但是区还在段中，还没有被覆盖且未达到undo_retention设定的时间。
+　　　　   （nogurantee的情况下，原则上oracle尽量的不覆盖unexpired的区，但是如果undo空间压力及较大，oracle也会去覆盖。
+如果是guarantee，oracle强制保留retention时间内的内容，这时候free和expired空间不足的话，新事物将失败。）
+expired：  oracle希望已经提交的事务对应的undo表空间中的undo段中的区再保留一段时间。保留的时间就是undo_retention。
+　　　　    unexpired的区存在时间超过undo_retention设定的时间，状态就会变为expired。expired为可重用undo空间（如果undo表空间100%，
+但是expired的空间还有，就不要紧），原则上expired的区一般不会释放成free。
+ 
+PS：生产中没有人会将UNDOTBS的retention设置成GUARANTEE这是很危险的。
+
+
+
+--undo表空间的使用率查询(active状态查询）
+WITH DF AS
+(SELECT 
+    TABLESPACE_NAME,
+    SUM(BYTES) BYTES,
+    COUNT(*) CNT,                                                            --每个表空间数据文件的个数
+    DECODE(SUM(DECODE(AUTOEXTENSIBLE, 'NO', 0, 1)), 0, 'NO', 'YES') AUTOEXT   --是否自动扩展
+ FROM DBA_DATA_FILES
+ GROUP BY TABLESPACE_NAME)
+SELECT 
+    D.TABLESPACE_NAME,
+    round(NVL(A.BYTES / 1024 / 1024 / 1024, 0),1)                      all_tablespace_gb,    
+    round(NVL(U.BYTES, 0) / 1024 / 1024 / 1024 ,1)                     undo_tablespace_used_gb, 
+    round(NVL(A.BYTES - NVL(U.BYTES, 0), 0) / 1024 / 1024 / 1024,1)    undo_tablespace_free_gb,
+    round(NVL(U.BYTES / A.BYTES * 100, 0),1)                           "undo_tablespace_used_per %",
+    A.AUTOEXT,
+    D.STATUS,                                    
+    A.CNT                                                              datafile_cnt,
+    D.CONTENTS
+FROM 
+    DBA_TABLESPACES D,DF A,           
+    (SELECT 
+         TABLESPACE_NAME, 
+         SUM(BYTES) BYTES                              --记录不可使用的undo segment:包括状态为active的区，不包括unexpired和expired
+     FROM DBA_UNDO_EXTENTS
+     WHERE STATUS IN ('ACTIVE')                        --如果使用了retention guarantee特性，则还需统计状态为unexpired的区：WHERE STATUS IN (‘ACTIVE’,’UNEXPIRED’)                   
+     GROUP BY TABLESPACE_NAME) U     
+WHERE 
+    D.TABLESPACE_NAME = A.TABLESPACE_NAME(+)  --左外连接(left join)
+AND 
+    D.TABLESPACE_NAME = U.TABLESPACE_NAME(+)
+AND 
+    D.CONTENTS = 'UNDO'
+ORDER BY 1;
+
+
+
+
+--查看使用回滚段的用户
+select s.username, u.name
+  from v$transaction t, v$rollstat r, v$rollname u, v$session s
+ where s.taddr = t.addr
+   and t.xidusn = r.usn
+   and r.usn = u.usn
+ order by s.username;
+ 
+--查看什么事务占用了过多的undo
+select addr,used_ublk,used_urec,inst_id 
+from gv$transaction order by 2 desc;
+
+ADDR: 事务的内存地址。
+
+USED_UBLK：事务使用的undo block数量。
+
+USED_UREC：事务使用的undo record （undo前镜像的条数，例如：delete删除的记录数）
+
+--查看占用undo的事务执行了什么sql
+set lines 200 pages 200
+col program for a30
+col machine for a30
+select sql_id,last_call_et,program,machine from gv$session 
+where taddr='0000000089A9E2F0';
+
+
+set long 99999set lines 100 set pages 1000 
+select 
+sql_fulltext from v$sql where SQL_ID='SQL_ID';
+
+
+
+
+
+--Automatic UNDO Retention
+当自动undo管理被启用，总是存在一个当前的undo retention，Oracle Database尝试至少保留旧的undo信息到该时间。
+数据库收集使用情况统计信息，基于这些统计信息和UNDO表空间大小来调整undo retention的时间。     
+Oracle Database基于undo表空间大小和系统活动自动调整undo retention，
+通过设置UNDO_RETENTION初始化参数指定undo retention的最小值。 
+
+ --查询是否启用自动undo管理
+ select a.ksppinm name,b.ksppstvl value,a.ksppdesc description  from x$ksppi a,x$ksppcv b
+where a.indx = b.indx
+and a.ksppinm like '%_undo_autotune%';
+
+ NAME                           VALUE      DESCRIPTION
+------------------------------ ---------- ------------------------------
+_undo_autotune                 TRUE       enable auto tuning of undo_ret
+                                          ention
+
+ --查询
+SELECT TO_CHAR(BEGIN_TIME, 'MM/DD/YYYY HH24:MI:SS') BEGIN_TIME,     TUNED_UNDORETENTION FROM V$UNDOSTAT;
+
+
+关于oracle UNDO表空间自动管理自动调优的原则介绍,在Oracle 10gr2后面的版本中添加了UNDO信息最短保留时间段自动调优的特性，不再仅仅依据参数UNDO_RETENTION的设定，其调优原则如下：
+
+1 当UNDO TABLESPACE为 fixed-size，Oracle将根据表空间的大小和历史使用情况，自动调整undo信息保存时间，同时忽略 undo_retention的值除非 undo_retention的guarantee 特性被启用。
+
+2 当UNDO TABLESPACE为AUM时，Oracle将动态调整撤销信息最短保留时间为该时段最长查询时间(MAXQUERYLEN)加上300秒或参数UNDO_RETENTION间的较大者，即MAX((MAXQUERYLEN+300),UNDO_RENTION)；
+
+在自动调整启用的情况下，实际的撤销信息最短保留时间可以通过查询V$UNDOSTAT视图上的TUNED_UNDORETENTION列获得。往往最短保存时间远远大于设定的UNDO_RETENTION。在无法就UNDO TABLESPACE做相应修改的情况，
+可以通过修改隐式参数”_UNDO_AUTOTUNE”为FALSE关闭该自动调优特性。以上设定生效后，V$UNDOSTAT视图上TUNED_UNDORETENTION列不再更新，且撤销信息最短保留时间固定为参数UNDO_RETENTION的设定值。
+该参数可以不用重启数据库而动态设置生效。
+
+UNDO自动优化功能能够最大限度的使用undo表空间,满足大部分的sql执行，但是也带来一个问题：很多事务执行完毕之后，发现UNDO表空间会在很长时间都一直保持着使用率是接近100%的状态，active 状态的很少。
+
+这种接近状态还无法手工的收缩，甚至于重启数据库实例也无法缓解，而此时常常会收到undo表空间的监控报警。
+
+可以通过修改隐式参数”_UNDO_AUTOTUNE”为FALSE关闭该自动调优特性。以上设定生效后，V$UNDOSTAT视图上TUNED_UNDORETENTION列不再更新，
+且撤销信息最短保留时间固定为参数UNDO_RETENTION的设定值。该参数可以不用重启数据库而动态设置生效。
+
+
+
+ --修改为禁用
+ alter system set "_undo_autotune"=false  scope=both  sid='*';
+ 
+
+禁用UNDO自动优化之后，Oracle不再的每十分钟记录一次当前UNDO使用情况了，在动态视图V$UNDOSTAT中也只保留禁止undo自动调优之前的数据 。 
+.一般不建议关闭Oracle的自动调优
+
+--查询undo段的状态，当前undo
+select usn,xacts,status,rssize/1024/1024/1024,hwmsize/1024/1024/1024,shrinks
+from v$rollstat order by rssize;
+
+ USN      XACTS STATUS          RSSIZE/1024/1024/1024 HWMSIZE/1024/1024/1024    SHRINKS
+---------- ---------- --------------- --------------------- ---------------------- ----------
+         0          0 ONLINE                     .000419617             .000419617          0
+        12          0 ONLINE                     .001945496             .001945496          0
+        13          0 ONLINE                     .001945496             .001945496          0
+        14          0 ONLINE                     .001945496             .001945496          0
+        20          0 ONLINE                     .001945496             .001945496          0
+        16          0 ONLINE                     .001945496             .001945496          0
+        11          0 ONLINE                     .001945496             .001945496          0
+        15          0 ONLINE                     .001945496             .001945496          0
+        18          0 ONLINE                     .001945496             .001945496          0
+        19          0 ONLINE                     .001945496             .001945496          0
+        17          0 ONLINE                     .003898621             .003898621          0
+
+
+--删除undo表空间
+ drop tablespace UNDOTBS1 including contents and datafiles;
+ 
+--新建undo表空间 
+create undo tablespace undotbs2 datafile '/u01/oradata/prod/undotbs02.dbf' size 50m autoextend on;
+
+--切换undo表空间
+alter system set undo_tablespace=undotbs2;
+

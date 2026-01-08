@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="vue.js"></script>
+</head>
+<body>
+  <div id="Application">
+    <!-- 把输入元素的value绑定到data的page属性上，并用v-model指令来双向绑定 -->
+    <input type="radio" value="page1" v-model="page"/>页面1
+    <input type="radio" value="page2" v-model="page"/>页面2
+    <!-- component是1个特殊的标签，其通过is属性来指定要渲染的组件名称 -->
+    <!-- 需要在父组件中定义page -->
+    <component :is="page"></component>
+    <!-- <div>{{page}}</div> -->
+  </div>
+  <script>
+    const App = Vue.createApp({
+      data() {
+        return {
+          page: 'page0'
+        }
+      }
+    })
+    const Page1 = {
+      template: '<div>选择内容=><span style="color:red">页面组件1</span></div>'
+    }
+    const Page2 = {
+      template: '<div>选择内容=><span style="color:blue">页面组件2</span></div>'
+    }
+    const Page0 = {
+      template: '<div>选择内容=><span style="color:green">尚未选择</span></div>'
+    }
+    App.component('page1', Page1)
+    App.component('page2', Page2)
+    App.component('page0', Page0)
+    App.mount('#Application')
+  </script>
+</body>
+</html>

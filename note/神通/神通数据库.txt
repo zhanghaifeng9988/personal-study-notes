@@ -1,0 +1,35 @@
+列式数据库，他的每一列就是索引，减少了额外建立索引的内容。
+
+如果我们的需求就是查询所有字段，那个这个时候列式数据库的处理方式就是先把所有列查询出来，然后再拼接起来，速度方面是比不上行式数据库的。
+不过我们既然用到了列式数据库，那么我们的场景需求就是大量数据，一般在大数据领域，进行所有字段的查询的这个要求少之又少，
+所以这个缺点我们需要正式，但是我们也可以忽略。
+
+应用场景比较
+             行式数据库主要应用于传统的业务场景中
+
+             列式数据库则应该发挥他查询速度方面的优势，主要用于海量数据分析一类的方面。
+MPP数据库非常擅长最常见的分析工作负载
+
+ ps -ef |grep oscar
+ isql -h IP -d 实例名称 -p 端口 -U 用户名/密码
+ isql -h 127.0.0.1 
+ 
+/etc/init.d/oscardb_OSRDBd
+
+/opt/ShenTong/admin/oscardb_OSRDBd
+
+create user test_usr with password 'test' default tablespace TS_USER_YS_USR_DATA role sysdba;   创建用户
+
+SELECT * FROM V_SYS_DATABASE_INFO;  查询数据库信息
+
+select TABLE_NAME,REMARKS from V_SYS_TABLES where table_schem='' order by TABLE_NAME
+
+
+CREATE DATABASE cggldb
+CONTROLFILE '/opt/ShenTong/admin/cggldb.ctrl'
+DATAFILE '/opt/ShenTong/odbs/fenix/fenix.dbf' SIZE 100M
+AUTOEXTEND ON NEXT 100M MAXSIZE UNLIMITED
+LOGFILE GROUP ('/home/OSCAR/odbs/fenix/REDO01.log') SIZE 100M
+LOGFILE GROUP ('/home/OSCAR/odbs/fenix/REDO02.log') SIZE 50M
+LOGFILE GROUP ('/home/OSCAR/odbs/fenix/REDO03.log') SIZE 100M
+ARCHIVELOG '/home/OSCAR/arch/'

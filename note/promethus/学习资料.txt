@@ -1,0 +1,27 @@
+
+
+启动脚本存放位置：
+
+
+开机启动脚本，
+nohup /opt/prometheus/prometheus --config.file=/opt/prometheus/prometheus.yml >/opt/prometheus/stdout.log 2> /opt/prometheus/stderr.log &
+
+#node_exporter启动
+nohup /opt/node_exporter/node_exporter > /opt/node_exporter/stdout.log 2>/opt/node_exporter/stderr.log &
+
+#mysql_exporte启动
+nohup /opt/mysqld_exporter/mysqld_exporter --config.my-cnf=/opt/mysqld_exporter/mysqld_exporter.cnf > /opt/mysqld_exporter/stdout.log 2>/opt/mysqld_exporter/stderr.log &
+
+#启动grafana
+systemctl start grafana-server.service  
+
+
+9090端口：Prometheus的默认端口
+9100端口：node_exporter的默认端口
+9104端口：mysql_exporter的默认端口
+
+--问题
+发现开机启动的脚本，没有生成nohup.out的日志文件
+
+--查找问题
+关闭已经打开的进程，手动启动，查看nohup

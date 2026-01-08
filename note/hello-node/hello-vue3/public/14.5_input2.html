@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="vue.js"></script>
+</head>
+<body>
+    <div id="Application">
+        <div>
+          <!-- 此处没有使用v-model绑定表单，使用v-bind绑定表单的属性value，然后用v-on绑定表单的事件input -->
+            <input :value="inputText"  @input="action"/>
+            <div>{{inputText}}</div>
+            <button @click="inputText=''">Clear</button>
+        </div>
+    </div>
+    <script>
+        const App =  Vue.createApp({
+            data(){
+                return {
+                    inputText: ''
+                }
+            },
+            methods : {
+                action(event) {
+                    console.log(event),
+                    this.inputText = event.target.value
+                }
+            }
+          })
+              App.mount('#Application')
+    </script>
+</body>
+</html>

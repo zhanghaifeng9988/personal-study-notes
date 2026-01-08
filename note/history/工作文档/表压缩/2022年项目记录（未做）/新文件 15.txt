@@ -1,0 +1,58 @@
+alter table FDPSHARE.G_TG_CONS_DAY_PQ move partition P14401 tablespace HISCMPRS01 nologging parallel 4 compress;
+ 
+
+alter table FDPSHARE.G_TG_CONS_DAY_PQ move partition P14402 tablespace HISCMPRS01 nologging parallel 4 compress;
+ 
+
+alter table FDPSHARE.G_TG_CONS_DAY_PQ move partition P14403 tablespace HISCMPRS01 nologging parallel 4 compress;
+ 
+
+alter table FDPSHARE.G_TG_CONS_DAY_PQ move partition P14404 tablespace HISCMPRS01 nologging parallel 4 compress;
+ 
+
+alter table FDPSHARE.G_TG_CONS_DAY_PQ move partition P14405 tablespace HISCMPRS01 nologging parallel 4 compress;
+ 
+
+alter table FDPSHARE.G_TG_CONS_DAY_PQ move partition P14406 tablespace HISCMPRS01 nologging parallel 4 compress;
+ 
+
+alter table FDPSHARE.G_TG_CONS_DAY_PQ move partition P14407 tablespace HISCMPRS01 nologging parallel 4 compress;
+ 
+
+alter table FDPSHARE.G_TG_CONS_DAY_PQ move partition P14408 tablespace HISCMPRS01 nologging parallel 4 compress;
+ 
+
+alter table FDPSHARE.G_TG_CONS_DAY_PQ move partition P14409 tablespace HISCMPRS01 nologging parallel 4 compress;
+ 
+
+alter table FDPSHARE.G_TG_CONS_DAY_PQ move partition P14410 tablespace HISCMPRS01 nologging parallel 4 compress;
+ 
+
+alter table FDPSHARE.G_TG_CONS_DAY_PQ move partition P14411 tablespace HISCMPRS01 nologging parallel 4 compress;
+ 
+
+alter table FDPSHARE.G_TG_CONS_DAY_PQ move partition PMAX tablespace HISCMPRS01 nologging parallel 4 compress;
+ 
+
+
+
+
+
+select to_char(START_TIME,'YYYY-MM-DD hh24:MI:SS'),to_char(END_TIME,'YYYY-MM-DD hh24:MI:SS'),STATUS from v$rman_status order by 1;
+
+
+
+col TABLESPACE_NAME for a20
+col name for a10
+set line 200 pages 999
+select TABLESPACE_NAME,round(USED_SPACE*8/1024, 2) AS "USED-M",
+round(TABLESPACE_SIZE*8/1024, 2) AS "SIZE-M",round((TABLESPACE_SIZE-USED_SPACE)*8/1024, 2) "FREE-M",
+to_char(USED_PERCENT,'00.00') as "USED_PERCENT"  
+from dba_tablespace_usage_metrics order by used_percent desc ;
+
+
+
+
+select state, name, type, total_mb, free_mb from v$asm_diskgroup_stat;
+
+alter tablespace SHAREIDX add datafile '+DATAC1' size 30G autoextend off;

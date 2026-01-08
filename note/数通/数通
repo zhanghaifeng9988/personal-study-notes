@@ -1,0 +1,90 @@
+
+
+
+2台设备组建堆叠时，建议如下：
+如果是28口或者28口以下的设备，建议采用只有一个逻辑堆叠口的组网；如果是28口以上的设备，建议采用背靠背组网。
+如果堆叠系统有将来扩容为多台堆叠的计划，建议采用背靠背组网，这样将来扩容时已有系统修改最小。
+从可靠性角度考虑，建议两台设备之间至少连接两条堆叠线缆。
+
+部署建议
+堆叠系统与其他网络设备相连时，建议使用Eth-Trunk接口相连，并且堆叠系统的每台成员交换机都能有一个端口加入到Eth-Trunk中。
+堆叠系统连接接入设备时，建议将直连终端的端口配置为STP边缘口，以避免连接终端的端口Up/Down状态变化时触发STP重新计算，影响流量转发。
+如果配置storm-control的端口较多，建议用流量抑制替代，流量抑制对CPU资源的消耗很少。
+如果配置port-security的端口较多，建议用mac-limit替代，mac-limit对CPU资源的消耗很少。
+当堆叠系统相连的网络中有成环风险时，
+建议通过命令mac-address flapping action error-down配置MAC地址漂移检测与接口error-down联动机制。
+这样可以提升处理性能，并且接口Down时能够被对端设备感知。同时，如果对端设备有冗余保护链路，
+则可以快速切换到正常链路。
+
+
+汇聚交换机配置 
+链路聚合
+聚合定义为所有vlan通过
+配置生成树
+
+PVID:PORT vlan ID
+基于端口划分
+基于mac划分
+基于IP子网划分
+
+vlan1是系统创建，不能删除
+
+类型：access  trunk  hybrid
+Access类型的端口只能属于1个VLAN，一般用于连接计算机的端口；
+Trunk类型的端口可以允许多个VLAN通过，可以接收和发送多个VLAN的报文，一般用于交换机之间连接的端口；
+Hybrid类型的端口可以允许多个VLAN通过，可以接收和发送多个VLAN的报文，可以用于交换机之间连接，也可以用于连接用户的计算机。
+
+--access：仅仅允许VLAN ID 与端口的PVID相同的数据帧通过本端口
+
+Access端口发往其他设备的报文，都是untagged frame
+Access端口只属于1个VLAN，所以它的缺省VLAN就是它所在的VLAN，不用设置；
+
+port link-type access
+port default vlan 3
+
+Access端口收报文:
+收到一个报文,判断是否有VLAN信息：如果没有则打上端口的PVID，并进行交换转发；如果有则直接丢弃（缺省）
+Access端口发报文：
+将报文的VLAN信息剥离，直接发送出去
+
+--端口查看
+display  this 
+
+--trunk:
+port link-type trunk
+port trunk pvid vlan 3   手动设置默认vlanID
+port trunk permit vlan 5 
+
+只有一种情况不打标untagged frame，Trunk端口只允许缺省VLAN的报文发送时不打标签
+其他情况发出的都是tagged frame
+
+trunk端口收报文：
+收到一个报文，判断是否有VLAN信息：
+如果没有则打上端口的PVID，并进行交换转发；
+如果有，判断该trunk端口是否允许该 VLAN的数据进入：如果可以则转发，否则丢弃
+
+trunk端口发报文：
+比较端口的PVID和将要发送报文的VLAN信息，如果两者相等则剥离VLAN信息，再发送，如果不相等则直接发送
+
+--hybird：
+
+Hybrid端口和Trunk端口属于多个VLAN，所以需要设置缺省VLAN ID。
+缺省情况下，Hybrid端口和Trunk端口的缺省VLAN为VLAN 1。
+
+
+hybrid端口收报文：
+收到一个报文,判断是否有VLAN信息：如果没有则打上端口的PVID，并进行交换转发；
+如果有则判断该hybrid端口是否允许该VLAN的数据进入：
+如果可以则转发，否则丢弃(此时端口上的untag配置是不用考虑的，untag配置只对发送报文时起作用)
+
+hybrid端口发报文：
+1、判断该VLAN在本端口的属性（disp interface 即可看到该端口对哪些VLAN是untag， 哪些VLAN是tag）
+2、如果是untag则剥离VLAN信息，再发送，如果是tag则直接发送
+
+（1）华为交换机接口的默认类型hybrid。
+（2）该接口功能包含access和trunk 的两种特性。
+（3）该接口配置灵活，通过该接口的报文是否打tag由管理员决定。
+（4）该接口具备特殊用法用于特殊场景。例如：基于mac地址划分vlan、用于WLAN等。
+（5）hybrid 接口允许多个vlan不打标签通过。
+
+

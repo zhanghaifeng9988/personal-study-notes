@@ -1,0 +1,218 @@
+
+
+
+2023-02-07T03:06:17.526857+08:00
+.... (PID:61864): Error ORA-235 occurred during an un-locked control file
+.... (PID:61864): transaction.  This error can be ignored.  The control
+.... (PID:61864): file transaction will be retried.
+2023-02-07T03:06:17.547277+08:00
+
+
+opidrv aborting process DM00 ospid (129878) as a result of ORA-447
+2023-02-14T15:57:26.587900+08:00
+KILL SESSION for sid=(9149, 59378):
+  Reason = alter system kill session
+  Mode = KILL SOFT -/-/-
+  Requestor = USER (orapid = 522, ospid = 86226, inst = 1)
+  Owner = Process: DM00 (orapid = 589, ospid = 129878)
+  Result = ORA-0
+2023-02-14T15:57:26.718321+08:00
+Errors in file /u01/app/oracle/diag/rdbms/yxhis/yxhis1/trace/yxhis1_dw01_130320.trc  (incident=2643843):
+ORA-00600: internal error code, arguments: [723], [332824], [16713192], [memory leak], [], [], [], [], [], [], [], []
+Incident details in: /u01/app/oracle/diag/rdbms/yxhis/yxhis1/incident/incdir_2643843/yxhis1_dw01_130320_i2643843.trc
+Use ADRCI or Support Workbench to package the incident.
+See Note 411.1 at My Oracle Support for error and packaging details.
+2023-02-14T15:57:27.338308+08:00
+Errors in file /u01/app/oracle/diag/rdbms/yxhis/yxhis1/incident/incdir_2643843/yxhis1_dw01_130320_i2643843.trc:
+ORA-00600: internal error code, arguments: [723], [332824], [16713192], [memory leak], [], [], [], [], [], [], [], []
+2023-02-14T15:57:27.383968+08:00
+
+
+Non critical error ORA-48181 caught while writing to trace metadata file (.trm)
+Trace file name: "/u01/app/oracle/diag/rdbms/yxhis/yxhis1/trace/yxhis1_ora_91252.trc"
+Error message: Linux-x86_64 Error: 9: Bad file descriptor
+Additional information: 1
+Writing to trace metadata is disabled for now...
+Exception [type: SIGSEGV, SI_KERNEL(general_protection)] [ADDR:0x0] [PC:0x7F897F4EBEB0, {empty}] [flags: 0x8, count: 2]
+2023-02-25T10:44:02.244257+08:00
+Errors in file /u01/app/oracle/diag/rdbms/yxhis/yxhis1/trace/yxhis1_ora_91252.trc:
+ORA-07445: exception encountered: core dump [PC:0x7F897F4EBEB0] [SIGSEGV] [ADDR:0x0] [PC:0x7F897F4EBEB0] [SI_KERNEL(general_protection)] []
+ORA-00353: log corruption near block 81922 change 16997707017783 time 02/25/2023 10:42:32
+ORA-00334: archived log: '+REDO/YXHIS/ONLINELOG/group_2.257.1051731607'
+Exception [type: SIGSEGV, SI_KERNEL(general_protection)] [ADDR:0x0] [PC:0x7F897F4EBEB0, {empty}] [flags: 0xA, count: 3]
+Use ADRCI or Support Workbench to package the incident.
+See Note 411.1 at My Oracle Support for error and packaging details.
+Exception [type: SIGSEGV, SI_KERNEL(general_protection)] [ADDR:0x0] [PC:0x7F897F4EBEB0, {empty}] [flags: 0x8, count: 3]
+2023-02-25T10:44:02.268805+08:00
+Errors in file /u01/app/oracle/diag/rdbms/yxhis/yxhis1/trace/yxhis1_ora_91252.trc:
+ORA-07445: exception encountered: core dump [PC:0x7F897F4EBEB0] [SIGSEGV] [ADDR:0x0] [PC:0x7F897F4EBEB0] [SI_KERNEL(general_protection)] []
+ORA-07445: exception encountered: core dump [PC:0x7F897F4EBEB0] [SIGSEGV] [ADDR:0x0] [PC:0x7F897F4EBEB0] [SI_KERNEL(general_protection)] []
+ORA-00353: log corruption near block 81922 change 16997707017783 time 02/25/2023 10:42:32
+ORA-00334: archived log: '+REDO/YXHIS/ONLINELOG/group_2.257.1051731607'
+Exception [type: SIGSEGV, SI_KERNEL(general_protection)] [ADDR:0x0] [PC:0x7F897F4EBEB0, {empty}] [flags: 0xA, count: 4]
+Use ADRCI or Support Workbench to package the incident.
+See Note 411.1 at My Oracle Support for error and packaging details.
+Exception [type: SIGSEGV, SI_KERNEL(general_protection)] [ADDR:0x0] [PC:0x7F897F4EBEB0, {empty}] [flags: 0x8, count: 4]
+2023-02-25T10:44:02.269706+08:00
+Errors in file /u01/app/oracle/diag/rdbms/yxhis/yxhis1/trace/yxhis1_ora_91252.trc:
+ORA-07445: exception encountered: core dump [PC:0x7F897F4EBEB0] [SIGSEGV] [ADDR:0x0] [PC:0x7F897F4EBEB0] [SI_KERNEL(general_protection)] []
+ORA-07445: exception encountered: core dump [PC:0x7F897F4EBEB0] [SIGSEGV] [ADDR:0x0] [PC:0x7F897F4EBEB0] [SI_KERNEL(general_protection)] []
+ORA-07445: exception encountered: core dump [PC:0x7F897F4EBEB0] [SIGSEGV] [ADDR:0x0] [PC:0x7F897F4EBEB0] [SI_KERNEL(general_protection)] []
+ORA-00353: log corruption near block 81922 change 16997707017783 time 02/25/2023 10:42:32
+ORA-00334: archived log: '+REDO/YXHIS/ONLINELOG/group_2.257.1051731607'
+Use ADRCI or Support Workbench to package the incident.
+See Note 411.1 at My Oracle Support for error and packaging details.
+Exception [type: SIGSEGV, SI_KERNEL(general_protection)] [ADDR:0x0] [PC:0x7F897F4EBEB0, {empty}] [flags: 0x8, count: 5]
+2023-02-25T10:44:02.277635+08:00
+Errors in file /u01/app/oracle/diag/rdbms/yxhis/yxhis1/trace/yxhis1_ora_91252.trc:
+ORA-07445: exception encountered: core dump [PC:0x7F897F4EBEB0] [SIGSEGV] [ADDR:0x0] [PC:0x7F897F4EBEB0] [SI_KERNEL(general_protection)] []
+ORA-07445: exception encountered: core dump [PC:0x7F897F4EBEB0] [SIGSEGV] [ADDR:0x0] [PC:0x7F897F4EBEB0] [SI_KERNEL(general_protection)] []
+ORA-07445: exception encountered: core dump [PC:0x7F897F4EBEB0] [SIGSEGV] [ADDR:0x0] [PC:0x7F897F4EBEB0] [SI_KERNEL(general_protection)] []
+ORA-07445: exception encountered: core dump [PC:0x7F897F4EBEB0] [SIGSEGV] [ADDR:0x0] [PC:0x7F897F4EBEB0] [SI_KERNEL(general_protection)] []
+ORA-00353: log corruption near block 81922 change 16997707017783 time 02/25/2023 10:42:32
+ORA-00334: archived log: '+REDO/YXHIS/ONLINELOG/group_2.257.1051731607'
+Use ADRCI or Support Workbench to package the incident.
+See Note 411.1 at My Oracle Support for error and packaging details.
+Errors in file /u01/app/oracle/diag/rdbms/yxhis/yxhis1/trace/yxhis1_h003_101193.trc  (incident=2568830):
+ORA-00600: internal error code, arguments: [kghstack_free1], [ksl:wait_stack_snapshot], [], [], [], [], [], [], [], [], [], []
+Incident details in: /u01/app/oracle/diag/rdbms/yxhis/yxhis1/incident/incdir_2568830/yxhis1_h003_101193_i2568830.trc
+Use ADRCI or Support Workbench to package the incident.
+See Note 411.1 at My Oracle Support for error and packaging details.
+2023-02-25T10:44:02.863537+08:00
+Exception [type: SIGILL, Illegal operand] [ADDR:0xE59F005] [PC:0xE59F005, kcrf_read_mirrors()+117] [flags: 0x0, count: 1]
+Errors in file /u01/app/oracle/diag/rdbms/yxhis/yxhis1/trace/yxhis1_ora_98698.trc  (incident=2567478):
+ORA-07445: exception encountered: core dump [kcrf_read_mirrors()+117] [SIGILL] [ADDR:0xE59F005] [PC:0xE59F005] [Illegal operand] []
+Incident details in: /u01/app/oracle/diag/rdbms/yxhis/yxhis1/incident/incdir_2567478/yxhis1_ora_98698_i2567478.trc
+
+
+
+
+Errors in file /u01/app/oracle/diag/rdbms/yxhis/yxhis1/trace/yxhis1_j001_51994.trc  (incident=2567350):
+ORA-00600: internal error code, arguments: [17114], [0x7FD5832E7FF8], [], [], [], [], [], [], [], [], [], []
+ORA-01403: no data found
+Incident details in: /u01/app/oracle/diag/rdbms/yxhis/yxhis1/incident/incdir_2567350/yxhis1_j001_51994_i2567350.trc
+Use ADRCI or Support Workbench to package the incident.
+See Note 411.1 at My Oracle Support for error and packaging details.
+2023-02-25T10:44:12.783104+08:00
+PMON (ospid: ): terminating the instance due to ORA error
+2023-02-25T10:44:12.783676+08:00
+Cause - 'Instance is being terminated due to fatal process death (pid: 4, ospid: 10811, PSP0)'
+2023-02-25T10:44:13.393074+08:00
+Exception [type: SIGSEGV, Address not mapped to object] [ADDR:0x1F98] [PC:0xE5825A0, kcradiag()] [flags: 0x0, count: 1]
+Errors in file /u01/app/oracle/diag/rdbms/yxhis/yxhis1/trace/yxhis1_ora_98954.trc  (incident=2567607):
+ORA-07445: exception encountered: core dump [kcradiag()] [SIGSEGV] [ADDR:0x1F98] [PC:0xE5825A0] [Address not mapped to object] []
+ORA-00600: internal error code, arguments: [kghfrh:ds], [0x7FE774588FD8], [], [], [], [], [], [], [], [], [], []
+Use ADRCI or Support Workbench to package the incident.
+See Note 411.1 at My Oracle Support for error and packaging details.
+Some DDE async actions failed or were cancelled
+Errors in file /u01/app/oracle/diag/rdbms/yxhis/yxhis1/trace/yxhis1_ora_98954.trc  (incident=2567608):
+ORA-00600: internal error code, arguments: [kghfrh:ds], [0x7FE774588FD8], [], [], [], [], [], [], [], [], [], []
+ORA-00600: internal error code, arguments: [kghfrh:ds], [0x7FE774588FD8], [], [], [], [], [], [], [], [], [], []
+Incident details in: /u01/app/oracle/diag/rdbms/yxhis/yxhis1/incident/incdir_2567608/yxhis1_ora_98954_i2567608.trc
+Use ADRCI or Support Workbench to package the incident.
+See Note 411.1 at My Oracle Support for error and packaging details.
+2023-02-25T10:44:13.862997+08:00
+ORA-1092 : opitsk aborting process
+2023-02-25T10:44:13.875147+08:00
+Exception [type: SIGSEGV, Address not mapped to object] [ADDR:0x0] [PC:0xE5825A0, kcradiag()] [flags: 0x0, count: 2]
+Errors in file /u01/app/oracle/diag/rdbms/yxhis/yxhis1/trace/yxhis1_h005_101202.trc  (incident=2568847):
+ORA-07445: exception encountered: core dump [kcradiag()] [SIGSEGV] [ADDR:0x0] [PC:0xE5825A0] [Address not mapped to object] []
+ORA-07445: exception encountered: core dump [kcrf_read_mirrors()+133] [SIGSEGV] [ADDR:0x9A0] [PC:0xE59F015] [Address not mapped to object] []
+Use ADRCI or Support Workbench to package the incident.
+See Note 411.1 at My Oracle Support for error and packaging details.
+2023-02-25T10:44:13.928818+08:00
+Errors in file /u01/app/oracle/diag/rdbms/yxhis/yxhis1/incident/incdir_2568846/yxhis1_h005_101202_i2568846.trc:
+ORA-00602: internal programming exception: [PC:0x00E5825A0] [ADDR:0x000000000]
+ORA-07445: exception encountered: core dump [kcradiag()] [SIGSEGV] [ADDR:0x0] [PC:0xE5825A0] [Address not mapped to object] []
+ORA-07445: exception encountered: core dump [kcrf_read_mirrors()+133] [SIGSEGV] [ADDR:0x9A0] [PC:0xE59F015] [Address not mapped to object] []
+2023-02-25T10:44:18.542149+08:00
+opiodr aborting process unknown ospid (98954) as a result of ORA-600
+2023-02-25T10:44:18.568630+08:00
+Errors in file /u01/app/oracle/diag/rdbms/yxhis/yxhis1/trace/yxhis1_ora_98954.trc  (incident=2643851):
+ORA-00600: internal error code, arguments: [kghfrh:ds], [0x7FE774588FB0], [], [], [], [], [], [], [], [], [], []
+ORA-15186: ASMLIB error function = [Unload PGAlib],  error = [18446744073709551608],  mesg = [Instance is fenced]
+Incident details in: /u01/app/oracle/diag/rdbms/yxhis/yxhis1/incident/incdir_2643851/yxhis1_ora_98954_i2643851.trc
+Use ADRCI or Support Workbench to package the incident.
+See Note 411.1 at My Oracle Support for error and packaging details.
+
+Use ADRCI or Support Workbench to package the incident.
+See Note 411.1 at My Oracle Support for error and packaging details.
+2023-02-25T10:44:30.845137+08:00
+System state dump requested by (instance=1, osid=10807 (PMON)), summary=[abnormal instance termination].
+System State dumped to trace file /u01/app/oracle/diag/rdbms/yxhis/yxhis1/trace/yxhis1_diag_10830.trc
+2023-02-25T10:54:10.410337+08:00
+Starting ORACLE instance (normal) (OS id: 10494)
+2023-02-25T10:54:10.675700+08:00
+****************************************************
+ Sys-V shared memory will be used for creating SGA
+ ****************************************************
+2023-02-25T10:54:10.677208+08:00
+**********************************************************************
+2023-02-25T10:54:10.677262+08:00
+Dump of system resources acquired for SHARED GLOBAL AREA (SGA)
+
+2023-02-25T10:54:10.677351+08:00
+ Per process system memlock (soft) limit = UNLIMITED
+2023-02-25T10:54:10.677402+08:00
+ Expected per process system memlock (soft) limit to lock
+ instance MAX SHARED GLOBAL AREA (SGA) into memory: 152G
+2023-02-25T10:54:10.677542+08:00
+ Available system pagesizes:
+  4K, 2048K
+2023-02-25T10:54:10.677639+08:00
+ Supported system pagesize(s):
+2023-02-25T10:54:10.677690+08:00
+  PAGESIZE  AVAILABLE_PAGES  EXPECTED_PAGES  ALLOCATED_PAGES  ERROR(s)
+2023-02-25T10:54:10.677800+08:00
+     2048K           105370           77570           77570        NONE
+2023-02-25T10:54:10.677850+08:00
+ Reason for not supporting certain system pagesizes:
+2023-02-25T10:54:10.677899+08:00
+  4K - Large pagesizes only
+2023-02-25T10:54:10.677961+08:00
+
+
+
+2023-02-25T10:54:26.832041+08:00
+NOTE: dependency between database yxhis and diskgroup resource ora.DATA.dg is established
+2023-02-25T10:54:28.726242+08:00
+Errors in file /u01/app/oracle/diag/rdbms/yxhis/yxhis1/trace/yxhis1_ckpt_11038.trc  (incident=2644683):
+ORA-00227: corrupt block detected in control file: (block 1, # blocks 1)
+ORA-00202: control file: '+DATA/YXHIS/CONTROLFILE/current.263.1048857383'
+Incident details in: /u01/app/oracle/diag/rdbms/yxhis/yxhis1/incident/incdir_2644683/yxhis1_ckpt_11038_i2644683.trc
+2023-02-25T10:54:29.660630+08:00
+ORA-00227: corrupt block detected in control file: (block 1, # blocks 1)
+ORA-00202: control file: '+DATA/YXHIS/CONTROLFILE/current.263.1048857383'
+2023-02-25T10:54:29.696270+08:00
+Errors in file /u01/app/oracle/diag/rdbms/yxhis/yxhis1/trace/yxhis1_ora_11119.trc  (incident=2645115):
+ORA-00227: corrupt block detected in control file: (block 0, # blocks )
+Incident details in: /u01/app/oracle/diag/rdbms/yxhis/yxhis1/incident/incdir_2645115/yxhis1_ora_11119_i2645115.trc
+2023-02-25T10:54:30.662107+08:00
+Increasing priority of 21 RS
+
+
+**********************************************************************
+2023-02-25T11:10:19.548523+08:00
+Dump of system resources acquired for SHARED GLOBAL AREA (SGA)
+
+2023-02-25T11:10:19.548613+08:00
+ Per process system memlock (soft) limit = UNLIMITED
+2023-02-25T11:10:19.548662+08:00
+ Expected per process system memlock (soft) limit to lock
+ instance MAX SHARED GLOBAL AREA (SGA) into memory: 152G
+2023-02-25T11:10:19.548778+08:00
+ Available system pagesizes:
+  4K, 2048K
+2023-02-25T11:10:19.548875+08:00
+ Supported system pagesize(s):
+2023-02-25T11:10:19.548926+08:00
+  PAGESIZE  AVAILABLE_PAGES  EXPECTED_PAGES  ALLOCATED_PAGES  ERROR(s)
+2023-02-25T11:10:19.549031+08:00
+     2048K           105370           77570           77570        NONE
+2023-02-25T11:10:19.549084+08:00
+ Reason for not supporting certain system pagesizes:
+2023-02-25T11:10:19.549133+08:00
+  4K - Large pagesizes only
+2023-02-25T11:10:19.549184+08:00
+**********************************************************************
+

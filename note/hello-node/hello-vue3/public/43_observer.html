@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src='vue.js'></script>
+    <style>
+      .ani-enter-from {
+        width:0px;
+        height:0px;
+        background-color: red;
+      }
+      .ani-enter-active {
+        transition:width 3s,height 3s,background-color 3s;
+      }
+      .ani-enter-to {
+        width:100px;
+        height:100px;
+        background-color: blue;
+      }
+      .demo1 {
+        width: 100px;
+        height:100px;
+        background-color: blue;
+      }
+      .ani-leave-from {
+        width:100px;
+        height:100px;
+        background-color: blue;
+      }
+      .ani-leave-active {
+        transition: width 3s,height 3s,background-color 3s;
+      }
+      .ani-leave-to {
+        width:50px;
+        height:50px;
+        background-color: red;
+      }
+      .demo2 {
+        width: 50px;
+        height:50px;
+        background-color:  red;
+      }
+
+    </style>
+</head>
+<body>
+    <div id="Application">
+      <button @click="click">显示/隐藏</button>
+        <transition  name="ani" :css="false"
+        @before-enter="beforeEnter"
+        @enter="enter"
+        @after-enter="afterEnter"
+        @enter-cancelled="enterCancelled"
+        @before-leave="beforeLeave"
+        @leave="leave"
+        @after-leave="afterLeave"
+        @leave-cancelled="leaveCancelled">
+          <div  v-show="show"  class="demo"></div>
+        </transition>
+    </div>
+    <script>
+      const App = Vue.createApp({
+        data() {
+          return {
+            show:false
+          }
+        },
+        methods:{
+          click(){
+            this.show = !this.show
+          },
+          //组件插入过渡前
+          beforeEnter(el) {
+            alert('beforeEnter')
+          },
+          //组件插入过渡开始
+          enter(el, done) {
+            alert('enter')
+        },
+        //组件插入过渡后
+        afterEnter(el) {
+          alert('afterEnter')
+        },
+        //组件插入过渡取消
+        enterCancelled(el) {
+          alert('enterCancelled')
+        },
+        //组件移除过渡前
+        beforeLeave(el) {
+          alert('beforeLeave')
+        },
+        //组件移除过渡开始
+        leave(el, done) {
+          alert('leave')
+        },
+        //组件移除过渡后
+        afterLeave(el) {
+          alert('afterLeave')
+        },
+        //组件移除过渡取消
+        leaveCancelled(el) {
+          alert('leaveCancelled')
+        }
+      }
+      })
+      App.mount("#Application")
+    </script>
+</body>
+</html>

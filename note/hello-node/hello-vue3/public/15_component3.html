@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="vue.js"></script>
+</head>
+<body>
+  <div id="Application">
+    <!-- 外部输入元素绑定到组件的modelValue属性上 -->
+    <my-input v-model="inputText"></my-input>
+    <div>{{ inputText }}</div>
+    <button @click="inputText=''">clear</button>
+  </div>
+  <script>
+    const App = Vue.createApp ({
+      data() {
+        return {
+          inputText: ''
+        }
+      }
+    })
+    //组件的定义，如果组件中使用v-model，则以下组件中的写发，就是一个固定的写法，用来传递 v-model的值
+    const inputComponent = {
+      props:['modelValue'],//接收inputText的值,modelValue是固定的写法
+      methods:{//当用户在输入框中输入内容时，该 action 方法会被触发，传入的 event 对象提供了事件相关的一些属性和方法。
+        //target: event.target, 这里的 target 就是 <input> 元素。
+        action(event){
+          this.$emit('update:modelValue', event.target.value)
+          console.log(event)
+        }
+      },
+      template:'<div><span>输入框：</span><input :value="modelValue" @input="action"></div>'
+    }
+  App.component('my-input', inputComponent)
+  App.mount('#Application')
+  </script>
+</body>
+</html>

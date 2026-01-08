@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="vue.js"></script>
+</head>
+<body>
+  <div id="Application">
+    <sub-com >{{content}} </sub-com>
+    <button @click="changeShow">改变显示</button>
+  </div>
+  <script>
+    const app = Vue.createApp({
+      data() {
+        return {
+         content: 0
+        }
+      },
+      methods:{
+        changeShow() {
+          this.content+=1
+        }
+      }
+    })
+    const sub = {
+      beforeUpdate() {
+        alert('组件更新前')
+      },
+      updated() {
+        alert('组件更新完成')
+      },
+      renderTracked(event) {
+        alert('虚拟DOM重新渲染时调用')
+      },
+      renderTriggered(event) {
+        alert('虚拟DOM被触发渲染时调用')
+      },
+      template:`<div>
+        <slot></slot>
+        </div>`
+    }
+    app.component('sub-com', sub)
+    app.mount('#Application')
+  </script>
+</body>
+</html>

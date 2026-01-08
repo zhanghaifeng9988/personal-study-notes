@@ -1,0 +1,25 @@
+
+--修改环境变量
+D:\ProgramData\anaconda3
+D:\ProgramData\anaconda3\Scripts
+D:\ProgramData\anaconda3\Library\mingw-w64\bin
+D:\ProgramData\anaconda3\Library\bin
+
+--相关命令
+conda --version
+conda info
+
+
+--创建虚拟环境
+
+conda create --name myenv python=3.11.5
+--name myenv指定了虚拟环境的名称为"myenv"，python=3.11.5指定了创建的虚拟环境使用Python 3.11.5版本。
+
+--显示env信息
+conda env list
+
+--激活虚拟环境
+source activate myenv
+
+--退出环境
+conda deactivate

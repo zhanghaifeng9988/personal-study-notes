@@ -1,0 +1,310 @@
+                                             
+											 
+											 主库配置：
+--配置  my.cnf											 
+
+# 设置3306端口
+port=3306
+
+# 设置mysql的安装目录
+basedir=/usr/local/mysql
+
+# 设置mysql数据库的数据的存放目录
+datadir=/usr/local/mysql/mysqldb
+
+# 允许最大连接数
+max_connections=10000
+
+# 允许连接失败的次数。这是为了防止有人从该主机试图攻击数据库系统
+max_connect_errors=10
+
+# 服务端使用的字符集默认为UTF8
+character-set-server=utf8
+
+# 创建新表时将使用的默认存储引擎
+default-storage-engine=INNODB
+
+# 默认使用“mysql_native_password”插件认证
+default_authentication_plugin=mysql_native_password
+
+#  错误日志路径
+log_error = error.log
+
+# 定义进程名称
+pid-file=/usr/local/mysql/mysql.pid
+
+# Disable other storage engines
+disabled_storage_engines="MyISAM,BLACKHOLE,FEDERATED,ARCHIVE,MEMORY"
+
+#数据库唯一ID，主从的标识号绝对不能重复。
+server_id=1
+
+#开启bin-log，并指定文件目录和文件名前缀
+log-bin=mysql-bin
+
+#需要同步的数据库，不写则表示同步所有数据库
+ #binlog-do-db=数据库名
+
+#不需要同步mysql系统数据库。如果是多个不同步库，就以此格式另写几行；也可以在一行，中间逗号隔开。
+ #binlog-ignore-db=数据库名
+
+#确保binlog日志写入后与硬盘同步
+sync_binlog = 1
+
+#跳过现有的采用checksum的事件
+binlog_checksum = none  #低于 5.6版本
+binlog_checksum=crc32
+
+#bin-log日志文件格式，设置为MIXED可以防止主键重复。
+binlog_format = mixed
+
+[mysql]
+# 设置mysql客户端默认字符集
+default-character-set=utf8
+[client]
+# 设置mysql客户端连接服务端时默认使用的端口
+port=3306
+default-character-set=utf8
+
+
+
+--创建复制用户，并且赋权
+mysql> create user 'repl'@'%' IDENTIFIED BY 'mysql';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> flush privileges;
+Query OK, 0 rows affected (0.00 sec)
+
+
+mysql> GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%';
+mysql> GRANT REPLICATION client ON *.* TO 'repl'@'%';
+mysql> GRANT all privileges ON *.* TO 'repl'@'%';
+
+--查看权限
+show grants for repl;
+
+--显示二进制文件及名称
+SHOW MASTER STATUS;
+
++------------------+----------+--------------+------------------+-------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
++------------------+----------+--------------+------------------+-------------------+
+| mysql-bin.000005 |     1438 |              |                  |                   |
++------------------+----------+--------------+------------------+-------------------+
+1 row in set (0.00 sec)
+
+
+
+
+                                 从库配置
+-- 配置my.cnf  与节点一不同的地方
+
+#数据库唯一ID，主从的标识号绝对不能重复。
+server_id=2
+
+#跳过所有的错误，继续执行复制操作
+slave-skip-errors = all
+
+
+--重启从库的节点
+
+./mysql.server restart
+Shutting down MySQL.. SUCCESS!
+Starting MySQL.. SUCCESS!
+
+--在从库登录主库
+[root@test_rhl7 support-files]# mysql -h 192.168.3.55 -u repl -p mysql
+报错如下：
+ERROR 1044 (42000): Access denied for user 'repl'@'%' to database 'mysql'
+
+解决：
+  重启主库节点无效
+[root@oggtarget support-files]# ./mysql.server restart
+Shutting down MySQL.. SUCCESS!
+Starting MySQL.. SUCCESS!
+  
+  增加一条客户端授权无效
+GRANT REPLICATION client ON *.* TO 'repl'@'%';
+  
+在root用户下，在主库执行以下语句：问题解决
+   GRANT all privileges ON *.* TO 'repl'@'%';
+   
+记得：flush privileges;
+
+
+--从库节点上root用户登录，配置master的信息，并开启复制：
+
+mysql>  CHANGE MASTER TO
+    -> MASTER_HOST='192.168.3.55',
+    -> MASTER_USER='repl',
+    -> MASTER_PASSWORD='mysql',
+    -> MASTER_LOG_FILE='mysql-bin.000006',
+    -> MASTER_LOG_POS=156,
+    -> GET_MASTER_PUBLIC_KEY=1;
+
+--附：mysql删除主从的方法：
+1、利用“stop slave;”语句停止slave服务器的主从同步；
+2、利用“RESET MASTER;”语句重置master服务；
+3、利用“reset slave;”语句重置slave服务；
+4、重启数据库即可。
+
+mysql> START SLAVE;
+mysql> SHOW SLAVE STATUS\G	//查看salve状态  
+
+
+报错：
+ Slave_IO_Running: No
+            Slave_SQL_Running: Yes
+              Replicate_Do_DB:
+          Replicate_Ignore_DB:
+           Replicate_Do_Table:
+       Replicate_Ignore_Table:
+      Replicate_Wild_Do_Table:
+  Replicate_Wild_Ignore_Table:
+                   Last_Errno: 0
+                   Last_Error:
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 156
+              Relay_Log_Space: 156
+              Until_Condition: None
+               Until_Log_File:
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File:
+           Master_SSL_CA_Path:
+              Master_SSL_Cert:
+            Master_SSL_Cipher:
+               Master_SSL_Key:
+        Seconds_Behind_Master: NULL
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 13117
+                Last_IO_Error: Fatal error: The slave I/O thread stops because master and 
+slave have equal MySQL server UUIDs; these UUIDs must be different for replication to work.
+
+
+问题原因：
+
+replication 架构中需要保证每个 mysql 实例 UUID(UUID 保存在 datadir 
+目录下的 auto.cnf 文件中 ) 唯一，就跟 server_id 一样需要保证主从架构中所有 
+mysql 实例 server_id 唯一。之所以出现会出现这样的问题，
+是因为我的从库主机是克隆的主库所在的主机，所以 auto.cnf 文件中保存的 UUID 会出现重复
+ (server_id 已经在 my.cnf 文件中修改过 )
+
+从库节点
+[root@test_rhl7 mysqldb]# cat auto.cnf
+[auto]
+server-uuid=acd0d89e-6bf8-11ed-8c74-080027735a3e
+[root@test_rhl7 mysqldb]# pwd
+/usr/local/mysql/mysqldb
+
+主库节点
+[root@oggtarget support-files]# cd ../mysqldb/
+[root@oggtarget mysqldb]# cat auto.cnf
+[auto]
+server-uuid=acd0d89e-6bf8-11ed-8c74-080027735a3e
+[root@oggtarget mysqldb]# pwd
+/usr/local/mysql/mysqldb
+
+关于该问题的解决方案其实很简单，停掉备库实例，删除备库 data 文件夹下的的 auto.cnf （ Windows 下文件名为 auto ） 
+文件，启动备库实例，此时备库就会产生一个新的 auto.cnf 文件 ( 产生新的 UUID) 
+
+
+再次查看从库节点状态： 一切正常
+mysql> SHOW SLAVE STATUS\G
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for master to send event
+                  Master_Host: 192.168.3.55
+                  Master_User: repl
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: mysql-bin.000006
+          Read_Master_Log_Pos: 156
+               Relay_Log_File: test_rhl7-relay-bin.000003
+                Relay_Log_Pos: 324
+        Relay_Master_Log_File: mysql-bin.000006
+             Slave_IO_Running: Yes
+            Slave_SQL_Running: Yes
+              Replicate_Do_DB:
+          Replicate_Ignore_DB:
+           Replicate_Do_Table:
+       Replicate_Ignore_Table:
+      Replicate_Wild_Do_Table:
+  Replicate_Wild_Ignore_Table:
+                   Last_Errno: 0
+                   Last_Error:
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 156
+              Relay_Log_Space: 537
+              Until_Condition: None
+               Until_Log_File:
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File:
+           Master_SSL_CA_Path:
+              Master_SSL_Cert:
+            Master_SSL_Cipher:
+               Master_SSL_Key:
+        Seconds_Behind_Master: 0
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error:
+               Last_SQL_Errno: 0
+               Last_SQL_Error:
+  Replicate_Ignore_Server_Ids:
+             Master_Server_Id: 1
+                  Master_UUID: acd0d89e-6bf8-11ed-8c74-080027735a3e
+             Master_Info_File: mysql.slave_master_info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State: Slave has read all relay log; waiting for more updates
+           Master_Retry_Count: 86400
+                  Master_Bind:
+      Last_IO_Error_Timestamp:
+     Last_SQL_Error_Timestamp:
+               Master_SSL_Crl:
+           Master_SSL_Crlpath:
+           Retrieved_Gtid_Set:
+            Executed_Gtid_Set:
+                Auto_Position: 0
+         Replicate_Rewrite_DB:
+                 Channel_Name:
+           Master_TLS_Version:
+       Master_public_key_path:
+        Get_master_public_key: 1
+            Network_Namespace:
+1 row in set (0.00 sec)
+
+
+--主库状态查询
+show  master status\G
+
+--备库状态查询
+show  slave  status\G
+
+                                  主从的重启步骤：
+								  
+								  
+停应用 ->停数据库（先备后主）-> 启数据库（先主后备）-> 启应用
+
+关闭MySQL从库，在从库操作
+a.先查看当前的主从同步状态 show slave status\G; 看是否双yes
+b.执行             stop slave;
+c.停止从库服务    service mysqld stop
+d.查看是否还有mysql的进程    ps -ef | grep mysql
+d.如果部署了多个实例，那每个实例都要按照以上步骤来操作
+
+关闭MySQL主库，在主库操作
+a.停止主库服务  service mysqld stop
+b.查看是否还有mysql的进程   ps -ef | grep mysql
+
+启动MySQL主库，在主库操作
+a.启动主库服务   service mysqld start
+b.查看mysql的进程   ps -ef | grep mysql
+
+启动MySQL从库，在从库操作
+a.启动从库服务   service mysqld start
+b.启动复制       start slave;
+c.检查同步状态 show slave status\G; 是否双yes
+d.查看mysql的进程ps -ef | grep mysql
+
+

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src='vue.js'></script>
+    <style>
+        .demo {
+            width: 100px;
+            height:100px;
+            background-color: red;
+        }
+        .demo2 {
+            width: 100px;
+            height:100px;
+            background-color: blue;
+        }
+        /* 动画插入的起始状态 */
+      .ani-enter-from {
+        width:0px;
+        height:0px;
+        background-color: black;
+      }
+      /* 动画插入的过渡状态 */
+      .ani-enter-active {
+        transition:width 6s,height 6s,background-color 6s;
+      }
+      /* 动画插入的结束状态 */
+      .ani-enter-to {
+        width:100px;
+        height:100px;
+        background-color: green;
+      }
+      /* 动画移除的起始状态 */
+      .ani-leave-from {
+        width:100px;
+        height:100px;
+        background-color: blue;
+      }
+      /* 动画移除的过渡状态 */
+      .ani-leave-active {
+        transition: width 10s,height 10s,background-color 10s;
+      }
+      /* 动画移除的结束状态 */
+      .ani-leave-to {
+        width:50px;
+        height:50px;
+        background-color: red;
+      }
+    </style>
+</head>
+<body>
+    <div id="Application">
+      <button @click="click">显示红色动画/显示蓝色动画</button>
+        <transition  name="ani">
+          <div  v-if="show"  class="demo"></div>
+          <div  v-else  class="demo2"></div>
+        </transition>
+    </div>
+    <script>
+      const App = Vue.createApp({
+        data() {
+          return {
+            show:false
+          }
+        },
+        methods:{
+          click(){
+            this.show = !this.show
+          },
+        }
+      })
+      App.mount("#Application")
+    </script>
+</body>
+</html>

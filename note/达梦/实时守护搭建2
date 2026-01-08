@@ -1,0 +1,211 @@
+
+主备搭建 
+  主机               备机               监视器
+192.168.3.111    192.168.3.112     192.168.3.113
+DM01                 DM01
+DMSVR01            DMSVR02
+
+操作顺序
+1、备机操作：先安装数据库软件，不初始化数据库
+2、备机操作：创建数据同步需要的相关目录
+mkdir -p /dm8/data/DM01
+mkdir -p /dm8/data/DM01/bak
+mkdir -p /dm8/data/DM01/ctl_bak
+修改环境变量
+3、初始化数据库
+3.1 主库操作
+修改ARCH_INI = 1
+    cat dm.ini|grep ARCH
+                           vi      dmarch.ini
+[ARCHIVE_LOCAL1]
+        ARCH_TYPE            = LOCAL
+        ARCH_DEST            = /dm8/arch
+        ARCH_FILE_SIZE       = 128
+        ARCH_SPACE_LIMIT     = 0
+停掉主库
+      DmServiceDMSVR01 stop
+备份
+      做一个停库状态的备份，并将文件传给备机
+      用CONSOLE图形界面做
+         新建备份-》备份名称：full_db ->备份集目录：/dm8/bakcup/full_db  
+      scp -r full_db/  192.168.3.112:/dm8/bak
+
+3.2备库操作
+   打开console图形界面
+ 还原操作：
+    配置目录：/dm8/bak  -》 获取备份 --》还原 -》选择：库还原-》选择备份集目录-》选择“库目录”-》选择“库路径”
+ 恢复操作：
+    恢复-》选择INI文件路径 -》选择备份集目录--》
+ 更新magic操作：选择INI文件路径
+    
+3.3主库操作
+  
+                                                             vi  dm.ini
+
+INSTANCE_NAME = DMSVR01
+PORT_NUM          = 5236 
+DW_INACTIVE_INTERVAL = 60
+ALTER_MODE_STATUS     = 0      此处需要修改
+ENABLE_OFFLINE_TS        = 2      此处需要修改
+MAL_INI                            = 1      此处需要修改
+ARCH_INI                          = 1 
+RLOG_SEND_APPLY_MON= 64   
+
+                                                      vi  dmmal.ini（有模板）
+
+MAL_CHECK_INTERVAL                      =       5
+MAL_CONN_FAIL_INTERVAL          =       5
+[MAL_INST1]
+MAL_INST_NAME           =       DMSVR01
+MAL_HOST                =       192.168.3.111
+MAL_PORT                =       5237
+MAL_INST_HOST          =       192.168.3.111
+MAL_INST_PORT          =       5236
+MAL_DW_PORT           =       5238
+MAL_INST_DW_PORT = 5239
+[MAL_INST2]
+MAL_INST_NAME           =       DMSVR02
+MAL_HOST                 =       192.168.6.112
+MAL_PORT               =       5237
+MAL_INST_HOST          =       192.168.6.112
+MAL_INST_PORT          =       5236
+MAL_DW_PORT           =       5238
+MAL_INST_DW_PORT = 5239
+
+                                                         vi dmarch.ini
+追加：
+[ARCHIVE_REALTIME]
+        ARCH_TYPE=REALTIME
+        ARCH_DEST=DMSVR02
+
+
+                                                      vi  dmwatcher.ini （有模板）
+修改参数如下：
+[GRP1]
+DW_TYPE = GLOBAL
+DW_MODE = AUTO
+DW_ERROR_TIME = 10
+INST_ERROR_TIME = 10
+INST_OGUID = 453331
+INST_INI = /dm8/data/DM01/dm.ini
+INST_AUTO_RESTART = 1
+INST_STARTUP_CMD=/dm8/bin/dmserver
+INST_RECOVER_TIME = 60
+RLOG_SEND_THRESHOLD=0
+RLOG_APPLY_THRESHOLD=0
+
+
+
+                                                     修改OGUID并改为主库模式
+
+ DmServiceDMSVR01 start mount
+disql sysdba/DM01SYSDBA:5236
+sp_set_para_value(1,'ALTER_MODE_STATUS',1);
+
+select sf_get_para_value (2,'ALTER_MODE_STATUS');
+
+sp_set_oguid(453331);
+alter database primary;
+sp_set_para_value(1,'ALTER_MODE_STATUS',0);
+
+
+4、备库操作
+                                                            vi  dm.ini
+INSTANCE_NAME = DMSVR02
+PORT_NUM =5236 #数据库实例监听端口
+DW_INACTIVE_INTERVAL = 60 #接收守护进程消息超时时间
+ALTER_MODE_STATUS = 0 #不允许手工方式修改实例模式/状态/OGUID
+ENABLE_OFFLINE_TS = 2 #不允许备库 OFFLINE 表空间
+MAL_INI = 1 #打开 MAL 系统
+ARCH_INI = 1 #打开归档配置
+RLOG_SEND_APPLY_MON = 64 #统计最近 64 次的日志发送信息
+
+                                                            dmmal
+拷贝主库的dmmal.ini
+[dmdba@localhost DM01]$scp 192.168.3.111:/dm8/data/DM01/dmmal.ini .
+
+
+                                                            dmarch.ini
+拷贝主库的dmarch.ini
+[ARCHIVE_LOCAL1]
+        ARCH_TYPE            = LOCAL
+        ARCH_DEST            = /dm8/arch
+        ARCH_FILE_SIZE       = 128
+        ARCH_SPACE_LIMIT     = 0
+       ## ARCH_FLUSH_BUF_SIZE  = 0
+       ## ARCH_HANG_FLAG       = 1
+[ARCHIVE_REALTIME]
+        ARCH_TYPE=REALTIME
+        ARCH_DEST=DMSVR01
+
+
+
+                                                        dmwatcher.ini
+拷贝主库的dmwatcher.ini
+
+
+                                                          修改OGUID并改为备库模式
+
+a、 启动到mount状态
+dmserver /dm8/data/DM01/dm.ini mount
+b、注册备库的实例  --root用户执行
+cd /dm8/script/root/
+./dm_service_installer.sh -t dmserver -p  DMSVR02 -dm_ini /dm8/data/DM01/dm.ini
+c、执行存储u过程
+disql  sysdba/DM01SYSDBA:5236
+sp_set_para_value(1,'ALTER_MODE_STATUS',1);
+SELECT SF_GET_PARA_VALUE (2,'ALTER_MODE_STATUS');
+sp_set_oguid(453331);
+d、alter database standby;
+sp_set_para_value(1,'ALTER_MODE_STATUS',0);
+
+
+5、监视主机上配置监视器  --监视器上执行
+
+cd /dm8/data
+                                                         vi dmmonitor.ini  (有模板）
+MON_DW_CONFIRM = 1 
+MON_LOG_PATH = /dm8/data/log
+MON_LOG_INTERVAL  =60
+MON_LOG_FILE_SIZE =32
+MON_LOG_SPACE_LIMIT =0
+[GRP1]
+MON_INST_OGUID =453331
+MON_DW_IP= 192.168.3.111:5238
+MON_DW_IP= 192.168.3.112:5238
+
+6、主库、备库watcher配置操作
+6.1 启动主库watcher --主库操作
+ a、启动主库watcher
+dmwatcher /dm8/data/DM01/dmwatcher.ini
+
+ b、将watcher 服务加入到操作系统服务列表
+root用户执行：
+/dm8/script/root/dm_service_installer.sh -t dmwatcher -p DMSVR01 -watcher_ini /dm8/data/DM01/dmwatcher.ini
+
+
+6.2启动备库watcher --备库操作
+a、启动备库watcher
+ dmwatcher /dm8/data/DM01/dmwatcher.ini
+ b、将watcher 服务加入到操作系统服务列表
+root用户执行：
+/dm8/script/root/dm_service_installer.sh -t dmwatcher -p DMSVR02 -watcher_ini /dm8/data/DM01/dmwatcher.ini
+
+
+7、启动监视主机上的监视器  -监视器上执行
+su - dmdba
+dmmonitor /dm8/data/dmmonitor.ini 
+show global info
+
+6、停库 ,在监视器中执行
+show global info
+stop group GRP1
+stop dmwatcher GRP1
+7、起库，在监视器中执行
+startup dmwatcher GRP1
+show global info
+8、查看主库备库的角色状态
+select name,STATUS$,role$ from v$database;
+9、主备切换，在监视器中执行
+switchover GRP1.DMSVR02
+switchover GRP1.DMSVR01

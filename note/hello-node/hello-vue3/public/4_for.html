@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="vue.js"></script>
+</head>
+<body>
+
+  <div id="Application">
+    <!-- 使用循环指令来渲染标签 -->
+    <div v-for="(item, index) in handle(items)">
+      {{index}}:{{item}}
+    </div>
+    <button @click="reverse1">倒序</button>
+  </div>
+
+  <div id="Application1">
+    <ol>
+      <li v-for="item in list">
+        <span>{{item.name}}:{{item.age}}</span>
+      </li>
+    <ul>
+      <li v-for="(item,index) in list">
+        {{index+1}}:{{item.name}}:{{item.age}}
+      </li>
+    </ul>
+    </ol>
+  </div>
+
+  <div id="Application2">
+    <ul>
+      <li v-for="(value,key,index) in person">
+        <span>{{index}}:{{key}}:{{value}}</span>
+      </li>
+    </ul>
+  </div>
+
+  <script>
+    const App = {
+      data() {
+        return {
+          items: [1, 2, 3, 4, 5]
+        }
+      },
+      methods:{
+        handle(arr){
+          return arr.map((item) => {item * 2})
+        },
+        reverse1(){
+         return  this.items.reverse()
+        }
+      }
+    }
+    Vue.createApp(App).mount('#Application')
+
+    const App2 = {
+      data() {
+        return {
+          list:[
+            {name: '张三', age: 20},
+            {name: '李四', age: 25},
+            {name: '王五', age: 35}
+          ]
+        }
+      }
+    }
+    Vue.createApp(App2).mount('#Application1')
+
+    const App3 = {
+      data() {
+        return {
+          person:{
+            name: '张三',
+            age: 20,
+            address: '北京'
+          }
+        }
+      }
+    }
+    Vue.createApp(App3).mount('#Application2')
+  </script>
+
+</body>
+</html>

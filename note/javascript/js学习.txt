@@ -1,0 +1,33 @@
+
+
+                     JavaScript 的数据类型及其存储方式
+
+基本数据类型：Undefined、Null、Boolean、Number、String、Symbol（es6新增，表示独一无二的值）和 BigInt（es10新增）；
+
+引用数据类型：Object（Object本质上是由一组无序的键值对组成），里面包含 Function、Array、Date 等。
+
+JavaScript 不支持任何创建自定义类型的机制，而所有值最终都将是上述 8 种数据类型之一
+
+
+&&：逻辑与
+||：逻辑或
+!!：将右侧的值强制转换为布尔值，这也是将值转换为布尔值的一种简单方法
+
+
+                      3、JavaScript 数据类型转换
+					  
+转换为布尔值（调用 Boolean() 方法）
+
+转换为数字（调用 Number()、parseInt() 和 parseFloat() 方法）
+
+转换为字符串（调用 .toString() 或者 String() 方法） 
+
+
+                      4、JavaScript 数据类型判断
+					  
+JavaScript 中判断数据类型的方式：typeof、instanceof、constructor、Object.prototype.toString.call()。
+
+--null 和 undefined 的区别
+undefined 代表的含义是未定义， null 代表的含义是空对象。
+
+

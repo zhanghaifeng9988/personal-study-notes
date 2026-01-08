@@ -1,0 +1,26 @@
+
+show con_name    #显示当前pdb或cdb的名称
+
+show con_id       #显示当前pdb或者cdb的序号
+
+show pdbs        #显示pdb的列表和状态
+
+CREATE PLUGGABLE DATABASE mashangshan ADMIN USER zhanghaifeng5 IDENTIFIED BY 123123
+  STORAGE (MAXSIZE 2G MAX_SHARED_TEMP_SIZE 100M)
+  DEFAULT TABLESPACE users DATAFILE '/dsg/oracle/u01/app/oracle/oradata/db12/pdbseed/users01.dbf' SIZE 100M AUTOEXTEND ON
+  FILE_NAME_CONVERT = ('/dsg/oracle/u01/app/oracle/oradata/db12/pdbseed/', '/dsg/oracle/u01/app/oracle/oradata/db12/mashangshan/');
+  
+                                                               #从seed建立一个pdb ，同时在这个pdb下面建一个users表空间，表空间100m，自动扩展
+  
+ALTER PLUGGABLE DATABASE mashangshan OPEN READ WRITE;          #改变pdb的状态为打开和可读写状态
+
+!ls -l /dsg/oracle/u01/app/oracle/oradata/db12                 #显示容器的进程状态
+
+show parameter enable_pluggable_database                                       查看是否是容器库
+ALTER SESSION SET CONTAINER = CUUGPDB1;                                        进入一个pdb
+ALTER PLUGGABLE DATABASE CUUGPROD1, CUUGPROD2, OPEN READ WRITE;                改变pdb库的属性
+alter pluggable database all open；                                            打开所有pdb
+alter pluggable database mashangshan close                                     关闭某个pdb
+select username,common,con_id from cdb_users where username like 'ZHANG%';     查找用户
+select name,pdb from v$services;                                               查看pdb的dbname即service name
+select username from dba_users where username='C##ZHANGHAIFENG6';              查询用户名，cdb，pbd下均可

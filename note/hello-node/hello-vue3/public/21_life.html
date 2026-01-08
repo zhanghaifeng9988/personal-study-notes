@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="vue.js"></script>
+</head>
+<body>
+  <div id="Application">
+  </div>
+  <script>
+    const root = {
+      beforeCreate () {
+        console.log('组件创建前')
+      },
+      created() {
+        console.log('组件创建完成')
+      },
+      beforeMount() {
+        console.log('组件挂载前')
+      },
+      mounted() {
+        console.log('组件挂载完成')
+      },
+      beforeUpdate() {
+        console.log('组件更新前')
+      },
+      updated() {
+        console.log('组件更新完成')
+      },
+      activated () {
+        console.log('被缓存的组件，激活时调用')
+      },
+      deactivated () {
+        console.log('被缓存的组件，停用时调用')
+      },
+      beforeUnmount() {
+        console.log('组件被卸载前调用')
+      },
+      unmounted() {
+        console.log('组件被卸载后调用')
+      },
+      errorCaptured(error, instance, info) {
+        console.log('捕获组件渲染期间的错误')
+      },
+      renderTracked(event) {
+        console.log('追踪组件渲染依赖')
+      },
+      beforeDestroy() {
+        console.log('组件销毁前')
+      },
+      destroyed() {
+        console.log('组件销毁完成')
+    }
+  }
+  const app = Vue.createApp(root)
+  app.mount('#Application')
+  </script>
+</body>
+</html>

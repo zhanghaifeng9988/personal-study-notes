@@ -1,0 +1,123 @@
+
+  AWK  文本处理工具（一种模式匹配语言）
+	
+	awk '{print $0}' fstab         awk在执行命令时，依次读取fstab文件中的每一行，将命令{print $0}应用到每一行中
+	                             print $0 的含义是打印整行
+								 注意：fstab为awk命令的输入文件，与sed 命令模式类似
+								 
+	awk 常常被用于处理字段       字段：就是文本文件中 ，每一行分成许多列，列与列之间用特定的符号隔开
+	                                   默认可以处理使用空格分开的字段内容
+	awk '{print $1}' fstab          $1指的是文本记录行中的第一列字段
+	awk '{print $1 "\t" $3}' fstab    输出每行的第一个字段和第三个字段，中间用制表符隔开；
+	awk '{print "device:" $1 "\tfstype:" $3}' fstab 给输出的两列加上字段说明
+	awk -F ":" '{print "USER: "$1 "\tSHELL: "$7}' passwd.piece  -F参数，显示地将分隔符设置为冒号
+	awk -F "[\t ]+" '{ print "device:" $1 "\tfstype:" $3}' fstab  字符 [\t ]+ 匹配一个或者多个制表符或空格符。
+	
+通过脚本实现的方式1：
+	vi search.awk
+	
+	BEGIN {
+ print "How many pepole with shutdown?"}
+ /shutdown/ {++adder}
+END {
+ print "'shutdown' appears "adder" times."}
+	
+执行脚本的语句：awk -f search.awk /etc/passwd
+	
+	
+	awk的BEGIN和END代码块都是可选的，你也可以不编写这些代码块。
+	你可以将awk的运行看成3部分组成：
+	1、处理输入前的初始化；
+	2、处理输入过程；
+	3、处理完所有输入后的扫尾工作
+	BEGIN和END分别映射到第一部分和第三部分
+	
+	awk模式匹配的语法：
+	/ 正则表达式 / {匹配后的操作}   示例如下：
+	awk '/^#$/{print "this is an empty line."}' /etc/inittab    过滤#开头并结尾的行，并将该行以一句英文替换输出
+	awk -F":" '/bash/{print $1}' /etc/passwd      找出含有有bash字符的行，并打印改行的一个字段（以冒号分隔）
+	
+通过脚本实现的方式2：
+  vi shell_recorder.awk
+  
+  BEGIN {
+ print "SHELL USAGE:"}
+ /bash/ {++bash}
+ /nologin/ {++nologin}
+  END {
+ print "we have "bash" bash users."
+ print "we have "nologin" nologin users."
+ }
+
+
+
+
+执行脚本的语句：awk -f shell_recorder.awk /etc/passwd
+
+  awk中有两种变量：用户自定义变量和内建变量
+  FS为内建变量
+  awk的变量名称是大小写敏感的，建议：局部变量小写，全局变量第一个字母大写，内建变量全部大写；
+  
+  以下为awk内置变量：
+          ARGC          命令行参数个数
+          FILENAME    当前输入文档的名称
+          FNR             当前输入文档的当前记录编号，尤其当有多个输入文档时有用
+          NR               输入流的当前记录编号
+          NF               当前记录的字段个数
+          FS （-F）     字段分隔符 　　　　　　　
+
+　　　　　　　　awk -F: '{print $1}' /etc/passwd
+
+　　　　　　　　awk 'BEGIN {FS = ":"} {print $1}' /etc/passwd
+
+
+          OFS        输出字段分隔符，默认为空格
+
+　　　　　　　　awk 'BEGIN {OFS="-"} {print $1,$2,$3}' test1.txt
+          ORS        输出记录分隔符，默认为换行符\n
+          RS          输入记录分隔符，默认为换行符\n
+
+　　　　　　　　awk 'BEGIN {FS="\n"; RS=""} {print $3}' test3.txt
+
+
+判断闰年的示例：
+vi year.txt
+
+1987
+2008
+3000
+2000
+2012
+1200
+1300
+
+vi leap.awk
+  BEGIN {
+ print "pick leap year
+{year=$1
+if ((year%4==0 && year%100!=0) || (year%400==0))
+  print year"is a leap year."
+else
+  print year "is not a leap year."}
+
+	语言的基本元素：顺序、判断和循环 
+	
+	                                                     案例分析
+	vi report.awk
+BEGIN {
+FS=":"
+OFS="\t"
+print "name\tphone\t\tJan\tFeb\tMar\t\tTotal"
+print "_________________________________________"
+}
+{$6=$3+$4+$5)
+{print $1"\t"$2"\t"$3"\t"$4"\t"$5"\t\t"$6}
+{total3+=$3}
+{total4+=$4}
+{total5+=$5}
+END {
+print "_______________________________________________"
+  print "this is Jan total:" total3
+  print "this is Feb total:" total4
+  print "this is Mar total:" total5
+  }

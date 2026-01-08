@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src='vue.js'></script>
+    <style>
+
+    </style>
+</head>
+<body>
+  <div id="Applicaiton">
+    <!-- 动画色块 -->
+    <div :style="{backgroundColor: 'blue', width: width +'px',
+     height: height +'px'}" @click="run">
+    </div>
+  </div>
+  <script>
+    const App = Vue.createApp({
+      data() {
+         return {
+           width: 100,
+           height: 100,
+           timer: null
+         }
+      },
+      methods: {
+        // 点击事件发生时，开启定时器，执行动画，10毫秒执行一次回调函数
+         run() {
+           this.timer = setInterval(this.animation1,10)
+         },
+         // 动画效果的方法
+         animation1() {//width等于200时停止动画
+           if(this.width >= 200) {
+              clearInterval(this.timer)
+              return
+           }
+           else {
+             this.width += 1
+             this.height += 1
+           }
+      }
+    }
+  })
+  App.mount('#Applicaiton')
+  </script>
+</body>
+</html>

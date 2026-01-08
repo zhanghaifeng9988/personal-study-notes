@@ -1,0 +1,21 @@
+
+基本规则介绍
+A、外键可以单独删除 alter table emp1 drop constraint fk_emp1;主键不能单独删除
+B、主键表内容需要删除，需要在建立外键时加ON DELETE CASCADE;
+ALTER TABLE emp1 ADD CONSTRAINT fk_emp1 FOREIGN KEY(deptno) REFERENCES dept1(deptno) ON DELETE CASCADE;
+此设定会导致内容父表中删除一行数据就可能引发子表中大量数据丢失。
+为此，还有on delete set null子句，顾名思义是子表不会删除（丢失）记录，而是将外键的值填充null。
+注意：如果外键若是disable状态，主键表也可以作行删除动作；enable则不能。
+C、主键约束disable加cascade ,则主外键都会disable，若启用主键enable，外键依然是disable状态；
+alter table dept1 disable constraints pk_dept1 cascade;
+D、有外键存在时（不管外键什么状态），主键表不能删除，若要删除需要加cascade constraint，
+注意：外键约束会被删除
+drop table dept1 cascade constraint；
+总结
+1、外键表可以作任何dml和ddl及外键disable设置；
+2、主键表在外键enable状态下，不能disable主键，也不能删除主键；
+3、主键表drop需要的条件：a、删除外键表的外键约束；b、先drop外键表；
+4、主键表delete需要的条件：a、外键表的外键disable状态。
+5、主键表truncate需要的条件：a、外键表的外键disable状态。
+
+

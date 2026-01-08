@@ -1,0 +1,231 @@
+--显示系统时间
+display clock
+
+
+--修改和查看设备系统时间参数
+clock datetime 12:00:00 2011-09-15
+
+--进入系统视图界面
+system
+
+--修改设备名称
+sysname R1
+
+--配置登录标语信息
+header shell information "Welcome to Huawei certification lab"
+
+--配置CONSOLE口登录认证方式及超时时间
+[R1]user-interface console 0 
+[R1-ui-console0]authentication-mode password 
+[R1-ui-console0]set authentication password simple huawei 
+[R1-ui-console0]idle-timeout 20 0
+
+--检查配置结果，当前配置端口下进行查看
+[R1-ui-console0]display this
+
+
+--返回配置界面的根部
+return
+
+--接口IP 配置，并配置说明
+[R1]interface Serial 1/0/0 
+[R1-Serial1/0/0]ip address 10.0.12.1 24 
+[R1-Serial1/0/0]description This interface connect to R2-S1/0/0
+
+
+--查看接口信息
+[R1-Serial1/0/0]display interface Serial1/0/0
+
+--telnet配置，只有密码
+telnet server enable
+[R1]user-interface vty 0 4 
+[R1-ui-vty0-4]authentication-mode password 
+[R1-ui-vty0-4]set authentication password simple huawei 
+[R1-ui-vty0-4]user privilege level 3
+
+--telnet配置，用户名+密码
+[R2]user-interface vty 0 4 
+[R2-ui-vty0-4]authentication-mode aaa 
+[R2-ui-vty0-4]quit
+[R2]aaa 
+[R2-aaa]local-user huawei password simple huawei 
+[R2-aaa]local-user huawei privilege level 15 
+[R2-aaa]local-user huawei service-type telnet
+
+--查看端口IP情况
+display ip int brief    
+
+
+--ssh配置：
+  --SSH-server 基础配置
+[SSH-server]rsa local-key-pair create   # 生成 rsa 密钥，密钥长度默认为2048位，不同型号或厂商的网络设备可能不一样
+
+
+[SSH-server-GigabitEthernet0/0/0]aaa    # 进入 aaa 视图配置
+
+[SSH-server-aaa]local-user devan password cipher sshtest   # 创建用户 devan，密码为 sshtest
+
+[SSH-server-aaa]local-user devan service-type ssh   # 配置 devan 用户类型为 ssh
+
+[SSH-server-aaa]local-user devan privilege level 15   # 配置 devan 用户权限为15（用户权限最高为15）
+
+[SSH-server-aaa]q   # 退出 aaa 视图配置
+
+[SSH-server]ssh user devan authentication-type password   # 设置 devan 用户 ssh 登录模式为密码登录
+
+[SSH-server]stelnet server enable    # 开启 ssh 认证服务
+
+  --定义SSH会话的超时时间、终端类型等参数。
+
+   ssh server timeout 10
+
+   ssh server terminal-type vt100
+
+
+[SSH-server]user-interface vty 0 4   # 进入虚拟终端，表示可以同时访问5个用户
+
+[SSH-server-ui-vty0-4]authentication-mode aaa   # 设置虚拟终端认证模式为 aaa
+
+[SSH-server-ui-vty0-4]protocol inbound ssh   # 启动 ssh
+
+[SSH-server-ui-vty0-4]q   # 退出虚拟终端模式
+
+      **注意保存配置**
+
+
+--查看设备商存储的文件列表
+<R1>dir
+
+--彻底删除文件，无法恢复
+<R2>delete /unreserved file-from-r1.bak
+
+--显示当前配置信息
+<R1>display current-configuration
+
+--启动使用的配置文件查看
+<R1>display startup
+
+--清除存储的配置文件
+<R1>reset saved-configuration
+
+--重启设备
+reboot
+
+
+
+--指定端口  
+是交换机向所联网段转发BPDU的端口，每个网段有且只有一个指定端口
+一般情况下，根桥的每个端口都是指定端口
+
+--根端口    
+非根交换机去往根桥路径的最优的端口
+在1个运行stp协议的交换机商最多只有一个根端口
+跟桥上没有根端口
+
+--预备端口
+不是上面两种端口就是预备端口，预备端口被阻塞
+
+--Disabled
+
+端口状态为Down，不处理BPDU报文，也不转发用户流量。
+
+--Listening
+
+过渡状态，开始生成树计算，端口可以接收和发送BPDU，但不转发用户流量。
+
+--Learning
+
+过渡状态，建立无环的MAC地址转发表，不转发用户流量。
+
+--Forwarding
+
+端口可以接收和发送BPDU，也转发用户流量。只有根端口或指定端口才能进入Forwarding状态。
+
+--Blocking
+
+端口仅仅接收并处理BPDU，不转发用户流量。
+
+
+--在路由器端口下配置dhcp，接口地址  :意味着使用接口的IP作为网关
+dhcp select interface
+
+
+--指定dns地址
+dhcp server dns-list 111.111.111.111
+
+
+--不参与分配的地址
+dhcp  server excluded-ip-address  192.168.10.254
+
+dhcp server excluded-ip-address 192.168.10.250 192.168.10.254
+
+
+--租用期,默认1天
+dhcp server lease day 3
+
+--查看DHCP情况
+display ip pool
+
+--配置DHCP全局地址
+ip pool pool2
+network 192.168.10.0 mask 24
+gateway-list 192.168.10.1
+lease day 2
+quit
+interface GigabitEthernet 0/0/1
+dhcp select global
+
+
+--ospf相关信息查看
+dis ip routing-table  protocol  ospf
+
+
+--路由表查看
+dis ip routing-table
+
+
+--静态路由配置
+ip route-static 0.0.0.0 0.0.0.0 192.168.2.1
+
+
+--ACL2000 及端口应用规则，及nat地址翻译配置
+
+[R1] acl 2000
+[R1-acl-basic-2000] rule 5 permit source 192.168.10.0 0.0.0.255
+[R1-acl-basic-2000] rule 10 permit source 192.168.20.0 0.0.0.255 
+[R1] interface g0/0/0
+[R1-GigabitEthernet0/0/0] ip add 101.1.1.1 24 
+[R1-GigabitEthernet0/0/0] nat outbound 2000
+[R1-GigabitEthernet0/0/0] nat static global 101.1.1.111 inside 172.16.1.1 netmask 255.255.255.255
+
+--nat状态查看
+display nat session all 
+
+
+--端口聚合
+vlan 10
+interface Eth-Trunk 1
+port link-type trunk
+port trunk allow-pass vlan10
+mode lacp
+[acc1-GigabitEthernet0/0/2]eth-trunk 1
+[acc1-GigabitEthernet0/0/3]eth-trunk 1
+
+--查看聚合端口
+display  eth-trunk 1
+
+
+
+核心交换机配置静态路由到路由器直连接口，直连接口的ip，
+是核心交换机的vlan100的同网段地址
+ip route-static 0.0.0.0 0.0.0.0 10.1.100.2
+
+路由器配置1条静态路由到isp的直连接口地址，到公网的路由
+ip route-static 0.0.0.0 0.0.0.0 1.1.1.1
+公网配置一条静态路由，到局域网的路由器  ？？？？？有问题
+ip route-static 0.0.0.0 0.0.0.0 1.1.1.2
+
+配置路由器到核心交换机的回程路由，静态路由模式
+ip route-static 10.1.10.0 255.255.255.0 10.1.100.1
+ip route-static 10.1.20.0 255.255.255.0 10.1.100.1
+

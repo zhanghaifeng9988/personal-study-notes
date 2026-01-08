@@ -1,0 +1,746 @@
+OWNER                                                                                                             NOT NULL VARCHAR2(128)
+ TABLE_NAME                                                                                                        NOT NULL VARCHAR2(128)
+ TABLESPACE_NAME                                                                                                            VARCHAR2(30)
+ CLUSTER_NAME                                                                                                               VARCHAR2(128)
+ IOT_NAME                                                                                                                   VARCHAR2(128)
+ STATUS                                                                                                                     VARCHAR2(8)
+ PCT_FREE                                                                                                                   NUMBER
+ PCT_USED                                                                                                                   NUMBER
+ INI_TRANS                                                                                                                  NUMBER
+ MAX_TRANS                                                                                                                  NUMBER
+ INITIAL_EXTENT                                                                                                             NUMBER
+ NEXT_EXTENT                                                                                                                NUMBER
+ MIN_EXTENTS                                                                                                                NUMBER
+ MAX_EXTENTS                                                                                                                NUMBER
+ PCT_INCREASE                                                                                                               NUMBER
+ FREELISTS                                                                                                                  NUMBER
+ FREELIST_GROUPS                                                                                                            NUMBER
+ LOGGING                                                                                                                    VARCHAR2(3)
+ BACKED_UP                                                                                                                  VARCHAR2(1)
+ NUM_ROWS                                                                                                                   NUMBER
+ BLOCKS                                                                                                                     NUMBER
+ EMPTY_BLOCKS                                                                                                               NUMBER
+ AVG_SPACE                                                                                                                  NUMBER
+ CHAIN_CNT                                                                                                                  NUMBER
+ AVG_ROW_LEN                                                                                                                NUMBER
+ AVG_SPACE_FREELIST_BLOCKS                                                                                                  NUMBER
+ NUM_FREELIST_BLOCKS                                                                                                        NUMBER
+ DEGREE                                                                                                                     VARCHAR2(10)
+ INSTANCES                                                                                                                  VARCHAR2(10)
+ CACHE                                                                                                                      VARCHAR2(5)
+ TABLE_LOCK                                                                                                                 VARCHAR2(8)
+ SAMPLE_SIZE                                                                                                                NUMBER
+ LAST_ANALYZED                                                                                                              DATE
+ PARTITIONED                                                                                                                VARCHAR2(3)
+ IOT_TYPE                                                                                                                   VARCHAR2(12)
+ TEMPORARY                                                                                                                  VARCHAR2(1)
+ SECONDARY                                                                                                                  VARCHAR2(1)
+ NESTED                                                                                                                     VARCHAR2(3)
+ BUFFER_POOL                                                                                                                VARCHAR2(7)
+ FLASH_CACHE                                                                                                                VARCHAR2(7)
+ CELL_FLASH_CACHE                                                                                                           VARCHAR2(7)
+ ROW_MOVEMENT                                                                                                               VARCHAR2(8)
+ GLOBAL_STATS                                                                                                               VARCHAR2(3)
+ USER_STATS                                                                                                                 VARCHAR2(3)
+ DURATION                                                                                                                   VARCHAR2(15)
+ SKIP_CORRUPT                                                                                                               VARCHAR2(8)
+ MONITORING                                                                                                                 VARCHAR2(3)
+ CLUSTER_OWNER                                                                                                              VARCHAR2(128)
+ DEPENDENCIES                                                                                                               VARCHAR2(8)
+ COMPRESSION                                                                                                                VARCHAR2(8)
+ COMPRESS_FOR                                                                                                               VARCHAR2(30)
+ DROPPED                                                                                                                    VARCHAR2(3)
+ READ_ONLY                                                                                                                  VARCHAR2(3)
+ SEGMENT_CREATED                                                                                                            VARCHAR2(3)
+ RESULT_CACHE                                                                                                               VARCHAR2(7)
+ CLUSTERING                                                                                                                 VARCHAR2(3)
+ ACTIVITY_TRACKING                                                                                                          VARCHAR2(23)
+ DML_TIMESTAMP                                                                                                              VARCHAR2(25)
+ HAS_IDENTITY                                                                                                               VARCHAR2(3)
+ CONTAINER_DATA                                                                                                             VARCHAR2(3)
+ INMEMORY                                                                                                                   VARCHAR2(8)
+ INMEMORY_PRIORITY                                                                                                          VARCHAR2(8)
+ INMEMORY_DISTRIBUTE                                                                                                        VARCHAR2(15)
+ INMEMORY_COMPRESSION                                                                                                       VARCHAR2(17)
+ INMEMORY_DUPLICATE                                                                                                         VARCHAR2(13)
+ DEFAULT_COLLATION                                                                                                          VARCHAR2(100)
+ DUPLICATED                                                                                                                 VARCHAR2(1)
+ SHARDED                                                                                                                    VARCHAR2(1)
+ EXTERNAL                                                                                                                   VARCHAR2(3)
+ HYBRID                                                                                                                     VARCHAR2(3)
+ CELLMEMORY                                                                                                                 VARCHAR2(24)
+ CONTAINERS_DEFAULT                                                                                                         VARCHAR2(3)
+ CONTAINER_MAP                                                                                                              VARCHAR2(3)
+ EXTENDED_DATA_LINK                                                                                                         VARCHAR2(3)
+ EXTENDED_DATA_LINK_MAP                                                                                                     VARCHAR2(3)
+ INMEMORY_SERVICE                                                                                                           VARCHAR2(12)
+ INMEMORY_SERVICE_NAME                                                                                                      VARCHAR2(1000)
+ CONTAINER_MAP_OBJECT                                                                                                       VARCHAR2(3)
+ MEMOPTIMIZE_READ                                                                                                           VARCHAR2(8)
+ MEMOPTIMIZE_WRITE                                                                                                          VARCHAR2(8)
+ HAS_SENSITIVE_COLUMN                                                                                                       VARCHAR2(3)
+ ADMIT_NULL                                                                                                                 VARCHAR2(3)
+ DATA_LINK_DML_ENABLED                                                                                                      VARCHAR2(3)
+ LOGICAL_REPLICATION                                                                                                        VARCHAR2(8)
+
+select 'alter table '||t.OWNER||'.'||t.TABLE_NAME||' disable ROW MOVEMENT;' from dba_tables t where ROW_MOVEMENT='ENABLED' and owner !='SYS';
+
+select OWNER,SEGMENT_NAME,SEGMENT_TYPE,sum(BYTES)/1024/1024/1024 from dba_segments 
+where TABLESPACE_NAME='SHAREDATA' and segment_name='G_TG_CONS_DAY_PQ' and owner='FDPSHARE'   
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE order by sum(BYTES);
+
+FDPSHARE.G_TG_CONS_DAY_PQ 
+FDPSHARE.ARC_ES_CONS_SNAP  2021年前
+
+
+
+
+
+select OWNER,TABLE_NAME,DEGREE,ROW_MOVEMENT from dba_tables where ROW_MOVEMENT='ENABLED' and owner !='SYS';
+
+select  TABLE_NAME,DEGREE,ROW_MOVEMENT from dba_tables where rownum <10;
+
+alter table TABLE_NAME disable ROW MOVEMENT;
+
+CACHER04             T_CONST_MET_CONC                        
+CACHER06             I_TRANS_DET_REC                         
+CACHER04             T_INTUIT_MET_CONC                       
+CACHER04             T_BASICERR_MET_CONC                     
+FDPMASTER            C_METER                                 
+FDPMASTER            S_CUST_GROUP_OBJ                        
+CACHER04             L_STATUS_CHG_LOG                        
+CACHER04             A_SEAL_DOC                              
+FDPSHARE             A_RCVBL_ENTRY                           
+FDPSHARE             E_MP_READ_CURVE                         
+FDPSHARE             E_MP_POWER_CURVE                        
+FDPSHARE             E_MP_CUR_CURVE                          
+FDPSHARE             ARC_E_MP_DAY_READ                       
+CACHER01             ARC_E_MP_PARA_SNAP                      
+CACHER01             ARC_E_CONS_PRC_AMT                      
+CACHER01             ARC_E_CONSPRC_SNAP                      
+CACHER01             ARC_R_DATA                              
+CACHER01             ARC_A_RCVBL_PL_FLOW                     
+CACHER01             A_RCVED_PL_FLOW                         
+CACHER01             E_CONS_PRC_AMT                          
+CACHER01             ARC_E_PL_AMT                            
+CACHER01             E_CONSPRC_SNAP                          
+CACHER01             E_KWH_AMT                               
+CACHER01             A_PAY_FLOW                              
+CACHER01             ARC_A_RCVBL_FLOW                        
+CACHER01             E_GC_SNAP                               
+CACHER01             D_STATUS_CHG                            
+CACHER01             A_RCVBL_ENTRY                           
+FDPSHARE             ARC_E_MP_PARA_SNAP                      
+CACHER01             A_ACCT_DAILY_BAL                        
+CACHER01             A_DEPOSIT_ENTRY                         
+CACHER01             ARC_E_TRAN_SNAP                         
+CACHER01             A_OTHERINCOME_ENTRY                     
+CACHER01             A_PAYABLE_ENTRY                         
+CACHER01             A_ACCT_BAL_STAT                         
+CACHER01             A_CASH_BAL_STAT                         
+CACHER01             ARC_E_TRAN_CHG_SNAP                     
+CACHER01             A_VOUCHER                               
+CACHER01             A_RCVBL_PL_FLOW                         
+CACHER01             A_RCVED_FLOW                            
+CACHER01             E_CONS_SNAP                             
+CACHER01             E_TRAN_CHG_SNAP                         
+CACHER01             E_MP_PQ                                 
+CACHER01             C_CONS_PRC                              
+CACHER01             C_ACCT                                  
+CACHER01             A_SUMMARY_VOUCHER_DET                   
+CACHER01             C_CUST                                  
+CACHER01             D_EXCHG                                 
+CACHER01             D_INTUITIVE_TEST                        
+CACHER01             C_VAT                                   
+CACHER01             D_FMR_EQUIP                             
+CACHER01             D_DETECT_DEV                            
+CACHER01             D_IT_SITECHK                            
+CACHER01             D_IT                                    
+CACHER01             ARC_E_CONSPRC_TACTIC_SNAP               
+CACHER01             D_LC_EQUIP                              
+CACHER01             D_METER_DIGIT_WALK                      
+CACHER01             C_CERT                                  
+CACHER01             INDYSP_TASK_USER_CUR                    
+CACHER01             A_RCVBL_STAT                            
+CACHER01             E_BILL_RELA_SNAP                        
+CACHER01             E_CONSPRC_TACTIC_SNAP                   
+CACHER01             D_TERMINAL                              
+CACHER01             E_PF_AMT                                
+CACHER01             E_PL_AMT                                
+CACHER01             D_MD_VOLT_TEST                          
+CACHER01             D_METER                                 
+CACHER01             D_METER_ALLOC                           
+CACHER01             D_REGISTER_DIGIT_WALK                   
+CACHER01             R_DATA                                  
+CACHER01             R_EXCP_HANLE                            
+CACHER01             S_BUSI_AMT_RCVBL                        
+CACHER01             R_MID_TABLE                             
+CACHER01             D_SEAL                                  
+CACHER01             E_LINE_SNAP                             
+CACHER01             ARC_E_CONS_ACCU_PQ                      
+CACHER01             A_CR_PLAN                               
+CACHER01             A_OTHER_RCVPAY_ENTRY                    
+CACHER01             G_LINE_PQ                               
+CACHER01             INDYWF_INSTANCES_CUR                    
+CACHER01             C_SPECIAL_CONS_PARA                     
+CACHER01             C_SPECIAL_CONS_TYPE                     
+CACHER01             C_BILL_RELA                             
+CACHER01             C_RCA_CONS                              
+CACHER01             C_CONTACT                               
+CACHER01             S_CYC_TEST_PLAN                         
+CACHER01             S_FRST_TEST                             
+CACHER01             ARC_R_PLAN                              
+CACHER01             A_ACCT_BAL                              
+CACHER01             C_CONS                                  
+CACHER01             ARC_S_BUSI_AMT_RCVED                    
+CACHER01             ARC_E_KWH_AMT                           
+CACHER01             A_CHG_STAT                              
+CACHER01             C_CONS_PRC_TACTIC                       
+CACHER01             C_PAYMENT_RELA                          
+CACHER01             D_IO_TASK                               
+CACHER01             E_TRAN_SNAP                             
+CACHER01             ARC_S_APP                               
+CACHER01             ARC_S_BUSI_AMT_RCVBL                    
+CACHER01             A_INNER_RCVPAY                          
+CACHER01             A_INV                                   
+CACHER01             A_CHG_ENTRY                             
+CACHER01             D_IT_SITECHK_ERR                        
+CACHER01             D_INV_METER_DET                         
+CACHER01             D_IT_DETECT                             
+CACHER01             D_METER_DETECT                          
+CACHER01             S_ROTATE_PLAN                           
+CACHER01             E_BASE_AMT                              
+CACHER01             ARC_S_PSP_DESIGN                        
+CACHER01             G_TG_PQ                                 
+CACHER01             S_BUSI_AMT_RCVED                        
+CACHER01             D_DETECT_RSLT                           
+CACHER01             R_AR_DATA                               
+CACHER01             ARC_E_LINE_SNAP                         
+CACHER01             D_ROTATION_SAMPLING_DET                 
+CACHER01             D_TMNL_TEST                             
+CACHER01             E_MP_PARA_SNAP                          
+CACHER01             E_CONS_ACCU_PQ                          
+CACHER01             C_PS                                    
+CACHER01             C_BANK_ACCT                             
+CACHER01             C_CUST_AGREEMENT                        
+CACHER01             C_EQUIP_RUN                             
+CACHER01             C_MP                                    
+CACHER01             C_CONTAINER_DEV                         
+CACHER01             D_INV_IT_DET                            
+CACHER01             D_IT_DETECT_ERR                         
+CACHER01             D_INV_OTHER_DET                         
+CACHER01             D_MEAS_BOX                              
+CACHER01             D_MULTFUNC_DETECT                       
+CACHER01             INDYWF_WORKLIST_HIS                     
+CACHER01             D_METER_ERR                             
+CACHER01             D_METER_SITECHK                         
+CACHER01             D_METER_DETECT_CONC                     
+CACHER01             P_APPROVE                               
+CACHER01             A_ACCT_ENTRY                            
+CACHER01             R_COLL_DATA                             
+CACHER01             A_CASH_ENTRY                            
+CACHER01             A_RCVBL_FLOW                            
+CACHER01             A_PC_TRAN                               
+CACHER01             A_PAYABLE_STAT                          
+CACHER01             C_IT_RUN                                
+CACHER01             ARC_A_ACCT_ENTRY                        
+CACHER01             S_DEV_IR                                
+CACHER01             S_CUST_RISK                             
+CACHER01             S_CUST_GROUP_OBJ                        
+CACHER01             ARC_E_PF_AMT                            
+CACHER01             ARC_E_BILL_RELA_SNAP                    
+CACHER01             INDYWF_WORKLIST_COM                     
+CACHER01             ARC_A_RCVED_PL_FLOW                     
+CACHER01             S_CUST_CREDIT                           
+CACHER01             ARC_A_PAY_FLOW                          
+CACHER01             ARC_A_RCVED_FLOW                        
+CACHER01             S_CUST_VALUE                            
+CACHER01             S_95598_WKST                            
+CACHER01             ARC_E_MP_PQ                             
+CACHER01             D_IO_DET                                
+CACHER01             A_RCVED_FLOW_TMP                        
+CACHER01             A_RCA_TACTIC_DET                        
+CACHER01             A_RCA_CTRL_DET                          
+CACHER01             A_RCA_TACTIC_EXT                        
+CACHER01             A_RCA_TACTIC_RECORD                     
+CACHER01             A_RCA_EXCP_LIST                         
+CACHER01             A_RCA_PREPAY_PD                         
+CACHER01             D_AGE_STAT                              
+CACHER01             A_RCA_TACTIC_TASK                       
+CACHER01             C_RUN_CONTAINER_DEV                     
+CACHER01             A_CONS_AVERAGE                          
+CACHER01             E_SYS_AMT                               
+CACHER01             E_TAX_AMT                               
+CACHER01             ARC_E_BASE_AMT                          
+CACHER01             ARC_E_GC_SNAP                           
+CACHER01             ARC_S_APP_TEMP                          
+CACHER01             S_WKS_DEAL                              
+CACHER01             S_FAULT_HANDLE                          
+CACHER01             S_FAULT_RPT                             
+CACHER01             S_SRV_REQ                               
+CACHER01             C_METER                                 
+CACHER01             S_REGION_OUTAGE                         
+FDPSHARE             E_MP_MON_ENERGY                         
+FDPSHARE             E_MP_ENERGY_CURVE                       
+FDPSHARE             A_RCVED_FLOW                            
+FDPSHARE             ARC_A_RCVBL_FLOW                        
+EXCHANGER30          R_COLL_OBJ_002                          
+FDPSHARE             E_MP_DAY_DEMAND                         
+FDPSHARE             E_MP_DAY_ISTAT                          
+FDPSHARE             E_TMNL_DAY_STAT                         
+FDPSHARE             E_MP_FACTOR_CURVE                       
+EXCHANGER30          A_SEAL_DOC_003                          
+EXCHANGER30          D_LC_EQUIP_001                          
+EXCHANGER30          D_METER_002                             
+FDPSHARE             E_MP_DAY_PFTIME                         
+FDPSHARE             E_TMNL_MON_STAT                         
+FDPSHARE             E_MP_MON_POWER                          
+FDPSHARE             P_PROC_INSTANCE_BAK                     
+FDPSHARE             E_MP_MON_DEMAND                         
+FDPSHARE             A_RCVBL_FLOW_BAK181226                  
+FDPSHARE             A_RCVBL_PL_FLOW_BAK                     
+FDPSHARE             E_MP_MON_UNBALANCE                      
+FDPSHARE             P_PROC_INSTANCE                         
+FDPSHARE             E_TOTAL_ENERGY_CURVE                    
+FDPSHARE             E_MP_MON_ISTAT                          
+FDPSHARE             E_MP_MON_VSTAT                          
+FDPSHARE             E_TOTAL_POWER_CURVE                     
+FDPSHARE             E_MP_MON_PFTIME                         
+FDPSHARE             A_SUMMARY_VOUCHER_DET                   
+EXCHANGER30          C_PS_001                                
+EXCHANGER30          D_SEAL_001                              
+EXCHANGER30          C_CONS_001                              
+FDPSHARE             P_APPROVE                               
+FDPSHARE             TAB_OGG_PROCESS                         
+FDPSHARE             ARC_S_APP_ELEC_ADDR                     
+EXCHANGER30          D_METER_001                             
+EXCHANGER30          C_MP_001                                
+EXCHANGER30          C_METER_002                             
+CACHER07             E_MP_CUR_CURVE                          
+CACHER07             E_MP_DAY_POWER                          
+CACHER07             E_MP_DAY_VSTAT                          
+CACHER07             E_MP_MON_POWER                          
+CACHER07             E_MP_MON_DEMAND                         
+FDPSHARE             ARC_A_RCVBL_PL_FLOW                     
+FDPSHARE             A_RCVED_PL_FLOW                         
+CACHER07             E_MP_MON_VSTAT                          
+CACHER07             E_TOTAL_POWER_CURVE                     
+CACHER07             E_MP_VOL_CURVE                          
+CACHER07             E_MP_MON_POWER_R01                      
+CACHER07             E_MP_MON_READ                           
+CACHER07             E_MP_DAY_DEMAND                         
+CACHER07             E_MP_DAY_READ                           
+CACHER07             E_MP_ENERGY_CURVE                       
+CACHER07             E_MP_POWER_CURVE                        
+CACHER07             E_MP_MON_ENERGY                         
+CACHER07             E_TMNL_DAY_STAT                         
+CACHER07             E_MP_MON_UNBALANCE                      
+CACHER07             E_MP_DAY_UNBALANCE                      
+CACHER07             E_MP_READ_CURVE                         
+CACHER07             E_MP_DAY_ISTAT                          
+CACHER07             E_MP_FACTOR_CURVE                       
+CACHER07             E_MP_MON_ISTAT                          
+CACHER07             E_TMNL_MON_STAT                         
+CACHER07             E_MP_DAY_PFTIME                         
+CACHER07             E_TOTAL_ENERGY_CURVE                    
+CACHER07             E_MP_MON_PFTIME                         
+FDPSHARE             E_MP_DAY_ENERGY                         
+FDPSHARE             E_MP_MON_READ                           
+FDPSHARE             A_PAY_FLOW                              
+FDPSHARE             A_VOUCHER                               
+FDPSHARE             A_PREPAY_FLOW                           
+FDPSHARE             A_PC_TRAN                               
+FDPSHARE             A_INV                                   
+FDPSHARE             A_CASH_ENTRY                            
+FDPSHARE             ARC_E_CONSPRC_SNAP                      
+FDPSHARE             ARC_ES_CONSPRC_SNAP                     
+FDPSHARE             E_MP_DAY_UNBALANCE                      
+FDPSHARE             ARC_E_CONSPRC_TACTIC_SNAP               
+EXCHANGER30          R_COLL_OBJ_001                          
+EXCHANGER30          D_WH_AREA_001                           
+EXCHANGER30          G_LINE_001                              
+EXCHANGER30          G_SUBS_001                              
+FDPSHARE             ARC_E_PL_AMT                            
+FDPSHARE             ARC_R_DATA                              
+FDPSHARE             ARC_E_MP_PQ                             
+FDPSHARE             ARC_E_KWH_AMT                           
+FDPSHARE             ARC_E_CONS_PRC_AMT                      
+EXCHANGER30          C_CONS_002                              
+EXCHANGER30          G_SUBS_LINE_RELA_002                    
+EXCHANGER30          G_TG_002                                
+EXCHANGER30          G_TRAN_002                              
+CACHER03             K_AC_TASK_DET                           
+EXCHANGER30          R_TMNL_RUN_002                          
+EXCHANGER30          R_TMNL_RUN_001                          
+EXCHANGER30          G_TG_001                                
+EXCHANGER30          G_TRAN_001                              
+EXCHANGER30          G_LINE_002                              
+EXCHANGER30          C_PS_002                                
+EXCHANGER30          R_CP_001                                
+EXCHANGER30          C_MP_002                                
+EXCHANGER30          R_CP_002                                
+EXCHANGER30          R_CP_CONS_RELA_002                      
+EXCHANGER30          R_CP_MP_RELA_002                        
+EXCHANGER30          D_WH_001                                
+FDPSHARE             ARC_E_CONS_SNAP                         
+EXCHANGER30          G_SUBS_002                              
+EXCHANGER30          D_IT_001                                
+FDPSHARE             K_AC_TASK_DET                           
+EXCHANGER30          D_IT_003                                
+EXCHANGER30          C_METER_001                             
+CACHER09             ES_KWH_AMT                              
+CACHER09             ES_LINE_SNAP                            
+CACHER09             ARC_ES_PL_AMT                           
+CACHER09             ARC_ES_TRAN_CHG_SNAP                    
+CACHER09             ARC_ES_EXCP_INFO                        
+CACHER09             ES_CONS_SNAP                            
+CACHER09             ES_MP_PARA_SNAP                         
+CACHER09             ES_MP_PQ                                
+CACHER09             ES_PF_AMT                               
+CACHER09             ES_PL_AMT                               
+CACHER09             ARC_ES_BASE_AMT                         
+CACHER09             ARC_ES_LINE_SNAP                        
+CACHER09             ARC_ES_TRAN_SNAP                        
+CACHER04             T_VOLT_MET_CONC                         
+CACHER09             ARC_ES_KWH_AMT                          
+CACHER09             ARC_ES_MP_PARA_SNAP                     
+CACHER09             ARC_ES_CONS_SNAP                        
+CACHER09             ES_CONSPRC_TACT_SNAP                    
+CACHER09             ARC_ES_BILL_RELA_SNAP                   
+CACHER09             ARC_ES_RCA_BASE_INFO                    
+CACHER09             ES_EXCP_INFO                            
+CACHER09             ES_BASE_AMT                             
+CACHER09             ES_RCA_BASE_INFO                        
+CACHER09             ES_BILL_RELA_SNAP                       
+CACHER09             ES_CONS_AVERAGE                         
+CACHER09             ES_CONS_PRC_AMT                         
+CACHER09             ES_CONSPRC_SNAP                         
+CACHER09             ARC_ES_CONS_PRC_AMT                     
+CACHER09             ARC_ES_CONSPRC_SNAP                     
+CACHER09             ARC_ES_RCA_MRDATA                       
+CACHER09             ARC_ES_CONSPRC_TACT_SNAP                
+CACHER09             ARC_ES_MP_PQ                            OWNER                TABLE_NAME                          DEGREE          ROW_MOVEMENT
+CACHER09             ES_RCA_MRDATA                           -------------------- ----------------------------------- --------------- ------------------------
+CACHER09             ES_TRAN_CHG_SNAP                        CACHER04             T_CONST_MET_CONC                             1      ENABLED
+CACHER09             ES_TRAN_SNAP                            CACHER06             I_TRANS_DET_REC                              1      ENABLED
+CACHER04             T_ESAM_READ_MET_CONC                    CACHER04             T_INTUIT_MET_CONC                            1      ENABLED
+CACHER01             A_INTEGRAL                              CACHER04             T_BASICERR_MET_CONC                          1      ENABLED
+FDPMASTER            C_METER                                      1      ENABLED
+FDPMASTER            S_CUST_GROUP_OBJ                             1      ENABLED
+CACHER04             L_STATUS_CHG_LOG                             1      ENABLED
+CACHER04             A_SEAL_DOC                                   1      ENABLED
+FDPSHARE             A_RCVBL_ENTRY                                1      ENABLED
+FDPSHARE             E_MP_READ_CURVE                              1      ENABLED
+FDPSHARE             E_MP_POWER_CURVE                             1      ENABLED
+FDPSHARE             E_MP_CUR_CURVE                               1      ENABLED
+FDPSHARE             ARC_E_MP_DAY_READ                            1      ENABLED
+CACHER01             ARC_E_MP_PARA_SNAP                           1      ENABLED
+CACHER01             ARC_E_CONS_PRC_AMT                           1      ENABLED
+CACHER01             ARC_E_CONSPRC_SNAP                           1      ENABLED
+CACHER01             ARC_R_DATA                                   1      ENABLED
+CACHER01             ARC_A_RCVBL_PL_FLOW                          1      ENABLED
+CACHER01             A_RCVED_PL_FLOW                              1      ENABLED
+CACHER01             E_CONS_PRC_AMT                               1      ENABLED
+CACHER01             ARC_E_PL_AMT                                 1      ENABLED
+CACHER01             E_CONSPRC_SNAP                               1      ENABLED
+CACHER01             E_KWH_AMT                                    1      ENABLED
+CACHER01             A_PAY_FLOW                                   1      ENABLED
+CACHER01             ARC_A_RCVBL_FLOW                             1      ENABLED
+CACHER01             E_GC_SNAP                                    1      ENABLED
+CACHER01             D_STATUS_CHG                                 1      ENABLED
+CACHER01             A_RCVBL_ENTRY                                1      ENABLED
+FDPSHARE             ARC_E_MP_PARA_SNAP                           1      ENABLED
+CACHER01             A_ACCT_DAILY_BAL                             1      ENABLED
+CACHER01             A_DEPOSIT_ENTRY                              1      ENABLED
+CACHER01             ARC_E_TRAN_SNAP                              1      ENABLED
+CACHER01             A_OTHERINCOME_ENTRY                          1      ENABLED
+CACHER01             A_PAYABLE_ENTRY                              1      ENABLED
+CACHER01             A_ACCT_BAL_STAT                              1      ENABLED
+CACHER01             A_CASH_BAL_STAT                              1      ENABLED
+CACHER01             ARC_E_TRAN_CHG_SNAP                          1      ENABLED
+CACHER01             A_VOUCHER                                    1      ENABLED
+CACHER01             A_RCVBL_PL_FLOW                              1      ENABLED
+CACHER01             A_RCVED_FLOW                                 1      ENABLED
+CACHER01             E_CONS_SNAP                                  1      ENABLED
+CACHER01             E_TRAN_CHG_SNAP                              1      ENABLED
+CACHER01             E_MP_PQ                                      1      ENABLED
+CACHER01             C_CONS_PRC                                   1      ENABLED
+CACHER01             C_ACCT                                       1      ENABLED
+CACHER01             A_SUMMARY_VOUCHER_DET                        1      ENABLED
+CACHER01             C_CUST                                       1      ENABLED
+CACHER01             D_EXCHG                                      1      ENABLED
+CACHER01             D_INTUITIVE_TEST                             1      ENABLED
+CACHER01             C_VAT                                        1      ENABLED
+CACHER01             D_FMR_EQUIP                                  1      ENABLED
+CACHER01             D_DETECT_DEV                                 1      ENABLED
+CACHER01             D_IT_SITECHK                                 1      ENABLED
+CACHER01             D_IT                                         1      ENABLED
+CACHER01             ARC_E_CONSPRC_TACTIC_SNAP                    1      ENABLED
+CACHER01             D_LC_EQUIP                                   1      ENABLED
+CACHER01             D_METER_DIGIT_WALK                           1      ENABLED
+CACHER01             C_CERT                                       1      ENABLED
+CACHER01             INDYSP_TASK_USER_CUR                         1      ENABLED
+CACHER01             A_RCVBL_STAT                                 1      ENABLED
+CACHER01             E_BILL_RELA_SNAP                             1      ENABLED
+CACHER01             E_CONSPRC_TACTIC_SNAP                        1      ENABLED
+CACHER01             D_TERMINAL                                   1      ENABLED
+CACHER01             E_PF_AMT                                     1      ENABLED
+CACHER01             E_PL_AMT                                     1      ENABLED
+CACHER01             D_MD_VOLT_TEST                               1      ENABLED
+CACHER01             D_METER                                      1      ENABLED
+CACHER01             D_METER_ALLOC                                1      ENABLED
+CACHER01             D_REGISTER_DIGIT_WALK                        1      ENABLED
+CACHER01             R_DATA                                       1      ENABLED
+CACHER01             R_EXCP_HANLE                                 1      ENABLED
+CACHER01             S_BUSI_AMT_RCVBL                             1      ENABLED
+CACHER01             R_MID_TABLE                                  1      ENABLED
+CACHER01             D_SEAL                                       1      ENABLED
+CACHER01             E_LINE_SNAP                                  1      ENABLED
+CACHER01             ARC_E_CONS_ACCU_PQ                           1      ENABLED
+CACHER01             A_CR_PLAN                                    1      ENABLED
+CACHER01             A_OTHER_RCVPAY_ENTRY                         1      ENABLED
+CACHER01             G_LINE_PQ                                    1      ENABLED
+CACHER01             INDYWF_INSTANCES_CUR                         1      ENABLED
+CACHER01             C_SPECIAL_CONS_PARA                          1      ENABLED
+CACHER01             C_SPECIAL_CONS_TYPE                          1      ENABLED
+CACHER01             C_BILL_RELA                                  1      ENABLED
+CACHER01             C_RCA_CONS                                   1      ENABLED
+CACHER01             C_CONTACT                                    1      ENABLED
+CACHER01             S_CYC_TEST_PLAN                              1      ENABLED
+CACHER01             S_FRST_TEST                                  1      ENABLED
+CACHER01             ARC_R_PLAN                                   1      ENABLED
+CACHER01             A_ACCT_BAL                                   1      ENABLED
+CACHER01             C_CONS                                       1      ENABLED
+CACHER01             ARC_S_BUSI_AMT_RCVED                         1      ENABLED
+CACHER01             ARC_E_KWH_AMT                                1      ENABLED
+CACHER01             A_CHG_STAT                                   1      ENABLED
+CACHER01             C_CONS_PRC_TACTIC                            1      ENABLED
+CACHER01             C_PAYMENT_RELA                               1      ENABLED
+CACHER01             D_IO_TASK                                    1      ENABLED
+CACHER01             E_TRAN_SNAP                                  1      ENABLED
+CACHER01             ARC_S_APP                                    1      ENABLED
+CACHER01             ARC_S_BUSI_AMT_RCVBL                         1      ENABLED
+CACHER01             A_INNER_RCVPAY                               1      ENABLED
+CACHER01             A_INV                                        1      ENABLED
+CACHER01             A_CHG_ENTRY                                  1      ENABLED
+CACHER01             D_IT_SITECHK_ERR                             1      ENABLED
+CACHER01             D_INV_METER_DET                              1      ENABLED
+CACHER01             D_IT_DETECT                                  1      ENABLED
+CACHER01             D_METER_DETECT                               1      ENABLED
+CACHER01             S_ROTATE_PLAN                                1      ENABLED
+CACHER01             E_BASE_AMT                                   1      ENABLED
+CACHER01             ARC_S_PSP_DESIGN                             1      ENABLED
+CACHER01             G_TG_PQ                                      1      ENABLED
+CACHER01             S_BUSI_AMT_RCVED                             1      ENABLED
+CACHER01             D_DETECT_RSLT                                1      ENABLED
+CACHER01             R_AR_DATA                                    1      ENABLED
+CACHER01             ARC_E_LINE_SNAP                              1      ENABLED
+CACHER01             D_ROTATION_SAMPLING_DET                      1      ENABLED
+CACHER01             D_TMNL_TEST                                  1      ENABLED
+CACHER01             E_MP_PARA_SNAP                               1      ENABLED
+CACHER01             E_CONS_ACCU_PQ                               1      ENABLED
+CACHER01             C_PS                                         1      ENABLED
+CACHER01             C_BANK_ACCT                                  1      ENABLED
+CACHER01             C_CUST_AGREEMENT                             1      ENABLED
+CACHER01             C_EQUIP_RUN                                  1      ENABLED
+CACHER01             C_MP                                         1      ENABLED
+CACHER01             C_CONTAINER_DEV                              1      ENABLED
+CACHER01             D_INV_IT_DET                                 1      ENABLED
+CACHER01             D_IT_DETECT_ERR                              1      ENABLED
+CACHER01             D_INV_OTHER_DET                              1      ENABLED
+CACHER01             D_MEAS_BOX                                   1      ENABLED
+CACHER01             D_MULTFUNC_DETECT                            1      ENABLED
+CACHER01             INDYWF_WORKLIST_HIS                          1      ENABLED
+CACHER01             D_METER_ERR                                  1      ENABLED
+CACHER01             D_METER_SITECHK                              1      ENABLED
+CACHER01             D_METER_DETECT_CONC                          1      ENABLED
+CACHER01             P_APPROVE                                    1      ENABLED
+CACHER01             A_ACCT_ENTRY                                 1      ENABLED
+CACHER01             R_COLL_DATA                                  1      ENABLED
+CACHER01             A_CASH_ENTRY                                 1      ENABLED
+CACHER01             A_RCVBL_FLOW                                 1      ENABLED
+CACHER01             A_PC_TRAN                                    1      ENABLED
+CACHER01             A_PAYABLE_STAT                               1      ENABLED
+CACHER01             C_IT_RUN                                     1      ENABLED
+CACHER01             ARC_A_ACCT_ENTRY                             1      ENABLED
+CACHER01             S_DEV_IR                                     1      ENABLED
+CACHER01             S_CUST_RISK                                  1      ENABLED
+CACHER01             S_CUST_GROUP_OBJ                             1      ENABLED
+CACHER01             ARC_E_PF_AMT                                 1      ENABLED
+CACHER01             ARC_E_BILL_RELA_SNAP                         1      ENABLED
+CACHER01             INDYWF_WORKLIST_COM                          1      ENABLED
+CACHER01             ARC_A_RCVED_PL_FLOW                          1      ENABLED
+CACHER01             S_CUST_CREDIT                                1      ENABLED
+CACHER01             ARC_A_PAY_FLOW                               1      ENABLED
+CACHER01             ARC_A_RCVED_FLOW                             1      ENABLED
+CACHER01             S_CUST_VALUE                                 1      ENABLED
+CACHER01             S_95598_WKST                                 1      ENABLED
+CACHER01             ARC_E_MP_PQ                                  1      ENABLED
+CACHER01             D_IO_DET                                     1      ENABLED
+CACHER01             A_RCVED_FLOW_TMP                             1      ENABLED
+CACHER01             A_RCA_TACTIC_DET                             1      ENABLED
+CACHER01             A_RCA_CTRL_DET                               1      ENABLED
+CACHER01             A_RCA_TACTIC_EXT                             1      ENABLED
+CACHER01             A_RCA_TACTIC_RECORD                          1      ENABLED
+CACHER01             A_RCA_EXCP_LIST                              1      ENABLED
+CACHER01             A_RCA_PREPAY_PD                              1      ENABLED
+CACHER01             D_AGE_STAT                                   1      ENABLED
+CACHER01             A_RCA_TACTIC_TASK                            1      ENABLED
+CACHER01             C_RUN_CONTAINER_DEV                          1      ENABLED
+CACHER01             A_CONS_AVERAGE                               1      ENABLED
+CACHER01             E_SYS_AMT                                    1      ENABLED
+CACHER01             E_TAX_AMT                                    1      ENABLED
+CACHER01             ARC_E_BASE_AMT                               1      ENABLED
+CACHER01             ARC_E_GC_SNAP                                1      ENABLED
+CACHER01             ARC_S_APP_TEMP                               1      ENABLED
+CACHER01             S_WKS_DEAL                                   1      ENABLED
+CACHER01             S_FAULT_HANDLE                               1      ENABLED
+CACHER01             S_FAULT_RPT                                  1      ENABLED
+CACHER01             S_SRV_REQ                                    1      ENABLED
+CACHER01             C_METER                                      1      ENABLED
+CACHER01             S_REGION_OUTAGE                              1      ENABLED
+FDPSHARE             E_MP_MON_ENERGY                              1      ENABLED
+FDPSHARE             E_MP_ENERGY_CURVE                            1      ENABLED
+FDPSHARE             A_RCVED_FLOW                                 1      ENABLED
+FDPSHARE             ARC_A_RCVBL_FLOW                             1      ENABLED
+EXCHANGER30          R_COLL_OBJ_002                               1      ENABLED
+FDPSHARE             E_MP_DAY_DEMAND                              1      ENABLED
+FDPSHARE             E_MP_DAY_ISTAT                               1      ENABLED
+FDPSHARE             E_TMNL_DAY_STAT                              1      ENABLED
+FDPSHARE             E_MP_FACTOR_CURVE                            1      ENABLED
+EXCHANGER30          A_SEAL_DOC_003                               1      ENABLED
+EXCHANGER30          D_LC_EQUIP_001                               1      ENABLED
+EXCHANGER30          D_METER_002                                  1      ENABLED
+FDPSHARE             E_MP_DAY_PFTIME                              1      ENABLED
+FDPSHARE             E_TMNL_MON_STAT                              1      ENABLED
+FDPSHARE             E_MP_MON_POWER                               1      ENABLED
+FDPSHARE             P_PROC_INSTANCE_BAK                          1      ENABLED
+FDPSHARE             E_MP_MON_DEMAND                              1      ENABLED
+FDPSHARE             A_RCVBL_FLOW_BAK181226                       1      ENABLED
+FDPSHARE             A_RCVBL_PL_FLOW_BAK                          1      ENABLED
+FDPSHARE             E_MP_MON_UNBALANCE                           1      ENABLED
+FDPSHARE             P_PROC_INSTANCE                              1      ENABLED
+FDPSHARE             E_TOTAL_ENERGY_CURVE                         1      ENABLED
+FDPSHARE             E_MP_MON_ISTAT                               1      ENABLED
+FDPSHARE             E_MP_MON_VSTAT                               1      ENABLED
+FDPSHARE             E_TOTAL_POWER_CURVE                          1      ENABLED
+FDPSHARE             E_MP_MON_PFTIME                              1      ENABLED
+FDPSHARE             A_SUMMARY_VOUCHER_DET                        1      ENABLED
+EXCHANGER30          C_PS_001                                     1      ENABLED
+EXCHANGER30          D_SEAL_001                                   1      ENABLED
+EXCHANGER30          C_CONS_001                                   1      ENABLED
+FDPSHARE             P_APPROVE                                    1      ENABLED
+FDPSHARE             TAB_OGG_PROCESS                              1      ENABLED
+FDPSHARE             ARC_S_APP_ELEC_ADDR                          1      ENABLED
+EXCHANGER30          D_METER_001                                  1      ENABLED
+EXCHANGER30          C_MP_001                                     1      ENABLED
+EXCHANGER30          C_METER_002                                  1      ENABLED
+CACHER07             E_MP_CUR_CURVE                               1      ENABLED
+CACHER07             E_MP_DAY_POWER                               1      ENABLED
+CACHER07             E_MP_DAY_VSTAT                               1      ENABLED
+CACHER07             E_MP_MON_POWER                               1      ENABLED
+CACHER07             E_MP_MON_DEMAND                              1      ENABLED
+FDPSHARE             ARC_A_RCVBL_PL_FLOW                          1      ENABLED
+FDPSHARE             A_RCVED_PL_FLOW                              1      ENABLED
+CACHER07             E_MP_MON_VSTAT                               1      ENABLED
+CACHER07             E_TOTAL_POWER_CURVE                          1      ENABLED
+CACHER07             E_MP_VOL_CURVE                               1      ENABLED
+CACHER07             E_MP_MON_POWER_R01                           1      ENABLED
+CACHER07             E_MP_MON_READ                                1      ENABLED
+CACHER07             E_MP_DAY_DEMAND                              1      ENABLED
+CACHER07             E_MP_DAY_READ                                1      ENABLED
+CACHER07             E_MP_ENERGY_CURVE                            1      ENABLED
+CACHER07             E_MP_POWER_CURVE                             1      ENABLED
+CACHER07             E_MP_MON_ENERGY                              1      ENABLED
+CACHER07             E_TMNL_DAY_STAT                              1      ENABLED
+CACHER07             E_MP_MON_UNBALANCE                           1      ENABLED
+CACHER07             E_MP_DAY_UNBALANCE                           1      ENABLED
+CACHER07             E_MP_READ_CURVE                              1      ENABLED
+CACHER07             E_MP_DAY_ISTAT                               1      ENABLED
+CACHER07             E_MP_FACTOR_CURVE                            1      ENABLED
+CACHER07             E_MP_MON_ISTAT                               1      ENABLED
+CACHER07             E_TMNL_MON_STAT                              1      ENABLED
+CACHER07             E_MP_DAY_PFTIME                              1      ENABLED
+CACHER07             E_TOTAL_ENERGY_CURVE                         1      ENABLED
+CACHER07             E_MP_MON_PFTIME                              1      ENABLED
+FDPSHARE             E_MP_DAY_ENERGY                              1      ENABLED
+FDPSHARE             E_MP_MON_READ                                1      ENABLED
+FDPSHARE             A_PAY_FLOW                                   1      ENABLED
+FDPSHARE             A_VOUCHER                                    1      ENABLED
+FDPSHARE             A_PREPAY_FLOW                                1      ENABLED
+FDPSHARE             A_PC_TRAN                                    1      ENABLED
+FDPSHARE             A_INV                                        1      ENABLED
+FDPSHARE             A_CASH_ENTRY                                 1      ENABLED
+FDPSHARE             ARC_E_CONSPRC_SNAP                           1      ENABLED
+FDPSHARE             ARC_ES_CONSPRC_SNAP                          1      ENABLED
+FDPSHARE             E_MP_DAY_UNBALANCE                           1      ENABLED
+FDPSHARE             ARC_E_CONSPRC_TACTIC_SNAP                    1      ENABLED
+EXCHANGER30          R_COLL_OBJ_001                               1      ENABLED
+EXCHANGER30          D_WH_AREA_001                                1      ENABLED
+EXCHANGER30          G_LINE_001                                   1      ENABLED
+EXCHANGER30          G_SUBS_001                                   1      ENABLED
+FDPSHARE             ARC_E_PL_AMT                                 1      ENABLED
+FDPSHARE             ARC_R_DATA                                   1      ENABLED
+FDPSHARE             ARC_E_MP_PQ                                  1      ENABLED
+FDPSHARE             ARC_E_KWH_AMT                                1      ENABLED
+FDPSHARE             ARC_E_CONS_PRC_AMT                           1      ENABLED
+EXCHANGER30          C_CONS_002                                   1      ENABLED
+EXCHANGER30          G_SUBS_LINE_RELA_002                         1      ENABLED
+EXCHANGER30          G_TG_002                                     1      ENABLED
+EXCHANGER30          G_TRAN_002                                   1      ENABLED
+CACHER03             K_AC_TASK_DET                                1      ENABLED
+EXCHANGER30          R_TMNL_RUN_002                               1      ENABLED
+EXCHANGER30          R_TMNL_RUN_001                               1      ENABLED
+EXCHANGER30          G_TG_001                                     1      ENABLED
+EXCHANGER30          G_TRAN_001                                   1      ENABLED
+EXCHANGER30          G_LINE_002                                   1      ENABLED
+EXCHANGER30          C_PS_002                                     1      ENABLED
+EXCHANGER30          R_CP_001                                     1      ENABLED
+EXCHANGER30          C_MP_002                                     1      ENABLED
+EXCHANGER30          R_CP_002                                     1      ENABLED
+EXCHANGER30          R_CP_CONS_RELA_002                           1      ENABLED
+EXCHANGER30          R_CP_MP_RELA_002                             1      ENABLED
+EXCHANGER30          D_WH_001                                     1      ENABLED
+FDPSHARE             ARC_E_CONS_SNAP                              1      ENABLED
+EXCHANGER30          G_SUBS_002                                   1      ENABLED
+EXCHANGER30          D_IT_001                                     1      ENABLED
+FDPSHARE             K_AC_TASK_DET                                1      ENABLED
+EXCHANGER30          D_IT_003                                     1      ENABLED
+EXCHANGER30          C_METER_001                                  1      ENABLED
+CACHER09             ES_KWH_AMT                                   1      ENABLED
+CACHER09             ES_LINE_SNAP                                 1      ENABLED
+CACHER09             ARC_ES_PL_AMT                                1      ENABLED
+CACHER09             ARC_ES_TRAN_CHG_SNAP                         1      ENABLED
+CACHER09             ARC_ES_EXCP_INFO                             1      ENABLED
+CACHER09             ES_CONS_SNAP                                 1      ENABLED
+CACHER09             ES_MP_PARA_SNAP                              1      ENABLED
+CACHER09             ES_MP_PQ                                     1      ENABLED
+CACHER09             ES_PF_AMT                                    1      ENABLED
+CACHER09             ES_PL_AMT                                    1      ENABLED
+CACHER09             ARC_ES_BASE_AMT                              1      ENABLED
+CACHER09             ARC_ES_LINE_SNAP                             1      ENABLED
+CACHER09             ARC_ES_TRAN_SNAP                             1      ENABLED
+CACHER04             T_VOLT_MET_CONC                              1      ENABLED
+CACHER09             ARC_ES_KWH_AMT                               1      ENABLED
+CACHER09             ARC_ES_MP_PARA_SNAP                          1      ENABLED
+CACHER09             ARC_ES_CONS_SNAP                             1      ENABLED
+CACHER09             ES_CONSPRC_TACT_SNAP                         1      ENABLED
+CACHER09             ARC_ES_BILL_RELA_SNAP                        1      ENABLED
+CACHER09             ARC_ES_RCA_BASE_INFO                         1      ENABLED
+CACHER09             ES_EXCP_INFO                                 1      ENABLED
+CACHER09             ES_BASE_AMT                                  1      ENABLED
+CACHER09             ES_RCA_BASE_INFO                             1      ENABLED
+CACHER09             ES_BILL_RELA_SNAP                            1      ENABLED
+CACHER09             ES_CONS_AVERAGE                              1      ENABLED
+CACHER09             ES_CONS_PRC_AMT                              1      ENABLED
+CACHER09             ES_CONSPRC_SNAP                              1      ENABLED
+CACHER09             ARC_ES_CONS_PRC_AMT                          1      ENABLED
+CACHER09             ARC_ES_CONSPRC_SNAP                          1      ENABLED
+CACHER09             ARC_ES_RCA_MRDATA                            1      ENABLED
+CACHER09             ARC_ES_CONSPRC_TACT_SNAP                     1      ENABLED
+CACHER09             ARC_ES_MP_PQ                                 1      ENABLED
+CACHER09             ES_RCA_MRDATA                                1      ENABLED
+CACHER09             ES_TRAN_CHG_SNAP                             1      ENABLED
+CACHER09             ES_TRAN_SNAP                                 1      ENABLED
+CACHER04             T_ESAM_READ_MET_CONC                         1      ENABLED
+CACHER01             A_INTEGRAL                                   1      ENABLED

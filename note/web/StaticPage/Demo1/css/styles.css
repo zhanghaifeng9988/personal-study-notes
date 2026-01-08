@@ -1,0 +1,53 @@
+/* 全局样式 */
+body {
+    /* 设置字体、边距、内边距并形成灵活的列布局 */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+ 
+/* 头部样式 */
+header {
+    /* 设置头部背景颜色、文本颜色、内边距和文本对齐方式 */
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px;
+    text-align: center;
+}
+ 
+/* 主内容样式 */
+main {
+    /* 设置主内容区域的弹性、内边距和文本对齐方式 */
+    flex: 1;
+    padding: 20px;
+    text-align: center;
+}
+ 
+/* 按钮样式 */
+button {
+    /* 设置按钮的内边距、字体大小、背景颜色、文本颜色、边框、边框半径和鼠标光标样式 */
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #008CBA;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+ 
+button:hover {
+    /* 鼠标悬停时改变按钮背景颜色 */
+    background-color: #005f6a;
+}
+ 
+/* 页脚样式 */
+footer {
+    /* 设置页脚背景颜色、文本颜色、文本对齐方式和内边距 */
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px;
+}

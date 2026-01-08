@@ -1,0 +1,19 @@
+
+
+
+declare
+vcount number;
+begin
+  for c in(select * from wf_amber.indywf_worklist_com@to_yxsc where item_key='12341341234' and 
+ taskid='12341234')
+ loop
+ select count(1) into vcount from cacher01.indywf_worklist_cur where item_key=c.item_key 
+ and taskid=c.taskid;
+ if vcount>0 then
+ update cacher01.indywf_worklist_cur set
+ item_type=c.item_key,
+ item_key=c.item_key,
+ pro_name=c.pro_name,
+ pro_title=c.pro_title,
+ taskid=c.taskid,
+ 

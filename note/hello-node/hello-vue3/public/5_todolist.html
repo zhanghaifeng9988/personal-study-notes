@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>待办任务列表</title>
+  <script src="vue.js"></script>
+</head>
+<body>
+  <div id="Application">
+    <!-- 输入框元素，用来新建待办任务 -->
+    <!-- 使用 submit.prevent 后，当表单被提交时，页面不会刷新，而是执行你定义的 addTask 方法。 -->
+    <form v-on:submit.prevent="addTask">
+      <span>新建任务</span>
+      <input v-model="taskText"
+      placeholder="请输入待办任务"
+      type="text"/>
+      <button type="submit">添加</button>
+    </form>
+    <!-- 有序列表，使用v-for来构件 -->
+    <ol>
+      <li v-for="(item,index) in todos">
+       {{item}}
+        <button @click="remove(index)">删除任务</button>
+      <hr/>
+      </li>
+    </ol>
+  </div>
+
+  <script>
+    // 创建Vue实例
+    const App = {
+      data() {
+        return {
+         // 待办任务列表
+          taskText: '',
+          // 待办任务列表数据
+          todos: []
+        }
+    },
+    methods: {
+      // 添加一条待办任务
+      addTask() {// 防止用户输入空白内容
+        if (this.taskText.length == 0) {
+          alert('请输入待办任务');
+          return; // 返回空函数，结束函数执行
+        }
+        else{
+        this.todos.push(this.taskText)
+        this.taskText = '' }  // 清空输入框
+      },
+      // 删除一条待办任务
+      remove(index) {
+        this.todos.splice(index, 1)
+      }
+    }
+    }
+    // 创建Vue实例并挂载到div元素上
+    const app = Vue.createApp(App)
+    app.mount('#Application')
+  </script>
+</body>
+</html>

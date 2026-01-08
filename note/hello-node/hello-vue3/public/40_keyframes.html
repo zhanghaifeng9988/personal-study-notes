@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src='vue.js'></script>
+    <style>
+      /* keyframe 用来定义动画的名称和每个关键帧的状态。 */
+      /* 动画名称 animation1 */
+      /* 关键帧 0%、25%、75%、100% 4个动画状态 */
+      /* 对于每个状态，将其定义为一个关键帧，其中定义元素的渲染属性 */
+      @keyframes animation1 {
+        0% {
+          background-color: red;
+          width:100px;
+          height:100px;
+        }
+        25% {
+          background-color: orchid;
+          width:200px;
+          height:200px;
+        }
+        75% {
+          background-color: green;
+          width:150px;
+          height:150px;
+        }
+        100% {
+          background-color: blue;
+          width:200px;
+          height:200px;
+        }
+      }
+      .demo{
+        width:100px;
+        height:100px;
+        background-color: red;
+      }
+      .demo-ani{
+        animation: animation1 5s linear;
+        width:200px;
+        height:200px;
+        background-color: blue;
+     }
+    </style>
+</head>
+<body>
+  <div id="Application">
+    <div  :class="cls"  @click="run">
+      当前的样式类别是：{{cls}}
+    </div>
+  </div>
+  <script>
+    const App=Vue.createApp({
+      data(){
+        return{
+          cls:'demo'
+        }
+      },
+      methods:{
+        run(){
+          if(this.cls=='demo'){
+            this.cls='demo-ani'
+          }
+          else {
+            this.cls='demo'
+          }
+        }
+      }
+    })
+    App.mount('#Application')
+  </script>
+</body>
+</html>

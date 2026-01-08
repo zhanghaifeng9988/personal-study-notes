@@ -1,0 +1,108 @@
+
+
+查看镜像信息
+docker  images
+
+查看容器信息
+docker ps -a
+
+启动容器：docker-compose模式
+docker-compose -f docker-compose.yml up -d
+docker-compose logs
+
+
+手动启动容器：
+docker start d643d21fba2f   数据库
+docker start 3436bb0153e5   主程序
+
+容器状态查询
+docker stats 3436bb0153e5
+
+手动停止容器：
+docker stop 3436bb0153e5
+
+日志查看：
+docker logs d643d21fba2f
+docker logs 3436bb0153e5
+
+日志查看
+ docker inspect CONTAINER_ID  |grep log    //查询日志文件的路径
+tail -100f /var/lib/docker/containers/178cd4680777fe8a55850e3be85bfbe3b8a2adf95575f23020e75a3fdfb20128/178cd4680777fe8a55850e3be85bfbe3b8a2adf95575f23020e75a3fdfb20128-json.log
+
+
+进入容器
+docker  exec -it d643d21fba2f /bin/bash
+docker  exec -it 3436bb0153e5 /bin/bash
+
+查看容器IP，最后写的是容器的name或者id
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' d643d21fba2f
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' c086e92e03ea
+
+
+登录到pg数据库
+psql -U username  -d antsk
+
+
+
+
+需要修改的内容：
+  json文件中修改：
+    数据库连接字符串    
+	向量数据库和业务数据都用pg
+	docker-compose部署的，需要在json中修改为容器中的模型的目录："FileDirectory": "/app/model/"
+	
+	修改 docker-compose中antsk服务的volumes：添加路径映射，将宿主机中的模型路径，映射到容器中
+	比如：- /soft/model:/app/model
+	
+
+	
+192.168.0.111:5000 登录antsk  账号：admin  密码：xuzeyu 
+点击模型下载，搜索：qwen 1.8
+
+
+创建一个会话模型和一个向量模型，使用同一个模型
+
+修改appsetting.json:
+  "LLamaSharp": {
+    "RunType": "GPU",
+    "Chat":"/app/model/qwen1_5-1_8b-chat-q4_0.gguf"
+    "Embedding":"/app/model/qwen1_5-1_8b-chat-q4_0.gguf"
+    "FileDirectory": "/app/model/"
+
+
+
+模型描述：session_model_test1
+AI类型：LLamaFactory
+模型类型：会话模型
+模型名称：BLOOMZ-560M  （选择1个小的）/ ChatGLM3-6B-Chat (大的，在wsl2场景的虚拟机中)
+点击环境安装，进行PYTORCH的安装（如果docker-compose的yml中已经配置好了镜像是包含pytorch的
+就不需要执行环境安装了）
+请求地址：http://localhost:8000/
+点击启动，下载模型。
+点击保存
+
+
+模型描述：vector_model_bge_test1
+AI类型：Bge Embedding
+模型类型：向量模型
+模型名称：AI-ModelScope/bge-base-zh-v1.5
+PythonDll路径:/opt/conda/pkgs/python-3.10.13-h955ad1f_0/lib/libpython3.10.so  注意应用容器中的路径
+点击环境安装，查看日志，直到完成；
+点击初始化，等待初始化完成，主要是下载模型
+
+
+创建知识库
+创建应用
+创建聊天
+
+
+
+
+
+首先要学习如何让数据向量化
+其次学习c#
+最后学习许泽宇大神的开源项目antsk
+
+
+
+

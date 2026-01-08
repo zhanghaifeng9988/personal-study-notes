@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="vue.js"></script>
+</head>
+<body>
+  <div id="Application">
+    <!-- 组件的外部属性和外部方法,外部方法需要定义在父组件的methods中，并在子组件的template中调用 -->
+    <haifeng-alert @myclick='appfunc' title="按钮1"></haifeng-alert>
+    <haifeng-alert @myclick='appfunc' title="按钮2"></haifeng-alert>
+  </div>
+  <script>
+    const App = Vue.createApp({
+      methods:{
+        appfunc(param){
+          alert(param+'被点击了')
+      }
+    }
+  })
+    const alertComponent = {
+        //还可以给子组件在传递方法前，加一个子组件的方法进行预处理
+      methods:{
+        click(){
+          alert('组件内部的前置处理逻辑')
+          this.$emit('myclick',this.title)
+      }
+    },
+      props:['title'],
+      // template:`<div><button @click="$emit('myclick',title)">{{title}}</button></div>`
+    // 按钮的单击事件，传递给父组件处理，title是传递给父组件事件处理方法的参数
+
+    template:'<div><button @click="click">{{title}}</button></div>'
+      // 按钮的单击事件，调用子组件的方法，该方法传递到父组件，并传递参数给父组件处理
+  }
+  App.component('haifeng-alert',alertComponent)
+  App.mount('#Application')
+  </script>
+</body>
+</html>

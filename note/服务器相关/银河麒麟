@@ -1,0 +1,39 @@
+
+
+                 
+--设置命令行模式为默认模式
+systemctl set-default multi-user.target 
+
+
+--切换为图形模式
+systemctl isolate graphical.target 
+
+--切换为命令行模式
+systemctl isolate multi-user.target 
+
+--设置图形界面为默认模式 
+systemctl set-default graphical.target 
+
+
+
+--系统版本查看
+cat /proc/version
+
+--系统参数查看
+ ulimit -a
+ 
+
+--sudo权限配置
+在root下执行visudo命令
+
+在root    ALL=(ALL)       ALL下
+
+添加如下内容
+
+test    ALL=(ALL)       ALL
+
+想免除密码输入加上NOPASSWD: 
+
+test    ALL=(ALL)      NOPASSWD: ALL
+
+保存并退出  test为要赋予权限的用户名

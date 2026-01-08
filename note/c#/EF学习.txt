@@ -1,0 +1,1200 @@
+
+
+                                      --Entity Framework Core--
+先来理解什么是ORM:
+  ORM是Object-Relational Mapping（对象关系映射）的缩写，
+它是一种在编程中用于将对象模型表示的数据与关系型数据库中的数据进行映射的技术。
+ORM框架允许开发者使用面向对象的方式来操作数据库——即通过操作对象和对象属性来执行数据库查询和更新，
+而不是编写SQL语句。
+
+ORM的主要目标是减少编程时需要编写的SQL代码量，同时提供一种更加直观和面向对象的方式来处理数据库。
+这使得开发者可以更加专注于业务逻辑的实现，而不是数据库操作的细节。
+
+ORM框架通常具备以下功能：
+
+映射配置：定义对象模型与数据库表之间的映射关系，包括字段与列的映射、表之间的关系等。
+
+查询构建：提供构建查询的API，允许开发者通过编写代码来构建复杂的SQL查询，而不需要直接编写SQL语句。
+
+数据访问：封装了数据的读取和写入操作，使得数据访问更加安全和方便。
+
+自动更新：当对象模型发生变化时，ORM框架可以自动更新数据库结构，或者提供迁移工具来帮助开发者管理数据库的版本。
+
+事务管理：简化了数据库事务的管理，使得在事务中执行多个数据库操作变得更加容易。
+
+缓存：提供数据缓存机制，提高数据访问效率。
+
+在.NET中，Entity Framework是一个流行的ORM框架，它允许开发者使用C#或VB.NET来定义数据模型，
+并提供了丰富的API来操作数据库。
+其他流行的ORM框架还包括Hibernate（Java）、Django ORM（Python）、ActiveRecord（Ruby）等。	 
+
+	 
+EF概念：
+    本质上就是普通的.NET 程序集，NUGET中供开发者使用和管理；
+	两个核心概念：数据模型、数据上下文；
+	--数据模型：用于表示数据库中的表定义和表与表之间的关系；
+	--数据上下文：用于管理、操作数据模型和管理与数据库的交互；
+
+EF的能力范围和作用：
+   EF提供了一种机制，使得开发者可以在应用程序代码中定义数据模型，
+并通过配置将这个模型映射到数据库的物理结构上。
+这种映射关系是双向的，既可以从模型生成数据库，
+也可以从数据库生成模型，还可以在两者之间进行同步和迁移。
+
+	
+限制：
+     表示数据库表的模型类，必须具有主键；模型必须有主键；
+	 模型类的主键，如果是：int long类型，EF CORE会把他自动设置为自增字段。
+	 Guid类型不会自动设置为自增字段；
+
+
+                          --前置概念--
+
+  在C#后端.NET开发中，即使数据库已经配置了所有的数据模型，
+使用Entity Framework (EF) 搭建和配置对应的实体模型和实体类仍然有多个重要原因：
+
+--对象关系映射（ORM）：
+
+  EF 作为一个ORM工具，允许开发者使用C#对象与数据库进行交互，而不是直接编写SQL查询。
+  这提供了一个抽象层，使得开发者可以专注于业务逻辑而不是数据库操作。代码可读性和可维护性：
+
+  使用实体类可以使代码更加直观和易于理解。实体类作为数据库表的表示，其属性对应表的列，
+  这使得代码更贴近业务领域模型。数据抽象和封装：
+
+  实体类封装了数据和行为，提供了一个清晰的接口来与数据交互。这有助于隐藏实现细节，
+  只暴露必要的操作给应用程序的其他部分。变更管理：
+
+  如果数据库结构发生变化，通过EF的实体模型，您可以更容易地管理这些变更，而不必直接修改应用程序代码中的SQL语句。
+
+--数据注解和Fluent API：
+
+  EF 提供了数据注解和Fluent API，允许开发者配置实体的属性，如主键、外键、索引、唯一约束等，
+  而不需要更改数据库结构。跟踪和状态管理：
+
+  EF 可以跟踪实体的状态（例如，新增、修改、未更改），这使得处理数据变更更加容易，并可以优化数据库操作。
+
+--懒加载和急加载：
+
+  EF 支持懒加载和急加载，允许开发者根据需要加载相关数据，这有助于提高应用程序的性能。
+
+--数据库无关性：
+
+  使用EF，您可以编写与特定数据库无关的代码。EF提供了多种数据库提供程序，允许您在不同的数据库之间切换，而不需要修改实体类。
+
+--迁移支持：
+
+  EF Core的迁移功能允许您对实体模型进行版本控制，并可以根据模型的变更自动更新数据库结构。
+复杂查询和操作的简化：
+
+  EF 提供了LINQ（Language Integrated Query）支持，允许开发者使用C#语言本身编写复杂查询，而不是复杂的SQL语句。
+数据验证和业务规则：
+
+  实体类可以在属性层面上实现数据验证和业务规则，这有助于保持数据的完整性和一致性。
+测试和模拟：
+
+  在单元测试中，实体类可以被轻松地模拟或存根化，以便于测试应用程序的逻辑。
+
+总之，即使数据库模型已经存在，使用EF的实体模型和实体类可以提供额外的抽象和便利，
+使得开发过程更加高效、代码更加可维护，并且应用程序更加灵活。	
+
+                                    
+									--实例学习--					  
+
+  这个类就可以看作为一个数据模型，但他还不是一个真正的实体模型，只是一个实体类型，它定义了实体的属性，
+下面会有实体模型的创建的多种方式的介绍！！！
+
+public class Model
+{
+    public int Id { get; set; }
+    public string? Text { get; set; }
+}
+
+数据上下文举例：
+public class ModelDbContext : DbContext
+{
+    public DbSet<Model> Models { get; set; }  //Models这个属性名， 默认表示：表名，惯例用法加s
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.UseSqlite("Data Source=model.db");
+    }
+}
+
+	 
+ 在Entity Framework中，DbSet<T>是一个泛型集合，代表数据库中的一个表，
+ 其中T是表示数据模型的类名。DbSet<T>提供了对数据库表的访问和操作，例如添加、删除和查询记录。
+当你在Entity Framework的上下文中定义DbSet<Model>时，你是在告诉Entity Framework，
+你的应用程序将通过这个DbSet来操作数据库中与Model类对应的表。
+这样，当你需要执行如添加新记录、查询记录或者删除记录等操作时，
+你可以直接在DbSet<Model>上调用相应的方法，而Entity Framework会为你处理底层的数据库交互
+  
+--简单使用举例
+
+using (var db = new ModelDbContext())
+{
+    // 插入
+    Console.WriteLine("插入一条记录");
+    db.Models.Add(new Model { Text = "这是一段话" });
+    db.SaveChanges();
+
+    // 查询
+    Console.WriteLine("查询记录");
+    var model = db.Models
+        .OrderBy(b => b.Id)
+        .First(); //使用LINQ查询对Models集合进行排序，按Id属性的升序排列，
+		          //然后使用First方法获取排序后的第一个元素。这通常用于获取具有最小Id值的记录。
+
+    // 更新
+    Console.WriteLine("更新一条记录");
+    model.Text = "这是一段更新后的话";
+    db.SaveChanges();
+
+    // 删除
+    Console.WriteLine("删除一条记录");
+    db.Models.Remove(model);
+    db.SaveChanges();
+}
+
+任何非抽象、非泛型的类类型，都可以作为实体类型使用。
+
+
+                                    --实体模型配置--
+									
+--包含以下三种类型，并且会根据优先级进行配置覆盖，应用优先级从高到低分别为：
+
+基于Fluent API的配置。
+基于特性的配置。
+基于默认约定的配置。
+
+需要指出的是，基于数据库提供者的默认约定通常不被视为配置优先级的一部分，
+因为它们是在没有任何EF Core配置的情况下的后备选项。
+一旦开发者使用上述第1、2，两种方法指定了配置，相应的默认约定就会被覆盖。
+
+
+--默认约定的概念：
+
+  以下是EF Core中实体模型配置的一些默认约定：
+
+  --类名到表名的映射：
+
+    默认情况下，EF Core将类名作为数据库中的表名。例如，Person 类会被映射到 Person 表。
+  
+  --属性名到列名的映射：
+
+    类的属性名通常直接用作数据库表中的列名。
+
+  --主键约定：
+
+    标记为主键的属性通常是名为 Id 的属性，并且是类的第一个属性，除非使用数据注解 [Key] 显式指定主键。
+
+  --字符串长度约定：
+
+    对于 string 类型的属性，默认最大长度是 nvarchar(MAX)（在SQL Server中）。
+
+  --非空约定：
+
+    值类型（如 int, double 等）的属性默认为非空（NOT NULL）。
+引用类型（如 string）的属性默认为可空（NULL）。
+
+  --关系约定：
+
+    EF Core会基于命名约定推断关系。例如，如果存在 Blog 和 Post 类，EF Core会预期 Post 类中有一个 Blog 类型的属性，表示博客与帖子之间的导航属性。
+自增约定：
+   对于整型的主键，默认约定是使用自增（Identity）列。
+
+  --数据类型映射：
+
+    EF Core根据属性的CLR类型推断数据库中的数据类型。例如，int 映射到 INT，bool 映射到 BIT，DateTime 映射到 DATETIME 等。
+
+  --忽略属性：
+
+    以 _ 开头的私有属性或使用 [NotMapped] 特性标记的属性会被忽略，不被映射到数据库表的列。
+
+  --配置发现：
+
+    EF Core会首先查找数据注解（例如 [Table], [Column] 等），如果数据注解不存在，它会使用上述约定来配置模型。
+这些默认约定使得EF Core在许多情况下能够自动配置模型，从而减少需要编写的代码量。
+然而，EF Core也提供了强大的Fluent API，允许开发者覆盖这些默认约定，以满足特定的数据库设计需求。
+
+
+
+--举例1：特性方式(数据注解)
+
+namespace EntityModels;
+
+// 使用特性指定表名和架构名
+[Table("CustomTableName", Schema = "dbo")]
+public class SimpleEntity
+{
+    // 使用特性指定属性为主键
+    [Key]
+    public Guid Id { get; set; }  //使用guid类，表示ID是只读的，赋值以后不能修改，
+                                  //Guid 是一个公共的只读结构体，表示一个全局唯一的16字节（128位）标识符。
+    // 使用特性指定属性为自增长列
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)] 
+    public long SimpleEntityId { get; set; }//该列为自增列
+    // 使用特性指定列名和列类型
+    [Column("CustomColumnName", TypeName = "int")]
+    public int? NullableStruct { get; set; }
+	
+    public double FloatNumber { get; set; }
+    public decimal DecimalNumber { get; set; }
+    public bool Bit { get; set; }
+    public DateTime NormalDateTime { get; set; }
+    public DateTimeOffset BetterDateTime { get; set; }
+    public Number Enum { get; set; }
+    public Number? NullableEnum { get; set; }
+    public char Character { get; set; }
+    // 使用特性指定列不可空
+    [Required]
+    // 使用特性指定列大小和不符合规则时使用的错误提示模板
+    [StringLength(50, MinimumLength = 1, ErrorMessage = "{0} 必须至少有 {2} 个字符，并且最多只能有 {1} 个字符。")]
+    public virtual string Text { get; set; }
+    public byte[] BinaryData { get; set; }
+}
+
+public enum Number
+{
+    Zero = 0,
+    One = 1,
+    Tow = 2
+}
+
+--举例2：fluent  API方式
+  fluent  API方式,支持所有实体模型配置项；
+  基于特性的配置只支持部分实体模型配置项。
+
+  基于fluent  API方式的配置，写在上下文类中OnModelCreating方法中。
+  这是一个受保护的虚方法，EF core 会在模型构造期间自动调用，开发者只需要编写配置代码即可。
+
+--举例：用fluent  API方式，完成SimpleEntityClass的配置，如下：
+
+public class BasicEntityDbContext : DbContext
+{
+    public DbSet<SimpleEntity> SimpleEntities => Set<SimpleEntity>();
+    //DbSet<T> 是 EF 中用于表示数据库中表的集合的类型;
+	//开发者可以通过这个属性来执行数据库操作，如添加、删除、查询等;
+    
+    //ModelBuilder 是配置实体模型的构建器类型
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+     // OnModelCreating是DbContext的一个虚方法，用于配置模型
+        base.OnModelCreating(modelBuilder);
+     // 调用基类的OnModelCreating方法，确保EF Core的默认行为被执行
+
+        // 风格1
+        // 从ModelBuilder获取SimpleEntity类型的实体配置器
+        var simpleEntityModelBuilder = modelBuilder.Entity<SimpleEntity>();
+
+        simpleEntityModelBuilder
+            // 配置表名和架构名
+            .ToTable("CustomTableName", "dbo")
+            // 配置主键，它告诉EF Core SimpleEntity 实体的主键存在，对应的实体类型中的属性是 Id
+            // ，这个属性 Id 在 SimpleEntity 实体类型中
+            // ，s 是一个形参，它代表 SimpleEntity 实体类型的一个实例
+            .HasKey(s=> s.Id);  //Lambda表达式的语法，表示“取”或“映射到”。
+
+        simpleEntityModelBuilder
+            // 配置SimpleEntityId属性为自增列，起始值和增量都是1
+            .Property(s => s.SimpleEntityId).UseIdentityColumn(1,1); //Lambda表达式的语法，表示“取”或“映射到”。
+
+        simpleEntityModelBuilder
+		   .Property(s => s.NullableStruct)
+            // 配置列名
+            .HasColumnName("CustomColumnName")
+            // 配置列类型
+            .HasColumnType("int");
+
+        simpleEntityModelBuilder
+		    .Property(s => s.Text)
+            // 配置列非空
+            .IsRequired()
+            // 配置列大小（字符串用）
+            .HasMaxLength(50);
+
+        simpleEntityModelBuilder.Property(s => s.DecimalNumber)
+            // 配置列精度（小数用）
+            .HasPrecision(16, 4);
+
+
+        // 风格2
+        modelBuilder.Entity<SimpleEntity>(
+            b =>
+            {
+                b.ToTable("CustomTableName", "dbo")
+                    .HasKey(s => s.SimpleEntityId);
+
+                b.Property(s => s.SimpleEntityId)
+                    .UseIdentityColumn(1, 1);
+
+                b.Property(s => s.NullableStruct)
+                    .HasColumnName("CustomColumnName")
+                    .HasColumnType("int");
+
+                b.Property(s => s.Text)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                b.Property(s => s.DecimalNumber)
+                    .HasPrecision(16, 4);
+            });
+    }
+}
+
+  --此处有个问题，风格1 里面既有主键 也有 自增列，风格2只有 自增列，且该自增键被配置为主键
+通过询问AI（kimi），答复为：在这种情况下，由于Fluent API中的配置会覆盖数据注解的约定，
+SimpleEntityId 将被视为主键，即使 Id 属性有 [Key] 注解。
+
+
+
+--举例3：利用IEntityTypeConfiguration接口，其中的Configure方法进行配置，使用fluent API方式
+                     ***个人建议使用此方式，代码更简洁***
+
+举例：
+public class SimpleEntityConfiguration : IEntityTypeConfiguration<SimpleEntity>
+{
+    public void Configure(EntityTypeBuilder<SimpleEntity> builder)
+    {
+        builder.ToTable("CustomTableName", "dbo")
+            .HasKey(s => s.Id);
+
+        builder.Property(s => s.SimpleEntityId)
+            .UseIdentityColumn(1,1);
+
+        builder.Property(s => s.NullableStruct)
+            .HasColumnName("CustomColumnName") //指定属性NullableStruct对应的列名：CustomColumnName
+            .HasColumnType("int");             //指定，CustomColumnName列的类型：int
+                                               //如果不指定，列名默认为：属性名，
+											   //列的数据类型，默认为：实体类中属性的类型;
+        builder.Property(s => s.Text)
+            .IsRequired().HasMaxLength(50);
+    }
+}
+
+
+
+                                  --排序规则
+  为什么需要排序规则？
+数据库需要排序规则来执行以下操作：
+
+字符串比较：确定两个字符串是否相等，或者它们的顺序。
+索引创建：在创建基于文本列的索引时，排序规则决定了索引中字符串的存储顺序。
+排序操作：在使用 ORDER BY 语句对结果进行排序时，排序规则决定了输出的顺序。
+  
+  这段代码展示了如何在Entity Framework Core中使用Fluent API来配置数据库的排序规则（collation）。
+排序规则定义了字符串比较和索引的规则，这对于多语言数据库尤其重要。
+    
+public class CollationEntity
+{
+    public int Id { get; set; }
+    public string Text { get; set; }
+}
+
+public class CollationDbContext : DbContext
+{
+    public DbSet<CollationEntity> CollationEntities => Set<CollationEntity>(); 
+	 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.UseCollation ("German_PhoneBook_CI_AS");
+
+        modelBuilder.Entity<CollationEntity>().Property(c => c.Text)
+            .UseCollation ("German_PhoneBook_CI_AS");
+    }
+}
+ 
+***注意***：个人理解，排序规则完全可以在模型配置阶段进行，这里的内容，意图只是做个排序规则的单独的说明。
+
+                          
+						  --值生成和计算属性--
+						  
+值生成是EF Core中一项重要的功能，值生成策略的配置也较为复杂。
+因为关系数据库大多都有自动生成列值的能力，例如通过默认值SQL表达式或触发器等自动生成列值。
+
+public class GeneratedValueEntity  //实体类的值生成和计算属性，使用特性方式定义
+{
+    [Key]                          //特性，指：主键
+    public int Id { get; set; }
+//特性，表示插入时值生成
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]  
+    public DateTime Inserted { get; set; }
+//特性，指：按照特定的计算规则生成
+    [DatabaseGenerated(DatabaseGeneratedOption.Computed)]  
+    public DateTimeOffset InsertedOffset { get; set; }
+//特性，指：None，表示它没有特定的数据库生成规则，值必须由应用程序提供
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]  
+    public string Text { get; set; }
+
+    [NotMapped]  //特性，指：用于指示 SummryInApp 属性不应该映射到数据库表的列
+	//它提供了一个基于 Id 和 InsertedOffset 的字符串表达式。
+    public string SummryInApp => $"Record id is {Id} and inserted on {InsertedOffset} by app code.";
+	
+    public string SummryInDatabase { get; set; }
+}
+
+//实体模型中，值生成和计算属性配置
+public class GeneratedValueEntityConfiguration : IEntityTypeConfiguration<GeneratedValueEntity>
+{
+    public void Configure(EntityTypeBuilder<GeneratedValueEntity> builder)
+    {
+        builder.Property(g => g.Inserted)
+            .ValueGeneratedOnAdd()
+		//当新记录被添加到数据库时，Inserted 属性的值应该由数据库或值生成器生成。
+           .HasValueGenerator<NowTimeValueGenerator>();
+//它定义了如何生成 DateTime 类型的值。在这个特定的例子中，NowTimeValueGenerator 用于在添加记录时生成当前时间。
+//这里Inserted 属性没有被显式设置，EF Core 将使用 NowTimeValueGenerator 来生成当前时间，
+//并将其存储在数据库中对应 Inserted 字段的列里。
+        builder.Property(g => g.InsertedOffset)
+            .ValueGeneratedOnAddOrUpdate()
+//此方法链指定属性的值在向数据库添加新记录或更新现有记录时由数据库或值生成器生成。
+//这通常用于那些在每次更新记录时都需要更新的字段，如“最后修改日期”。
+            .HasDefaultValueSql("getdate()");
+//此方法设置一个默认值SQL表达式，用于当属性在插入时没有指定值的情况下。
+//在这个例子中，"getdate()" 是一个SQL Server函数，它返回当前的日期和时间。
+//这意味着当插入新记录时，如果没有为 InsertedOffset 属性提供值，数据库将使用当前的日期和时间作为默认值。
+        builder.Property(g => g.Text)
+        .HasDefaultValue("Text");
+//给这一个字段，设置一个默认值
+
+        builder.Ignore(g => g.SummryInApp);
+//忽略这个字段，不再数据库表中出现
+
+        builder.Property(g => g.SummryInDatabase)
+        .HasComputedColumnSql("N'Record id is ' + convert(nvarchar, [Id]) + N' and inserted on ' + convert(nvarchar, [InsertedOffset]) + N' by database.'", true);
+    }
+}
+
+//值生成器
+public class NowTimeValueGenerator : ValueGenerator<DateTime>
+{
+    public override bool GeneratesTemporaryValues => true;
+
+    public override DateTime Next([NotNull] EntityEntry entry)
+    {
+        return DateTime.Now;
+    }
+	//重写了 Next 方法，它是 ValueGenerator<DateTime> 的一部分。Next 方法用于生成下一个 DateTime 值。
+	方法的参数 entry 是一个 EntityEntry 对象，它表示正在被插入或更新的实体的条目。
+	[NotNull] 属性是一个源代码注释，指示该参数不应为 null。
+}
+
+
+
+                          --影子属性--
+						  
+   影子属性也称为阴影属性，表示没有在实体类型中定义、但在EF Core实体模型中定义的属性，
+就像影子一样与实体同在却又不是实体。影子属性只能使用Fluent API手动配置。
+
+--举例：
+public class ShadowPropertyEntity
+{
+    public int Id { get; set; }
+    public string Text { get; set; }
+}
+
+public class ShadowPropertyEntityConfiguration : IEntityTypeConfiguration<ShadowPropertyEntity>
+{
+    public void Configure(EntityTypeBuilder<ShadowPropertyEntity> builder)
+    {
+        builder.Property<string>("ShadowProperty")
+            .HasDefaultValue("This is ShadowProperty.");
+    }
+}
+
+//ShadowProperty 即为  影子属性
+
+
+--影子属性的访问方法
+                          
+						  
+	
+	
+                      
+                              --后备字段--
+
+						  
+	结合值生成中的例子：  当时为了让EF Core能正常从数据库中赋值给属性 SummryInDatabase
+把它定义为了公共的读写属性。但这样可能造成一种错觉—这是一个普通属性，
+能与数据库正常交互。
+    而实际上我们希望这是个只读属性，明确告诉团队中的其他开发者，
+这个属性无法被赋值也不能把它保存到数据库中。
+
+--举例：
+public class BackingFieldsEntity
+{
+    public int Id { get; set; }
+
+    private string _summryInDatabase;
+
+    [BackingField("_summryInDatabase")]  //后备字段的特性配置
+    public string SummryInDatabase => _summryInDatabase;
+}
+
+public class BackingFieldsEntityConfiguration : IEntityTypeConfiguration<BackingFieldsEntity>
+{
+    public void Configure(EntityTypeBuilder<BackingFieldsEntity> builder)
+    {
+        builder.Property(g => g.SummryInDatabase)
+            .HasComputedColumnSql("N'Record id is ' + convert(nvarchar, [Id]) + N' and inserted on ' + convert(nvarchar, [InsertedOffset]) + N' by database.'", true)
+         //配置 SummryInDatabase 属性为数据库中的计算列，使用提供的SQL表达式生成值。   
+			.HasField("_summryInDatabase")
+		//指定属性 SummryInDatabase 与私有字段 _summryInDatabase 相关联。
+            .UsePropertyAccessMode(PropertyAccessMode.PreferField);
+		//指定了属性访问模式,这意味着EF Core 将优先使用后备字段而不是属性来存储和检索值。
+    }
+}
+
+--后背字段的好处：
+
+  --封装性：
+
+使用后备字段允许您在实体类中隐藏实际的数据存储细节，只对外公开所需的属性。
+这有助于封装实体的状态，使得实体类的使用者无法直接修改内部状态，只能通过公共API进行。
+
+  --延迟计算：
+
+后备字段可以用来存储延迟计算的值。
+例如，只有在第一次访问属性时才计算其值，这可以提高性能，尤其是当计算成本较高时。
+
+  --数据库计算列的映射：
+
+如您所述，后备字段可以用来映射数据库中的计算列。计算列的值通常由数据库在查询时动态生成，而不是实际存储在数据库中。
+通过将这些值映射到后备字段，您可以在应用程序中像使用普通属性一样使用它们。
+
+  --自定义行为：
+
+后备字段允许您在属性的 get 访问器中添加自定义逻辑，例如格式化输出或附加的业务规则检查，
+而 set 访问器可以保持私有，确保属性不会被外部代码意外修改。
+
+  --性能优化：
+
+当您需要存储大量实体的相同数据时，使用后备字段可以减少内存占用。您可以在内存中存储一份数据，
+而让所有实体都引用这个存储，而不是每个实体都存储自己的副本。
+
+  --简化模型：
+
+在某些情况下，使用后备字段可以简化模型的复杂性。例如，您可以避免在实体类中创建多个具有相同逻辑的属性。
+
+  --分离关注点：
+
+后备字段允许您将数据存储和数据展示分离。您可以在后备字段中存储原始数据，并在属性中提供格式化或计算后的数据。
+
+  --兼容性：
+
+在某些情况下，后备字段可以提高代码的兼容性。例如，当您需要与现有的数据库结构或第三方库交互时，
+后备字段可以帮助您在不修改现有代码的情况下适应这些结构。
+  
+  --使用PropertyAccessMode：
+  通过 UsePropertyAccessMode(PropertyAccessMode.PreferField)，
+您可以告诉EF Core在加载和保存数据时优先使用后备字段。
+这确保了数据的一致性，并允许EF Core直接与后备字段交互，而不是通过属性。
+
+
+总之，后备字段提供了一种灵活的方式来控制数据的存储和访问，同时保持代码的清晰和封装性。
+这在处理复杂的业务逻辑或与数据库进行交互时尤其有用。
+
+
+
+                           --模型字段--
+
+在Entity Framework Core中，"模型字段"通常指的是在实体类中定义的字段，
+这些字段直接对应数据库表的列。
+这与属性（Properties）相对，属性是具有 getter 和/或 setter 的成员，
+可以包含额外的逻辑，例如数据验证或值转换。
+
+在这段代码中，FieldEntity 类中的字段 Id 和 Text 被用作模型字段，直接映射到数据库表的列。
+使用字段而不是属性可以减少样板代码，但在字段上不能应用如数据注解或属性访问器中的逻辑。
+在 OnModelCreating 方法中，通过Fluent API 配置这些字段，确保它们按照预期映射到数据库。
+						   
+public class FieldEntity
+{
+    public int Id;
+    public string Text;
+}
+
+public class FieldEntityDbContext : DbContext
+{
+    public DbSet<FieldEntity> FieldEntities => Set<FieldEntity>();
+
+//创建FieldEntities表，这个数据集
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<FieldEntity>(b =>
+        {
+            b.Property(f => f.Id);
+            b.Property(f => f.Text);
+        });
+    }
+}
+
+    在这段代码中，FieldEntity 类中的字段 Id 和 Text 被用作模型字段，直接映射到数据库表的列。
+使用字段而不是属性可以减少样板代码，但在字段上不能应用如数据注解或属性访问器中的逻辑。
+在 OnModelCreating 方法中，通过Fluent API 配置这些字段，确保它们按照预期映射到数据库。
+
+
+    
+					
+                                     --主键--
+					 
+--这段代码演示了如何在Entity Framework Core中配置具有简单主键和复合主键（联合主键）的实体模型。
+					 
+public class SimpleKeyEntity  //定义了一个名为 SimpleKeyEntity 的公共类，这个类将映射到数据库中的一个表
+{
+    public int Id { get; set; }
+//定义了一个名为 Id 的自动实现属性，它是一个整数类型，通常用作主键。
+
+    [Key, MaxLength(128)]
+    public string SimpleKeyEntityId { get; set; }
+//定义了另一个属性 SimpleKeyEntityId，它被标记为主键（[Key]），并且有一个最大长度限制（[MaxLength(128)]）。
+//这个属性是字符串类型，也用作主键，这在某些业务场景中是有用的，比如当主键需要是可读的字符串时。
+}
+
+public class CompositeKeyEntity  //定义了一个名为 CompositeKeyEntity 的公共类，这个类将映射到数据库中的另一个表
+{
+    public int KeyPart1 { get; set; }
+
+    [MaxLength(128)]
+    public string KeyPart2 { get; set; }
+}
+
+public class EntityKeyDbContext : DbContext
+{
+    public DbSet<SimpleKeyEntity> SimpleKeyEntities => Set<SimpleKeyEntity>();
+    public DbSet<CompositeKeyEntity> CompositeKeyEntities => Set<CompositeKeyEntity>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<CompositeKeyEntity>()
+            .HasKey(c => new { c.KeyPart1, c.KeyPart2 }) 
+//指定了主键由两个属性组成：KeyPart1 和 KeyPart2，创建了一个复合主键。
+            .HasName("CompositePrimaryKey");
+//为这个复合主键指定了名称
+    }
+}
+
+                         --备用键--
+
+--名词解释：Alternate Key 或 Unique Key
+   备用键是数据库设计中的一个重要概念，它提供了一种机制来确保数据的完整性和唯一性，
+同时允许表结构有多个唯一性约束。
+						 
+  这段代码演示了如何在Entity Framework Core中配置实体模型以包含备用键（Alternate Key，
+也称为唯一键或二级键）和定义实体之间的导航关系
+						 
+public class AlternateKeyEntity
+//定义了一个名为 AlternateKeyEntity 的公共类，这个类将映射到数据库中的一个表
+{
+    public int Id { get; set; } //定义了一个名为 Id 的自动实现属性，它是一个整数类型，用作实体的主键
+    public long AlternateKey { get; set; } 
+//定义了一个名为 AlternateKey 的属性，它是一个长整型（long），用作备用键。
+
+    public PrincipalKeyEntity PrincipalKeyEntity { get; set; }
+//定义了一个名为 PrincipalKeyEntity 的属性，它是 PrincipalKeyEntity 类的实例，
+	//表示与 PrincipalKeyEntity 的导航关系
+}
+
+public class PrincipalKeyEntity
+{
+    public int Id { get; set; }//定义了一个名为 Id 的自动实现属性，它是一个整数类型，用作实体的主键。
+    public long PrincipalKey { get; set; }
+//定义了一个名为 PrincipalKey 的属性，可能在这个上下文中用作其他类型的键或业务逻辑的一部分。
+}
+
+public class AlternateDbContext : DbContext
+{
+    public DbSet<AlternateKeyEntity> AlternateKeyEntities => Set<AlternateKeyEntity>();
+    public DbSet<PrincipalKeyEntity> PrincipalKeyEntities => Set<PrincipalKeyEntity>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<AlternateKeyEntity>()
+            .HasAlternateKey(p => p.AlternateKey)
+            .HasName("AlternateKey");
+// 指定 AlternateKey 属性作为备用键，HasName("AlternateKey") 为备用键指定了一个名称
+
+        modelBuilder.Entity<AlternateKeyEntity>()
+            .HasOne(a => a.PrincipalKeyEntity)
+            .WithMany()
+            .HasPrincipalKey(a => a.PrincipalKey);
+			
+//使用Fluent API配置 AlternateKeyEntity 实体与 PrincipalKeyEntity 实体之间的关系。
+//HasOne(a => a.PrincipalKeyEntity) 指定 AlternateKeyEntity 实体
+//有一个到 PrincipalKeyEntity 实体的导航属性，.WithMany() 表示 PrincipalKeyEntity 
+//可以与多个 AlternateKeyEntity 实例关联，
+//HasPrincipalKey(a => a.PrincipalKey) 指定 PrincipalKey 属性作为关系的主键。			
+
+    }
+}
+
+  --.HasOne()方法
+.HasOne() 方法用于定义一个实体对另一个实体的引用。它表示一种“一对一”或“一对多”的关系，
+其中包含对相关联实体的单个实例的导航。使用 .HasOne() 时，您可以指定以下内容：
+  导航属性：表示当前实体对另一个实体的引用。
+  关联的实体类型：您想要引用的实体类型。
+  
+  通过学习，我理解备用键，就是除主键列外的另一个由unique约束类型的单列或者多列组成的
+  
+  --个人理解，这里的配置同样也适用主外键关系的配置；
+  
+                      
+					  --序列--
+					  
+这段代码演示了如何在Entity Framework Core中使用序列（Sequence）来为数据库表的列生成值。
+序列是数据库中的一个对象，用于生成数值，通常用于主键的自增机制之外的场景。	
+				  
+					  
+public class SequenceEntity1
+{
+    public int Id { get; set; }
+    public int Sequence { get; set; }
+}
+
+public class SequenceEntity2
+{
+    public int Id { get; set; }
+    public int Sequence { get; set; }
+}
+
+public class SequenceForEntityDbContext : DbContext
+{
+    public DbSet<SequenceEntity1> SequenceEntity1s => Set<SequenceEntity1>();
+    public DbSet<SequenceEntity2> SequenceEntity2s => Set<SequenceEntity2>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.HasSequence<int>("SequenceNumbers", schema: "shared")
+            .StartsAt(1)
+            .IncrementsBy(2);
+//使用Fluent API定义了一个名为 SequenceNumbers 的整数序列，
+指定其架构（Schema）为 shared。序列从1开始，并以2为步长递增。
+
+        modelBuilder.Entity<SequenceEntity1>()
+            .Property(s => s.Sequence)
+            .HasDefaultValueSql("next value for shared.SequenceNumbers");
+
+        modelBuilder.Entity<SequenceEntity2>()
+            .Property(s => s.Sequence)
+            .HasDefaultValueSql("next value for shared.SequenceNumbers");
+    }
+}
+
+
+                    --索引--
+					
+索引是为提高数据查询性能而诞生的功能，本质上是一种空间换时间的策略。
+通过存储一些额外信息提高在索引可用时的数据查询性能，
+同时在被索引的数据发生变化时也要花费额外的时间去更新索引。
+					
+这段代码演示了如何在Entity Framework Core中使用数据注解和Fluent API来配置实体类的索引。					
+					
+[Index(nameof(Text1), IsUnique = true, Name = "MyIndex")]
+[Index(nameof(Text2), nameof(Text3))]
+
+//IndexEntity 类的 Id 属性上使用了两个 [Index] 数据注解来定义两个索引：
+第一个索引使用 nameof(Text1) 指定 Text1 属性，设置为唯一索引（IsUnique = true），并命名为 "MyIndex"。
+第二个索引包括了 Text2 和 Text3 属性，没有指定索引名称或唯一性。
+
+
+public class IndexEntity
+{
+    public int Id { get; set; }
+    public string Text1 { get; set; }
+    public string Text2 { get; set; }
+    public string Text3 { get; set; }
+    public string Text4 { get; set; }
+    public string Text5 { get; set; }
+    public int Number1 { get; set; }
+    public int Number2 { get; set; }
+}
+
+
+public class IndexDbContext : DbContext
+{
+    public DbSet<IndexEntity> IndexEntities => Set<IndexEntity>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<IndexEntity>(b =>
+        {
+            // 配置索引列
+            b.HasIndex(i => new { i.Text4, i.Text5 })
+                // 配置被索引包含的内容列
+                .IncludeProperties(i => new
+                {
+                    i.Number1,
+                    i.Number2
+                })
+                // 配置为唯一索引
+                .IsUnique()
+                // 配置索引名称
+                .HasDatabaseName("MyIndex2")
+                // 配置索引过滤器（仅索引符合条件的行）
+                .HasFilter("[Text4] is not null or [Text5] is not null");
+        });
+    }
+}
+//当包含非键属性的索引被用于查询时，如果查询只需要索引列和被包含的列，
+这种索引被称为覆盖索引（Covering Index）。
+覆盖索引可以减少数据库的磁盘I/O操作，因为所需的所有数据都可以从索引本身获取。
+
+                --并发标记与行版本号--
+				
+并发标记与行版本是用来解决乐观并发控制问题的。
+此处的并发一般是指有多个人或系统同时修改记录，
+控制则是指发生并发时最后实际被保存的记录应该以什么规则为准。
+
+
+--这段代码演示了如何在Entity Framework Core中配置并发检查和行版本（Row Version）属性
+
+public class ConcurrencyCheckEntity
+{
+    public int Id { get; set; }
+    // 使用特性配置列为并发检查标记
+    [ConcurrencyCheck]
+    public Guid ConcurrentMark { get; set; }
+    // 使用特性配置列为行版本（仅支持Microsoft SQL Server）
+    [Timestamp]
+    public byte[] RowVersion { get; set; }
+}
+
+public class ConcurrentMarkDbContext : DbContext
+{
+    public DbSet<ConcurrencyCheckEntity> ConcurrencyCheckEntities => Set<ConcurrencyCheckEntity>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ConcurrencyCheckEntity>()
+            .Property(c => c.ConcurrentMark)
+            //配置列为并发检查标记
+            .IsConcurrencyToken();
+//使用Fluent API配置ConcurrencyCheckEntity实体的ConcurrentMark属性为并发标记。
+//这意味着EF Core将在更新操作时检查这个属性，如果它已被其他事务修改，
+//将抛出DbUpdateConcurrencyException异常。
+
+        modelBuilder.Entity<ConcurrencyCheckEntity>()
+            .Property(c => c.RowVersion)
+            //配置列为行版本（仅支持Microsoft SQL Server）
+            .IsRowVersion();
+
+//使用Fluent API配置ConcurrencyCheckEntity实体的RowVersion属性为行版本。
+//这告诉EF Core使用这个属性来实现乐观并发控制，适用于SQL Server。
+//每次行被更新时，RowVersion会自动更新，如果检测到版本冲突，也会抛出DbUpdateConcurrencyException异常。
+    }
+}
+
+
+
+                           --值转换器--
+						   
+由于众多数据库系统不一定都支持所有.NET基本类型的数据，
+从EF Core 2.1开始，提供值转换功能，
+用于解决保存时如何转换为数据库支持的类型和读取时如何把数据库中的数据还原为.NET类型的问题。
+
+						   
+这段代码是使用Entity Framework Core的C#代码示例，
+展示了如何定义和使用值转换器(Value Converter)来处理数据库和.NET对象之间的数据转换。
+
+
+public class ValueConvertionEntity
+{
+    public int Id { get; set; }
+    public DataPackage DataPackage { get; set; }
+    public bool? PrimitiveTypesData { get; set; }
+}
+
+public class DataPackage
+{
+    public int Number { get; set; }
+    public string Text { get; set; }
+}
+
+public class ValueConverterDbContext : DbContext
+{
+    public DbSet<ValueConvertionEntity> ValueConvertionEntities => Set<ValueConvertionEntity>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // 定义值转换器对象，它将DataPackage对象序列化为JSON字符串
+        var converter = new ValueConverter<DataPackage, string>(
+                // 从 .NET对象到数据库列值的转换
+                d => JsonSerializer.Serialize(d, (JsonSerializerOptions)null),
+                // 从数据库列值到 .NET对象的转换
+                d => JsonSerializer.Deserialize<DataPackage>(d, (JsonSerializerOptions)null));
+
+        // 引用值转换器对象
+        modelBuilder.Entity<ValueConvertionEntity>()
+            .Property(v => v.DataPackage)
+            // 配置值转换器
+            .HasConversion(converter);
+//这意味着当DataPackage对象被存储到数据库或从数据库读取时，都会使用这个转换器进行序列化和反序列化。
+
+        // 这是另一种配置值转换的方式，直接在HasConversion方法中定义转换逻辑，
+		//而不是创建ValueConverter对象。这种方式和上一行的效果相同，只是写法不同。
+        modelBuilder.Entity<ValueConvertionEntity>()
+            .Property(v => v.DataPackage)
+            .HasConversion(
+                d => JsonSerializer.Serialize(d, (JsonSerializerOptions)null),
+                d => JsonSerializer.Deserialize<DataPackage>(d, (JsonSerializerOptions)null));
+
+        //使用预定义值转换器
+		//由于PrimitiveTypesData是布尔类型，这里使用HasConversion<string>()将布尔值转换为字符串。
+		//Entity Framework Core会根据属性的类型自动选择合适的预定义转换器。
+        modelBuilder.Entity<ValueConvertionEntity>()
+            .Property(v => v.PrimitiveTypesData)
+            // 根据属性类型类型参数自动选择值转换器（此处是BoolToStringConverter）
+            .HasConversion<string>();
+
+    }
+}
+
+
+                            --值比较器和属性快照--
+							
+值比较器（ValueComparer）和属性快照（Property Snapshot）
+是实现高效数据变更跟踪和处理并发冲突的关键组件。
+
+--值比较器：
+变更跟踪：EF Core利用值比较器来跟踪属性值的变更。如果比较器返回两个值不相等，EF Core会认为属性已被修改。
+并发冲突解决：在并发场景下，值比较器用于确定从数据库读取的值与内存中的值是否冲突。
+  
+--属性快照
+原始值存储：EF Core使用属性快照来存储实体加载时的原始值。
+并发冲突检测：当检测到并发冲突时，EF Core会比较数据库中的当前值与属性快照中的原始值。
+
+  这段代码演示了如何在Entity Framework Core中配置自定义的值比较器（ValueComparer）
+以及如何使用类型转换（Conversion）来处理实体的特定属性。							
+
+  这段代码中，有一个非常重要的概念，就是实体类中的属性，不是预定义的值类型，
+而是自己定义的类型，或者是List  这样的引用类型，这样的复杂类型。
+  在配置模型时，需要用到转换
+将类型的对象的值对应到数据库列，同时也要反向对应一次，保证数据库列的值与
+自定义对象的双向转换。
+
+public class ValueComparerEntity
+{
+    public int Id { get; set; }
+
+    public ImmutableClass SimpleClass { get; set; }
+    public ImmutableStruct SimpleStruct { get; set; }
+    public List<int> OrdinaryClass { get; set; }
+}
+
+public sealed class ImmutableClass
+{
+    public ImmutableClass(int value)
+    {
+        Value = value;
+    }
+
+    public int Value { get; }
+
+    //=>: lambda，用于定义表达式体成员的开始。
+    private bool Equals(ImmutableClass other) => Value == other.Value;
+
+    //这个方法重写了从System.Object继承来的Equals方法
+    //首先使用ReferenceEquals(this, obj)进行快速引用比较，
+    //检查obj是否与当前实例（this）引用相同。如果是，直接返回true。
+    //如果引用不相同，使用obj is ImmutableClass other进行类型检查和模式匹配。
+    //如果obj不是ImmutableClass类型，整个表达式结果为false；
+    //如果是，将obj转换为ImmutableClass类型，并赋值给局部变量other。
+    //如果obj是ImmutableClass类型，调用私有的Equals(ImmutableClass other)方法，
+    //传入other作为参数，进行逻辑比较。根据私有方法的返回值，表达式最终返回true或false。
+    public override bool Equals(object obj) => 
+        ReferenceEquals(this, obj) || obj is ImmutableClass other && Equals(other);
+    //obj is ImmutableClass other && Equals(other)
+    //这是一个复合表达式，包含类型模式匹配和私有方法调用。
+    //obj is ImmutableClass other：这是一个类型模式匹配表达式
+    //，用于检查 obj 是否可以被识别为 ImmutableClass 类型。如果是
+    //，它将 obj 转换为 ImmutableClass 类型并赋值给新变量 other。
+    //&& 是逻辑与操作符，确保只有当 obj 是 ImmutableClass 类型时，才会调用 Equals(other) 方法。
+
+
+    //重写了GetHashCode方法，返回Value属性的哈希码。
+    public override int GetHashCode() => Value.GetHashCode();
+}
+
+public readonly struct ImmutableStruct
+{
+    public ImmutableStruct(int value)
+    {
+        Value = value;
+    }
+
+    public int Value { get; }
+}
+
+public class ValueComparerDbContext : DbContext
+{
+    public DbSet<ValueComparerEntity> ValueComparerEntities => Set<ValueComparerEntity>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ValueComparerEntity>()
+            .Property(e => e.SimpleClass)
+            .HasConversion(
+                v => v.Value,
+                v => new ImmutableClass(v));
+        //当你调用 HasConversion 方法时，你提供了两个 lambda 表达式，分别定义了转换逻辑。
+        //Entity Framework Core 使用第一个 lambda 表达式来转换 SimpleClass 属性的值到数据库中的存储形式。
+        //在这个例子中，它提取 ImmutableClass 实例的 Value。
+        //当从数据库读取数据并构建 ValueComparerEntity 实例时，
+        //Entity Framework Core 使用第二个 lambda 表达式来将存储的值转换回 ImmutableClass 对象。
+        //它使用这个表达式和数据库中存储的 Value 来创建一个新的 ImmutableClass 实例。
+
+        modelBuilder.Entity<ValueComparerEntity>()
+            .Property(e => e.SimpleStruct)
+            .HasConversion(
+                v => v.Value,
+                v => new ImmutableStruct(v));
+
+
+        //创建了一个ValueComparer<List<int>>实例，用于自定义List<int>类型的比较逻辑。
+        //第一个 lambda 表达式 (c1, c2) => c1.SequenceEqual(c2) 定义了如何比较两个 List<int> 是否相等。
+        //SequenceEqual 是LINQ方法，用于检查两个序列是否按相同的顺序包含相同的元素。
+        //第二个 lambda 表达式 c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode()))
+        //定义了如何为 List<int> 生成哈希码。Aggregate 方法在这里用作累加器，从0开始，
+        //将列表中每个元素的哈希码组合起来生成列表的哈希码。
+        //第三个 lambda 表达式 c => c.ToList() 定义了如何为 List<int> 创建快照。
+        //快照通常用于跟踪属性值在数据库中的变更，这里简单地返回列表的一个副本。
+        var valueComparer = new ValueComparer<List<int>>(
+            // 相等性判断表达式
+            (c1, c2) => c1.SequenceEqual(c2),
+            // HashCode生成表达式
+            c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+            // 跟踪快照生成表达式
+            c => c.ToList());
+
+        modelBuilder.Entity<ValueComparerEntity>()
+            .Property(e => e.OrdinaryClass)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
+                v => JsonSerializer.Deserialize<List<int>>(v, (JsonSerializerOptions)null),
+                // 引用值比较器
+                valueComparer);
+    }
+}
+
+
+
+
+                  --数据种子--
+数据种子（Data Seeding）是指在数据库中填充初始数据的过程，
+这些数据通常用于提供应用程序的基础状态或用于测试目的。
+
+--初始数据：
+
+数据种子通常是一组初始数据，用于初始化数据库表中的记录。
+--迁移：
+
+在EF的Code First迁移中，数据种子可以在迁移过程中添加，以便在更新数据库模式时自动填充数据。
+--种子方法：
+
+在EF Core中，可以通过覆盖 OnModelCreating 方法中的 HasData 方法来添加种子数据。
+--使用场景：
+
+数据种子用于设置默认配置、参考数据、测试数据或任何需要预先填充的数据。
+示例：
+
+在EF Core中，您可以使用以下方式添加种子数据：
+modelBuilder.Entity<SomeEntity>().HasData(
+    new SomeEntity { Id = 1, Name = "Default Name" }
+);
+--数据库初始化器：
+
+在EF 6中，可以使用数据库初始化器（如 MigrateDatabaseToLatestVersion 或 CreateDatabaseIfNotExists）来自动应用种子数据。
+--种子数据的执行时机：
+
+种子数据通常在数据库首次创建或迁移后应用。在EF Core中，种子数据在模型构建过程中添加，
+并在数据库初始化时使用。
+
+--种子数据与迁移的关系：
+
+种子数据可以与迁移一起使用，确保每次数据库更新时都能保持数据的一致性。
+测试：
+
+在开发和测试过程中，种子数据可以用于快速设置测试环境，确保测试覆盖了各种场景。
+性能考虑：
+
+虽然种子数据很有用，但应注意不要在大型生产数据库中使用大量种子数据，因为这可能会影响性能。
+--自定义种子逻辑：
+
+在EF Core中，您还可以通过实现自定义的 IDatabaseInitializer 来添加更复杂的种子逻辑。
+数据种子是EF提供的一个强大功能，允许开发者在数据库中快速设置初始状态，
+从而简化应用程序的初始化和测试过程。
+通过合理使用数据种子，可以确保数据库在不同开发阶段保持一致性和可用性。
+
+             
+			       --表共享--
+  可以把多个实体模型映射到一张表，数据库层面表现为一张表
+  
+  
+                    --从属实体模型--
+  从属实体类型可以简单理解为没有主键的特殊导航属性。
+  如果配置表名，从属实体类型就有一个影子外键属性
+  如果不配置存储的表，EF默认把从属实体和主实体保存到相同的表。
+  
+  
+public class User
+{
+   
+    public int? CreatorId { get; set; }
+
+   
+    public User Creator { get; set; }
+
+    
+    public List<User> CreatedUsers { get; set; } = new List<User>();
+
+  
+    public int? LastModifierId { get; set; }
+
+   
+    public User LastModifier { get; set; }
+
+    
+    public List<User> LastModifiedUsers { get; set; } = new List<User>();
+}
+
+public class OneToManyRelationshipDbContext : DbContext
+{
+    public DbSet<User> Users => Set<User>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+          modelBuilder.Entity<User>(
+              b =>
+              {
+                  //上例中的其他不变的无关配置
+
+                  b.HasOne(u => u.Creator)
+                      .WithMany(u => u.CreatedUsers) //关联实体有多个实体与自身相连
+                      .HasForeignKey(u => u.CreatorId);
+
+                  b.HasOne(u => u.LastModifier)
+                      .WithMany(u => u.LastModifiedUsers)
+                      .HasForeignKey(u => u.LastModifierId);
+              });
+    }
+}
+
+
+
+public class User
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Password { get; set; }
+    public UserInfo UserInfo { get; set; }
+}
+
+public class UserInfo
+{
+    public int Id { get; set; }
+    public string NickName { get; set; }
+    public string PersonalTag { get; set; }
+
+    public int? UserId { get; set; }
+ 
+    public User User { get; set; }
+}

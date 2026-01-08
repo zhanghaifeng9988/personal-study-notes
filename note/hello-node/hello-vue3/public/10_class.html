@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="vue.js"></script>
+  <title>class绑定</title>
+  <style>
+    .red {
+       color: red;
+     }
+    .blue {
+       color: blue;
+     }
+  </style>
+</head>
+<body>
+  <div id="Application">
+    <!-- 内部样式 -->
+    <div v-bind:class="{ red: isRed,blue: isBlue}" v-bind:style="{fontSize:textFontSize1}">
+      示例文案
+    </div>
+    <div v-bind:class="style1" v-bind:style="{fontSize:textFontSize2}">
+      示例文案2
+    </div>
+    <!-- 内联样式 -->
+    <div v-bind:style="{color:textColor,fontSize:textFontSize}">
+      示例文案3
+    </div>
+  </div>
+  <script>
+    const app = Vue.createApp({
+      data() {
+        return {
+          isRed: true,
+          isBlue: false,
+          textFontSize1: '15px',
+          style1: {
+          blue:true
+         }, textFontSize2: '35px',
+           textColor: 'green',
+           textFontSize: '50px'
+      }
+    }
+  })
+    app.mount('#Application')
+  </script>
+</body>
+</html>

@@ -1,0 +1,395 @@
+
+
+
+SQL> --查询表的大小
+SQL> col OWNER for a20
+SQL> col SEGMENT_NAME for a30
+SQL> col SEGMENT_TYPE for a30
+SQL> col tablespace_name for a20
+SQL> set lines 200 pages 999 long 20000
+SQL> select  OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name ,sum(BYTES)/1024/1024/1024 
+from dba_segments
+where segment_name='E_MP_READ_CURVE' and owner='FDPSHARE'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name order by sum(BYTES);
+
+
+OWNER                SEGMENT_NAME                   SEGMENT_TYPE                   TABLESPACE_NAME      SUM(BYTES)/1024/1024/1024
+-------------------- ------------------------------ ------------------------------ -------------------- -------------------------
+FDPSHARE             E_MP_READ_CURVE                 TABLE PARTITION                SHAREDATA                         3473.7890625
+
+
+
+SQL> --查看分区表统计信息
+SQL> col OWNER for a20
+SQL> col TABLE_NAME for a30
+SQL> set lines 200 pages 999 long 20000
+SQL> select OWNER,TABLE_NAME,PARTITIONING_TYPE,SUBPARTITIONING_TYPE,PARTITION_COUNT
+from dba_part_tables
+where OWNER='FDPSHARE' and TABLE_NAME='E_MP_READ_CURVE';
+
+OWNER                TABLE_NAME                     PARTITIONING_TYPE           SUBPARTITIONING_TYPE        PARTITION_COUNT
+-------------------- ------------------------------ --------------------------- --------------------------- ---------------
+FDPSHARE             E_MP_READ_CURVE                RANGE                       NONE                                    135
+
+
+SQL> --查看分区统计信息
+SQL> col TABLE_OWNER for a20
+SQL> col TABLE_NAME for a30
+SQL> col partition_name for a30
+SQL> set lines 200 pages 999 long 20000
+SQL> select table_owner,table_name,partition_name,subpartition_count from dba_tab_partitions where  table_owner='FDPSHARE'  
+and TABLE_NAME='E_MP_READ_CURVE';
+
+TABLE_OWNER          TABLE_NAME                     PARTITION_NAME                 SUBPARTITION_COUNT
+-------------------- ------------------------------ ------------------------------ ------------------
+FDPSHARE             E_MP_READ_CURVE                P202101                                         0
+FDPSHARE             E_MP_READ_CURVE                P202102                                         0
+FDPSHARE             E_MP_READ_CURVE                P202103                                         0
+FDPSHARE             E_MP_READ_CURVE                P202104                                         0
+FDPSHARE             E_MP_READ_CURVE                P202105                                         0
+FDPSHARE             E_MP_READ_CURVE                P202106                                         0
+FDPSHARE             E_MP_READ_CURVE                P202107                                         0
+FDPSHARE             E_MP_READ_CURVE                P202108                                         0
+FDPSHARE             E_MP_READ_CURVE                P202109                                         0
+FDPSHARE             E_MP_READ_CURVE                P202110                                         0
+FDPSHARE             E_MP_READ_CURVE                P202111                                         0
+FDPSHARE             E_MP_READ_CURVE                P202112                                         0
+FDPSHARE             E_MP_READ_CURVE                P202201                                         0
+FDPSHARE             E_MP_READ_CURVE                P202202                                         0
+FDPSHARE             E_MP_READ_CURVE                P202203                                         0
+FDPSHARE             E_MP_READ_CURVE                P202204                                         0
+FDPSHARE             E_MP_READ_CURVE                P202205                                         0
+FDPSHARE             E_MP_READ_CURVE                P202206                                         0
+FDPSHARE             E_MP_READ_CURVE                P202207                                         0
+FDPSHARE             E_MP_READ_CURVE                P202208                                         0
+FDPSHARE             E_MP_READ_CURVE                P202209                                         0
+FDPSHARE             E_MP_READ_CURVE                P202210                                         0
+FDPSHARE             E_MP_READ_CURVE                P202211                                         0
+FDPSHARE             E_MP_READ_CURVE                P202212                                         0
+FDPSHARE             E_MP_READ_CURVE                P202301                                         0
+FDPSHARE             E_MP_READ_CURVE                P202302                                         0
+FDPSHARE             E_MP_READ_CURVE                PMAX                                            0
+FDPSHARE             E_MP_READ_CURVE                P201201                                         0
+FDPSHARE             E_MP_READ_CURVE                P201202                                         0
+FDPSHARE             E_MP_READ_CURVE                P201203                                         0
+FDPSHARE             E_MP_READ_CURVE                P201204                                         0
+FDPSHARE             E_MP_READ_CURVE                P201205                                         0
+FDPSHARE             E_MP_READ_CURVE                P201206                                         0
+FDPSHARE             E_MP_READ_CURVE                P201207                                         0
+FDPSHARE             E_MP_READ_CURVE                P201208                                         0
+FDPSHARE             E_MP_READ_CURVE                P201209                                         0
+FDPSHARE             E_MP_READ_CURVE                P201210                                         0
+FDPSHARE             E_MP_READ_CURVE                P201211                                         0
+FDPSHARE             E_MP_READ_CURVE                P201212                                         0
+FDPSHARE             E_MP_READ_CURVE                P201301                                         0
+FDPSHARE             E_MP_READ_CURVE                P201302                                         0
+FDPSHARE             E_MP_READ_CURVE                P201303                                         0
+FDPSHARE             E_MP_READ_CURVE                P201304                                         0
+FDPSHARE             E_MP_READ_CURVE                P201305                                         0
+FDPSHARE             E_MP_READ_CURVE                P201306                                         0
+FDPSHARE             E_MP_READ_CURVE                P201307                                         0
+FDPSHARE             E_MP_READ_CURVE                P201308                                         0
+FDPSHARE             E_MP_READ_CURVE                P201309                                         0
+FDPSHARE             E_MP_READ_CURVE                P201310                                         0
+FDPSHARE             E_MP_READ_CURVE                P201311                                         0
+FDPSHARE             E_MP_READ_CURVE                P201312                                         0
+FDPSHARE             E_MP_READ_CURVE                P201401                                         0
+FDPSHARE             E_MP_READ_CURVE                P201402                                         0
+FDPSHARE             E_MP_READ_CURVE                P201403                                         0
+FDPSHARE             E_MP_READ_CURVE                P201404                                         0
+FDPSHARE             E_MP_READ_CURVE                P201405                                         0
+FDPSHARE             E_MP_READ_CURVE                P201406                                         0
+FDPSHARE             E_MP_READ_CURVE                P201407                                         0
+FDPSHARE             E_MP_READ_CURVE                P201408                                         0
+FDPSHARE             E_MP_READ_CURVE                P201409                                         0
+FDPSHARE             E_MP_READ_CURVE                P201410                                         0
+FDPSHARE             E_MP_READ_CURVE                P201411                                         0
+FDPSHARE             E_MP_READ_CURVE                P201412                                         0
+FDPSHARE             E_MP_READ_CURVE                P201501                                         0
+FDPSHARE             E_MP_READ_CURVE                P201502                                         0
+FDPSHARE             E_MP_READ_CURVE                P201503                                         0
+FDPSHARE             E_MP_READ_CURVE                P201504                                         0
+FDPSHARE             E_MP_READ_CURVE                P201505                                         0
+FDPSHARE             E_MP_READ_CURVE                P201506                                         0
+FDPSHARE             E_MP_READ_CURVE                P201507                                         0
+FDPSHARE             E_MP_READ_CURVE                P201508                                         0
+FDPSHARE             E_MP_READ_CURVE                P201509                                         0
+FDPSHARE             E_MP_READ_CURVE                P201510                                         0
+FDPSHARE             E_MP_READ_CURVE                P201511                                         0
+FDPSHARE             E_MP_READ_CURVE                P201512                                         0
+FDPSHARE             E_MP_READ_CURVE                P201601                                         0
+FDPSHARE             E_MP_READ_CURVE                P201602                                         0
+FDPSHARE             E_MP_READ_CURVE                P201603                                         0
+FDPSHARE             E_MP_READ_CURVE                P201604                                         0
+FDPSHARE             E_MP_READ_CURVE                P201605                                         0
+FDPSHARE             E_MP_READ_CURVE                P201606                                         0
+FDPSHARE             E_MP_READ_CURVE                P201607                                         0
+FDPSHARE             E_MP_READ_CURVE                P201608                                         0
+FDPSHARE             E_MP_READ_CURVE                P201609                                         0
+FDPSHARE             E_MP_READ_CURVE                P201610                                         0
+FDPSHARE             E_MP_READ_CURVE                P201611                                         0
+FDPSHARE             E_MP_READ_CURVE                P201612                                         0
+FDPSHARE             E_MP_READ_CURVE                P201701                                         0
+FDPSHARE             E_MP_READ_CURVE                P201702                                         0
+FDPSHARE             E_MP_READ_CURVE                P201703                                         0
+FDPSHARE             E_MP_READ_CURVE                P201704                                         0
+FDPSHARE             E_MP_READ_CURVE                P201705                                         0
+FDPSHARE             E_MP_READ_CURVE                P201706                                         0
+FDPSHARE             E_MP_READ_CURVE                P201707                                         0
+FDPSHARE             E_MP_READ_CURVE                P201708                                         0
+FDPSHARE             E_MP_READ_CURVE                P201709                                         0
+FDPSHARE             E_MP_READ_CURVE                P201710                                         0
+FDPSHARE             E_MP_READ_CURVE                P201711                                         0
+FDPSHARE             E_MP_READ_CURVE                P201712                                         0
+FDPSHARE             E_MP_READ_CURVE                P201801                                         0
+FDPSHARE             E_MP_READ_CURVE                P201802                                         0
+FDPSHARE             E_MP_READ_CURVE                P201803                                         0
+FDPSHARE             E_MP_READ_CURVE                P201804                                         0
+FDPSHARE             E_MP_READ_CURVE                P201805                                         0
+FDPSHARE             E_MP_READ_CURVE                P201806                                         0
+FDPSHARE             E_MP_READ_CURVE                P201807                                         0
+FDPSHARE             E_MP_READ_CURVE                P201808                                         0
+FDPSHARE             E_MP_READ_CURVE                P201809                                         0
+FDPSHARE             E_MP_READ_CURVE                P201810                                         0
+FDPSHARE             E_MP_READ_CURVE                P201811                                         0
+FDPSHARE             E_MP_READ_CURVE                P201812                                         0
+FDPSHARE             E_MP_READ_CURVE                P201901                                         0
+FDPSHARE             E_MP_READ_CURVE                P201902                                         0
+FDPSHARE             E_MP_READ_CURVE                P201903                                         0
+FDPSHARE             E_MP_READ_CURVE                P201904                                         0
+FDPSHARE             E_MP_READ_CURVE                P201905                                         0
+FDPSHARE             E_MP_READ_CURVE                P201906                                         0
+FDPSHARE             E_MP_READ_CURVE                P201907                                         0
+FDPSHARE             E_MP_READ_CURVE                P201908                                         0
+FDPSHARE             E_MP_READ_CURVE                P201909                                         0
+FDPSHARE             E_MP_READ_CURVE                P201910                                         0
+FDPSHARE             E_MP_READ_CURVE                P201911                                         0
+FDPSHARE             E_MP_READ_CURVE                P201912                                         0
+FDPSHARE             E_MP_READ_CURVE                P202001                                         0
+FDPSHARE             E_MP_READ_CURVE                P202002                                         0
+FDPSHARE             E_MP_READ_CURVE                P202003                                         0
+FDPSHARE             E_MP_READ_CURVE                P202004                                         0
+FDPSHARE             E_MP_READ_CURVE                P202005                                         0
+FDPSHARE             E_MP_READ_CURVE                P202006                                         0
+FDPSHARE             E_MP_READ_CURVE                P202007                                         0
+FDPSHARE             E_MP_READ_CURVE                P202008                                         0
+FDPSHARE             E_MP_READ_CURVE                P202009                                         0
+FDPSHARE             E_MP_READ_CURVE                P202010                                         0
+FDPSHARE             E_MP_READ_CURVE                P202011                                         0
+FDPSHARE             E_MP_READ_CURVE                P202012                                         0
+
+135 rows selected.
+
+
+SQL> --查询索引大小(已经在索引表空间了,不需要移动表空间)
+SQL> col INDEX_NAME for a30
+SQL> col DEGREE for a5
+SQL> col tablespace_name for a30
+SQL> col status for a10
+SQL> set lines 200 pages 999 long 20000
+SQL> select index_name,degree,status,tablespace_name 
+from dba_indexes 
+where owner='FDPSHARE' and table_name='E_MP_READ_CURVE';
+
+INDEX_NAME                     DEGRE STATUS     TABLESPACE_NAME
+------------------------------ ----- ---------- ------------------------------
+IDX_E_MP_READ_CURVE            1     VALID      SHAREIDX
+PK_E_MP_READ_CURVE_RED         1     VALID      SHAREIDX
+
+
+SQL> col OWNER for a20
+SQL> col SEGMENT_NAME for a30
+SQL> col SEGMENT_TYPE for a20
+SQL> set lines 200 pages 999 long 20000
+SQL> select  OWNER,SEGMENT_NAME,SEGMENT_TYPE,sum(BYTES)/1024/1024/1024 
+from dba_segments
+where segment_name in ('IDX_E_MP_READ_CURVE','PK_E_MP_READ_CURVE_RED') and owner='FDPSHARE'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE order by sum(BYTES);
+
+OWNER                SEGMENT_NAME                   SEGMENT_TYPE         SUM(BYTES)/1024/1024/1024
+-------------------- ------------------------------ -------------------- -------------------------
+FDPSHARE             IDX_E_MP_READ_CURVE            INDEX                                33.799316
+FDPSHARE             PK_E_MP_READ_CURVE_RED         INDEX                               542.047913
+
+
+SQL> --查看分区信息(plsql执行)
+SQL> select * from dba_tab_partitions where  table_owner='FDPSHARE'  and TABLE_NAME='E_MP_READ_CURVE';
+
+
+SQL> --查询小于2022年数据量
+
+SQL> select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='E_MP_READ_CURVE' and partition_name in 
+(select partition_name from dba_tab_partitions where table_owner='FDPSHARE' and table_name='E_MP_READ_CURVE' and  partition_name<'P202201');
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+1002.2011718
+
+SQL> --转移分区表并压缩表的语句
+SQL> select 'alter table '||table_owner||'.'||table_name||' move partition '||partition_name||' 
+tablespace HISCMPRS01 nologging parallel 8 compress;',compression,partition_name 
+from dba_tab_partitions 
+where table_owner='FDPSHARE' and table_name='E_MP_READ_CURVE' and partition_name<'P202201';
+
+SQL> alter table FDPSHARE.E_MP_READ_CURVE move partition P202101 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202102 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202103 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202104 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202105 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202106 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202107 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202108 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202109 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202110 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202111 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202112 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201201 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201202 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201203 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201204 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201205 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201206 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201207 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201208 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201209 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201210 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201211 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201212 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201301 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201302 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201303 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201304 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201305 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201306 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201307 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201308 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201309 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201310 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201311 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201312 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201412 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201501 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201502 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201503 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201504 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201505 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201506 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201507 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201508 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201509 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201510 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201511 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201512 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201601 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201602 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201603 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201604 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201605 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201606 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201607 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201608 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201609 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201610 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201611 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201612 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201701 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201702 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201703 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201704 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201705 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201706 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201707 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201708 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201709 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201710 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201711 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201712 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201801 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201802 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201803 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201804 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201805 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201806 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201807 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201808 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201809 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201810 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201811 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201812 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201901 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201902 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201903 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201904 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201905 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201906 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201907 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201908 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201909 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201910 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201911 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P201912 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202001 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202002 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202003 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202004 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202005 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202006 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202007 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202008 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202009 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202010 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202011 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_READ_CURVE move partition P202012 tablespace HISCMPRS01 nologging parallel 8 compress;
+
+
+
+SQL> --查询失效索引
+SQL> col owner for a20
+SQL> col status for a20
+SQL> col index_name for a30
+SQL> select owner,index_name,status from dba_indexes 
+where STATUS='UNUSABLE' and owner='FDPSHARE' and table_name='E_MP_CUR_CURVE';
+
+OWNER                INDEX_NAME                     STATUS
+-------------------- ------------------------------ --------------------
+FDPSHARE             IDX_E_MP_READ_CURVE            UNUSABLE
+FDPSHARE             PK_E_MP_READ_CURVE_RED         UNUSABLE
+
+SQL> --重建索引
+SQL> alter index FDPSHARE.INDEX_E_MP_CUR_CURVE rebuild parallel 12  nologging;
+
+Index altered.
+
+SQL> alter index FDPSHARE.PK_E_MP_READ_CURVE_RED rebuild parallel 12  nologging;
+
+Index altered.
+
+SQL> --查询表的大小
+SQL> col OWNER for a20
+SQL> col SEGMENT_NAME for a30
+SQL> col SEGMENT_TYPE for a30
+SQL> col tablespace_name for a20
+SQL> set lines 200 pages 999 long 20000
+SQL> select  OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name ,sum(BYTES)/1024/1024/1024 
+from dba_segments
+where segment_name='E_MP_READ_CURVE' and owner='FDPSHARE'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name order by sum(BYTES);
+
+
+OWNER                SEGMENT_NAME                   SEGMENT_TYPE                   TABLESPACE_NAME      SUM(BYTES)/1024/1024/1024
+-------------------- ------------------------------ ------------------------------ -------------------- -------------------------
+FDPSHARE             E_MP_READ_CURVE                 TABLE PARTITION                SHAREDATA                         504.9776611
+
+
+

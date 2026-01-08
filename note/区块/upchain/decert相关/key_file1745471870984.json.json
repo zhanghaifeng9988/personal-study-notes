@@ -1,0 +1,49 @@
+{
+  "keys": {
+    "didUrl": "did:zk:0x0B7511f869Fb6d55c07cEDd41926529218303991",
+    "version": "1",
+    "identifierKey": {
+      "encoded": "mLobskAwRqSWvxqOXUzFN2aPCUL+auuBME3Zkvqx3tF8AgAAAAQAAAAgAAADUuJC//ATc0XiDhnXVZ+8hEHFI3HIhHKZhikRHhiIcq9+FUSw3VjfqD/ubkFP7bnyDrdZyVhj7/pkCU9Ehl9t0tBuCTkV0DzGXF5BRRDSfymeFB5vAtcKbcivgK46j31AztP9s/XYyOOxw7L0C14I3XOwGVkxHO/JqbmwJh+o=",
+      "encoding": {
+        "content": ["pkcs8", "ecdsa"],
+        "type": ["scrypt"],
+        "version": "1"
+      },
+      "publicKey": "mAqWKSOmaGS+m30326oLuXvmgTDQTtjogkGBBDDRnuFmA"
+    },
+    "keys": [
+      {
+        "encoded": "myIYDooBAspDKtxqXfnpUV3cIBjANN5++qYUrzsBNDV8AgAAAAQAAAAgAAAC0lUwtz9CBys06xLadqT5iWMJs4/OegN9c6FoocevANnci7lJUtzijeyr4DB/lmQKGa4mLypVb5k3fiLMVmM+1aS0H+u6EHT1UkuQlsJzbk8p5xEOLnmyw9uZOFQmATWS/UePAX1sZZabb8JC0+LLFpAkVddCzlcB0IQ3vO8Y=",
+        "encoding": {
+          "content": ["pkcs8", "ecdsa"],
+          "type": ["scrypt"],
+          "version": "1"
+        },
+        "publicKey": "mA2lRA+PFM/KdcoM7LqyFwxSI6z9TspodzKCnMTmun6K+"
+      },
+      {
+        "encoded": "m+fytdZR5/aieddmnmPzlZToo4shA7ALkjtyaLyCsk5AAgAAAAQAAAAgAAAAJbG6rgGXBvQWQQT55Ugp8+8HTHEVHE7Kz2dxbC3TtbIJNa4ieUyW3SL89qSj/gsepPb/1IOjDJHg9zIHn38ALrOKoNvb7cMVpMoTiQXB6mPW/39MUXtbX9mIu3jj9t9+EeOFe2PbIXVQn63lSKJ0SHOsPoaq/7yLxSouldA==",
+        "encoding": {
+          "content": ["pkcs8", "x25519"],
+          "type": ["scrypt"],
+          "version": "1"
+        },
+        "publicKey": "mGZ5ZNZpOCvIFD9cRcTS8gIFsKds/1a8OZDutfX/fO3g="
+      }
+    ],
+    "authentication": [
+      "did:zk:0x0B7511f869Fb6d55c07cEDd41926529218303991#key-0"
+    ],
+    "assertionMethod": [
+      "did:zk:0x0B7511f869Fb6d55c07cEDd41926529218303991#key-0"
+    ],
+    "keyAgreement": ["did:zk:0x0B7511f869Fb6d55c07cEDd41926529218303991#key-1"],
+    "capabilityInvocation": [
+      "did:zk:0x0B7511f869Fb6d55c07cEDd41926529218303991#key-0"
+    ],
+    "capabilityDelegation": [
+      "did:zk:0x0B7511f869Fb6d55c07cEDd41926529218303991#key-0"
+    ]
+  },
+  "originPhase": "7fe37909-96a4-4f82-a26e-e91a4783a915"
+}

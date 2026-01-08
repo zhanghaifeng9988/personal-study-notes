@@ -1,0 +1,58 @@
+操作步骤如下
+--查询检测是否已设置
+SQL>show parameter log_file_sync
+SQL>show parameter parallel_force_local
+SQL>select client_name,status from dba_autotask_client;
+SQL>select status,filename from v$block_change_tracking;
+SQL>select * from v$rman_backup_job_details;
+
+--参数调整
+---关闭自适应log file sync
+SQL>alter system set "_use_adaptive_log_file_sync"=false sid='*';
+---在11G版本中，为了降低集群间的数据交互，建议并行进程强制在本地实例分配。
+SQL>alter system set parallel_force_local=TRUE sid='*';
+---禁用auto space advisor
+SQL>BEGIN
+  DBMS_AUTO_TASK_ADMIN.disable(
+    client_name => 'auto space advisor',
+    operation   => NULL,
+    window_name => NULL);
+END;
+/
+SQL>commit;
+--开启块跟踪
+SQL>alter database enable block change tracking using file '+DATA' reuse;
+--查询检测设置是否生效
+SQL>show parameter log_file_sync
+SQL>show parameter parallel_force_local
+SQL>select client_name,status from dba_autotask_client;
+SQL>select status,filename from v$block_change_tracking;
+SQL>select * from v$rman_backup_job_details;
+show parameter log_file_sync
+show parameter parallel_force_local
+select client_name,status from dba_autotask_client;
+select status,filename from v$block_change_tracking;
+
+执行块改变跟踪后,Session 卡住，查询session信息如下。
+
+SQL> select PROGRAM,sid,serial#,username,sql_id,event,BLOCKING_SESSION_STATUS,BLOCKING_INSTANCE,BLOCKING_SESSION from 
+ v$session where username='SYS'  ;
+PROGRAM                        SID    SERIAL#SERNAME  SQL_ID    EVENT    BLOCKING_STATUS     BLOCKING_INSTANCE BLOCKING_SESSION
+----------------------------------------------------------------------------------------------------------------------
+sqlplus@dsapdb23 (TNS V1-V3)   249     42993 SYS           enq: CT - state    VALID             2                     443 
+SQL> select sql_id,sid,serial#,event,username,PROGRAM from gv$session where inst_id=2 and sid=443; 
+SQL_ID SID SERIAL# EVENT  USERNAME PROGRAM
+ ------------------------------ ------------------ 
+443 18359 RMAN backup & recovery I/O SYS rman@dsapdb24 (TNS V1-V3) 
+SQL>
+ select sid,serial#,username,event from gv$session where status='ACTIVE' AND STATE !='WAITING' 
+SID SERIAL# USERNAME EVENT 
+---------- ---------- ---------------------------------------------- 
+248 58713 SYS PX Deq: Execution Msg 
+2019 14945 SYS PX Deq: Execution Msg 
+alter system kill session '249,42993' immediate;
+ select sid,serial#,username,event from gv$session where status='ACTIVE' AND PROGRAM like 'rman%';
+本次遇到的是说RMAN正在备份的进程，阻塞了开启块改变跟踪的Session 并且，手工Kill块改变跟踪 session信息后，观察DB 实际上还是后台启用了块改变跟踪。
+因此建议：1.准备开启块改变跟踪时，检查是否存在rman进程备份，停止备份或等待备份结束后执行；
+        2.不建议kill session因为后台还是会自动启动执行；
+Database Instance Hang at Database Checkpoint With Block Change Tracking Enabled. (Doc ID 1326886.1)

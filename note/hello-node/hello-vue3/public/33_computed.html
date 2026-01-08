@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src='vue.js'></script>
+    <title>Document</title>
+</head>
+<body>
+  <div id="Application"></div>
+  <script>
+  const App = Vue.createApp({
+    setup (){
+      let a = 1
+      let b = 2
+      let sum = a + b
+      function click()
+      {
+        a += 1
+        b += 2
+        alert(a)
+        alert(b)
+      }
+      return {
+        a,
+        b,
+        sum,
+        click
+      }
+
+    },
+    template:`
+      <h1>测试数据：{{a}}+{{b}}={{sum}}</h1>
+      <button @click='click'>单击</button>`
+  })
+  App.mount('#Application')
+  </script>
+</body>
+</html>

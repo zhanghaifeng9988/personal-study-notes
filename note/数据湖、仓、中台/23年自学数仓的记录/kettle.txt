@@ -1,0 +1,2 @@
+kettle(linux centos7.6)英文版改为中文版，修改界面菜单中文乱码的问题
+https://blog.csdn.net/zhangxiaojun211/article/details/85052896?spm=1001.2014.3001.5506

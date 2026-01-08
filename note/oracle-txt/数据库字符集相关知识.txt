@@ -1,0 +1,60 @@
+ 
+ GB2312、GBK、GB18030与utf-8
+ 
+ GB 2312 或 GB 2312-80   2个字节表示一个汉字，1个字节表示一个英文
+ 是中国国家标准简体中文字符集，全称《信息交换用汉字编码字符集·基本集》，又称 GB 0，
+ 由中国国家标准总局发布，1981 年 5 月 1 日实施。
+ GB 2312 编码通行于中国大陆，中国大陆几乎所有的中文系统和国际化的软件都支持 GB 2312。
+ GB 2312 标准共收录 6763 个汉字，GB 2312 对任意一个图形字符都采用两个字节表示
+ 
+ GBK  2个字节表示一个汉字，1个字节表示一个英文
+ 即汉字内码扩展规范，K 为汉语拼音 Kuo Zhan（扩展）中“扩”字的声母。英文全称 Chinese Internal Code Specification。
+ GBK 共收入 21886 个汉字和图形符号，包括：GB 2312 中的全部汉字、非汉字符号。BIG5 中的全部汉字。
+ 与 ISO 10646 相应的国家标准 GB 13000 中的其它 CJK 汉字，以上合计 20902 个汉字。其它汉字、部首、符号，共计 984 个。
+ 
+ GB 18030  2个字节表示一个汉字，1个字节表示一个英文
+ 全称：国家标准 GB 18030-2005《信息技术中文编码字符集》，是中华人民共和国现时最新的内码字集，
+ 是 GB 18030-2000《信息技术信息交换用汉字编码字符集基本集的扩充》的修订版。
+ GB 18030 与 GB 2312-1980 和 GBK 兼容，共收录汉字70244个。
+ GB 18030 编码是一二四字节变长编码。每个字可以由 1 个、2 个或 4 个字节组成。编码空间庞大，最多可定义 161 万个字符。
+ 
+ UTF-8  3个字节表示一个汉字 ，1个字节表示一个英文
+ 最大的一个特点，就是它是一种变长的编码方式。它可以使用1~4个字节表示一个符号，根据不同的符号而变化字节长度。
+ 
+ oracle数据库客户端的字符集--例如SQL*Plus、exp/imp等
+ 客户端字符集是通过设置NLS_LANG参数来设定的
+ SELECT * FROM V$NLS_PARAMETERS 
+ where PARAMETER in('NLS_LANGUAGE','NLS_TERRITORY','NLS_CHARACTERSET');
+ SELECT USERENV('language') FROM DUAL;
+ Oracle数据库会话级字符集查看语句
+ SELECT * FROM NLS_SESSION_PARAMETERS;
+ oracle数据库服务器级别的字符集查看
+ select * from nls_database_parameters 
+ where  parameter in('NLS_LANGUAGE','NLS_TERRITORY','NLS_CHARACTERSET');
+ 
+ 
+
+ 
+ Oracle的字符集命名通常遵循以下命名规则：
+<Language><bit size><encoding>，即<语言><比特位数><编码>，
+例如ZHS16GBK。
+
+可以看到一类字符集以AL开头，如AL16UTF16，
+其中AL代表ALL，指适用于所有语言（All Languages）
+
+NLS_LANG参数由以下部分组成：
+NLS_LANG=<Language>_<Territory>.<Clients Characterset>
+
+SIMPLIFIED CHINESE_CHINA.AL32UTF8
+LANGUAGE参数指定Oracle消息使用的语言，日期中月份和日的显示；
+TERRITORY参数指定货币和数字格式，地区和计算星期及日期的习惯；
+CHARACTERSET控制客户端应用程序使用的字符集，
+这个字符集用于对数据库传输过来的数据进行解码。
+ 
+ 
+ 
+ 阮一峰的编码相关知识网址
+ http://www.ruanyifeng.com/blog/2007/10/ascii_unicode_and_utf-8.html
+https://blog.csdn.net/guxiaonuan/article/details/78678043
+查询中文 Unicode 网址：http://www.chi2ko.com/tool/CJK.htm
+在线编码：https://tool.oschina.net/encode

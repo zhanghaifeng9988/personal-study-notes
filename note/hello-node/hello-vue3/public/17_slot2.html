@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="vue.js"></script>
+</head>
+<body>
+  <div id="Application">
+    <my-container>
+      <template v-slot:header>
+        <h1>This is the Header</h1>
+      </template>
+      <template v-slot:main>
+        <p>This is the Main Content1</p>
+        <p>This is the Main Content2</p>
+      </template>
+      <template v-slot:footer>
+        <p>This is the Footer</p>
+      </template>
+    </my-container>
+  </div>
+  <script>
+    const App = Vue.createApp({})
+    const container2Component = {
+      template: `<div style="border: 1px solid black; padding: 10px;">
+        <slot name="header" ></slot>
+        </div>`
+        + `<div style="border: 1px solid green; padding: 10px;">
+        <slot name="main" ></slot>
+        </div>`
+        + `<div style="border: 1px solid red; padding: 10px;">
+        <slot name="footer" ></slot>
+        </div>`
+    }
+    App.component('my-container', container2Component)
+    App.mount('#Application')
+  </script>
+</body>
+</html>

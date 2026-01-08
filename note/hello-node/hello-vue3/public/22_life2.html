@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="vue.js"></script>
+</head>
+<body>
+  <div id="Application">
+    <button @click="changeShow">测试</button>
+    <sub-com v-if="show"> </sub-com>
+  </div>
+  <script>
+    const app = Vue.createApp({
+      data() {
+        return {
+          show: false // 控制子组件的显示
+        }
+      },
+      methods:{
+        changeShow() {
+          this.show = !this.show
+        }
+      }
+    })
+    const sub = {
+      beforeCreate() {
+        alert('组件创建前')
+      },
+      created() {
+        alert('组件创建完成')
+      },
+      beforeMount() {
+        alert('组件挂载前')
+      },
+      mounted() {
+        alert('组件挂载完成')
+      },
+      beforeUnmount() {
+        alert('组件卸载前调用')
+      },
+      unmounted() {
+        alert('组件卸载后调用')
+      }
+    }
+    app.component('sub-com', sub)
+    app.mount('#Application') // 将组件挂载到id为Application的div上，这是html的DOM元素。
+//组件的生命周期：
+//在挂载过程中，Vue 会执行以下操作：
+//解析组件的模板并转换为渲染函数。
+//将组件的状态数据（如 data、props、computed 和 methods 等）与 DOM 进行关联。
+//生成该组件的虚拟 DOM，并且通过比较算法（diff 算法）将虚拟 DOM 渲染到真实的 DOM 中。
+//调用组件的 beforeCreate、created、beforeMount、mounted、beforeUnmount、unmounted 钩子函数。
+//使得组件内的逻辑与 DOM 交互（event handling, reactive data 变化等）。
+  </script>
+</body>
+</html>

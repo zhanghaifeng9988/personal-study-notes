@@ -1,0 +1,247 @@
+
+--ACC1 接入交换机
+[Huawei]Undo  info-center enable
+[Huawei]inter Eth-Trunk 1
+[Huawei-Eth-Trunk1]port link-type trunk
+[Huawei-Eth-Trunk1]port trunk allow-pass vlan all
+[Huawei-Eth-Trunk1]mode lacp
+[Huawei]interface GigabitEthernet 0/0/2
+[Huawei-GigabitEthernet0/0/2]eth-trunk 1
+[Huawei]interface GigabitEthernet 0/0/3
+[Huawei-GigabitEthernet0/0/3]eth-trunk 1
+
+vlan batch 10 20 
+interface GigabitEthernet 0/0/1
+port link-type access
+port default vlan 10
+stp edged-port enable
+interface GigabitEthernet 0/0/4
+port link-type access
+port default vlan 10
+stp edged-port enable
+interface GigabitEthernet 0/0/5
+port link-type access
+port default vlan 20
+stp edged-port enable
+
+ --边缘端口的作用
+ 快速收敛、增加网络容量、避免广播风暴以及排除网络环路
+ 
+stp bpdu-protection
+ --主要作用是保护网络免受BPDU（Bridge Protocol Data Unit，网桥协议数据单元）的攻击，
+   确保网络的稳定性和可靠性。
+ 
+display vlan
+display eth-trunk 1
+display port vlan
+
+ 
+--ACC2  接入交换机
+[Huawei]Undo  info-center enable
+[Huawei]inter Eth-Trunk 2
+[Huawei-Eth-Trunk1]port link-type trunk
+[Huawei-Eth-Trunk1]port trunk allow-pass vlan all
+[Huawei-Eth-Trunk1]mode lacp
+[Huawei]interface GigabitEthernet 0/0/4
+[Huawei-GigabitEthernet0/0/2]eth-trunk 2
+[Huawei]interface GigabitEthernet 0/0/5
+[Huawei-GigabitEthernet0/0/3]eth-trunk 2
+
+vlan batch 10 20
+interface GigabitEthernet 0/0/1
+port link-type access
+port default vlan 10
+stp edged-port enable
+interface GigabitEthernet 0/0/2
+port link-type access
+port default vlan 10
+stp edged-port enable
+interface GigabitEthernet 0/0/3
+port link-type access
+port default vlan 20
+stp edged-port enable
+
+
+--core  核心交换机
+  --链路聚合
+Undo  info-center enable
+int Eth-Trunk 1
+port link-type trunk
+port trunk allow-pass vlan all
+mode lacp
+
+interface GigabitEthernet 0/0/2
+eth-trunk 1
+interface GigabitEthernet 0/0/3
+eth-trunk 1
+
+int Eth-Trunk 2
+port link-type trunk
+port trunk allow-pass vlan all
+mode lacp
+
+interface GigabitEthernet 0/0/4
+eth-trunk 2
+interface GigabitEthernet 0/0/5
+eth-trunk 2
+
+  --vlanif
+vlan batch 10 20 30 100
+interface vlanif 10
+ip address 192.168.10.254 24
+interface Vlanif 20
+ip address 192.168.20.254 24
+interface Vlanif 100
+ip address 192.168.100.1 24    与路由器相连的网段
+interface Vlanif 30            服务器网段，不做dhcp配置
+ip address 192.168.30.254 24
+
+  --服务器网段接口配置
+  interface GigabitEthernet 0/0/6
+  port link-type access
+  port default vlan 30
+  
+  
+  --DHCP
+dhcp enable
+ip pool 10
+network 192.168.10.0 mask 24
+gateway-list 192.168.10.254
+
+ip pool 20
+network 192.168.20.0 mask 24
+gateway-list 192.168.20.254
+
+static-bind ip-address 10.1.20.253 mac-address 54-89-98-E9-58-B3
+static-bind ip-address 10.1.20.252 mac-address 54-89-98-86-09-BB
+
+interface Vlanif 10
+dhcp select global
+interface Vlanif 20
+dhcp select global
+
+  --配置DNS
+ dns resolve
+ dns server 8.8.8.8
+ dns proxy enable
+ 
+  --查看相关信息
+  display  ip pool name 10
+  display  ip pool name 20
+  display interface Vlanif
+
+  
+  /*此时两台交换机所接入的设备都能获取地址，并且两个网段都能互通*/
+   此时两个网段到192.168.100.1也都是通的
+  
+  备注：vlan默认不同，可以通过配置静态路由、VLAN间路由或在三层交换机上设置VLANIF接口等方式来实现。
+  vlan间路由的一种方式：（单臂路由）在交换机和路由器之间仅使用一条物理链路连接。在交换机上，
+  把连接到路由器的端口配置成Trunk类型的端口，并允许相关VLAN的帧通过。
+  在路由器上需要创建子接口，逻辑上把连接路由器的物理链路分成了多条，
+  每个子接口代表了一条归属于某个VLAN的逻辑链路。
+  
+  如果需要VLAN内的所有用户不能通过VLANIF接口与其他VLAN内用户通信，但VLAN内用户还可以互相通信，
+  可以在VLANIF接口视图下执行命令shutdown来禁止三层流量，但不影响二层流量。
+  
+  
+--局域网路由配置  OSPF路由模式
+   --路由器，与核心交换机连接接口配置
+   interface GigabitEthernet 0/0/1
+   ip address 10.1.100.2 24
+
+   
+   
+   --core核心交换机ospf配置
+   interface GigabitEthernet 0/0/1
+   port link-type access
+   port default vlan 100
+   
+   router id 192.168.100.1
+   ospf 1
+   area 0
+   network 192.168.10.0  0.0.0.255
+   network 192.168.20.0  0.0.0.255
+   network 192.168.30.0  0.0.0.255
+   network 192.168.40.0  0.0.0.255
+   network 192.168.100.1  0.0.0.0
+   
+   --路由器ospf配置
+   router id 192.168.100.2
+   ospf 1
+   area 0
+   network 192.168.100.2 0.0.0.0 
+   
+   --查看邻居
+   display ospf peer
+   --查看ospf的路由
+   display ospf routing  或者dis ip routing-table  protocol  ospf
+   
+
+--到公网配置路由
+  --路由器  配置静态路由到ISP
+    interface GigabitEthernet 0/0/0
+    ip address 1.1.1.1 24
+	
+    ip route-static 0.0.0.0  0  1.1.1.2
+	
+	--用于形成内网到路由器的静态路由
+	ospf 1  
+   default-route-advertise
+	
+--nat（easyip模式）
+   --路由器
+     acl 2000
+   rule permit source 192.168.10.0  0.0.0.255  --允许10网段访问互联网
+   rule deny  source 192.168.20.0   0.0.0.255  --组织20网段访问互联网
+   rule deny  source 192.168.30.1   0.0.0.0    --阻止特定ip访问互联网
+   interface GigabitEthernet 0/0/0
+   nat outbound 2000
+   
+--nat地址映射，让外网可以访问局域网内部服务器
+   --ISP路由器配置
+   interface GigabitEthernet 0/0/1
+   ip address 200.1.1.2 24
+   --给测试电脑配置ip 200.1.1.1  24
+   --给测试服务器配置ip 192.168.30.1
+   --给测试服务器配置http服务
+
+   --路由器配置（可以使外网用户访问局域网服务器）
+   进入公网口
+   interface GigabitEthernet 0/0/0
+   nat server protocol tcp global 1.1.1.10 80 inside 192.168.30.1 80
+   
+
+  --使内网用户，通过公网ip访问内部服务器
+    路由器配置
+  acl 3000
+  rule permit ip source 192.168.0.0 0.0.255.255 destination  1.1.1.10 0
+  interface GigabitEthernet 0/0/1
+  nat outbound 3000
+  nat server protocol tcp global 1.1.1.10 80 inside 192.168.30.1 80
+  
+  
+  注意：当然内网用户直接用内网地址，也可以访问服务器
+  
+  
+--安全相关
+
+  --接入交换机防止私接小路由器
+  dhcp snooping enable
+  
+  --接入交换机上联核心交换机，配置snooping ，并添加信任（链路聚合状态下的操作）
+  int Eth-Trunk 2
+  dhcp snooping enable
+  dhcp snooping trusted
+  int Eth-Trunk 1
+  dhcp snooping enable
+  dhcp snooping trusted 
+  
+
+--
+
+telnet server enable 
+
+
+--管理vlan
+vlan 88
+management-vlan

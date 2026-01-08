@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<!-- saved from url=(0045)https://www.cnblogs.com/hzxll/p/16190230.html -->
+<html lang="zh-cn" style="--olcb-folder-code-block-max-height: 80vh; --cnb-code-bg: rgb(245, 245, 245); --cnb-code-font-size: 12px; --cnb-code-color: rgb(68, 68, 68);"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="origin-when-cross-origin">
+    <meta name="keywords" content="UML">
+    <meta name="description" content="九种常见UML图 1.类图 概述 类图（Class Diagram）是面向对象系统建模中最常用和最重要的图，是定义其它图的基础。 类图主要是用来显示系统中的类、接口以及它们之间的静态结构和关系的一种静态模型。 类图不仅用于可视化描述和记录系统的不同方面，也为构建可执行代码的软件应用程序。 类图描述一">
+    <meta property="og:description" content="九种常见UML图 1.类图 概述 类图（Class Diagram）是面向对象系统建模中最常用和最重要的图，是定义其它图的基础。 类图主要是用来显示系统中的类、接口以及它们之间的静态结构和关系的一种静态模型。 类图不仅用于可视化描述和记录系统的不同方面，也为构建可执行代码的软件应用程序。 类图描述一">
+    <meta http-equiv="Cache-Control" content="no-transform">
+    <meta http-equiv="Cache-Control" content="no-siteapp">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>九种常见UML图（分类+图解） - HZX↑ - 博客园</title>
+    <link rel="canonical" href="https://www.cnblogs.com/hzxll/p/16190230.html">
+    <link rel="shortcut icon" id="favicon" href="https://assets.cnblogs.com/favicon.svg?v=2" type="image/svg+xml">
+    
+    <style>#home :not(.cnblogs_code):not(.cnblogs_Highlighter)>pre:not([highlighted]):not([class*="brush:"]) code:not(.hljs), :not(.cnblogs_code):not(.cnblogs_Highlighter)>pre:not([highlighted]):not([class*="brush:"]) code:not(.hljs) {background: rgb(245, 245, 245);
+        padding: 12px;
+        border: 0.701754px solid rgb(204, 204, 204);
+        border-radius: 3px;
+        border-color: transparent;
+        color: rgb(68, 68, 68);
+        font-family: "Courier New", sans-serif;
+        font-size: 12px</style><link rel="stylesheet" href="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/blog-common.min.css">
+    
+
+    <link id="MainCss" rel="stylesheet" href="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/bundle-simplememory.min.css">
+        <link id="highlighter-theme-cnblogs" type="text/css" rel="stylesheet" href="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/cnblogs.css">
+    <link type="text/css" rel="stylesheet" href="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/custom.css">
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/bundle-simplememory-mobile.min.css">
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/hzxll/rss">
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/hzxll/rsd.xml">
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/hzxll/wlwmanifest.xml">
+    <script>
+        var currentBlogId = 740625;
+        var currentBlogApp = 'hzxll';
+        var isLogined = true;
+        var isBlogOwner = false;
+        var skinName = 'SimpleMemory';
+        var visitorUserId = 'c0e86282-ef26-4e48-295c-08d9a8cd175a';
+        var hasCustomScript = true;
+        window.cb_enable_mathjax = true;
+        window.mathEngine = 0;
+        window.codeHighlightEngine = 1;
+        window.enableCodeLineNumber = true;
+        window.codeHighlightTheme = 'cnblogs';
+        window.darkModeCodeHighlightTheme = 'vs2015';
+        window.isDarkCodeHighlightTheme = false;
+        window.isDarkModeCodeHighlightThemeDark = true;
+        window.isDisableCodeHighlighter = false;
+        window.enableCodeThemeTypeFollowSystem = false;
+        window.enableMacStyleCodeBlock = false;
+    </script>
+        <script>
+            window.currentPostId = 16190230;
+            window.currentPostDateAdded = '2022-04-25 14:51';
+        </script>
+    <script src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/jquery-3.3.1.min.js"></script>
+    <script src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/blog-common.min.js"></script><style>.medium-zoom-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 300ms;
+  will-change: opacity;
+}
+
+.medium-zoom--opened .medium-zoom-overlay {
+  cursor: pointer;
+  cursor: zoom-out;
+  opacity: 1;
+}
+
+.medium-zoom-image {
+  cursor: pointer;
+  cursor: zoom-in;
+  /*
+    The `transition` is marked as "!important" for the animation to happen
+    even though it's overriden by another inline `transition` style attribute.
+
+    This is problematic with frameworks that generate inline styles on their
+    images (e.g. Gatsby).
+
+    See https://github.com/francoischalifour/medium-zoom/issues/110
+   */
+  transition: transform 300ms cubic-bezier(0.2, 0, 0.2, 1) !important;
+}
+
+.medium-zoom-image--hidden {
+  visibility: hidden;
+}
+
+.medium-zoom-image--opened {
+  position: relative;
+  cursor: pointer;
+  cursor: zoom-out;
+  will-change: transform;
+}
+</style><script id="hljs-script" src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/highlight.min.js" type="text/javascript" async=""></script>
+        <script>updateCustomBlogReferrer();</script>
+    
+<script id="mathjax" src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/MathJax.js" type="text/javascript" async=""></script><meta property="og:image" content="https://img2022.cnblogs.com/blog/1617979/202204/1617979-20220425143904188-1497696048.png"><style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
+.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
+.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 2px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 2px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: 1em}
+.MathJax_MenuRadioCheck.RTL {right: 1em; left: auto}
+.MathJax_MenuLabel {padding: 2px 2em 4px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #CCCCCC; margin: 4px 1px 0px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: Highlight; color: HighlightText}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
+.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><style type="text/css">.MJXp-script {font-size: .8em}
+.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
+.MJXp-bold {font-weight: bold}
+.MJXp-italic {font-style: italic}
+.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-largeop {font-size: 150%}
+.MJXp-largeop.MJXp-int {vertical-align: -.2em}
+.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
+.MJXp-display {display: block; text-align: center; margin: 1em 0}
+.MJXp-math span {display: inline-block}
+.MJXp-box {display: block!important; text-align: center}
+.MJXp-box:after {content: " "}
+.MJXp-rule {display: block!important; margin-top: .1em}
+.MJXp-char {display: block!important}
+.MJXp-mo {margin: 0 .15em}
+.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXp-denom {display: inline-table!important; width: 100%}
+.MJXp-denom > * {display: table-row!important}
+.MJXp-surd {vertical-align: top}
+.MJXp-surd > * {display: block!important}
+.MJXp-script-box > *  {display: table!important; height: 50%}
+.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
+.MJXp-script-box > *:last-child > * {vertical-align: bottom}
+.MJXp-script-box > * > * > * {display: block!important}
+.MJXp-mphantom {visibility: hidden}
+.MJXp-munderover, .MJXp-munder {display: inline-table!important}
+.MJXp-over {display: inline-block!important; text-align: center}
+.MJXp-over > * {display: block!important}
+.MJXp-munderover > *, .MJXp-munder > * {display: table-row!important}
+.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXp-mtr {display: table-row!important}
+.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
+.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-mlabeledtr {display: table-row!important}
+.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style></head>
+<body class="skin-simplememory has-navbar mathjax2 has-bannerbar"><div id="MathJax_Message" style="display: none;"></div>
+    <a name="top"></a>
+        <a href="https://www.cnblogs.com/cmt/p/18302049" onclick="countCreativeClicks(&#39;C0-博客园-求救信&#39;)" target="_blank" rel="nofollow">
+            <div class="imagebar forpc" style="background-size: contain;background-image: url(https://img2024.cnblogs.com/blog/35695/202409/35695-20240914114946378-636030942.jpg);">
+                <img src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/35695-20240914114816850-1817038355.jpg" style="" onload="countCreativeImpressions(&#39;C0-博客园-求救信&#39;)">
+                
+                
+                <span id="c0_impression" style="display:none"></span>
+            </div>
+        </a>
+        <div id="imagebar" class="imagebar-mobile imagebar-text-mobile formobile">
+                <a href="https://www.cnblogs.com/cmt/p/18302049" onclick="countCreativeClicks(&#39;M2-博客园-求救信&#39;)" rel="nofollow">
+                    <img src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/35695-20240914121709121-516873353.jpg" alt="" onload="countCreativeImpressionsOnMobile(&#39;M2-博客园-求救信&#39;)">
+                    <span id="m2_impression" style="display:none"></span>
+                </a>
+        </div>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding">
+                    <a href="https://www.cnblogs.com/" title="开发者的网上家园" role="banner">
+                        <img src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/logo.svg" alt="博客园Logo">
+                    </a>
+                </li>
+                <li><a href="https://cnblogs.vip/">会员</a></li>
+                <li><a href="https://cnblogs.vip/store">周边</a></li>
+                    <li><a href="https://cnblogs.vip/donate">捐助</a></li>
+                <li>
+                    <a href="https://news.cnblogs.com/" onclick="countClicks(&#39;nav&#39;, &#39;skin-navbar-news&#39;)">新闻</a>
+                </li>
+                <li>
+                    <a href="https://q.cnblogs.com/" onclick="countClicks(&#39;nav&#39;, &#39;skin-navbar-q&#39;)">博问</a>
+                </li>
+                <li>
+                    <a href="https://ing.cnblogs.com/" onclick="countClicks(&#39;nav&#39;, &#39;skin-navbar-ing&#39;)">闪存</a>
+                </li>
+                <li><a href="https://www.cnblogs.com/cmt/p/18341478">赞助商</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search dropdown" action="https://zzk.cnblogs.com/s" method="get" role="search">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="search" tabindex="3" autocomplete="off">
+                        <button id="zzk_search_button" onclick="window.navbarSearchManager.triggerActiveOption()">
+                            <img id="search_icon" class="focus-hidden" src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/search.svg" alt="搜索">
+                            <img class="hidden focus-visible" src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/enter.svg" alt="搜索">
+                        </button>
+                        <ul id="navbar_search_options" class="dropdown-menu quick-search-menu">
+                            <li tabindex="0" class="active" onclick="zzkSearch(event, document.getElementById(&#39;zzk_search_input&#39;).value)">
+                                <div class="keyword-wrapper">
+                                    <img src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/search.svg" alt="搜索">
+                                    <div class="keyword"></div>
+                                </div>
+                                <span class="search-area">所有博客</span>
+                            </li>
+                                    <li tabindex="1" onclick="zzkBlogSearch(event, &#39;hzxll&#39;, document.getElementById(&#39;zzk_search_input&#39;).value)">
+                                        <div class="keyword-wrapper">
+                                            <img src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/search.svg" alt="搜索">
+                                            <div class="keyword"></div>
+                                        </div>
+                                        <span class="search-area">当前博客</span>
+                                    </li>
+                        </ul>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔" style="display: inline;">
+                        <img id="new_post_icon" class="navbar-icon" src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/newpost.svg" alt="写随笔">
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://account.cnblogs.com/blog-apply" alt="我的博客" title="我的博客" style="display: inline;">
+                        <img id="myblog_icon" class="navbar-icon" src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/myblog.svg" alt="我的博客">
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息" style="display: inline;">
+                        <img id="msg_icon" class="navbar-icon" src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/message.svg" alt="短消息">
+                        <span id="msg_count" style="">1</span>
+                    </a>
+                    <a id="navbar_lite_mode_indicator" data-current-page="blog" style="display: none" href="javascript:void(0)" alt="简洁模式" title="简洁模式启用，您在访问他人博客时会使用简洁款皮肤展示">
+                        <img class="navbar-icon" src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/lite-mode-on.svg" alt="简洁模式">
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown" style="display: block;">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/u/2657216">
+                            <img id="user_icon" class="navbar-avatar" src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/20211128121218.png" alt="用户头像">
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://account.cnblogs.com/blog-apply">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/lite-mode-check.svg" class="hide" style="display: none;"><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup" style="display: none;">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()" style="display: none;">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    
+
+    <!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+        <a id="lnkBlogLogo" href="https://www.cnblogs.com/hzxll/"><img id="blogLogo" src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/logo.gif" alt="返回主页"></a>		
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/hzxll">落子无悔，永远少年</a>
+</h1>
+<h2></h2>
+
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/hzxll/">
+首页</a>
+</li>
+<li>
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+<li>
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/HZX%E2%86%91">
+联系</a></li>
+<li>
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/hzxll/rss/">订阅</a>
+<!--<partial name="./Shared/_XmlLink.cshtml" model="Model" /></li>--></li>
+<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+
+
+		<div class="blogStats">
+			<span id="stats_post_count">随笔 - 126&nbsp; </span>
+<span id="stats_article_count">文章 - 0&nbsp; </span>
+<span id="stats-comment_count">评论 - 12&nbsp; </span>
+<span id="stats-total-view-count">阅读 - 
+<span title="总阅读数: 151632">
+15万</span></span>
+
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		<div id="post_detail">
+    <!--done-->
+    <div id="topics">
+        <div class="post">
+            <h1 class="postTitle">
+                <a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/hzxll/p/16190230.html" title="发布于 2022-04-25 14:51">
+    <span role="heading" aria-level="2">九种常见UML图（分类+图解）</span>
+    
+
+</a><button class="cnblogs-toc-button" title="显示目录导航" aria-expanded="false"></button>
+
+            </h1>
+            <div class="clear"></div>
+            <div class="postBody">
+                <div id="cnblogs_post_body" class="blogpost-body cnblogs-markdown">
+<h1 id="九种常见uml图">九种常见UML图<button class="cnblogs-toc-button" title="显示目录导航" aria-expanded="false"></button></h1>
+<p><img src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/1617979-20220425143904188-1497696048.png" alt="" loading="lazy" class="medium-zoom-image"></p>
+<h2 id="1类图">1.类图<button class="cnblogs-toc-button" title="显示目录导航" aria-expanded="false"></button></h2>
+<blockquote>
+<p>概述</p>
+</blockquote>
+<p>类图（Class Diagram）是面向对象系统建模中最常用和最重要的图，是定义其它图的基础。<br>
+类图主要是用来显示系统中的类、接口以及它们之间的静态结构和关系的一种静态模型。<br>
+类图不仅用于可视化描述和记录系统的不同方面，也为构建可执行代码的软件应用程序。<br>
+类图描述一类的属性和操作，也对系统的约束。被广泛应用于类图的建模的面向对象的系统中，因为它们是唯一的，可以直接映射到面向对象语言的 UML 图。<br>
+类图显示集合的类，接口，关联，协作和约束，它也被称为作为结构图。</p>
+<blockquote>
+<p>目的</p>
+</blockquote>
+<ol>
+<li>分析和设计应用程序的静态视图;</li>
+<li>描述一个系统的责任;</li>
+<li>基地组件图和部署图;</li>
+<li>正向和逆向工程。</li>
+</ol>
+<blockquote>
+<p>示例</p>
+</blockquote>
+<p><img src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/1617979-20220425143926525-1428406270.png" alt="" loading="lazy" class="medium-zoom-image"></p>
+<div align="center">类图</div>
+<p>车的类图结构为&lt;<abstract>&gt;，表示车是一个抽象类；<br>
+它有两个继承类：小汽车和自行车；它们之间的关系为实现关系，使用带空心箭头的虚线表示；<br>
+小汽车为与SUV之间也是继承关系，它们之间的关系为泛化关系，使用带空心箭头的实线表示；<br>
+小汽车与发动机之间是组合关系，使用带实心箭头的实线表示；<br>
+学生与班级之间是聚合关系，使用带空心箭头的实线表示；<br>
+学生与身份证之间为关联关系，使用一根实线表示；<br>
+学生上学需要用到自行车，与自行车是一种依赖关系，使用带箭头的虚线表示；</abstract></p>
+<h2 id="2对象图">2.对象图<button class="cnblogs-toc-button" title="显示目录导航" aria-expanded="false"></button></h2>
+<blockquote>
+<p>概述</p>
+</blockquote>
+<p>UML 对象图和类图一样反映系统的静态过程，但它是从实际的或原型化的情景来表达的。<br>
+UML 对象图显示某时刻对象和对象之间的关系。一个UML对象图可看成一个类图的特殊用例，实例和类可在其中显示。<br>
+UML 对象图是类图的实例，几乎使用与类图完全相同的标识。<br>
+由于对象存在生命周期，因此UML对象图只能在系统某一时间段存在。</p>
+<blockquote>
+<p>目的</p>
+</blockquote>
+<p>对象图的目的与类图类似。<br>
+不同的是，一个类图代表一个抽象的模型，包括类和它们之间的关系。但是，由于对象存在生命周期，因此UML对象图只能在系统某一时间段存在。<br>
+这意味着对象图是更接近实际的系统行为。目的是在一个特定的时刻捕捉到静态的系统视图。</p>
+<p>对象图的目的概述如下：<br>
+正向和逆向工程；<br>
+一个系统的对象间的关系；<br>
+一个交互的静态视图；<br>
+了解对象的行为和他们的关系从实用的角度来看。</p>
+<blockquote>
+<p>示例</p>
+</blockquote>
+<p><img src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/1617979-20220425144017091-481956776.png" alt="" loading="lazy" class="medium-zoom-image"></p>
+<div align="center">对象图</div>
+<p>上面的对象图代表订单管理系统，顾客在一个特定的时间下单。它具有顾客、订单、特殊订单和一般订单四个对象。现在客户对象（C）是与三个订单对象（O1，O2和O3）。这些订单对象相关联的特殊订单和一般订单对象（S1，S2和N1）。顾客具有以下三个具有不同数目的订单（12，32和40），用于所考虑的特定的时间。</p>
+<h2 id="3组件图">3.组件图<button class="cnblogs-toc-button" title="显示目录导航" aria-expanded="false"></button></h2>
+<blockquote>
+<p>概述</p>
+</blockquote>
+<p>UML 组件图（Component Diagram）又称为构件图，他描述的是在软件系统中遵从并实现一组接口的物理的、可替换的软件模块。<br>
+组件图 = 构件（Component）+接口（Interface）+关系（Relationship）+端口（Port）+连接器（Connector）。<br>
+UML 组件图给提供了将要建立的系统的高层次的架构视图，这将帮助开发者开始建立实现的路标，并决定关于任务分配及（或）增进需求技能。</p>
+<blockquote>
+<p>目的</p>
+</blockquote>
+<p>组件图是一种特殊的 UML 图。与我们之前讨论的 UML 图表的目的都不同。组件图不描述该系统的功能，但它描述了使用这些功能的组件。<br>
+所以从这一点来说，组件图用于可视化在一个系统中的物理组件。这些组件包括库，程序包，文件等。<br>
+组件图也被描述为一个静态的实施的系统视图，在一个特定的时刻，静态执行代表组织的组成部分。<br>
+一个单一的组件图不能代表整个系统，但图的集合可用来代表整个。<br>
+组件图的目的概括如下：<br>
+可视化系统的组成部分。<br>
+构建的可执行文件，使用正向和反向工程。<br>
+描述的组织和组件的关系。</p>
+<blockquote>
+<p>示例</p>
+</blockquote>
+<p><img src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/1617979-20220425144039275-67384585.png" alt="" loading="lazy" class="medium-zoom-image"></p>
+<div align="center">组件图</div>
+<p>在购买一件商品时，我们首先是浏览商品，了解商品详情。在商品详细页面上，我们可以看到一个“加入购物车”。可以绘制网上商城组件图，如上图所示：购物车、订单、库存、支付管理组件。</p>
+<h2 id="4部署图">4.部署图<button class="cnblogs-toc-button" title="显示目录导航" aria-expanded="false"></button></h2>
+<blockquote>
+<p>概述</p>
+</blockquote>
+<p>部署图由节点以及节点之间的关系组成。<br>
+部署图描述的是系统运行时的结构，展示了硬件的配置及其软件如何部署到网络结构中。<br>
+部署图通常用来帮助理解分布式系统，一个系统模型只有一个部署图。<br>
+部署图用于可视化的软件组件部署的系统中的物理组件的拓扑结构。<br>
+部署图是用来描述一个系统的静态部署视图。</p>
+<blockquote>
+<p>目的</p>
+</blockquote>
+<p>部署图与组件图密切相关，部署图是用来描述软件组件部署的硬件组件；而组件图是用来描述组件和显示了它们是如何在硬件中部署。<br>
+UML的设计主要是把重点放在系统的软件构件。但是，这两个图是使用特殊图表专注于软件组件和硬件组件。<br>
+所以大多数的 UML 图是用来处理逻辑组件，但把重点放在系统的硬件拓扑部署图。<br>
+以下是部署图的目的描述：<br>
+可视化系统的硬件拓扑。<br>
+描述用于部署软件组件的硬件组件。<br>
+描述运行时处理节点。</p>
+<blockquote>
+<p>示例</p>
+</blockquote>
+<p><img src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/1617979-20220425144057598-631989026.png" alt="" loading="lazy" class="medium-zoom-image"></p>
+<div align="center">部署图</div>
+<h2 id="5用例图">5.用例图<button class="cnblogs-toc-button" title="显示目录导航" aria-expanded="false"></button></h2>
+<blockquote>
+<p>概述</p>
+</blockquote>
+<p>用例图捕捉了模拟系统中的动态行为，并且描述了用户、需求以及系统功能单元之间的关系。<br>
+用例图展示了一个外部用户能够观察到的系统功能模型图。<br>
+用例图由主角，用例和它们之间的关系组成。</p>
+<blockquote>
+<p>目的</p>
+</blockquote>
+<p>用例图的目的是捕捉到一个系统的动态方面。<br>
+用例图是用来收集系统的要求，包括内部和外部的影响。这些要求大多是设计要求。所以，分析一个系统时要收集其功能用例和确定参与者。<br>
+简单来说，用例图的目的如下：<br>
+用例图用来收集系统的要求。<br>
+用例图用于获取系统的外观图。<br>
+用例图识别外部和内部因素影响系统。<br>
+用例图显示要求之间的相互作用是参与者。</p>
+<blockquote>
+<p>示例</p>
+</blockquote>
+<p><img src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/1617979-20220425144115581-1966576901.png" alt="" loading="lazy" class="medium-zoom-image"></p>
+<div align="center">用例图</div>
+<h2 id="6序列图">6.序列图<button class="cnblogs-toc-button" title="显示目录导航" aria-expanded="false"></button></h2>
+<blockquote>
+<p>概述</p>
+</blockquote>
+<p>序列图亦称为时序图或循序图或顺序图，是一种UML行为图。它通过描写叙述对象之间发送消息的时间顺序，显示多个对象之间的动态协作。它能够表示用例的行为顺序，当运行一个用例行为时，时序图中的每条消息响应了一个类操作或状态机中引起转换的触发事件。<br>
+序列图展示对象之间的交互，这些交互是指在场景或用例的时间流中发生的，序列图属于动态建模。<br>
+序列图的重点在消息序列上，也就是说，描写叙述消息是怎样在对象间发送和接收的，表示对象之间传送消息的时间顺序。<br>
+序列图的组成元素：对象、生命线、激活、消息。</p>
+<blockquote>
+<p>目的</p>
+</blockquote>
+<ol>
+<li>细化用例的表达。将用例所描述的需求与功能转化为更加正式、层次更加分明的细化表达。</li>
+<li>有效地描述类职责的分配方式。根据顺序图中各对象之间的交互关系和发送的消息，来进一步明确对象所属类的职责。</li>
+<li>丰富系统的使用语境的逻辑表达。系统的使用语境即为系统可能的使用方式和使用环境。</li>
+</ol>
+<blockquote>
+<p>示例</p>
+</blockquote>
+<p>ATM机取款的需求描述如下：<br>
+用户通过ATM机，插入银行卡。系统提示输入密码，用户输入密码。系统检查密码是否正确，密码正确用户选择取款。系统提示输入取款金额。用户输入金额，系统判断其合法性。在获取用户输入金额后，系统开始事物处理，减少账户金额，输出相应现金。序列图如下图所示：</p>
+<p><img src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/1617979-20220425144135011-231413547.png" alt="" loading="lazy" class="medium-zoom-image"></p>
+<div align="center">序列图</div>
+<h2 id="7协作图">7.协作图<button class="cnblogs-toc-button" title="显示目录导航" aria-expanded="false"></button></h2>
+<blockquote>
+<p>概述</p>
+</blockquote>
+<p>协作图是动态图的另一种表现形式，强调参加交互的各对象结构的信息。协作图是一种类图，包含类元角色和关联角色，而不仅仅是类元和关联。协作图强调参加交互的各对象的组织。<br>
+序列图的组成元素：对象、链接、消息。</p>
+<blockquote>
+<p>目的</p>
+</blockquote>
+<p>协作图中对象之间的消息传递来反映具体的使用语境的逻辑表达，表示的是系统的一个行为，消息编号对应了程序中嵌套调用的结构和信号传递过程，显示的对象之间的一种关系。协作图常用于过程的详细设计。</p>
+<blockquote>
+<p>示例</p>
+</blockquote>
+<p>ATM机取现金100元的需求，协作图如下图所示：</p>
+<p><img src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/1617979-20220425144151789-724267766.png" alt="" loading="lazy" class="medium-zoom-image"></p>
+<div align="center">协作图</div>
+<h2 id="8状态图">8.状态图<button class="cnblogs-toc-button" title="显示目录导航" aria-expanded="false"></button></h2>
+<blockquote>
+<p>概述</p>
+</blockquote>
+<p>UML状态图是图表本身的名称，主要用于描述对象具有的各种状态、状态之间的转换过程以及触发状态转换的各种事件和条件。<br>
+UML状态图描述了一个状态机，可以被定义为一台机器，它定义了一个对象，这些状态控制外部或内部事件的不同状态。<br>
+状态机由状态、转换、事件、活动和动作五部分组成。</p>
+<ul>
+<li>状态：状态指的是对象在其生命周期中的一种状况，处于某个特定状态中的对象必然会满足某些条件、执行某些动作或者是等待某些事件。一个状态的生命周期是一个有限的时间阶段。</li>
+<li>转换：转换指的是两个不同状态之间的一种关系，表明对象在第一个状态中执行一定的动作，并且在满足某个特定条件下由某个事件触发进入第二个状态。</li>
+<li>事件：事件指的是发生在时间和空间上的对状态机来讲有意义的那些事情。事件通常会引起状态的变迁，促使状态机从一种状态切换到另一种状态，如信号、对象额度创建和销毁等。</li>
+<li>活动：活动指的是状态机中进行的非原子操作。</li>
+<li>动作：动作指的是状态机中可以执行的哪些原子操作。所谓原子操作，指的是他们在运行的过程中不能被其他消息中断，必须一直执行下去，以至最终导致状态的变更或者返回一个值。</li>
+</ul>
+<blockquote>
+<p>目的</p>
+</blockquote>
+<p>UML状态图可以捕获对象、子系统和系统的生命周期，可以告知一个对象可以拥有的状态，并且事件(如消息的接收，时间的流逝、错误、条件为真等)会怎样随着时间的推移来影响这些状态。一个状态图应该连接到所有具有清晰的可标志状态和复杂行为的类；该图可以确定类的行为以及该行为如何根据当前的状态而变化，也可以展示哪些事件将会改变类的对象的状态。状态图主要是为了模拟响应系统。<br>
+以下是使用状态图的主要目的：</p>
+<ul>
+<li>为了模拟系统的动态环节。</li>
+<li>反应系统模型生命周期。</li>
+<li>一个对象来描述不同的状态，在其生命周期的时间。</li>
+<li>定义一个状态机模型状态的对象。</li>
+</ul>
+<blockquote>
+<p>示例</p>
+</blockquote>
+<p><img src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/1617979-20220425144208220-864161078.png" alt="" loading="lazy" class="medium-zoom-image"></p>
+<div align="center">状态图</div>
+<h2 id="9活动图">9.活动图<button class="cnblogs-toc-button" title="显示目录导航" aria-expanded="false"></button></h2>
+<blockquote>
+<p>概述</p>
+</blockquote>
+<p>UML活动图是 UML 的动态模型的一种图形，一般用来描述相关用例图。<br>
+UML活动图描述满足用例要求所要进行的活动以及活动间的约束关系，有利于识别并行活动。<br>
+UML活动图是一种特殊的状态图，它对于系统的功能建模特别重要，强调对象间的控制流程。<br>
+UML活动图是一种表述过程基理、业务过程以及工作流的技术。它可以用来对业务过程、工作流建模，也可以对用例实现甚至是程序实现来建模。<br>
+UML活动图基本上是代表流程形成一个活动到另一个活动的流程图。活动可以被描述为一个系统的操作。</p>
+<blockquote>
+<p>目的</p>
+</blockquote>
+<p>UML活动图能够捕捉到该系统的动态行为，UML中其它的四个图是用来显示从一个对象到另一个消息流，但活动图是用来显示消息流从一个活动到另一个活动图。<br>
+活动图不仅用于可视化系统的动态性质，也可用于通过使用正向和逆向工程技术来构建可执行的系统。唯一缺少的东西在活动图的消息部分。<br>
+它并不显示任何消息流程从一个活动到另一个，活动图是一段时间视为流程图。虽然图中看起来像一个流程图，但事实并非如此。它显示不同的流程，如并行，分支，并发单。<br>
+以下是 UML 活动图目的描述：</p>
+<ul>
+<li>绘制活动流程系统。</li>
+<li>描述的顺序从一个活动到另一个。</li>
+<li>描述系统并行，分支，并发流。</li>
+</ul>
+<blockquote>
+<p>示例</p>
+</blockquote>
+<p><img src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/1617979-20220425144257970-800626559.png" alt="" loading="lazy" class="medium-zoom-image"></p>
+<div align="center">活动图</div>
+<p>UML图中六种关系的总结：<a href="https://www.cnblogs.com/hzxll/p/16195711.html" target="_blank">https://www.cnblogs.com/hzxll/p/16195711.html</a></p>
+<p>参考原文链接：<a href="https://www.jianshu.com/p/0d9bf91a2110" target="_blank" rel="noopener nofollow">https://www.jianshu.com/p/0d9bf91a2110</a></p>
+
+</div>
+<div class="clear"></div>
+<div id="blog_post_info_block" role="contentinfo">
+
+
+<div id="BlogPostCategory">
+    分类: 
+            <a href="https://www.cnblogs.com/hzxll/category/2150539.html" target="_blank">UML</a>
+</div>
+
+    <div id="blog_post_info">
+<div id="green_channel">
+        <a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(16190230,cb_blogId,1);green_channel_success(this,&#39;谢谢推荐！&#39;);">好文要顶</a>
+        <a id="green_channel_follow" onclick="follow(&#39;57224cba-0b24-4b77-728c-08d69f02802c&#39;);" href="javascript:void(0);">关注我</a>
+    <a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a>
+    <a id="green_channel_wechat" href="javascript:void(0);" onclick="shareManager.wechatShare()">微信分享</a>
+</div>
+<div id="author_profile">
+    <div id="author_profile_info" class="author_profile_info">
+            <a href="https://home.cnblogs.com/u/hzxll/" target="_blank"><img src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/20220425161015.png" class="author_avatar" alt=""></a>
+        <div id="author_profile_detail" class="author_profile_info">
+            <a href="https://home.cnblogs.com/u/hzxll/">HZX↑</a>
+            <br>
+            <a href="https://home.cnblogs.com/u/hzxll/followers/">粉丝 - <span class="follower-count">8</span></a>
+            <a href="https://home.cnblogs.com/u/hzxll/followees/">关注 - <span class="following-count">6</span></a><br>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div id="author_profile_honor"></div>
+    <div id="author_profile_follow" class="follow-tip">
+                <a href="javascript:void(0);" onclick="follow(&#39;57224cba-0b24-4b77-728c-08d69f02802c&#39;);return false;">+加关注</a>
+    </div>
+</div>
+<div id="div_digg">
+    <div class="diggit" onclick="votePost(16190230,&#39;Digg&#39;)">
+        <span class="diggnum" id="digg_count">2</span>
+    </div>
+    <div class="buryit" onclick="votePost(16190230,&#39;Bury&#39;)">
+        <span class="burynum" id="bury_count">0</span>
+    </div>
+    <div class="clear"></div>
+    <div class="diggword" id="digg_tips">
+    </div>
+</div>
+
+<script type="text/javascript">
+    currentDiggType = 0;
+</script>
+</div>
+    <div class="clear"></div>
+    <div id="post_next_prev">
+
+    <a href="https://www.cnblogs.com/hzxll/p/16186867.html" class="p_n_p_prefix">« </a> 上一篇：    <a href="https://www.cnblogs.com/hzxll/p/16186867.html" data-featured-image="" title="发布于 2022-04-24 17:41">【计算机基础知识】原码, 反码, 补码 详解</a>
+    <br>
+    <a href="https://www.cnblogs.com/hzxll/p/16195711.html" class="p_n_p_prefix">» </a> 下一篇：    <a href="https://www.cnblogs.com/hzxll/p/16195711.html" data-featured-image="" title="发布于 2022-04-26 17:31">UML类图六种关系的总结</a>
+
+</div>
+</div>
+            </div>
+            <div class="postDesc">posted @ 
+<span id="post-date" data-last-update-days="686.0632296722708" data-date-created="BlogServer.Application.Dto.BlogPost.BlogPostDto" data-date-updated="2022-11-02 13:13" aria-expanded="false">2022-04-25 14:51</span>&nbsp;
+<a href="https://www.cnblogs.com/hzxll">HZX↑</a>&nbsp;
+阅读(<span id="post_view_count">49602</span>)&nbsp;
+评论(<span id="post_comment_count">3</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=16190230" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(16190230);return false;">收藏</a>&nbsp;
+<a href="javascript:void(0)" onclick="reportManager.report({ currentUserId: &#39;c0e86282-ef26-4e48-295c-08d9a8cd175a&#39;, targetType: &#39;blogPost&#39;, targetId: &#39;16190230&#39;, targetLink: &#39;https://www.cnblogs.com/hzxll/p/16190230.html&#39;, title: &#39;九种常见UML图（分类+图解）&#39; })">举报</a>
+</div>
+        </div>
+	    
+	    
+    </div><!--end: topics 文章、评论容器-->
+</div>
+<script>
+    var cb_entryId = 16190230, cb_entryCreatedDate = '2022-04-25 14:51', cb_postType = 1, cb_postTitle = '九种常见UML图（分类+图解）';
+    var allowComments = true, cb_blogId = 740625, cb_blogApp = 'hzxll', cb_blogUserGuid = '57224cba-0b24-4b77-728c-08d69f02802c';
+    mermaidRender.render()
+    markdown_highlight()
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");    
+</script>
+<a id="!comments"></a>
+<div id="blog-comments-placeholder">
+
+<div id="comment_pager_top">
+    
+</div>
+
+<br>
+<div class="feedback_area_title">评论列表
+<div id="comment_sort" class="comment-sort" title="切换评论排序">
+    <div class="comment-order-tab">
+            <span id="comment_default_list" class="comment-sort-label comment-sort-item">默认</span>
+            <span>|</span>
+        <span id="comment_sort_order_time" class="comment-sort-label comment-sort-item active">按时间</span>
+        <span>|</span>
+        <span id="comment_sort_order_digg" class="comment-sort-label comment-sort-item ">按支持数</span>
+    </div>
+        <svg class="comment-sort-item" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h5a1 1 0 000-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM13 16a1 1 0 102 0v-5.586l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 101.414 1.414L13 10.414V16z"></path>
+        </svg>
+</div></div>
+<div class="feedbackNoItems">
+    <div class="feedbackNoItems"></div>
+</div>
+    <div class="feedbackItem">
+        <div class="feedbackListSubtitle">
+            <div class="feedbackManage">
+                &nbsp;&nbsp;
+
+<span class="comment_actions">
+    <a href="javascript:void(0);" onclick="return ReplyComment(5171409, &#39;7UZgv4kf/SgYjmtSCEnbKYB/Qae+dz46Z1kL+jjJLvxtz0phzktFfw==&#39;)">
+        回复
+    </a>
+    <a href="javascript:void(0);" onclick="return QuoteComment(5171409, &#39;7UZgv4kf/SgYjmtSCEnbKYB/Qae+dz46Z1kL+jjJLvxtz0phzktFfw==&#39;)">
+        引用
+    </a>
+    
+    
+</span>
+
+
+            </div>
+            
+<a href="https://www.cnblogs.com/hzxll/p/16190230.html#5171409" class="layer">#1楼</a>
+<a name="5171409" id="comment_anchor_5171409"></a>
+ 
+<span class="comment_date">2023-04-25 10:47</span>
+
+ 
+        <a id="a_comment_author_5171409" href="https://www.cnblogs.com/yuanliangding/" target="_blank">袁良锭</a>
+
+        </div>
+        <div class="feedbackCon">
+            
+<div id="comment_body_5171409" data-format-type="Markdown" class="blog_comment_body cnblogs-markdown">
+    <p>状态图里有菱形　？</p>
+
+</div>
+        <div class="comment_vote">
+            <span class="comment_error" style="color: red"></span>
+            <a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(5171409, &#39;Digg&#39;, this.parentElement, false);">
+                支持(0)
+            </a>
+            <a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(5171409, &#39;Bury&#39;, this.parentElement, false);">
+                反对(0)
+            </a>
+        </div>
+        <span id="comment_5171409_avatar" style="display:none">
+            https://pic.cnblogs.com/face/374033/20151009094007.png
+        </span>
+
+        </div>
+    </div>
+    <div class="feedbackItem">
+        <div class="feedbackListSubtitle">
+            <div class="feedbackManage">
+                &nbsp;&nbsp;
+
+<span class="comment_actions">
+    <a href="javascript:void(0);" onclick="return ReplyComment(5171412, &#39;fxF/FzXcT6IyLC2Wvl7yoHrjDaV4cgYvWD346cE3LMN0fRZqLAHrDQ==&#39;)">
+        回复
+    </a>
+    <a href="javascript:void(0);" onclick="return QuoteComment(5171412, &#39;fxF/FzXcT6IyLC2Wvl7yoHrjDaV4cgYvWD346cE3LMN0fRZqLAHrDQ==&#39;)">
+        引用
+    </a>
+    
+    
+</span>
+
+
+            </div>
+            
+<a href="https://www.cnblogs.com/hzxll/p/16190230.html#5171412" class="layer">#2楼</a>
+<a name="5171412" id="comment_anchor_5171412"></a>
+[<span class="louzhu">楼主</span>] 
+<span class="comment_date">2023-04-25 10:50</span>
+
+ 
+        <a id="a_comment_author_5171412" href="https://www.cnblogs.com/hzxll/" target="_blank">HZX↑</a>
+
+        </div>
+        <div class="feedbackCon">
+            
+<div id="comment_body_5171412" data-format-type="Markdown" class="blog_comment_body cnblogs-markdown">
+    <p><a href="https://www.cnblogs.com/hzxll/p/16190230.html#5171409" title="查看所回复的评论" onclick="commentManager.renderComments(0,50,5171409);">@</a>袁良锭<br>
+UML（统一建模语言）状态图中有一个特殊的菱形符号，称为“选择节点”（Choice Node），也称为“决策节点”（Decision Node）。</p>
+<p>选择节点用于表示在状态转换过程中的决策点，即在某个状态下，根据某些条件的不同，可能会有多个不同的状态转换路径。选择节点通常包含多个传出分支，每个分支都与一个条件相关联，表示在满足该条件时将选择该分支。</p>
+<p>选择节点通常用于描述复杂的状态转换过程，可以帮助开发人员更好地理解系统的行为和状态转换规则。在状态图中，选择节点通常用菱形符号表示，其中每个传出分支都带有一个条件表达式，用于描述该分支的条件。</p>
+
+</div>
+        <div class="comment_vote">
+            <span class="comment_error" style="color: red"></span>
+            <a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(5171412, &#39;Digg&#39;, this.parentElement, false);">
+                支持(0)
+            </a>
+            <a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(5171412, &#39;Bury&#39;, this.parentElement, false);">
+                反对(0)
+            </a>
+        </div>
+        <span id="comment_5171412_avatar" style="display:none">
+            https://pic.cnblogs.com/face/1617979/20220425161015.png
+        </span>
+
+        </div>
+    </div>
+    <div class="feedbackItem">
+        <div class="feedbackListSubtitle">
+            <div class="feedbackManage">
+                &nbsp;&nbsp;
+
+<span class="comment_actions">
+    <a href="javascript:void(0);" onclick="return ReplyComment(5233810, &#39;PKdQgvKVvn2JNMb9L7nG0zZ8c9BE2h0EqYQB+WSg5aj+UmZI9PWDWA==&#39;)">
+        回复
+    </a>
+    <a href="javascript:void(0);" onclick="return QuoteComment(5233810, &#39;PKdQgvKVvn2JNMb9L7nG0zZ8c9BE2h0EqYQB+WSg5aj+UmZI9PWDWA==&#39;)">
+        引用
+    </a>
+    
+    
+</span>
+
+
+            </div>
+            
+<a href="https://www.cnblogs.com/hzxll/p/16190230.html#5233810" class="layer">#3楼</a>
+<a name="5233810" id="comment_anchor_5233810"></a>
+    <span id="comment-maxId" style="display: none">5233810</span>
+    <span id="comment-maxDate" style="display: none">2023/12/5 20:08:26</span>
+ 
+<span class="comment_date">2023-12-05 20:08</span>
+
+ 
+        <a id="a_comment_author_5233810" href="https://www.cnblogs.com/yejian21/" target="_blank">533446388</a>
+
+        </div>
+        <div class="feedbackCon">
+            
+<div id="comment_body_5233810" data-format-type="Markdown" class="blog_comment_body cnblogs-markdown">
+    <p>请问这是用什么软件画的图形。</p>
+
+</div>
+        <div class="comment_vote">
+            <span class="comment_error" style="color: red"></span>
+            <a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(5233810, &#39;Digg&#39;, this.parentElement, false);">
+                支持(0)
+            </a>
+            <a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(5233810, &#39;Bury&#39;, this.parentElement, false);">
+                反对(0)
+            </a>
+        </div>
+        <span id="comment_5233810_avatar" style="display:none">
+            https://pic.cnblogs.com/face/602794/20191118125903.png
+        </span>
+
+        </div>
+    </div>
+
+<div id="comment_pager_bottom">
+    
+</div>
+
+
+</div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav">
+        <div class="comment-nav-right">
+            <span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="https://www.cnblogs.com/hzxll/p/16190230.html#" onclick="return RefreshPage();">刷新页面</a><a href="https://www.cnblogs.com/hzxll/p/16190230.html#top">返回顶部</a>
+        </div>
+    </div>
+    <div id="comment_form_container"><script type="text/javascript" src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/mention.min.js"></script>
+<div id="commentform_title">
+    <label>发表评论</label>
+        <a href="https://cnblogs.vip/" target="_blank" style="margin-left:20px">升级成为园子VIP会员</a>
+</div>
+<span id="tip_comment" style="color:Red"></span>
+<div class="commentbox_main comment_textarea">
+    <div class="commentbox_title">
+        <div class="commentbox_title_left">
+            <span id="btn_edit_comment" class="commentbox_tab active" title="编辑评论">编辑</span>
+            <span id="btn_preview_comment" class="commentbox_tab" title="Markdown 预览">预览</span>
+        </div>
+        <div class="commentbox_title_right">
+            <span id="ubb_bold" class="comment_icon" alt="粗体" title="添加粗体(Ctrl + B)">
+                <svg class="comment_svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <g fill-rule="evenodd">
+                        <path d="m13.221 19c1.4414 0 2.5793-0.27451 3.3759-0.82353 0.92931-0.66667 1.4034-1.7059 1.4034-3.1176 0-0.94118-0.22759-1.7059-0.66379-2.2549-0.45517-0.56863-1.119-0.94118-2.0103-1.1176 0.68276-0.27451 1.1948-0.64706 1.5552-1.1569 0.36034-0.54902 0.55-1.2157 0.55-2 0-1.0588-0.36034-1.902-1.0621-2.5294-0.75862-0.66667-1.8207-1-3.1672-1h-6.2017v14h6.2207zm-0.82196-8h-3.3987v-4h3.4367c0.91139 0 1.557 0.15686 1.9747 0.47059 0.37975 0.29412 0.58861 0.78431 0.58861 1.451 0 0.72549-0.20886 1.2549-0.58861 1.5882-0.39873 0.31373-1.0633 0.4902-2.0127 0.4902zm0.52612 6h-3.9249v-4h3.9855c1.052 0 1.8208 0.16216 2.3064 0.48649 0.46532 0.32432 0.70809 0.84685 0.70809 1.5856 0 0.72072-0.3237 1.2252-0.9711 1.5495-0.50578 0.25225-1.2139 0.37838-2.104 0.37838z" fill-rule="nonzero" stroke-width=".35"></path>
+                    </g>
+                </svg>
+            </span>
+            <span id="ubb_url" class="comment_icon" title="添加链接(Ctrl + K)" alt="链接">
+                <svg class="comment_svg comment_svg_stroke" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <g fill-rule="evenodd">
+                        <g transform="translate(4 4)" fill-rule="nonzero" stroke-width=".4">
+                            <path d="m6.304 9.696c-0.288-0.288-0.512-0.608-0.704-0.992-0.16-0.32-0.032-0.704 0.288-0.864 0.32-0.16 0.704-0.032 0.864 0.288 0.128 0.224 0.256 0.448 0.448 0.64 0.928 0.928 2.432 0.928 3.36 0l3.36-3.328c0.928-0.928 0.928-2.432 0-3.36s-2.432-0.928-3.36 0l-2.272 2.272c-0.256 0.256-0.64 0.256-0.896 0-0.256-0.256-0.256-0.64 0-0.896l2.272-2.272c1.44-1.44 3.744-1.44 5.184 0 1.44 1.44 1.44 3.744 0 5.184l-3.36 3.296c-0.704 0.704-1.632 1.088-2.592 1.088-0.928 0-1.856-0.352-2.592-1.056z"></path>
+                            <path d="m3.776 15.808c-0.992 0-1.888-0.384-2.592-1.056-1.44-1.44-1.44-3.744 0-5.184l3.328-3.328c1.44-1.44 3.744-1.44 5.184 0 0.288 0.288 0.544 0.64 0.736 1.024 0.16 0.32 0 0.704-0.32 0.864-0.32 0.16-0.704 0-0.864-0.32-0.128-0.256-0.288-0.48-0.48-0.672-0.928-0.928-2.432-0.928-3.36 0l-3.296 3.328c-0.928 0.928-0.928 2.432 0 3.36 0.448 0.448 1.056 0.704 1.664 0.704 0.608 0 1.248-0.256 1.664-0.704l2.112-2.112c0.256-0.256 0.64-0.256 0.896 0s0.256 0.64 0 0.896l-2.112 2.112c-0.672 0.704-1.568 1.088-2.56 1.088z"></path>
+                        </g>
+                    </g>
+                </svg>
+            </span>
+            <span id="ubb_code" class="comment_icon" title="添加代码(Ctrl + `)" alt="代码">
+                <svg class="comment_svg comment_svg_stroke" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <g fill-rule="evenodd">
+                        <g transform="translate(16 6)" stroke-linecap="round" stroke-width="2">
+                            <line x1=".5" x2="4.5" y1=".7" y2="6.3"></line>
+                            <line transform="translate(2.5 9.1) scale(1 -1) translate(-2.5 -9.1)" x1=".5" x2="4.5" y1="6.3" y2="11.9"></line>
+                        </g>
+                        <g transform="translate(3 6.1)" stroke-linecap="round" stroke-width="2">
+                            <line transform="translate(2.5 3.5) scale(-1 1) translate(-2.5 -3.5)" x1=".5" x2="4.5" y1=".7" y2="6.3"></line>
+                            <line transform="translate(2.5 9.1) scale(-1) translate(-2.5 -9.1)" x1=".5" x2="4.5" y1="6.3" y2="11.9"></line>
+                        </g>
+                        <path transform="translate(12 12.5) scale(1 -1) translate(-12 -12.5)" d="m10.778 7.1249c0.50008-0.11366 0.9978 0.16911 1.1643 0.64128l0.032406 0.11223 2 8.8c0.1224 0.53855-0.21496 1.0744-0.75351 1.1968-0.50008 0.11366-0.9978-0.16911-1.1643-0.64128l-0.032406-0.11223-2-8.8c-0.1224-0.53855 0.21496-1.0744 0.75351-1.1968z" fill-rule="nonzero" stroke-width=".25"></path>
+                    </g>
+                </svg>
+            </span>
+            <span id="ubb_quote" class="comment_icon" title="添加引用(Ctrl + Q)" alt="引用">
+                <svg class="comment_svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <g fill-rule="evenodd">
+                        <g transform="translate(5 4)" fill-rule="nonzero" stroke-width=".25">
+                            <path d="m5.0013 15v-5.2702h-2.8008c-0.13413-3.3762 1.2004-6.2143 4.0009-8.5135l-1.2-1.2163c-3.335 2.2996-5.0013 5.8119-5.0013 10.54v4.4595h5.0013-1.285e-5zm8.7987 0v-5.2702h-2.8008c-0.13453-3.3762 1.2-6.2143 4.0009-8.5135l-1.2-1.2163c-3.335 2.2996-5.0013 5.8119-5.0013 10.54v4.4595h5.0013-1.28e-5z"></path>
+                        </g>
+                    </g>
+                </svg>
+            </span>
+            <span id="ubb_img" class="comment_icon" alt="图片" title="上传图片(Ctrl + I)">
+                <svg class="comment_svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <g fill-rule="evenodd">
+                        <g transform="translate(3 3.8)" fill-rule="nonzero">
+                            <path d="m14.1 0.58235h-11.2c-1.32 0-2.4 1.0482-2.4 2.3294v10.871c0 1.2812 1.08 2.3294 2.4 2.3294h11.2c1.32 0 2.4-1.0482 2.4-2.3294v-10.871c0-1.2812-1.08-2.3294-2.4-2.3294zm0.7 13.569-3.63-3.4165 1.33-1.2909c0.21-0.20382 0.59-0.20382 0.8 0l1.6 1.5529v2.7856c0 0.13588-0.04 0.26206-0.1 0.36882zm-11.9-12.016h11.2c0.44 0 0.8 0.34941 0.8 0.77647v5.8915l-0.47-0.45618c-0.84-0.825-2.22-0.825-3.07 0l-1.35 1.3103-2.39-2.2421c-0.85-0.825-2.22-0.825-3.05-0.019412l-2.48 2.2615v-6.7456c0.01-0.42706 0.37-0.77647 0.81-0.77647zm-0.8 11.647v-1.9897l3.6-3.2806c0.21-0.20382 0.58-0.21353 0.81 0.0097059l6.43 6.0371h-10.04c-0.44 0-0.8-0.33971-0.8-0.77647z"></path>
+                            <ellipse cx="10.5" cy="6.4059" rx="1" ry="1"></ellipse>
+                        </g>
+                    </g>
+                </svg>
+            </span>
+        </div>
+    </div>
+    <div style="display:none">
+        <span id="comment_edit_id"></span>
+        <span id="span_parentcomment_id"></span>
+        <span id="span_parent_id"></span>
+        <span id="span_comment_replyto"></span>
+        <span id="span_comment_posted"></span>
+        <span id="span_current_user_id">c0e86282-ef26-4e48-295c-08d9a8cd175a</span>
+    </div>
+    <textarea id="tbCommentBody" placeholder="支持 Markdown"></textarea>
+    <div id="tbCommentBodyPreview" class="feedbackCon" style="display: none">
+        <div id="tbCommentBodyPreviewBody" class="blog_comment_body comment_preview cnblogs-markdown"></div>
+    </div>
+    <div class="commentbox_footer">
+        <span>&nbsp;</span>
+        <span href="javascript:void(0)" id="ubb_auto_completion" class="comment_option">
+            <svg style="display: none" id="comment_auto_completion_on" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2"><path d="M406.724 908.504c-89.02 0-157.885-32.319-206.594-96.957-49.549-64.639-73.903-155.795-73.903-274.299 0-116.017 24.354-206.345 73.903-270.155 48.71-63.81 117.574-95.3 206.594-95.3h19.316l-7.559 72.925h-3.359c-65.505 0-115.054 25.69-150.326 77.069-35.272 50.55-52.908 122.647-52.908 215.461 0 94.472 17.636 168.226 52.908 220.434 35.272 51.379 84.82 77.897 150.326 77.897h3.36l7.558 72.925h-19.316zm266.548 0c89.02 0 157.885-32.319 206.594-96.957 49.55-64.639 73.904-155.795 73.904-274.299 0-116.017-24.355-206.345-73.904-270.155-48.709-63.81-117.573-95.3-206.594-95.3h-19.315l7.558 72.925h3.36c65.505 0 115.054 25.69 150.326 77.069 35.272 50.55 52.908 122.647 52.908 215.461 0 94.472-17.636 168.226-52.908 220.434-35.272 51.379-84.821 77.897-150.327 77.897h-3.359l-7.558 72.925h19.315zm-94.068-65.897c0 31.514.854 54.433 1.708 68.758 1.709 14.325 3.417 25.784 6.835 34.38 2.563 8.594 6.834 14.324 12.814 20.054 5.126 5.73 14.523 11.46 27.337 17.189v34.38H451.914v-34.38c17.086-7.162 29.046-15.757 35.026-24.352 5.126-10.027 9.398-22.92 11.106-38.676 1.709-17.19 2.563-42.974 2.563-77.353V238.109c0-32.947-.854-55.866-1.709-71.623-1.708-14.325-4.271-25.784-6.834-32.947-3.417-8.595-7.689-15.757-12.814-20.054-5.126-5.73-14.523-10.027-27.338-17.19V61.916h175.984v34.38c-11.96 5.73-21.357 11.459-26.483 15.756-5.125 5.73-9.397 11.46-12.814 20.055-3.417 7.162-5.98 18.622-6.834 34.379-1.709 15.757-2.563 38.676-2.563 71.623v604.498z" fill-rule="nonzero"></path></svg>
+            <svg id="comment_auto_completion_off" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2"><path d="M242.96 223.172l59.627 58.009c-14.277 10.773-26.874 24.032-37.791 40.606-35.272 50.55-52.908 122.647-52.908 215.461 0 94.472 17.636 168.226 52.908 220.434 35.272 51.379 84.82 77.897 150.326 77.897h3.36l7.558 72.925h-19.316c-89.02 0-157.885-32.319-206.594-96.957-49.549-64.639-73.903-155.795-73.903-274.299 0-116.017 24.354-206.345 73.903-270.155 12.597-16.574 26.874-31.49 42.83-43.921zm36.952-23.204c36.112-19.06 78.943-28.175 126.812-28.175h19.316l-7.559 72.925h-3.359c-27.714 0-52.908 4.144-74.743 14.088l-60.467-58.838zM805.123 770.94l60.466 58.01c-47.869 53.036-111.695 79.554-192.317 79.554h-19.315l7.558-72.925h3.36c59.626 0 105.816-21.546 140.248-64.638zm23.515-37.29c26.034-49.723 39.47-115.19 39.47-196.402 0-92.814-17.635-164.91-52.907-215.461-35.272-51.38-84.821-77.069-150.327-77.069h-3.359l-7.558-72.925h19.315c89.02 0 157.885 31.49 206.594 95.3 49.55 63.81 73.904 154.138 73.904 270.155 0 108.56-20.996 194.744-62.146 257.725l-62.986-61.324zM500.609 474.465l78.595 75.92v292.222c0 31.514.854 54.433 1.708 68.758 1.709 14.325 3.417 25.784 6.835 34.38 2.563 8.594 6.834 14.324 12.814 20.054 5.126 5.73 14.523 11.46 27.337 17.189v34.38H451.914v-34.38c17.086-7.162 29.046-15.757 35.026-24.352 5.126-10.027 9.398-22.92 11.106-38.676 1.709-17.19 2.563-42.974 2.563-77.353V474.465zm0-60.164V238.11c0-32.947-.854-55.866-1.709-71.623-1.708-14.325-4.271-25.784-6.834-32.947-3.417-8.595-7.689-15.757-12.814-20.054-5.126-5.73-14.523-10.027-27.338-17.19v-34.38h175.984v34.38c-11.96 5.73-21.357 11.459-26.483 15.756-5.125 5.73-9.397 11.46-12.814 20.055-3.417 7.162-5.98 18.622-6.834 34.379-1.709 15.757-2.563 38.676-2.563 71.623v253.545l-78.595-77.353z"></path><path d="M153.103 132.024l805.45 783.706-44.277 45.505-805.45-783.706z"></path></svg>
+            <span class="inline_middle">自动补全</span>
+        </span>
+    </div>
+</div>
+<p id="commentbox_opt">
+    <input id="btn_comment_submit" type="button" class="comment_btn" title="提交评论(Ctrl + Enter)" value="提交评论">
+    <span id="span_comment_canceledit" style="display:none"><a href="javascript:void(0);" onclick="return CancelCommentEdit()">不改了</a></span>
+    <a href="javascript:void(0);" onclick="return account.logout();">退出</a>
+            <a id="commentbox_opt_sub" href="javascript:void(0);" title="订阅后有新评论时会邮件通知您" onclick="commentManager.Subscribe()">订阅评论</a>
+</p>
+<div id="tip_comment2" style="color:Red"></div>
+<p>[Ctrl+Enter快捷键提交]</p>
+<script>var commentEditor = initCommentEditor("tbCommentBody");</script>
+
+</div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+        <div id="cnblogs_ch"><a href="https://www.cnblogs.com/cmt/p/18401581" target="_blank" onclick="gtag(&#39;event&#39;, &#39;click&#39;, {&#39;event_category&#39;: &#39;ad&#39;, &#39;event_label&#39;: &#39;T2-博客园-终身会员&#39;})">【推荐】秋天希望的田野，九月最后的救园：终身会员计划</a><br><a href="http://ishell.cc/" target="_blank" onclick="gtag(&#39;event&#39;, &#39;click&#39;, {&#39;event_category&#39;: &#39;ad&#39;, &#39;event_label&#39;: &#39;T2-IShell&#39;})">【推荐】轻量又高性能的 SSH 工具 IShell：AI 加持，快人一步</a><br><a href="http://www.uccpsoft.com/index.htm" target="_blank" onclick="gtag(&#39;event&#39;, &#39;click&#39;, {&#39;event_category&#39;: &#39;ad&#39;, &#39;event_label&#39;: &#39;T2-UCanCode&#39;})">【推荐】100%开源！大型工业跨平台软件C++源码提供，建模，组态！</a><br><a href="https://click.aliyun.com/m/1000396435/" target="_blank" onclick="gtag(&#39;event&#39;, &#39;click&#39;, {&#39;event_category&#39;: &#39;ad&#39;, &#39;event_label&#39;: &#39;T2-阿里云-超值优品季&#39;})">【推荐】2024阿里云超值优品季，精心为您准备的上云首选必备产品</a><br></div>
+    <div id="opt_under_post"></div>
+        <div id="blog_c1" class="under-post-card">
+            <a href="https://www.cnblogs.com/cmt/p/18302049" rel="nofollow" target="_blank" onclick="countCreativeClicks(&#39;C1-博客园-求救信&#39;)">
+                <img src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/35695-20240914114555421-1162088530.jpg" onload="countCreativeImpressions(&#39;C1-博客园-求救信&#39;)" alt="">
+                <span id="c1_impression" style="display:none"></span>
+            </a>
+        </div>
+    <div id="under_post_card1"><div class="under-post-card">
+<b>编辑推荐：</b>
+<br>
+
+· <a href="https://www.cnblogs.com/pengjiali/p/18409870" target="_blank">移动开发成长记 —— 大话小程序</a>
+    <br>
+· <a href="https://www.cnblogs.com/shanyou/p/18415013" target="_blank">.NET 的 Native AOT 现在是什么样的？</a>
+    <br>
+· <a href="https://www.cnblogs.com/wang_yb/p/18414129" target="_blank">全能还是专精？关于技术通才与技术专家的思考</a>
+    <br>
+· <a href="https://www.cnblogs.com/kangao/p/18414480" target="_blank">记一次 公司 .NET 项目部署在 Linux 环境压测时 内存暴涨分析</a>
+    <br>
+· <a href="https://www.cnblogs.com/shanyou/p/18412887" target="_blank">UWP 通过 .NET 9 和Native AOT 的支持实现 UWP 应用的现代化</a>
+    <br>
+</div></div>
+    <div id="under_post_card2"><div class="itnews under-post-card">
+    <b>阅读排行：</b>
+    <br>
+ ·          <a href="https://www.cnblogs.com/shanyou/p/18417597" target="_blank">示例项目dotnet/eshop 和 dotnet/eshopsupport</a>
+        <br>
+ ·          <a href="https://www.cnblogs.com/seven97-top/p/18417444" target="_blank">如何优雅地处理返回值</a>
+        <br>
+ ·          <a href="https://www.cnblogs.com/xiaoyan2017/p/18416811" target="_blank">基于Tauri2+Vue3搭建桌面端程序|tauri2+vite5多窗口|消息提醒|托盘闪烁</a>
+        <br>
+ ·          <a href="https://www.cnblogs.com/1312mn/p/18408636" target="_blank">.NET 开源工业级移动端仓库管理系统</a>
+        <br>
+ ·          <a href="https://www.cnblogs.com/12lisu/p/18417984" target="_blank">这10种分布式ID，太绝了！</a>
+        <br>
+</div></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+        var commentManager = new blogCommentManager();
+        commentManager.renderComments(0);
+        fixPostBody();
+        window.footnoteTipManager.generateFootnoteTips();
+
+            window.tocManager.displayDisableTocTips = false;
+            window.tocManager.generateToc();
+            
+                setTimeout(function() { countViews(cb_blogId, cb_entryId); }, 50);
+            
+            deliverT2();
+            deliverC1C2();
+            loadNewsAndKb();
+            
+                LoadPostCategoriesTags(cb_blogId, cb_entryId);
+            
+            LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+            GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+            loadOptUnderPost();
+            GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+                </script>
+</div>
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+	<div id="sideBar">
+		<div id="sideBarMain">
+			<div id="sidebar_news" class="newsItem">
+    <h3 class="catListTitle">公告</h3>
+<div id="blog-news">    
+    <div id="sidebar_news_content">
+<div id="profile_block">
+    昵称：
+    <a href="https://home.cnblogs.com/u/hzxll/">
+        HZX↑
+    </a>
+    <br>
+    园龄：
+    <a href="https://home.cnblogs.com/u/hzxll/" title="入园时间：2019-03-02">
+        5年6个月
+    </a>
+    <br>
+    粉丝：
+    <a class="follower-count" href="https://home.cnblogs.com/u/hzxll/followers/">
+        8
+    </a>
+    <br>
+    关注：
+    <a class="folowing-count" href="https://home.cnblogs.com/u/hzxll/followees/">
+        6
+    </a>
+    <div id="p_b_follow" class="follow-tip">
+<a href="javascript:void(0)" onclick="follow(&#39;57224cba-0b24-4b77-728c-08d69f02802c&#39;)">+加关注</a></div>
+    <script>getFollowStatus('57224cba-0b24-4b77-728c-08d69f02802c');</script>
+</div>
+</div>
+</div>
+<script>loadBlogNews();</script>
+
+ 
+</div>
+<div id="sidebar_c3"></div>
+			<div id="blog-calendar" style="">
+
+<table id="blogCalendar" class="Cal" cellspacing="0" cellpadding="0" title="Calendar" border="0">
+    <tbody>
+        <tr>
+            <td colspan="7">
+                <table class="CalTitle" cellspacing="0" border="0">
+                    <tbody>
+                        <tr>
+                            <td class="CalNextPrev">
+                                <a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2024/08/18&#39;); return false;">&lt;</a>
+                            </td>
+                            <td align="center">2024年9月</td>
+                            <td align="right" class="CalNextPrev">
+                                <a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2024/10/18&#39;); return false;">&gt;</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    <tr>
+        <th class="CalDayHeader" align="center" abbr="日" scope="col">日</th>
+        <th class="CalDayHeader" align="center" abbr="一" scope="col">一</th>
+        <th class="CalDayHeader" align="center" abbr="二" scope="col">二</th>
+        <th class="CalDayHeader" align="center" abbr="三" scope="col">三</th>
+        <th class="CalDayHeader" align="center" abbr="四" scope="col">四</th>
+        <th class="CalDayHeader" align="center" abbr="五" scope="col">五</th>
+        <th class="CalDayHeader" align="center" abbr="六" scope="col">六</th>
+    </tr>
+            <tr>
+                        <td class="CalWeekendDay" align="center">
+                            1
+                        </td>
+                        <td class="" align="center">
+                            2
+                        </td>
+                        <td class="" align="center">
+                            3
+                        </td>
+                        <td class="" align="center">
+                            4
+                        </td>
+                        <td class="" align="center">
+                            5
+                        </td>
+                        <td class="" align="center">
+                            6
+                        </td>
+                    <td class="CalWeekendDay" align="center">
+                        7
+                    </td>
+            </tr>
+                <tr>
+                        <td class="CalWeekendDay" align="center">
+                            8
+                        </td>
+                            <td class="" align="center">
+                                9
+                            </td>
+                            <td class="" align="center">
+                                10
+                            </td>
+                            <td class="" align="center">
+                                11
+                            </td>
+                            <td class="" align="center">
+                                12
+                            </td>
+                            <td class="" align="center">
+                                13
+                            </td>
+                        <td class="CalWeekendDay" align="center">
+                            14
+                        </td>
+                </tr>
+                <tr>
+                        <td class="CalWeekendDay" align="center">
+                            15
+                        </td>
+                            <td class="" align="center">
+                                16
+                            </td>
+                            <td class="" align="center">
+                                17
+                            </td>
+                            <td class="CalTodayDay" align="center">
+                                18
+                            </td>
+                            <td class="" align="center">
+                                19
+                            </td>
+                            <td class="" align="center">
+                                20
+                            </td>
+                        <td class="CalWeekendDay" align="center">
+                            21
+                        </td>
+                </tr>
+                <tr>
+                        <td class="CalWeekendDay" align="center">
+                            22
+                        </td>
+                            <td class="" align="center">
+                                23
+                            </td>
+                            <td class="" align="center">
+                                24
+                            </td>
+                            <td class="" align="center">
+                                25
+                            </td>
+                            <td class="" align="center">
+                                26
+                            </td>
+                            <td class="" align="center">
+                                27
+                            </td>
+                        <td class="CalWeekendDay" align="center">
+                            28
+                        </td>
+                </tr>
+                <tr>
+                        <td class="CalWeekendDay" align="center">
+                            29
+                        </td>
+                            <td class="" align="center">
+                                30
+                            </td>
+                            <td class="CalOtherMonthDay" align="center">
+                                1
+                            </td>
+                            <td class="CalOtherMonthDay" align="center">
+                                2
+                            </td>
+                            <td class="CalOtherMonthDay" align="center">
+                                3
+                            </td>
+                            <td class="CalOtherMonthDay" align="center">
+                                4
+                            </td>
+                        <td class="CalOtherMonthDay" align="center">
+                            5
+                        </td>
+                </tr>
+                <tr>
+                        <td class="CalOtherMonthDay" align="center">
+                            6
+                        </td>
+                            <td class="CalOtherMonthDay" align="center">
+                                7
+                            </td>
+                            <td class="CalOtherMonthDay" align="center">
+                                8
+                            </td>
+                            <td class="CalOtherMonthDay" align="center">
+                                9
+                            </td>
+                            <td class="CalOtherMonthDay" align="center">
+                                10
+                            </td>
+                            <td class="CalOtherMonthDay" align="center">
+                                11
+                            </td>
+                        <td class="CalOtherMonthDay" align="center">
+                            12
+                        </td>
+                </tr>
+    </tbody>
+</table></div><script>loadBlogDefaultCalendar();</script>			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"><!-- 搜索 -->
+<div id="sidebar_search" class="sidebar-block">
+    
+</div>
+
+<!-- 常用链接 -->
+
+
+<!-- 最新随笔 -->
+
+
+<!-- 我的标签 -->
+<div id="sidebar_toptags" class="sidebar-block"></div>
+
+<!-- 积分与排名 -->
+
+
+<!-- 随笔分类、随笔档案、文章分类、新闻分类、相册、链接 -->
+<div id="sidebar_categories">
+
+    <div id="sidebar_postcategory" class="catListPostCategory sidebar-block">
+        <h3 class="catListTitle">
+            
+    <a class="sidebar-card-title-a" href="https://www.cnblogs.com/hzxll/post-categories">随笔分类</a>
+
+
+
+        </h3>
+
+        <ul>
+
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2294666.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">ChatGPT(1)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2146933.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">DM7(1)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2146930.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">Docker(3)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2163527.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">ElasticSearch(1)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2133858.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">Git(2)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2256967.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">Go(1)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2162077.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">Java8(3)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2146929.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">Linux(4)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2164543.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">MQ(4)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2146931.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">MySQL(2)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2144422.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">NoSQL(2)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2146934.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">Oracle(2)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2189453.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">PMP(26)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2144439.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">Redis(7)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2164344.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">SpringBoot(1)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2164821.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">SpringCloud(1)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2150539.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">UML(2)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2125677.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">常用命令(6)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2132421.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">多线程(17)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2150104.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">计算机基础(1)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2143095.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">解决方案(16)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2144110.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">快捷键(1)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2156996.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">设计模式(1)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2158054.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">数据结构(3)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2135255.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">数据库(13)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2125655.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">算法(14)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2133848.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">问题处理(3)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2308803.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">问题答疑(7)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/category/2217349.html" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">项目管理知识(3)</a>
+ 
+                </li>                
+            
+        </ul>
+
+
+    </div>    
+    <div id="sidebar_postarchive" class="catListPostArchive sidebar-block">
+        <h3 class="catListTitle">
+            
+随笔档案
+
+
+        </h3>
+
+        <ul>
+
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/p/archive/2023/07" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">2023年7月(1)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/p/archive/2023/06" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">2023年6月(4)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/p/archive/2023/05" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">2023年5月(2)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/p/archive/2023/04" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">2023年4月(12)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/p/archive/2023/03" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">2023年3月(5)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/p/archive/2023/01" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">2023年1月(2)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/p/archive/2022/12" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">2022年12月(4)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/p/archive/2022/10" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">2022年10月(6)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/p/archive/2022/09" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">2022年9月(6)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/p/archive/2022/08" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">2022年8月(4)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/p/archive/2022/07" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">2022年7月(11)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/p/archive/2022/05" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">2022年5月(15)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/p/archive/2022/04" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">2022年4月(17)</a>
+ 
+                </li>                
+                <li data-category-list-item-visible="true" style="display: block">
+                    
+<a href="https://www.cnblogs.com/hzxll/p/archive/2022/03" style="--cnb-category-item-link-indent-size: calc(0 * 1em)" class="category-item-link" rel="" target="">2022年3月(37)</a>
+ 
+                </li>                
+            
+        </ul>
+
+
+    </div>    
+</div>
+
+<!-- 最新评论 -->
+<!-- 阅读排行榜 -->
+<div id="sidebar_topviewedposts" class="sidebar-block"><div class="catListView">
+    <h3 class="catListTitle">
+        <a href="https://www.cnblogs.com/hzxll/most-viewed" class="sidebar-card-title-a">
+    阅读排行榜
+</a>
+
+    </h3>
+    <div id="TopViewPostsBlock">
+        <ul style="word-break:break-all">
+                    <li>
+                        <a href="https://www.cnblogs.com/hzxll/p/16190230.html">
+                            1. 九种常见UML图（分类+图解）(49592)
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.cnblogs.com/hzxll/p/16271446.html">
+                            2. MAC系统下破解WIFI密码（亲测可用，含wifi密码字典）(25877)
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.cnblogs.com/hzxll/p/16148098.html">
+                            3. Oracle中通过逗号分割字符串并转换成多行(9922)
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.cnblogs.com/hzxll/p/16006567.html">
+                            4. Linux常用命令(超详细)(7411)
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.cnblogs.com/hzxll/p/16254334.html">
+                            5. 算法的五个重要特性(4876)
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.cnblogs.com/hzxll/p/16068061.html">
+                            6. Git拉取远程新分支(3297)
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.cnblogs.com/hzxll/p/17468329.html">
+                            7. org.apache.tomcat.util.http.fileupload.impl.IOFileUploadException: Processing of multipart/form-data request failed. java.io.EOFException(3159)
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.cnblogs.com/hzxll/p/17284847.html">
+                            8. 如何用java校验SQL语句的合法性？（提供五种解决方案）(2715)
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.cnblogs.com/hzxll/p/16067978.html">
+                            9. 通过Swagger接口导出模板文件时报错：URL.createObjectURL: Argument 1 is not valid for any of the 1-argument overloads.(2628)
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.cnblogs.com/hzxll/p/16083160.html">
+                            10. 达梦数据库备份还原（日志备份及原理）(2566)
+                        </a>
+                    </li>
+        </ul>
+    </div>
+</div></div>
+
+<!-- 评论排行榜 -->
+<div id="sidebar_topcommentedposts" class="sidebar-block"><div class="catListFeedback">
+    <h3 class="catListTitle">
+        <a href="https://www.cnblogs.com/hzxll/most-commented" class="sidebar-card-title-a">评论排行榜</a>
+
+    </h3>
+    <div id="TopFeedbackPostsBlock">
+        <ul style="word-break:break-all">
+                    <li>
+                        <a href="https://www.cnblogs.com/hzxll/p/17482842.html">
+                            1. CentOs7安装部署Sonar环境(JDK1.8+MySql5.7+sonarqube7.8)(6)
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.cnblogs.com/hzxll/p/16809200.html">
+                            2. 【PMP学习笔记】第1~13章内容汇总（基础知识+ITTO思维导图）(3)
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.cnblogs.com/hzxll/p/16190230.html">
+                            3. 九种常见UML图（分类+图解）(3)
+                        </a>
+                    </li>
+        </ul>
+    </div>
+</div></div>
+
+<!-- 推荐排行榜 -->
+<div id="sidebar_topdiggedposts" class="sidebar-block">
+<div id="topdigg_posts_wrap">
+    <div class="catListView">
+        <h3 class="catListTitle">
+            <a href="https://www.cnblogs.com/hzxll/most-liked" class="sidebar-card-title-a">推荐排行榜</a>
+
+        </h3>
+        <div id="TopDiggPostsBlock">
+            <ul style="word-break: break-all">
+                        <li>
+                            <a href="https://www.cnblogs.com/hzxll/p/16190230.html">
+                                1. 九种常见UML图（分类+图解）(2)
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.cnblogs.com/hzxll/p/16698693.html">
+                                2. 【PMP学习笔记】第9章 项目资源管理(1)
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.cnblogs.com/hzxll/p/16294803.html">
+                                3. SpringBoot运行原理(1)
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.cnblogs.com/hzxll/p/16281844.html">
+                                4. 【Java8新特性】Stream（分类+案例）(1)
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.cnblogs.com/hzxll/p/16271446.html">
+                                5. MAC系统下破解WIFI密码（亲测可用，含wifi密码字典）(1)
+                            </a>
+                        </li>
+            </ul>
+        </div>
+    </div>
+</div></div><div id="sidebar_recentcomments" class="sidebar-block"><div class="catListComment">
+<h3 class="catListTitle"><a href="https://www.cnblogs.com/hzxll/comments" class="sidebar-card-title-a">最新评论</a></h3>
+    <div class="RecentCommentBlock">
+        <ul>
+                <li class="recent_comment_title"><a href="https://www.cnblogs.com/hzxll/p/16809200.html">1. Re:【PMP学习笔记】第1~13章内容汇总（基础知识+ITTO思维导图）</a></li>
+                <li class="recent_comment_body">@HZX↑ 博主，请问这个笔记是哪个老师讲的？...</li>
+                <li class="recent_comment_author">--紫羽晴天</li>
+                <li class="recent_comment_title"><a href="https://www.cnblogs.com/hzxll/p/16190230.html">2. Re:九种常见UML图（分类+图解）</a></li>
+                <li class="recent_comment_body"><p>请问这是用什么软件画的图形。</p>
+</li>
+                <li class="recent_comment_author">--533446388</li>
+                <li class="recent_comment_title"><a href="https://www.cnblogs.com/hzxll/p/16809200.html">3. Re:【PMP学习笔记】第1~13章内容汇总（基础知识+ITTO思维导图）</a></li>
+                <li class="recent_comment_body">@Rorysky 感谢指正，已更新。...</li>
+                <li class="recent_comment_author">--HZX↑</li>
+                <li class="recent_comment_title"><a href="https://www.cnblogs.com/hzxll/p/16809200.html">4. Re:【PMP学习笔记】第1~13章内容汇总（基础知识+ITTO思维导图）</a></li>
+                <li class="recent_comment_body"><p>ITTO图 第八章，链接地址错了，应该是</p>
+<p><a href="https://www.cnblogs.com/hzxll/p/16190230.html" target="_blank"></a></p>
+</li>
+                <li class="recent_comment_author">--Rorysky</li>
+                <li class="recent_comment_title"><a href="https://www.cnblogs.com/hzxll/p/17482842.html">5. Re:CentOs7安装部署Sonar环境(JDK1.8+MySql5.7+sonarqube7.8)</a></li>
+                <li class="recent_comment_body">@HZX↑ @丿千帆 博客内容只用于学习参考与分享，不用于其他用途。 嗯嗯，我只是转载过去让更多人学习参考，并不会通过转载的文章来收费获得利益...</li>
+                <li class="recent_comment_author">--丿千帆</li>
+        </ul>
+    </div>
+</div>
+
+</div>
+
+
+</div>
+                    <script>loadBlogSideColumn();</script>
+			</div>			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		<!--done-->
+Copyright © 2024 HZX↑
+<br><span id="poweredby">Powered by .NET 8.0 on Kubernetes</span>
+
+
+
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+
+    <div id="page_end_html">
+        <script type="text/javascript">
+    var selfLogin = false;
+    var follow = $('#profile_block').find('#p_b_follow');
+    var block = follow.length >= 1 ? follow[0] : "";
+    var followText = (block != null && block != undefined) ? block.innerHTML : "";
+    if(followText == "") selfLogin = true;
+ 
+    var pageInfo = '\r\n————————————————\n作者：HZX \n链接：' + document.location.href
+        + '\n来源：博客园'
+        + '\n著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。';
+ /*
+    document.addEventListener('copy', function (ev) {
+        var targetHTML = $.trim($(ev.target).html());
+        // console.log("targetHTML:" + targetHTML)
+        if (targetHTML == "") return;
+        if (!(targetHTML.startsWith('<table class="hljs-ln"') && targetHTML.endsWith('</table>')) || !selfLogin)  // isLogined
+        {
+            var selected = window.getSelection();
+            var selectedText = selected.toString();  
+            let copyRightStr = (selectedText + pageInfo).replace(/\n/g, '\r\n'); // Solve the line breaks conversion issue
+ 
+            ev.clipboardData.setData('text/plain', `${copyRightStr}`);
+            ev.preventDefault();
+        }
+    });*/
+</script>
+    </div>
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8AOXHS93SCdEnLt5HW8VuxRrMHh5yGu1cInIl3t9r7zIyqIOMVAhCSNLNuE762_u94eXH9SemXdLKbDTjiBEw1a6ea2Wcd4isOY2JpMtjUSiSRK07ky8hu3USFsoAoo69A7j062lrWBu88-UW8J04bSTf6f8_mlC4cVmcD1Mf2mAAgy3Qx9DQys5XLz7WQw4nw">
+    <script async="" src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/js"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-M95P3TTWJZ');
+</script>
+<script defer="" src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/hm.js"></script>
+
+
+<div style="z-index: 998; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; flex-direction: column; align-items: center; justify-content: center">
+<div style="background: #fff;padding: 30px; margin: 30px; border-radius: 16px;">
+  <div style="width: 200px; height: 200px; background: rgba(255, 255, 255, 0.8); position: absolute; top: -100px; right: -100px; border-radius: 100px"></div>
+  <div style="text-align: center; font-size: 18px; margin-bottom: 10px;">点击右上角即可分享</div>
+  <img src="./九种常见UML图（分类+图解） - HZX↑ - 博客园_files/35695-20230906145857937-1471873834.gif" alt="微信分享提示">
+</div>   
+    </div></body></html>

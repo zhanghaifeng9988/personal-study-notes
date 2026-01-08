@@ -1,0 +1,7 @@
+-程序窗口(program window) ：可以执行 sql,sqlplus 相关的语句，例如存储过程，方法，一般用来开发程序用的. 
+-测试窗口(test window)：一般是用来测试存储过程等的debug。 
+-SQL窗口(sql window)：执行的是dml,ddl语句,主要用户语句的查询和显示（应用最多的一个窗口）。 
+-报告窗口(report window)：就是可以方便用于展示有聚合查询的用图表形式展示的窗口，例如sum(),count()等，有x,y轴的。 
+-命令窗口(command window)：除了可以执行sql, sqlplus 相关的命令，还可以执行更多的命令，例如call 等。 【其中有Editor和Dialog：可以先在Editor中编写plsql，再到Dialog中去运行】
+-解释计划窗口(plan window)：就是解释执行计划的，调优时，经常用到。 
+-图表窗口(diagram)：没有用过，不知道如何画图表的

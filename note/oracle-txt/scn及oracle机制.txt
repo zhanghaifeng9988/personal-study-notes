@@ -1,0 +1,217 @@
+
+--DBWR的4个触发条件
+①ckpt发生
+②database buffer cache 脏块太多时(阈值)
+③db_buffer自由空间不够时
+④表空间read only/offline/backup模式等
+ 
+
+--ckpt检查点触发的条件：
+1、正常关闭数据库 shutdown immediate;
+2、手动检查点切换 alter system checkpoint;
+3、手动日志切换   alter system switch logfile;
+4、数据库热备模式 alter database begin backup;
+
+--LGWR的4个触发条件
+1、commit;
+2、3秒；
+3、redo log buffer 三分之一满；
+4、online redo switch；
+先于dbwr写（先记后写，必须在dbwr写脏块之前写入日志，保证未提交数据都能回滚）
+
+--SCN
+SCN是一个单向递增的数字编号，控制文件、数据文件、在线Redo日志、归档日志和备份集合中，
+都包括这个数字编号。在内部文件中，SCN是通过Base和Wrap两个部分进行保存。Base是SCN编号的基础位，
+是通过32位二进制位进行保存。一旦超过这32位长度，系统会自动在Wrap进位。也就是说，Wrap表示的超过4G个数的进位次数。
+
+
+--数据库的当前SCN  他与数据文件的头scn一致  ，记录在控制文件
+
+select checkpoint_change# from v$database;
+
+CHECKPOINT_CHANGE#
+------------------
+           9599375
+		   
+Checkpoint_Change#是来源于SCN,SCN是时刻在变化的,
+Checkpoint_Change#是在数据发生了检查点的时候才改变的
+		   
+--数据文件创建时的scn
+
+select file#,name ,creation_change#，CREATION_TIME from v$datafile;
+
+  FILE#     NAME                                              CREATION_CHANGE# CREATION_TIME
+---------- -------------------------------------------------- ---------------- -------------------
+        17 /u01/oradata/ORCL/zhf_pdb1/system01.dbf                     2615395 2022-10-13 16:48:47
+        18 /u01/oradata/ORCL/zhf_pdb1/sysaux01.dbf                     2615401 2022-10-13 16:48:47
+        19 /u01/oradata/ORCL/zhf_pdb1/undotbs01.dbf                    2615404 2022-10-13 16:48:47
+        20 /u01/oradata/ORCL/zhf_pdb1/zhf01.dbf                        2615851 2022-10-13 16:49:25
+        23 /u01/oradata/ORCL/zhf_pdb1/ogguser_data_01.dbf              3046158 2022-10-19 17:28:39
+        32 /u01/oradata/ORCL/mytest21.dbf                              4213334 2023-04-08 13:08:58
+        33 /u01/oradata/ORCL/mytest22.dbf                              4214679 2023-04-08 13:15:32
+
+
+--数据文件的头scn和stop scn  当前查询状态下的scn和结束状态的scn，记录在控制文件
+如果不对数据文件做额外的操作（例如将表空间置为OFFLINE或者BEGIN BACKUP） 头scn与数据库的SCN一致
+  stop SCN在数据库处于打开状态或者异常关闭时为无穷大，即0XFFFF.FFFFFFFF。
+如果数据库正常关闭，则和数据库SCN(V$DATAFILE.CHECKPOINT_CHANGE#)值相同
+数据库在mount状态时可以从视图中查询出STOP SCN值
+
+select FILE#,name,CHECKPOINT_CHANGE#,CHECKPOINT_TIME,LAST_CHANGE#,LAST_TIME from v$datafile;
+
+ FILE#       NAME                                             CHECKPOINT_CHANGE# CHECKPOINT_TIME     LAST_CHANGE# LAST_TIME
+---------- -------------------------------------------------- ------------------ ------------------- ------------ -------------------
+        17 /u01/oradata/ORCL/zhf_pdb1/system01.dbf                       9599375 2023-04-09 12:54:34
+        18 /u01/oradata/ORCL/zhf_pdb1/sysaux01.dbf                       9599375 2023-04-09 12:54:34
+        19 /u01/oradata/ORCL/zhf_pdb1/undotbs01.dbf                      9599375 2023-04-09 12:54:34
+        20 /u01/oradata/ORCL/zhf_pdb1/zhf01.dbf                          9599375 2023-04-09 12:54:34
+        23 /u01/oradata/ORCL/zhf_pdb1/ogguser_data_01.dbf                9599375 2023-04-09 12:54:34
+        32 /u01/oradata/ORCL/mytest21.dbf                                9599375 2023-04-09 12:54:34
+        33 /u01/oradata/ORCL/mytest22.dbf                                9599375 2023-04-09 12:54:34
+
+select file#,checkpoint_change# from v$datafile_header;
+
+  FILE# CHECKPOINT_CHANGE#
+---------- ------------------
+        17            9599375
+        18            9599375
+        19            9599375
+        20            9599375
+        23            9599375
+        32            9599375
+        33            9599375
+
+
+--数据文件的RESETLOGS_CHANGE#表示数据库以resetlogs方式打开时的SCN，也可以通过v$datafile_header查询
+oracle工作的基本原理，归档情况下：大家一定要同步，谁也不能滞后或者超前，也就是SCN号
+为什么要resetlog，因为有一些地方不一致了，必须得需要着一个基准点，让大家以这个为起点，一起继续超前走。
+
+
+select file#,resetlogs_change# from v$datafile_header;
+
+   FILE# RESETLOGS_CHANGE#
+---------- -----------------
+        17           1920977
+        18           1920977
+        19           1920977
+        20           1920977
+        23           1920977
+        32           1920977
+        33           1920977
+
+alter database open noresetlogs与resetlog的区别：
+resetlogs，由于不完全恢复导致日志不连续而不能使用恢复点之后的日志进行重做，所以使用resetlogs进行打开数据库。
+noresetlogs，由于控制文件的版本是从备份中而来或是手工重建的，并且所有日志是连续的，可以用于重做，
+所以使用noresetlogs打开数据库，意为使用log进行重做。
+
+--数据文件的CHANGE#表示数据文件头冻结时的SCN。在做数据文件在线热备份时，常用将数据文件头冻结，
+表明从change#这个点开始对数据文件进行备份，可以从$backup查询
+
+select file#,change# from v$backup;
+
+    FILE#    CHANGE#
+---------- ----------
+        17          0
+        18          0
+        19          0
+        20          0
+        23          0
+        32          0
+        33          0
+
+--CHECKPOINT PROGRESS RECORDS中的SCN
+
+CHECKPOINT PROGRESS RECORDS中的on disk scn表示当前系统最新的rba对应的scn,由CKPT进程每3秒跟新一次。
+如果数据库异常宕机，那么CRASH RECOVER时服务器至少要应用到该SCN为止。
+
+select last_redo_change# from v$thread;
+select cpods from x$kcccp where rownum<2;
+
+LAST_REDO_CHANGE#
+-----------------
+          9606007
+		  
+--dump数据文件头查看以上SCN:		  
+alter session set events 'immediate trace name file_hdrs level 10';		  表示dump 所有有数据文件的完整文件头。
+select value from v$diag_info where name='Default Trace File';		 
+
+/u01/diag/rdbms/orcl/orcl/trace/orcl_ora_15694.trc
+
+打开trc查看
+
+DATA FILE #17:
+
+ V10 STYLE FILE HEADER:
+        Compatibility Vsn = 318767104=0x13000000
+        Db ID=1645065872=0x620db690, Db Name='ORCL'
+        Activation ID=0=0x0
+        Control Seq=17136=0x42f0, File size=38400=0x9600
+        File Number=17, Blksiz=8192, File Type=3 DATA
+Tablespace #0 - SYSTEM  rel_fn:1
+Creation   at   scn: 0x000000000027e863 10/13/2022 16:48:47   --此处scn为CREATION_CHANGE#
+Backup taken at scn: 0x0000000000000000 01/01/1988 00:00:00 thread:0  --此处scn为备份
+ reset logs count:0x42986b12 scn: 0x00000000001d4fd1          --此处scn为resetlogs_change#
+ prev reset logs count:0x3bf3129f scn: 0x0000000000000001
+ recovered at 04/09/2023 10:08:17
+ status:0x2004 root dba:0x00400208 chkpt cnt: 83 ctl cnt:82
+begin-hot-backup file size: 0
+Checkpointed at scn:  0x000000000092798f 04/09/2023 12:54:34  --此处scn为CHECKPOINT_CHANGE#
+ thread:1 rba:(0x4e.1530e.10)
+ 
+附:在bbed中
+kcvfhcrs表示creation_change,偏移量为100;
+kcvfhrls表示resetlogs_change,偏移量为116
+kcvfhsc表示change，偏移量128
+kcvcpscn表示checkpoint_change，偏移量484
+
+--current_scn 记录当前数据库dml的scn号，它是不断向前的，当ckpt被触发以后，
+CHECKPOINT_CHANGE#的值瞬时大于current_scn
+
+举例如下：
+SYS@ orcl>select current_scn from v$database;
+
+CURRENT_SCN
+-----------
+    9598713
+
+SYS@ orcl>select current_scn from v$database;
+
+CURRENT_SCN
+-----------
+    9598718
+
+SYS@ orcl>select current_scn from v$database;
+
+CURRENT_SCN
+-----------
+    9598721
+
+
+alter system checkpoint;
+
+SYS@ orcl>alter system checkpoint;
+
+系统已更改。
+
+SYS@ orcl>select CHECKPOINT_CHANGE# from v$database;
+
+CHECKPOINT_CHANGE#
+------------------
+           9599375
+
+SYS@ orcl>select current_scn from v$database;
+
+CURRENT_SCN
+-----------
+    9599468
+
+
+
+
+--dbms_flashback.get_system_change_number与current_scn 一样
+
+select a.current_scn,dbms_flashback.get_system_change_number from v$database a;
+
+CURRENT_SCN GET_SYSTEM_CHANGE_NUMBER
+----------- ------------------------
+    9623977                  9623977

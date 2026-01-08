@@ -1,0 +1,43 @@
+Db_name：对一个数据库（Oracle database）的唯一标识
+    select name from v$database;                              
+用db_name.db_domain来表示一个数据库，并将该数据库的名称称为global_name。   
+	select * from global_name;                                   
+如果在建立数据库的时候不指定DB_DOMAIN的值，则GLOBAL_NAME和DB_NAME的值一样。
+
+改变global_name 的语句，若果增加了DB_DOMAIN的设置，则无法通过该语句去掉DB_DOMAIN的设置
+    ALTER DATABASE RENAME GLOBAL_NAME TO                             
+UPDATE SYS.PROPS$ SET VALUE$ = 'YTK' WHERE NAME = 'GLOBAL_DB_NAME';  通过使用sys用户，修改数据字典表，才可以修改DB_DOMAIN的值
+	select value from v$parameter where name='db_domain';
+instance_name:实例唯一标识符
+    echo $ORACLE_SID
+	select instance_name from v$instance;
+
+用于设置在监听中注册的服务名,默认是：db_name 
+service_name:
+  
+  
+
+DB_UNIQUE_NAME：
+①在DataGuard中，主备库拥有相同的DB_NAME，为了区别，就必须有不同的DB_UNIQUE_NAME
+②DB_UNIQUE_NAME在DG中会影响动态注册的SERVICE_NAME，
+即如果采用的是动态注册，则注册的SERVICE_NAME为DB_UNIQUE_NAME，但是实例还是INSTANCE_NAME，即SID
+
+ORACLE_BASE下是admin和product  
+ORACLE_HOME下则是ORACLE的命令、连接库、安装助手、listener等等一系列的东东。
+这只是ORACLE自己的定义习惯。ORACLE_HOME比ORACLE_BASE目录要更深一些。
+也就是说：ORACLE_HOME＝$ORACLE_BASE/product/version
+
+DBID是DataBase IDentifier的缩写，意思就是数据库的唯一标识符。
+这个DBID在数据文件头和控制文件都是存在的，可以用于标示数据文件的归属。 
+对于不同数据库来说，DBID应当不同，而db_name则可能是相同的。 
+在我们进行数据库恢复时，有时必须要知道DBID，下面分两种情况总结了查询DBID的方法。
+
+1. 当数据库能够mount或open时：
+
+(1) 从v$database查询获得：
+
+select dbid,open_mode from v$database;
+
+(2) rman登录时，显示出dbid；
+
+(3) 从自动备份控制文件集的名字查询DBID;

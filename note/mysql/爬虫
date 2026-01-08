@@ -1,0 +1,26 @@
+
+
+--国网电脑上安装 python
+
+--安装python
+
+https://blog.csdn.net/lunanazhang/article/details/113117296
+
+
+--安装selenium
+https://blog.csdn.net/weixin_46946781/article/details/129113910   安装方法
+
+https://pypi.org/project/selenium/#history   下载地址
+
+
+--urllib3依赖包下载
+
+https://pypi.org/project/urllib3/#history
+
+
+
+
+
+
+--安装selenium（联网情况下）
+https://blog.csdn.net/weixin_43022051/article/details/125793852

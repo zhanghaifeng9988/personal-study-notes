@@ -1,0 +1,81 @@
+1、需要把连接源数据库的jar包放到bin目录下
+2、需要把sqoop1.4.7的jar包放到bin目录下
+3、在bin目录下修改configure-sqoop，修改掉对hbase和ZOOKEEPER的验证
+
+## Moved to be a runtime check in sqoop.
+#if [ ! -d "${HBASE_HOME}" ]; then
+# echo "Warning: $HBASE_HOME does not exist! HBase imports will fail."
+#  echo 'Please set $HBASE_HOME to the root of your HBase installation.'
+#fi
+#if [ ! -d "${ZOOKEEPER_HOME}" ]; then
+#  echo "Warning: $ZOOKEEPER_HOME does not exist! Accumulo imports will fail."
+#  echo 'Please set $ZOOKEEPER_HOME to the root of your Zookeeper installation.'
+#fi
+
+4、修改sqoop安装目录bin文件夹下的configure-sqoop文件，找到如下位置并注释
+## Moved to be a runtime check in sqoop.
+#if [ ! -d "${HCAT_HOME}" ]; then
+# echo "Warning: $HCAT_HOME does not exist! HCatalog jobs will fail."
+# echo 'Please set $HCAT_HOME to the root of your HCatalog installation.'
+#fi
+
+#if [ ! -d "${ACCUMULO_HOME}" ]; then
+# echo "Warning: $ACCUMULO_HOME does not exist! Accumulo imports will fail."
+# echo 'Please set $ACCUMULO_HOME to the root of your Accumulo installation.'
+#fi
+
+5、需要修改 [root@node3 conf]# cp sqoop-env-template.sh sqoop-env.sh
+ vi sqoop-env.sh
+#Set path to where bin/hadoop is available
+export HADOOP_COMMON_HOME=/home/hadoop-3.2.0
+
+#Set path to where hadoop-*-core.jar is available
+export HADOOP_MAPRED_HOME=/home/hadoop-3.2.0
+
+6、报错，说是Stringutils没找到
+
+ 解决：mv commons-lang-2.6.jar /home/grid/sqoop-1.4.7/lib/
+ 
+ 
+ 查看作业中保存的last value ：sqoop job --show myjob_1 | grep last.value
+ 
+连接数据库显示mysql中的database 
+  ./sqoop list-databases --connect jdbc:mysql://server111:3306 --username hive --password hive
+显示数据库下的表
+  sqoop list-tables --connect jdbc:mysql://server111:3306/source --username hive --password hive
+
+
+
+
+创建作业：需要创建为脚本形式，再执行
+  sqoop job --create myjob_1 \
+-- \
+import \
+--connect "jdbc:mysql://server111:3306/source?useSSL=false&user=hive&password=hive" \
+--table sales_order \
+--columns "order_number, customer_number, product_code, order_date, entry_date, order_amount" \ 
+--where "entry_date < current_date()" \
+--hive-import \
+--hive-table rds.sales_order \
+--incremental append \
+--check-column entry_date \
+--last-value '1900-01-01'
+
+删除一个作业：sqoop job --delete  myjob_1
+执行作业：sqoop job --exec myjob_1
+查看此时作业中保存的last-value：sqoop job --show myjob_1 | grep last.value
+
+报错：
+Sqoop导入mysql表中的数据到hive，出现如下错误： 
+
+ ERROR hive.HiveConfig: Could not load org.apache.hadoop.hive.conf.HiveConf. Make sure HIVE_CONF_DIR is set correctly.
+命令如下：
+./sqoop import --connect jdbc:mysql://slave2:3306/mysql --username root --password aaa --table people --hive-import --hive-overwrite --hive-table people --fields-terminated-by '\t';
+ 解决方法：
+
+往/etc/profile最后加入 export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$HIVE_HOME/lib/*
+然后刷新配置，source /etc/profil
+
+
+错误：目标端hive的rds表数据全为null
+原因是rds表建表没有设定有效的分隔符，书中有误，已经drop掉，重新建表（见hive的文档）

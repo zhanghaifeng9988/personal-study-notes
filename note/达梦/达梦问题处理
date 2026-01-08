@@ -1,0 +1,28 @@
+
+
+
+--sysdba密码忘记处理办法（注意：没有解决，仅供参考）
+
+1、查看ENABLE_LOCAL_OSAUTH参数是否在数据库的dm.ini中有配置和配置的值
+
+[dmdba@DMDBnode1 DAMENG]$ echo $DM_HOME
+/dm8
+[dmdba@DMDBnode1 DAMENG]$ cd /dm8/data/DAMENG2
+[dmdba@DMDBnode1 DAMENG2]$ grep -i ENABLE_LOCAL_OSAUTH dm.ini
+
+2、如果没有，需要添加：
+ENABLE_LOCAL_OSAUTH=1
+这个参数是隐含参数，通常没有，需要手动添加
+
+3、重启数据库实例
+[dmdba@DMDBnode1 bin]$ ./DmServiceDMSERVER  restart
+Stopping DmServiceDMSERVER:                                [ OK ]
+Starting DmServiceDMSERVER:                                [ OK ]
+
+4、创建与dmdba同名的组，并将用户dmdba添加进该组
+[root@DMDBnode1 ~]# groupadd dmdba
+[root@DMDBnode1 ~]# usermod -G dmdba dmdba
+[root@DMDBnode1 ~]# id dmdba
+用户id=1000(dmdba) 组id=1000(dinstall) 组=1000(dinstall),1001(dmdba)
+
+5、通过本地用户验证的方式连接数据库实例，出现提示：用户名和密码，一路“回车”；

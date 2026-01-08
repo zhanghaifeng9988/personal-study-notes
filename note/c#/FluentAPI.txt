@@ -1,0 +1,242 @@
+
+--晚上需要练习自己写一下 24-6-4
+
+                   --C#中设计、使用Fluent API--
+
+ //定义了一个名为 CircusPerformer 的公共类。
+public class CircusPerformer
+ {
+//定义了一个名为 PlayedItem 的公共属性，它是一个字符串列表。
+//这个属性有一个公共的 get 访问器和一个私有的 set 访问器，
+//这意味着 PlayedItem 可以在类的外部被读取，但不能在类的外部被设置（赋值）。
+   public List<string> PlayedItem { get; private set; }
+
+//定义了 CircusPerformer 类的构造函数，它没有参数。在构造函数中，
+//初始化 PlayedItem 属性为一个新的空字符串列表。  
+   public CircusPerformer()
+   {
+     PlayedItem=new List<string>();
+   }
+   
+//定义了一个名为 StartShow 的公共方法，它没有参数，返回 CircusPerformer 类的一个实例。
+//这个方法模拟了表演开始前的一个演讲和启动表演的动作。
+//方法中注释的部分表示这里可以添加具体的演讲和启动表演的代码。
+//return this; 表示方法返回调用它的对象的引用。
+
+   public CircusPerformer StartShow()
+   {
+     //make a speech and start to show
+     return this;
+   }
+   
+
+   public CircusPerformer MonkeysPlay()
+   {
+     //monkeys do some show
+     PlayedItem.Add("MonkeyPlay");
+     return this;
+   }
+   public CircusPerformer ElephantsPlay()
+   {
+     //elephants do some show
+     PlayedItem.Add("ElephantPlay");
+     return this;
+   }
+   public CircusPerformer TogetherPlay()
+   {
+     //all of the animals do some show
+     PlayedItem.Add("TogetherPlay");
+     return this;
+   }
+   public void EndShow()
+   {
+     //finish the show
+   }
+
+
+   
+--return this 的理解*****重点***
+  
+在C#中，return this; 语句返回当前类的实例的引用。
+这种技术通常用于创建所谓的“流畅接口”（Fluent Interface），
+它允许你以链式调用的方式编写代码，使得代码更加清晰和易于阅读。
+
+让我们以 CircusPerformer 类中的 StartShow 方法为例来说明 return this; 的作用：
+
+public CircusPerformer StartShow()
+{
+  //make a speech and start to show
+  return this;
+}
+
+在这个例子中，StartShow 方法执行了某些操作（比如演讲和开始表演），
+然后通过 return this; 返回了当前 CircusPerformer 对象的引用。
+这意味着，一旦 StartShow 方法被调用，你可以立即调用同一个对象的另一个方法，
+因为 StartShow 返回了对象本身的引用。
+
+例如：
+
+CircusPerformer performer = new CircusPerformer();
+performer.StartShow().MonkeysPlay().ElephantsPlay().TogetherPlay();
+这行代码首先创建了一个 CircusPerformer 对象。然后，通过链式调用，
+依次调用了 StartShow、MonkeysPlay、ElephantsPlay 和 TogetherPlay 方法。
+每次方法调用都返回了 CircusPerformer 对象的引用，使得下一个方法可以紧接着被调用，
+形成了一条流畅的调用链。
+
+使用 return this; 的好处是，它允许你以一种非常直观和连贯的方式构建代码，
+使得代码的意图非常明确，同时也使得代码更加简洁。
+这种模式在构建复杂的对象构建器或配置类时非常有用。
+
+
+
+--调用
+//这段代码是一个单元测试的例子，
+使用了xUnit测试框架的断言方法来验证 CircusPerformer 类的行为是否符合预期。
+单元测试是一种自动化测试方法，
+用于测试代码的特定部分（通常是单个函数或类）以确保它们按预期工作。
+
+
+[Test]
+    public void All_shows_can_be_invoked_by_fluent_way()
+    {
+	//筹备阶段，创建实例，用于测试
+      //Arrange
+      var circusPerformer = new CircusPerformer();
+    
+    //执行阶段，这里通过流畅接口的方式，调用了circusPerformer这个对象的一系列方法，
+    //模拟了马戏团表演的流程。    
+      //Act
+      circusPerformer
+        .MonkeysPlay()
+        .ElephantsPlay()
+        .StartShow()
+        .TogetherPlay()
+        .EndShow();
+    
+	//验证阶段，这里使用了 Fluent Assertions 库的 Should() 断言方法来验证
+      //Assert
+	//PlayedItem 列表中的项目数量是否为3。.Should().Be(3); 
+	//表示期望 PlayedItem 包含3个元素。
+      circusPerformer.PlayedItem.Count.Should().Be(3); 
+	//继续使用 Fluent Assertions 库的 Contains() 方法来验证 PlayedItem 列表是否包含字符串  
+      circusPerformer.PlayedItem.Contains("MonkeysPlay");
+      circusPerformer.PlayedItem.Contains("ElephantsPlay");
+      circusPerformer.PlayedItem.Contains("TogetherPlay");
+    }
+	
+请注意，.Should() 和 .Contains() 是 Fluent Assertions 库提供的方法，
+它们不是 C# 标准库的一部分。
+如果你没有安装 Fluent Assertions 库，你需要先通过 NuGet 包管理器安装它才能使用这些方法。
+
+
+--存在的瑕疵
+	但是这样的API有个瑕疵，马戏团circusPerformer在表演时是有顺序的，
+首先要调用StartShow(),其次再进行各种表演，表演结束后要调用EndShow()结束表演，
+但是显然这样的API没法满足这样的需求，使用者可以随心所欲改变调用顺序。
+
+   我们知道，作为一个优秀的API,要尽量避免让使用者犯错，比如要设计private 字段，
+readonly 字段等都是防止使用者去修改内部数据从而导致出现意外的结果。
+
+
+--设计具有调用顺序的Fluent API
+
+  在之前的例子中，API设计者期望使用者首先调用StartShow()方法来初始化一些数据，
+然后进行表演，最后使用者方可调用EndShow()，
+实现的思路是将不同种类的功能抽象到不同的接口中或者抽象类中，
+方法内部不再使用return this,取而代之的是return INext;
+
+
+根据这个思路，我们将StartShow(),和EndShow()方法抽象到一个类中，
+而将马戏团的表演抽象到一个接口中：
+  
+  --设计接口和抽象类
+public abstract class Performer     //公共抽象类，不能被实例化，作为基类被引用
+ {                                  //为派生类提供公共的接口或实现。
+   public abstract ICircusPlayer CircusPlayer { get; } //抽象属性，接口类型ICircusPlayer
+   public abstract ICircusPlayer StartShow();          //抽象方法，返回值为ICircusPlayer接口类型
+   public abstract void EndShow();                     //抽象方法，无返回值
+ }
+
+public interface  ICircusPlayer  //公共接口
+{
+  IList PlayedItem { get; }      //属性类型为：IList
+  ICircusPlayer MonkeysPlay();   //定义了一个名为 MonkeysPlay 的方法，它返回 ICircusPlayer 类型的实例
+  ICircusPlayer ElephantsPlay();//定义了一个名为 ElephantsPlay 的方法，它返回 ICircusPlayer 类型的实例
+  Performer TogetherPlay(); 
+}
+
+   --实现
+public class CircusPerformer:Performer
+ {
+   private ICircusPlayer _circusPlayer;  //定义一个私有的成员变量，类型为接口类型ICircusPlayer
+                                 //这个变量用于存储与 CircusPerformer 关联的 ICircusPlayer 接口实例。
+   override public ICircusPlayer CircusPlayer { get { return _circusPlayer; } } //重写属性，
+                        //并定义属性只有get功能，不能修改，能够获取上一步中的私有成员变量的值
+  
+   public override ICircusPlayer StartShow() //重写StartShow()方法
+   {
+     //make a speech and start to show
+     _circusPlayer=new CircusPlayer(this);  //实例化接口，传入的参数为当前类的实例
+     return _circusPlayer;  //
+   }
+    
+   public override void EndShow()  //重写了 Performer 抽象类中的 EndShow 方法,只有方法签名，没有实现
+   {
+     //finish the show
+   }
+ }
+ 
+public class CircusPlayer:ICircusPlayer   //定义名为CircusPlayer的公共类，它实现了 ICircusPlayer 接口。
+ {
+   private readonly Performer _performer;  //私有只读成员变量，类型为：Performer 抽象类
+                                           //这个字段用于存储与 CircusPlayer 关联的 Performer 实例。
+   public IList PlayedItem { get; private set; }//定义了一个名为 PlayedItem 的公共属性，
+   //它的类型是 IList。这个属性有一个公共的 get 访问器和一个私有的 set 访问器，
+   //这意味着外部代码可以读取 PlayedItem 的值，但不能直接设置它。
+  
+   public CircusPlayer(Performer performer)  //构造函数，类型为：Performer,
+   //构造函数将传入的 performer 参数赋值给 _performer 字段，并初始化 PlayedItem 为一个新的字符串列表。
+   {
+     _performer = performer;
+     PlayedItem=new List();
+   }
+  
+  //实现了 ICircusPlayer 接口中的 MonkeysPlay 方法。
+  //这个方法向 PlayedItem 列表中添加字符串 "MonkeyPlay"，模拟猴子表演，并返回 CircusPlayer 实例的引用。
+   public ICircusPlayer MonkeysPlay()
+   {
+     PlayedItem.Add("MonkeyPlay");
+     //monkeys do some show
+     return this;
+   }
+  
+   public ICircusPlayer ElephantsPlay()
+   {
+     PlayedItem.Add("ElephantPlay");
+     //elephants do some show
+     return this;
+   }
+  
+  //实现了 ICircusPlayer 接口中的 TogetherPlay 方法。
+  //这个方法向 PlayedItem 列表中添加字符串 "TogetherPlay"，模拟所有动物一起表演，
+  //并返回 _performer 字段的引用。
+   public Performer TogetherPlay()
+   {
+     PlayedItem.Add("TogetherPlay");
+     //all of the animals do some show
+     return _performer;
+   }
+ } 
+ 
+ 
+ 注意：
+CircusPerformer 类通过重写抽象类 Performer 中的抽象成员，提供了具体的实现。
+
+CircusPlayer 类实现了 ICircusPlayer 接口，并提供了接口中定义的所有成员的具体实现。
+
+_circusPlayer 是 CircusPerformer 类中的一个私有成员变量，
+它被设计为存储实现了 ICircusPlayer 接口的对象，这允许 CircusPerformer 与 CircusPlayer 之间进行交互。
+
+CircusPlayer 类中的 TogetherPlay 方法返回 _performer 的引用，
+这与接口中定义的返回类型 Performer 一致，但实际返回的是 Performer 的实例。
+这可能需要根据实际的类层次结构进行调整。

@@ -1,0 +1,26 @@
+物理dg
+  将主库的redo log传递到备库后，备库对redo log日志进行recovery，来和主库保持一致。
+  （主库和备库必须是相同的环境，备库一般处于只读状态）
+逻辑dg
+  将主库的redo log传递到备库后，再利用logminer 的工具，从redo log中解析出sql语句，在备库执行，保证和主库同步。
+  （主库和备库可以是不同的环境，备库可以处于读写状态）逻辑备库可以看作是一个单独的库，数据库名和DBID和主库都不一样。
+  （物理的备库和主库的数据库名和DBID都是同样的。
+  
+物理----RECOVERY，逻辑-----应用sql语句
+
+DG 环境
+主库1个，备库最多可以有9个 
+1、主库和备库之间都是单实例
+2、主库是RAC，备库是单实例
+3、主库是RAC,备库也是RAC（MAA实现最高可用性）
+
+DG的保护模式
+1.最大保护（Maximum Protection）  SYNC同步模式
+这种模式能够确保绝无数据丢失。
+它要求所有的事务在提交前其REDO不仅被写入到本地的Online Redologs，还要同时写入到Standby数据库的Standby Redologs，
+并确认REDO数据至少在一个Standby数据库中可用（如果有多个的话），然后才会在Primary 数据库上提交。
+2.最高可用（Maximum availability）
+这种模式在不影响 Primary 数据库可用前提下，提供最高级别的数据保护策略。
+其实现方式与最大保护模式类似，也是要求本地事务在提交前必须至少写入一台（俗称同步模式）Standby 数据库的 Standby Redologs 中，
+如果出现故障导致Standby数据库无法访问，Primary数据库并不会被Shutdown，而是自动转为最高性能模式，等Standby数据库恢复正常之后，
+Primary数据库又会自动转换成最高可用性模式。

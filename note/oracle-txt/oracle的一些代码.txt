@@ -1,0 +1,15 @@
+create or replace procedure test_proc
+as
+begin
+ for x in(select  col1,col2 from test_table)
+loop
+  null; --process data 
+ end loop;
+ end;
+ 
+ exec test_proc;
+ 
+ 查询存储过程是否有效
+ SELECT OBJECT_NAME, STATUS FROM USER_OBJECTS WHERE OBJECT_NAME = 'TEST_PROC';
+ 
+ ALTER TABLE test_table ADD col3 NUMBER;

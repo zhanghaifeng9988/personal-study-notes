@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="vue.js"></script>
+    <style>
+      .container {
+        margin:100px;
+      }
+      .content {
+        margin:20px;
+      }
+    </style>
+</head>
+<body>
+  <div id="Application">
+  </div>
+
+  <script>
+    //模拟数据
+     let mock = [
+   {name:'张三',age:20,sex:0},
+   {name:'王五',age:30,sex:1},
+   {name:'李四',age:25,sex:0},
+   {name:'赵六',age:35,sex:1},
+   {name:'周七',age:28,sex:0}]
+
+/* 页面的功能：1.能够渲染用户列表；2.能够根据性别筛选数据
+  3.更够根据数据的关键字进行检索
+  因此需要至少3个响应式的数据：用户列表数据、性别筛选、关键字检索  */
+
+const App = Vue.createApp({
+  setup() {
+    //1-先处理用户列表的数据的逻辑
+    const showDatas = Vue.ref([])
+    function queryAllData() {
+      setTimeout(() => {
+        showDatas.value = mock
+      },3000)
+    }
+    //2-组件挂载时获取数据
+    Vue.onMounted(queryAllData)
+    //3-处理性别筛选的逻辑和关键字检索的逻辑
+    const sexFilter = Vue.ref(-1)
+    const searchKey = Vue.ref('')
+    //筛选数据的方法
+    function filterData() {
+      searchKey.value = ''
+      if (sexFilter.value == -1){
+        showDatas.value = mock
+      }
+      else {
+        showDatas.value = mock.filter((data)=>{
+          return data.sex == sexFilter.value})
+      }
+    }
+    //关键字检索的方法
+    function searchData() {
+      sexFilter.value = -1
+      if (searchKey.value == '') {
+        showDatas.value = mock
+      }
+      else {
+        showDatas.value = mock.filter((data) => {
+          return data.name.search(searchKey.value) !=-1
+        })
+      }
+    }
+    //监听性别筛选和关键字检索的变化，更新数据
+    Vue.watch(sexFilter,filterData) //第1个参数是监听的属性，如果属性变化了，则执行第2个参数的方法
+    Vue.watch(searchKey,searchData)
+    //返回数据
+    return {
+      showDatas,
+      sexFilter,
+      searchKey
+    }
+  },
+  template: `
+  <div class="container">
+      <div class="content">
+        <input type="radio" value="-1" v-model="sexFilter"/>不限
+        <input type="radio" value="0" v-model="sexFilter"/>男
+        <input type="radio" value="1" v-model="sexFilter"/>女
+      </div>
+      <div class="content">
+        搜索：<input type="text" v-model="searchKey"/>
+      </div>
+      <div class="content">
+        <table border="1" width="300px">
+          <tr>
+            <th>姓名</th>
+            <th>年龄</th>
+            <th>性别</th>
+          </tr>
+          <tr v-for="(item,index) in showDatas" :key="index">
+            <td>{{item.name}}</td>
+            <td>{{item.age}}</td>
+            <td>{{item.sex == 0 ? '男' : '女'}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  `
+})
+App.mount('#Application')
+  </script>
+</body>
+</html>
+
+前端服务器
+后端框架
+后端服务器/web服务器

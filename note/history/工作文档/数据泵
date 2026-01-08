@@ -1,0 +1,312 @@
+--查看作业
+set line 200 pages 200
+col owner_name for a20
+col job_name for a30
+col state for a20
+select owner_name,job_name,state from dba_datapump_jobs;
+
+OWNER_NAME           JOB_NAME                       STATE
+-------------------- ------------------------------ --------------------
+SYS                  SYS_EXPORT_TABLE_02            EXECUTING
+ZFS_SYS              SYS_EXPORT_SCHEMA_06           NOT RUNNING
+ZFS_SYS              SYS_EXPORT_SCHEMA_04           NOT RUNNING
+ZFS_SYS              SYS_EXPORT_SCHEMA_05           NOT RUNNING
+SYS                  SYS_EXPORT_TABLE_01            NOT RUNNING
+ZFS_SYS              SYS_IMPORT_SCHEMA_01           NOT RUNNING
+ZFS_SYS              SYS_EXPORT_SCHEMA_02           NOT RUNNING
+ZFS_SYS              SYS_EXPORT_SCHEMA_07           NOT RUNNING
+ZFS_SYS              SYS_EXPORT_SCHEMA_03           NOT RUNNING
+ZFS_SYS              SYS_EXPORT_SCHEMA_01           NOT RUNNING
+
+set lines 200 pages 200 long 20000
+col OWNER_NAME for a30
+col STATE for a20
+col JOB_MODE for a30
+
+select sl.sid,sl.serial#,sl.totalwork,dp.owner_name,dp.state,dp.job_mode
+from v$session_longops sl,v$datapump_job dp
+where sl.opname=dp.job_name and sl.sofar !=sl.totalwork;
+
+       SID    SERIAL#  TOTALWORK OWNER_NAME                     STATE                JOB_MODE
+---------- ---------- ---------- ------------------------------ -------------------- ------------------------------
+      2914      50361      95704 SYS                            EXECUTING            TABLE
+
+
+
+--进入管理界面
+[oracle@oracle11g-02-node1 ~]$ expdp \'/ as sysdba\' attach=SYS_EXPORT_TABLE_02
+或者：ctrl+c 进入管理界面
+--查看作业
+Export>status   
+
+--报警日志查询
+set lines 200 pages 200 long 20000
+col NAME for a50
+col sql_text for a50
+col error_msg for a30
+col START_TIME for a30
+select name,sql_text,START_TIME,error_msg from dba_resumable;
+
+
+
+导出
+expdp \'/ as sysdba\' parfile=20230321.par
+
+directory=DMP
+dumpfile=20230321_zhbz01_%U.dmp
+logfile=20230321_zhbz01.log
+exclude=statistics
+CLUSTER=N
+parallel=6
+filesize=30G
+compression=all
+schemas=(
+ZFS_SYS,
+ZFS_BOE,
+ZFS_OP,
+ZFS_FSC,
+ZFS_FMC,
+ZFS_LOG,
+ZFS_GUIDE,
+ZFS_JOB,
+ZFS_CLAIM,
+ZFS_RPT,
+ZFS_BGT,
+ZFS_RULE,
+ZFS_IP,
+ZFS_IPE,
+ZFS_MONITOR,
+ZFS_LDG,
+ZFS_SCP,
+ZFS_EXCHANGE,
+ERS,
+EVS
+)
+ 
+content=ALL
+content=DATA_ONLY
+content=METADATA_ONLY
+
+cluster  如果导出目录在rac中的共享目录中，可以配置成y，否则是n
+
+
+
+
+--大表分片导出的脚本
+
+. ~/.bash_profile
+chunk=10
+for((i=0;i<=9;i++)
+do
+nohup  expdp \'/ as sysdba\' tables=ZFS_OP.OP_INVOICE_IMAGE_RELATION 
+query=ZFS_OP.OP_INVOICE_IMAGE_RELATION:\"where mod\(dbm_rowid.rowid_block_number\(rowid\)\,${chunk}\)= ${i}\"
+CLUSTER=N
+filesize=15G
+exclude=statistics
+directory=DMP
+parallel=4
+compression=all
+dumpfile=20230321_zhbz02_${i}.dmp
+logfile=20230321_zhbz02_${i}.log &
+echo $i
+done
+
+SQL> select file_name,autoextensible,increment_by,MAXBYTES FROM dba_data_files;
+
+FILE_NAME						     AUT INCREMENT_BY	MAXBYTES
+------------------------------------------------------------ --- ------------ ----------
+/data/ZTEFSSC/datafile/o1_mf_users_l0o4cgnr_.dbf	     YES	  160 3.4360E+10
+/data/ZTEFSSC/datafile/o1_mf_undotbs1_l0o4cgn5_.dbf	     YES	  640 3.4360E+10
+/data/ZTEFSSC/datafile/o1_mf_sysaux_l0o4cgn3_.dbf	     YES	 1280 3.4360E+10
+/data/ZTEFSSC/datafile/o1_mf_system_l0o4cgm8_.dbf	     YES	 1280 3.4360E+10
+/data/ZTEFSSC/datafile/ZFS_IP_01.dbf			     YES	    1 3.4360E+10
+/data/ZTEFSSC/datafile/ERS_01.dbf			     YES	    1 3.4360E+10
+/data/ZTEFSSC/datafile/ZFS_OP_01.dbf			     YES	    1 3.4360E+10
+/data/ZTEFSSC/datafile/ZFS_BOE_01.dbf			     YES	    1 3.4360E+10
+/data/ZTEFSSC/datafile/EVS_01.dbf			     YES	    1 3.4360E+10
+/data/ZTEFSSC/datafile/ZFS_FSC_01.dbf			     YES	    1 3.4360E+10
+/data/ZTEFSSC/datafile/ZFS_SYS_01.dbf			     YES	    1 3.4360E+10
+/data/ZTEFSSC/datafile/ZFS_FMC_01.dbf			     YES	    1 3.4360E+10
+/data/ZTEFSSC/datafile/ZFS_JOB_01.dbf			     YES	    1 3.4360E+10
+/data/ZTEFSSC/datafile/ZFS_LOG_01.dbf			     YES	    1 3.4360E+10
+/data/ZTEFSSC/datafile/ZFS_LDG_01.dbf			     YES	    1 3.4360E+10
+/data/ZTEFSSC/datafile/ZFS_EXCHANGE_01.dbf		     YES	    1 3.4360E+10
+/data/ZTEFSSC/datafile/ZFS_RPT_01.dbf			     YES	    1 3.4360E+10
+/data/ZTEFSSC/datafile/ZFS_RULE_01.dbf			     YES	    1 3.4360E+10
+/data/ZTEFSSC/datafile/ZFS_IPE_01.dbf			     YES	    1 3.4360E+10
+/data/ZTEFSSC/datafile/ZFS_BGT_01.dbf			     YES	    1 3.4360E+10
+/data/ZTEFSSC/datafile/ZFS_CLAIM_01.dbf 		     YES	    1 3.4360E+10
+/data/ZTEFSSC/datafile/ZFS_GUIDE_01.dbf 		     YES	    1 3.4360E+10
+/data/ZTEFSSC/datafile/ZFS_MONITOR_01.dbf		     YES	    1 3.4360E+10
+/data/ZTEFSSC/datafile/ZFS_SCP_01.dbf			     YES	    1 3.4360E+10
+/data/ZTEFSSC/datafile/ZFS_LOBTBS_01.dbf		     YES	    1 3.4360E+10
+/data/ZTEFSSC/datafile/ZFS_REC_01.dbf			     YES	    1 3.4360E+10
+
+
+SQL> show parameter db_create_file_dest
+
+NAME				     TYPE	 VALUE
+------------------------------------ ----------- ------------------------------
+db_create_file_dest		     string	 /data
+
+
+-- +2个
+
+alter tablespace ERS   add datafile  size 30G autoextend on;  
+
+
+--+5个
+alter tablespace EVS   add datafile  size 30G autoextend on;
+
+已经加了5个
+--+7个
+alter tablespace ZFS_IP  add datafile  size 30G autoextend on;
+
+已经加了7个
+--+4个
+alter tablespace ZFS_OP  add datafile  size 30G autoextend on;
+
+已经加了4个
+——+1个
+alter tablespace ZFS_SYS  add datafile  size 30G autoextend on;
+
+已经加了1个
+
+
+
+ 
+
+[oracle@oracle11g-test-db01 dmp]$ cat 20230323_01.par
+directory=dmp
+dumpfile=20230321_zhbz01_%U.dmp
+schemas=(
+ZFS_SYS,
+ZFS_BOE,
+ZFS_OP,
+ZFS_FSC,
+ZFS_FMC,
+ZFS_LOG,
+ZFS_GUIDE,
+ZFS_JOB,
+ZFS_CLAIM,
+ZFS_RPT,
+ZFS_BGT,
+ZFS_RULE,
+ZFS_IP,
+ZFS_IPE,
+ZFS_MONITOR,
+ZFS_LDG,
+ZFS_SCP,
+ZFS_EXCHANGE,
+ERS,
+EVS
+)
+logfile=imp_zhbh_20230323.log
+cluster=N
+parallel=4
+table_exists_action=truncate
+
+
+--用户和表空间的映射
+remap_tablespace=tbs-name1:aa1,tbs-name2:aa2
+remap_schema=schema1:bb2,schema2:bb2
+
+
+
+
+impdp \' as sysdba\' parfile=20230323_01.par
+
+
+[oracle@oracle11g-test-db01 dmp]$ cat 20230323_02.par
+directory=dmp
+dumpfile=20230321_zhbz02_%U.dmp
+tables=(
+ZFS_OP.OP_INVOICE_IMAGE_RELATION
+)
+logfile=imp_zhbh_20230323_02.log
+cluster=N
+parallel=6
+table_exists_action=truncate
+
+
+impdp \' as sysdba\' parfile=20230323_02.par
+
+
+导入数据报错的问题：存储过程、视图、包 编译错误
+ORA-39082: Object type ALTER_PROCEDURE:"ERS"."BEACH_VOUCHE_IMAGE" created with compilation warnings
+ORA-39082: Object type VIEW:"ZFS_BGT"."BGT_TEMPLATE_V" created with compilation warnings
+ORA-39082: Object type VIEW:"EVS"."EVS_OPERATION_TYPES_V" created with compilation warnings
+ORA-39082: Object type PACKAGE_BODY:"ZFS_IPE"."BASE_DATA_IMP" created with compilation warnings
+ORA-39082: Object type PACKAGE_BODY:"ERS"."SYNC_BASE_DATA" created with compilation warnings
+
+首先查看无效对象：
+
+col object_name for a30
+select owner,object_name,object_type,status 
+from dba_objects
+where status !='VALID'
+and owner not in('SYS','SYSTEM');
+
+
+sys用户登录执行：无使用状态下使用，防止锁表
+@?/rdbms/admin/utlrp.sql
+
+修复后，还是有本次的2个视图，1个存储过程，两个包 是无效状态
+OWNER			       OBJECT_NAME		      OBJECT_TYPE	  STATUS
+------------------------------ ------------------------------ ------------------- -------
+ZFS_FSC 		       FSC_TASK_APPROVED_V	      VIEW		  INVALID
+ZFS_BGT 		       BGT_TEMPLATE_V		      VIEW		  INVALID
+ZFS_IPE 		       BASE_DATA_IMP		      PACKAGE BODY	  INVALID
+EVS			       EVS_OPERATION_TYPES_V	      VIEW		  INVALID
+ERS			       BEACH_VOUCHE_IMAGE	      PROCEDURE 	  INVALID
+ERS			       SYNC_BASE_DATA		      PACKAGE BODY	  INVALID
+
+
+
+
+SQL> alter view ZFS_BGT.BGT_TEMPLATE_V compile;
+
+Warning: View altered with compilation errors.
+
+ alter view EVS.EVS_OPERATION_TYPES_V compile;
+ 
+Warning: View altered with compilation errors. 
+ 
+alter procedure ERS.BEACH_VOUCHE_IMAGE compile;
+
+Warning: Procedure altered with compilation errors.
+
+alter PACKAGE ZFS_IPE.BASE_DATA_IMP compile;
+
+Warning: Package altered with compilation errors.
+
+alter PACKAGE ERS.SYNC_BASE_DATA compile;
+
+Warning: Package altered with compilation errors.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

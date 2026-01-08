@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="vue.js"></script>
+</head>
+<body>
+  <div id="Application">
+    <!-- 注意：在外部传递数值类型的数据到组件内部，必须使用v-bind -->
+    <!-- 如果不用v-bind，会将传递的数据作为字符串传递 -->
+    <comp1  :count="haha"></comp1>
+    <!-- 可以直接传递数值，也可以通过父组件的data方法中的属性传递 -->
+    <comp1  :count="5"></comp1>
+  </div>
+  <script>
+    const App =  Vue.createApp({
+      data() {
+        return {
+          haha:100
+        }
+      }
+    })
+    const comp1 = {
+      props:['count'], //外部属性,列表类型的值，表示无数据类型约束
+      props:{
+        count:{
+          type:Number, //数据类型约束
+          default:0 ,//默认值
+          required:true //是否必填
+        }//在实际开发中，建议所有的props都采用对象的方式定义，显示的设置默认值和类型
+      },
+
+      data() {
+        return {
+          thisCount:0  //内部属性
+        }
+      },
+      methods:{
+        click(){
+          this.thisCount +=1  //单击后，内部属性自增
+        }
+      },
+      computed:{
+        innerCount:{
+          get (){
+      //页面显示的值为内部属性和外部属性的和
+            return this.count + this.thisCount
+          }
+        }
+      },
+      template:`
+      <button @click='click'>单击</button>
+      <div>计数：{{innerCount}}</div>
+      `
+    }
+    App.component('comp1',comp1)
+    App.mount('#Application')
+  </script>
+</body>
+</html>

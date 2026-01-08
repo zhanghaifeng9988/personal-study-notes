@@ -1,0 +1,41 @@
+bbed 修改 数据文件scn
+
+bbed的使用：
+$ORACLE_HOME/rdbms/lib 该目录下必须有2个文件 sbbdpt.o ssbbded.o 
+$ORACLE_HOME/rdbms/mesg  该目录下必须有1个文件 bbedus.msb
+
+cd $ORACLE_HOME/rdbms/lib
+
+make -f ins_rdbms.mk $ORACLE_HOME/rdbms/lib/bbed
+
+默认密码：blockedit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--模拟场景：
+oracle19c rac
+数据文件添加错误，offline该数据文件后，移动数据文件到正确的路径，修改数据文件名字
+recover数据文件，报错提示无法应用数据库，经查归档已经被删除；
+此时需要修改数据文件的scn，并使其恢复online状态
+

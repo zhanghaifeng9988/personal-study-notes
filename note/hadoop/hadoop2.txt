@@ -1,0 +1,259 @@
+！！！！关于hadoop的基本知识讲解：
+https://www.cnblogs.com/gaopeng527/p/5436820.html
+
+
+linux下载的jdk1.8
+wget --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.rpm
+
+
+整体启动/停止 HDFS
+start-dfs.sh/stop-dfs.sh 
+整体启动/停止 YARN
+start-yarn.sh/stop-yarn.sh
+启动/停止历史服务器
+mapred --daemon start historyserver
+mapred --daemon stop historyserver
+
+报错1
+WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java 
+classes where applicable
+
+解决办法
+vi .bash_profile
+
+export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+
+export HADOOP_OPTS=-Djava.library.path=$HADOOP_HOME/lib/native
+
+source.bash_profile
+
+hadoop checknative -a
+
+报错2
+HUTDOWN_MSG: Shutting down NameNode at master/192.168.56.101
+且namenode一直无法启动
+
+解决办法1:
+如果是这种情况就去看虚拟机的hostname的名称 是否和 虚拟机的vi /etc/hosts中的ip是否配的一致，
+如果没有的话，就修改下名称或者ip
+然后重启网络 namenode的配置文件重新hdfs namenode -format即可
+解决办法2：
+多次初始化导致，需要删除（注意要停止掉hadoop集群在操作
+
+
+卸载JDK的办法：
+rpm -qa | grep jdk  查找已安装的jdk的名称
+yum -y remove jdk的名字
+
+
+centos7.6安装桌面
+  yum groupinstall "GNOME Desktop" "Graphical Administration Tools"
+ 
+ ln -sf /lib/systemd/system/runlevel5.target /etc/systemd/system/default.target
+ 
+ reboot
+ 
+ [root@cuug88 ~]# systemctl get-default		查看当前启动模式是图形界面
+graphical.target
+[root@cuug88 ~]# systemctl set-default multi-user.target	设置启动字符界面
+Removed symlink /etc/systemd/system/default.target.
+Created symlink from /etc/systemd/system/default.target to /usr/lib/systemd/system/multi-user.target.
+[root@cuug88 ~]# 
+[root@cuug88 ~]# systemctl set-default graphical.target  设置启动图形界面
+从当前multi-user.target模式输入startx可以进入graphical.target模式
+
+
+错误4
+重装yum
+https://blog.csdn.net/zy517863543/article/details/124902082
+文档有不足，安装命令：rpm -ivh yum-*
+
+SERVER111上安装的
+ systemctl start mariadb           mariadb启动命令
+ systemctl stop  mariadb           mariadb停止命令
+mairadb root的密码:ZHF@4933807
+mysql -uroot -p 登陆mariadb
+用户：hive 密码：hive
+exit 退出
+mariadb的配置文件路径 /etc/my.cnf.d/server.cnf
+
+hive的相关命令：
+
+hive  启动数仓
+quit; 退出
+
+zookeeper的相关命令：
+bin/zkServer.sh start
+bin/zkServer.sh status
+
+kafka的相关命令：
+启动：bin/kafka-server-start.sh  -daemon config/server.properties  所有节点都需要执行
+在110上，创建topic   连接111上zookeeper的leader
+bin/kafka-topics.sh --zookeeper server111:2181 --create --partitions 1 --replication-factor 3 --topic test-topic
+在111上，创建生产者  连接112的kafka
+bin/kafka-console-producer.sh  --broker-list  server112:9092  --topic test-topic
+在112上，创建消费者，连接110的kafka
+bin/kafka-console-consumer.sh --bootstrap-server server110:9092 --topic  test-topic
+在111上，生产数据
+bin/kafka-console-producer.sh --broker-list  server112:9092  --topic  test-topic
+
+flink的相关命令：
+bin/start-cluster.sh   启动flink集群
+bin/stop-cluster.sh    关闭集群
+http://server110:8081/  flink 的webUI地址
+
+
+
+create table wordcount as select word,count(1) as count from (select explode(split(line,' ')) as word from docs) w 
+group by word order by word;
+
+kettle的安装教程
+https://blog.csdn.net/weixin_44393345/article/details/107284960
+
+
+报错1：启动kettle 运行spoon.sh,无法启动图形界面面
+INFO: Setting the server's publish address to be /connection
+java.lang.UnsatisfiedLinkError: /home/jdk1.8.0_271/jre/lib/amd64/libawt_xawt.so: libXtst.so.6: cannot open shared object file: No such file or directory
+解决办法:
+参照 https://www.cnblogs.com/alan319/p/9364219.html
+运行 yum install libXtst.x86_64
+
+报错2：运行spoon.sh,启动图形界面面，linux命令行出现如下报错
+2022/07/19 21:35:09 - org.pentaho.di.ui.util.EnvironmentUtils@43e065f2 - ERROR (version 8.3.0.0-371, build 8.3.0.0-371 from 2019-06-11 11.09.08 by buildguy) : Could not execute command
+2022/07/19 21:35:09 - org.pentaho.di.ui.util.EnvironmentUtils@43e065f2 - ERROR (version 8.3.0.0-371, build 8.3.0.0-371 from 2019-06-11 11.09.08 by buildguy) : java.io.IOException: Cannot run program "lsb_release": error=13, Permission denied
+解决办法：
+参照 https://blog.csdn.net/womode/article/details/124633991
+yum -y install redhat-lsb
+
+重要！！！启动kettle的命令：kettle安装在111上了
+export DISPLAY=192.168.1.100:0.0
+./spoon.sh
+
+报错3：hiveserver2无法正常启动：server2在110上启动
+解决办法：
+mysql-connector的jar包一定要用新版本，3.2.1的hive，对应mysql-connector-java-8.0.29.jar
+
+报错4：hiveserver2的beeline登陆报错
+  !connect jdbc:hive2://localhost:10001  登陆命令
+22/07/21 00:30:32 [main]: WARN jdbc.HiveConnection: Failed to connect to localhost:10001 Error: Coul
+
+解决办法：
+http://blog.itpub.net/25854343/viewspace-2638705/
+修改 hadoop的coresite.xml文件，添加如下信息，注意：root这个用户名，
+按照hadoop的所属用户名配置，我的是grid
+<property>
+    <name>hadoop.proxyuser.root.hosts</name>
+    <value>*</value>
+</property>
+<property>
+    <name>hadoop.proxyuser.root.groups</name>
+    <value>*</value>
+</property>
+注意：要把修改好的core-site.xml复制到集群的所有节点中，并重启hdfs及yarn
+如果不做复制，hive执行sql语句时，日志会报类似错误，见如下报错：
+User: grid is not allowed to impersonate hive, 
+while invoking ApplicationClientProtocolPBClientImpl.getNewApplication over null after 2
+ failover attempts. Trying to failover after sleeping for 16870ms.
+参见：https://blog.csdn.net/weixin_42008966/article/details/123983821
+
+kettle连接hiveserver2报错：
+Error connecting to database [hiveconn] :org.pentaho.di.core.exception.KettleDatabaseException:  Err
+解决办法：将jar包拷贝到kettle的lib目录下，重启kettle
+ cp hive-jdbc-3.1.2-standalone.jar /home/grid/data-integration/lib
+ 
+关于hadoop的版本对应shim和kettle配置的方法：
+ https://blog.csdn.net/weixin_35731493/article/details/112440232
+ 
+ 
+ hive日志的路径
+ /tmp/grid
+ 
+ ！！！！hive2的WEBUI界面的配置，已经验证，完全可行：
+ https://www.freesion.com/article/2971951577/
+   
+ hive server2的ACID配置（事务功能打开）
+ 参考网址：https://www.kancloud.cn/king_om/h_001/2188572
+ 通过配置文件hive-site.xml
+
+<property> 
+	<name>hive.support.concurrency</name> 
+	<value>true</value>
+</property>
+<property> 
+	<name>hive.txn.manager</name> 
+	<value>org.apache.hadoop.hive.ql.lockmgr.DbTxnManager</value>
+</property>
+ 
+kettle连接mariaDB报错：
+Driver class 'org.mariadb.jdbc.Driver' could not be found, make sure the 'MariaDB' driver (jar file) is installed.
+org.mariadb.jdbc.Driver
+解决办法：下载mariadb的java包，并放到kettle的lib目录下，重启kettle
+
+kettle报错：hive2msql 
+Unknown column 'aggregate_hive2.ip' in 'field list'
+
+解决办法：目标数据库mysql的表中的字段名，与kettle转换了的源端的字段名不一致导致，需要在kettle的目标端mysql的配置界面选择：“指定字段名”，并手动进行更改一致
+
+mysql建表
+create table aggregate_hdfs (
+ip varchar(16),
+date varchar(26),
+email varchar(106),
+name varchar(56));
+
+create table aggregate_hive2 (
+ip varchar(16),
+date varchar(26),
+email varchar(106),
+name varchar(56));
+
+hive建表
+create table aggregate_hive2(
+ip string,
+date_time string,
+email string,
+name string)
+row format delimited fields terminated by ';' stored as textfile;
+
+create table test.weblogs (
+client_ip         string,
+full_request_date string,
+day               string,
+month             string,
+month_num         int,
+year              string,
+hour              string,
+minute            string,
+second            string,
+timezone          string,
+http_verb         string,
+uri               string,
+http_status_code  string,
+bytes_returned    string,
+referrer          string,
+user_agent        string)
+row format delimited fields terminated by '\t';
+
+
+建表报错，hdfs权限问题
+解决办法：将目录的权限重新设置为777
+ hdfs dfs -chmod 777 /user/hive/warehouse/
+ 
+
+将hdfs中的txt导入到hive中，命令如下：
+load data  inpath  '/user/grid/aggregate_mr/ExportCSV1.txt'  into table  aggregate_hive2;
+
+hiveQL语句：创建一个新表，将另一个表的查询结果和表结构作为新表的数据
+create table  test.t1 as 
+select ip,date_time,email,name,count(*) from  aggregate_hive2 
+group by ip,date_time,email,name;
+
+kettle执行mapreduce任务，报错：
+ Caused by: java.net.ConnectException: Call From server111/192.168.1.111 to server111:10020
+ failed on connection exception: java.net.ConnectException: Connection refused;
+ For more details see:  http://wiki.apache.org/hadoop/ConnectionRefused
+ 
+ 解决办法：yarn报错，任务不能访问jobhistory，启动historyserver就行
+ 
+ 
+

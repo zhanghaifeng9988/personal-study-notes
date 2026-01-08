@@ -1,0 +1,95 @@
+问题1：rac环境，tns配置好后，pdb在某一结点查看是READ WRITE状态，即open状态
+但是通过命令   sqlplus user2/oracle@zhf_pdb1 登录该pdb，系统提示：
+ ORA-01109: database not open
+ 原因：其他节点上的该pdb并没有打开，只要执行打开pdb，即可解决问题
+ 
+问题2：rac环境，无法从pdbseed创建新的pdb zhf_pdb1
+创建语句如下：已经在cdb中创建了zhf_test的表空间
+create pluggable database zhf_pdb0 admin user zhf1 identified by oracle
+DEFAULT TABLESPACE zhf_test datafile '+DATA/PROD/DATAFILE/zhf.dbf' size 100m AUTOEXTEND ON
+FILE_NAME_CONVERT = ('+DATA/PROD/86B637B62FE07A65E053F706E80A27CA/DATAFILE/', '+DATA/PROD/zhf_pdb1/',
+'+DATA/PROD/E8273994F38C6F18E0535803A8C095BE/TEMPFILE','+DATA/PROD/zhf_pdb1/')
+storage(maxsize 2G)
+path_prefix='+DATA/PROD/zhf_pdb1/';
+
+报错如下：
+第 1 行出现错误:
+ORA-65180: 遇到重复文件名 - +DATA/PROD/86B637B62FE07A65E053F706E80A27CA/DATAFILE/sysaux.266.1114878561
+
+根据报错，查阅资料，没有找到相关解决方案，
+相似的报错记录摘抄如下：
+This problem is under investigation in bug:28364580.
+
+The error is raised when you create PDB with two or more temp tablesapce on the same ASM disk group as below. 
+
+'+DG1/CDB01/xxx/TEMPFILE/temp01.365.976204939','+DG1',
+
+'+DG1/CDB01/xxx/TEMPFILE/temp02.376.976724733','+DG1'
+错误:28364580 - ORA-65180在使用dbca插入带两个临时表空间的PDB时引发。
+当您在如下所示的同一个ASM磁盘组上创建具有两个或多个临时表空间的PDB时，将引发此错误。
+' + DG1 / CDB01 / xxx / TEMPFILE / temp01.365.976204939 ', ' + DG1 ',
+' + DG1 / CDB01 / xxx / TEMPFILE / temp02.376.976724733 ', ' + DG1 '
+
+此处问题不符合上述描述，放弃通过创建pdb语句中，改变新建pdb的数据文件在asm环境中的路径名称！
+
+问题3：如何对pdb$seed做状态更改，默认状态是read only
+SYS@ prod1>alter session set container=pdb$seed;
+
+会话已更改。
+
+SYS@ prod1>select TABLESPACE_NAME,STATUS,BIGFILE,SHARED,CON_ID from cdb_tablespaces;
+
+TABLESPACE_NAME                STATUS    BIG SHARED            CON_ID
+------------------------------ --------- --- ------------- ----------
+SYSTEM                         ONLINE    NO  SHARED                 2
+SYSAUX                         ONLINE    NO  SHARED                 2
+UNDOTBS1                       ONLINE    NO  SHARED                 2
+TEMP                           ONLINE    NO  SHARED                 2
+
+SYS@ prod1>select file_name,tablespace_name,shared,inst_id,con_id from cdb_temp_files;
+
+FILE_NAME
+------------------------------------------------------------------------------------------------------------------------------------------------------
+TABLESPACE_NAME                SHARED           INST_ID     CON_ID
+------------------------------ ------------- ---------- ----------
++DATA/PROD/E8273994F38C6F18E0535803A8C095BE/TEMPFILE/temp.268.1114878591
+TEMP                           SHARED                            2
+
+需要更改pdb$seed状态，
+SQL> alter session set "_oracle_script"=true;
+
+Session altered.
+
+SQL> alter pluggable database pdb$seed close immediate;
+
+Pluggable database altered.
+
+SQL> alter pluggable database pdb$seed open;
+
+Pluggable database altered.
+
+SQL> show pdbs
+
+    CON_ID CON_NAME             OPEN MODE RESTRICTED
+---------- ------------------------------ ---------- ----------
+     2 PDB$SEED             READ WRITE NO
+	 
+特别注意：如果环境是rac的话，上述步骤第一步和第二部，需要在每个节点上单独执行，
+完成后，在每个节点执行第三步。
+
+SQL> alter pluggable database pdb$seed close immediate;
+
+Pluggable database altered.
+
+SQL> alter pluggable database pdb$seed open read only;
+
+Pluggable database altered.
+
+特别注意：如果环境是rac的话，上述步骤第一步需要在每个节点上单独执行，
+完成后，在每个节点执行第二步。
+
+
+
+数据文件被删除，没有备份，数据也不需要恢复，为了能够正确打开数据库，
+mounted 状态下执行下列类型语句：
+alter database datafile '/ogg/ogg01.dbf' offline drop;

@@ -1,0 +1,35 @@
+
+
+主节点：
+
+--创建复制用户
+CREATE ROLE replication login replication encrypted password '123123';
+
+--修改pg_hba.conf 文件，添加如下内容，允许两台计算机上的复制用户和超级用户登录：
+
+host    replication     replication         192.168.3.55/32         md5
+host    replication     replication         192.168.3.56/32         md5
+host      all            postgres           192.168.3.55/32         trust
+host      all            postgres           192.168.3.56/32         trust
+
+
+--postgresql.conf 中设置这些参数
+
+listen_addresses = '*'
+max_wal_senders =10
+wal_level = replica
+wal_log_hints = on
+log_connections = on
+wal_receiver_status_interval = 2s
+hot_standby_feedback = on
+
+--配置之后重新启动服务：
+
+启动服务
+pg_ctl start -l /usr/local/postgresql/log/pg_server.log
+
+关闭服务
+pg_ctl stop -l /usr/local/postgresql/log/pg_server.log
+
+重启服务
+pg_ctl restart -l /usr/local/postgresql/log/pg_server.log

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="vue.js"></script>
+  <style>
+    /* 定义了进入和离开状态时的过渡效果 */
+    /* 表示所有可以过渡的属性在1秒内按平滑（ease）效果变化。 */
+    .list-enter-active,
+   .list-leave-active {
+      transition: all 0.3s ease;
+    }
+    /* 进入和离开时的初始和结束状态。 */
+    /* 实现渐显和渐隐的效果 */
+    .list-enter-from,
+   .list-leave-to {
+      opacity:0
+   }
+   .list-move {
+    transition:transform 0.5s;
+   }
+  </style>
+</head>
+<body>
+  <div id="Application">
+    <button @click="click">添加元素</button><button @click="reverse">倒序</button>
+    <transition-group name="list">
+      <div v-for="item in lists" :key="item">元素：{{item}}</div>
+    </transition-group>
+    <button @click="del">删除元素</button>
+  </div>
+  <script>
+    const Application = {
+      data() {
+        return {
+          lists: [1, 2, 3,4,5,6,7,8,9,10]
+        }
+      },
+      methods: {
+        click() {
+          this.lists.push(this.lists[this.lists.length - 1] + 1)
+        },
+        del() {
+          if (this.lists.length > 0) {
+            this.lists.pop()
+          }
+        },
+        reverse() {
+          this.lists.reverse()
+        }
+      }
+    }
+    Vue.createApp(Application).mount('#Application')
+  </script>
+</body>
+</html>

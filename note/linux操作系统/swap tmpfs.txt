@@ -1,0 +1,186 @@
+
+swap：
+Linux内核为了提高读写效率与速度，会将文件在内存中进行缓存，这部分内存就是Cache Memory(缓存内存)。即使你的程序运行结束后，Cache Memory也不会自动释放。
+这就会导致你在Linux系统中程序频繁读写文件后，你会发现可用物理内存变少。当系统的物理内存不够用的时候，就需要将物理内存中的一部分空间释放出来，
+以供当前运行的程序使用。那些被释放的空间可能来自一些很长时间没有什么操作的程序，这些被释放的空间被临时保存到Swap空间中，
+等到那些程序要运行时，再从Swap分区中恢复保存的数据到内存中。这样，系统总是在物理内存不够时，才进行Swap交换。
+
+在Linux下，SWAP的作用类似Windows系统下的“虚拟内存”。当物理内存不足时，拿出部分硬盘空间当SWAP分区（虚拟成内存）使用，从而解决内存容量不足的情况。
+
+SWAP意思是交换，顾名思义，当某进程向OS请求内存发现不足时，OS会把内存中暂时不用的数据交换出去，放在SWAP分区中，这个过程称为SWAP OUT。
+当某进程又需要这些数据且OS发现还有空闲物理内存时，又会把SWAP分区中的数据交换回物理内存中，这个过程称为SWAP IN。
+
+当然，swap大小是有上限的，一旦swap使用完，操作系统会触发OOM-Killer机制，把消耗内存最多的进程kill掉以释放内存
+
+数据库系统为什么嫌弃swap？
+ 
+
+显然，swap机制的初衷是为了缓解物理内存用尽而选择直接粗暴OOM进程的尴尬。但坦白讲，
+几乎所有数据库对swap都不怎么待见，无论MySQL、Oracal、MongoDB抑或HBase，为什么？这主要和下面两个方面有关：
+
+ 
+
+1. 数据库系统一般都对响应延迟比较敏感，如果使用swap代替内存，数据库服务性能必然不可接受。对于响应延迟极其敏感的系统来讲，延迟太大和服务不可用没有任何区别，比服务不可用更严重的是，swap场景下进程就是不死，这就意味着系统一直不可用……再想想如果不使用swap直接oom，是不是一种更好的选择，这样很多高可用系统直接会主从切换掉，用户基本无感知。
+
+ 
+
+2. 另外对于诸如HBase这类分布式系统来说，其实并不担心某个节点宕掉，而恰恰担心某个节点夯住。一个节点宕掉，最多就是小部分请求短暂不可用，重试即可恢复。但是一个节点夯住会将所有分布式请求都夯住，服务器端线程资源被占用不放，导致整个集群请求阻塞，甚至集群被拖垮。
+
+ 
+
+从这两个角度考虑，所有数据库都不喜欢swap还是很有道理的！
+
+Linux swap相关命令：
+
+
+swapoff -a //停止所有的swap分区
+sudo swapoff -v /swapfile //关闭某个分区
+swapoff -a //关闭所有swap空间 （包含磁盘、文件）
+
+swapon -a //开启所有swap空间（已经配置到/etc/fstab文件中的）
+swapon -s // 显示交换分区的简要信息
+free -m //查看swap空间大小
+sysctl -q vm.swappiness //查询swap优先级
+sudo sysctl vm.swappiness=10 //修改swap优先级，注：即使将值设为0，也并不会禁用swap，只是尽可能少用swap，多用实际内存。
+
+查看Swap分区大小
+
+查看Swap分区的大小以及使用情况，一般使用free命令即可，如下所示，Swap大小为2015M，目前没有使用Swap分区
+
+[root@DB-Server ~]# free -m
+
+             total       used       free     shared    buffers     cached
+
+Mem:          1000        855        145          0         28        296
+
+-/+ buffers/cache:        530        470
+
+Swap:         2015          0       2015
+ 
+
+另外我们还可以使用swapon命令查看当前swap相关信息：例如swap空间是swap partition，Swap size，使用情况等详细信息
+
+[root@DB-Server ~]# swapon -s
+
+Filename                                Type            Size    Used    Priority
+
+/dev/sda3                               partition       2064344 0       -1
+
+[root@DB-Server ~]# cat /proc/swaps
+
+Filename                                Type            Size    Used    Priority
+
+/dev/sda3                               partition       2064344 0       -1
+
+[root@DB-Server ~]# 
+
+Swap分区大小设置
+
+系统的Swap分区大小设置多大才是最优呢？ 关于这个问题，应该说只能有一个统一的参考标准，
+具体还应该根据系统实际情况和内存的负荷综合考虑，像ORACLE的官方文档就推荐如下设置，这个是根据物理内存来做参考的。
+
+RAM                               Swap Space
+
+Up to 512 MB                      2 times the size of RAM
+
+Between 1024 MB and 2048 MB       1.5 times the size of RAM
+
+Between 2049 MB and 8192 MB       Equal to the size of RAM
+
+More than 8192 MB                 0.75 times the size of RAM
+
+Linux swap相关命令：
+
+ 
+
+Linux的tmpfs文件系统
+tmpfs是一种虚拟内存文件系统,正如这个定义它最大的特点就是它的存储空间在VM里面，
+linux下面VM的大小由RM+Swap两部分组成，RM的大小就是物理内存的大小，而Swap的大小是由你自己决定的。
+Swap是通过硬盘虚拟出来的内存空间，因此它的读写速度相对RM(Real Memory）要慢许多，我们为什么需要Swap呢？
+当一个进程申请一定数量的内存时，如内核的vm子系统发现没有足够的RM时，就会把RM里面的一些不常用的数据交换到Swap里面，
+如果需要重新使用这些数据再把它们从Swap交换到RM里面。 如果你有足够大的物理内存，根本不需要划分Swap分区。
+因此tmpfs最大的存储空间可达（The size of RM + The size of Swap）。
+但是对于tmpfs本身而言，它并不知道自己使用的空间是RM还是Swap，这一切都是由内核的vm子系统管理的。
+
+怎样使用tmpfs呢？
+
+#mount -t tmpfs -o size=20m tmpfs /mnt/tmp           #挂载
+tmpfs /mnt/tmp tmpfs size=20m 0 0                    #/etc/fstab文件中增加如下内容，否则重启后不生效
+
+上面这条命令分配了上限为20m的VM到/mnt/tmp目录下，用df命令查看一下，确实/mnt/tmp挂载点显示的大小是20m，
+但是tmpfs一个优点就是它的大小是随着实际存储的容量而变化的，
+换句话说，假如/mnt/tmp目录下什么也没有，tmpfs并不占用VM。
+上面的参数20m只是告诉内核这个挂载点最大可用的VM为20m，如果不加上这个参数，tmpfs默认的大小是RM的一半，假如你的物理内存是128M，那么tmpfs默认的大小就是64M，
+
+
+
+                                          如何调整swap分区大小
+	swap分区一般为内存的2倍到3倍
+1. 查看当前分区情况
+
+free -m
+
+2. 增加swap大小	
+使用dd 命令创建一个 空文件 大小自己决定 
+    dd if=/dev/zero of=/var/swap bs=1024 count=3145728
+
+记录了3145728+0 的读入
+记录了3145728+0 的写出
+3221225472字节（3.2 GB，3.0 GiB）已复制，3.85402 s，836 MB/s
+
+3，修改swapfile文件的权限：
+chmod 600 /var/swap
+
+4.通过ls 命令查看swap文件情况：
+
+ls -lth /var | grep swap
+
+-rw-------  1 root root  3.0G  8月  2 23:04 swap
+
+5.设置交换分区
+
+   mkswap /var/swap
+
+正在设置交换空间版本 1，大小 = 3 GiB (3221221376  个字节)
+无标签，UUID=07315d4a-b38f-4155-be54-03a8e060cd5b
+  
+6.立即激活交换分区
+
+   swapon /var/swap
+   
+7.添加系统引导时自启动运行
+
+   vi /etc/fstab
+
+   /var/swap　　　　swap　　　　swap　　defaults　　0　　0
+   
+free -m  查看分区情况
+
+ 
+ 如果不再使用可以卸载swap空间
+7.回收swap空间
+   swapoff /var/swap
+   
+8.从文件系统中回收
+
+   rm -rf /var/swap
+   
+           
+以上步骤，在银河麒麟v10 sp2 服务器操作系统中，添加不成功，且swapoff /var/swap命令无效
+
+                            tmp目录扩容
+方法一：
+	mount -o remount,size=2G /tmp						
+  
+方法二：指定新目录
+
+创建一个目录用来放置安装程序时的临时目录
+[root@ Kylin /]# mkdir -p /tmp1
+[root@ Kylin /]# chown -R dmdba.disntall /tmp1 
+配置环境变量
+[dmdba@ Kylin ~]$ vi .bash_profile
+export DM_INSTALL_TMPDIR=/tmp1
+使环境变量生效
+[dmdba@ Kylin ~]$ source .bash_profile
+运行安装
+[dmdba@ Kylin mnt]$ ./DMInstall.bin -i

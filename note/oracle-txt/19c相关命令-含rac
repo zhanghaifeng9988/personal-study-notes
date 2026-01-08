@@ -1,0 +1,721 @@
+1）查看数据库状态（数据库对应的实例运行状态），关库
+[root@tim1 ~]# srvctl status database -d prod
+[root@tim1 ~]# srvctl stop database -d prod
+[root@tim1 ~]# srvctl start database -d prod
+
+查看实例状态
+[root@tim1 ~]# srvctl status instance -d prod -i prod1
+[root@tim1 ~]# srvctl status instance -d prod -i prod2
+               srvctl status database -d 库名 -a  列出数据库对应的实例状态及连接asm实例的状态信息
+
+
+[root@rac1 ~]# srvctl  config nodeapps -a          VIP信息查看
+               srvctl  config database          列出所有的数据库
+			   srvctl config database -d 库名 -a  列出数据库的配置信息
+			   
+2）查看CRS状态，关闭CRS（两个节点分别操作）
+[root@tim1 ~]# crsctl status res -t  查看当前的rac所有节点的各类型服务状态
+[root@rac1 ~]# crsctl stat res -p   查看当前的rac自动启动参数配置
+[root@tim1 ~]# crsctl stop crs
+[root@tim2 ~]# crsctl stop crs
+[root@tim1 ~]# crsctl start crs 
+[root@tim2 ~]# crsctl start crs		
+	           crsctl stat res 资源名称   查看该资源的详细信息
+crsctl disable crs   关闭集群自动启动
+crsctl enable crs    开启集群自动启动
+crsctl check crs
+crsctl check cssd
+crsctl check crsd
+crsctl check evmd
+ crsctl query crs activeversion  集群版本检查
+ 
+ ocrcheck                        OCR检查
+ 
+  olsnodes                       节点的信息显示
+crsctl query css votedisk        投票盘voting disk位置查看
+  
+  
+
+sqlplus / as sysdba 进入到数据库中，此时模式是CDB 
+
+
+show con_name  #显示当前pdb或cdb的名称
+
+show con_id       #显示当前pdb或者cdb的序号
+
+show pdbs        #显示pdb的列表和状态
+
+CDB 根目录不存储用户数据。Oracle 建议您不要将公共对象添加到根目录，
+也不要修改根目录中 Oracle 提供的架构。
+
+
+            创建一个PDB、打开pdb、关闭pdb 删除pdb  注意：sys用户操作,
+
+rac环境下，创建pdb的语句新增了对新建pdb的路径名称的设置,一直报错，问题解决不了，头痛！
+create pluggable database zhf_pdb1 admin user zhf1 identified by oracle
+STORAGE (MAXSIZE 2G)
+DEFAULT TABLESPACE zhf_test datafile '+DATA/PROD/ZHF_PDB1/DATAFILE/zhf01.dbf' size 100m AUTOEXTEND ON
+path_prefix='+DATA/ZHF_PDB1/'
+FILE_NAME_CONVERT = ('+DATA/PROD/86B637B62FE07A65E053F706E80A27CA/DATAFILE/', '+DATA/ZHF_PDB1/DATAFILE/');
+
+创建语句：create pluggable database zhf_pdb1 admin user zhf1 identified by oracle;
+
+非rac环境，未设置omf功能的数据库：经测试可以创建!
+create pluggable database zhf_pdb1 admin user zhf1 identified by oracle
+storage（maxsize 2G）
+DEFAULT TABLESPACE zhf_test datafile '/u01/oradata/ORCL/zhf_pdb1/zhf01.dbf' size 100m AUTOEXTEND ON
+path_prefix='/u01/oradata/ORCL/zhf_pdb1/'
+FILE_NAME_CONVERT = ('/u01/oradata/ORCL/pdbseed/', '/u01/oradata/ORCL/zhf_pdb1/');
+
+注意：pdb的初始容量配置，会限制表空间数据文件的大小，可以尝试storage 配置为unlimited
+然后在pdb表空间中进行表空间数据文件的容量配置。
+alter pluggable database zhf_pdb1 storage(maxsize unlimited);
+ 
+alter pluggable database zhf_pdb1 open; 打开pdb
+
+ALTER PLUGGABLE DATABASE zhf_pdb1 close; 关闭pdb 
+
+注意：创建好以后，通过!lsnrctl status 查看监听中是否已经有了新的pdb库的实例
+
+create pluggable database zhf_pdb2 from ZHF_PDB1;  从已经打开的pdb中复制一个新的pdb 
+
+启/停当前会话的CDB/PDB:
+startup;
+shutdown immediate;
+
+需要先关闭要删除的pdb
+alter pluggable database ZHF_PDB1 close;
+drop pluggable database ZHF_PDB1 including datafiles; 删除pdb，同时删除数据文件 cdb下执行 
+drop pluggable database ZHF_PDB1 keep datafiles; 删除pdb，保留数据文件
+
+alter session set container=ZHF_PDB1;切换到指定的pdb库；
+
+
+alter session set container=cdb$root; 将pdb切换为cdb
+conn / as sysdba                      将pdb切换为cdb
+alter session set container=PDB$SEED; 将pdb切换为seed
+
+select sys_context ('USERENV', 'CON_NAME') from dual; 查看当前pdb
+select name,con_id,open_mode from v$pdbs; 查看可插拔数据库pdb状态
+select name,cdb,con_id from v$database;  查看数据库是否是多租户数据库
+select tablespace_name from dba_tablespaces;  查询表空间详细信息
+select * from v$tablespace; 查询表空间基本信息
+select * from dba_free_space where tablespace_name='SYSTEM';  查询system表空间的使用情况
+select FILE#,CREATION_TIME,STATUS,NAME,con_id  from v$datafile; 查看数据文件的相关信息
+show parameter enable_pluggable_database             查看是否是容器库
+select name,pdb from v$services;             查看pdb的dbname即service name
+    
+
+    查看pdb中的用户,条件是con_id=4和5，
+select a.name,b.username, b.password,b.created
+from v$pdbs a
+left join cdb_users b on a.con_id = b.con_id
+where a.con_id in(4,5) and to_char(b.created,'yyyy') like '2022'
+order by 1;
+
+select a.name,b.username, b.password,b.created
+from v$pdbs a
+left join cdb_users b on a.con_id = b.con_id
+where a.con_id=7 and to_char(b.created,'yyyy') like '2022'
+order by 1;
+
+
+		                             表空间
+									   pdb需要创建用户表空间
+									   
+select file#,name from v$datafile; sys用户或者dba权限可以查看cdb或者pdb下的数据文件
+cdb下会看到所有的数据文件（不含临时表空间）
+pdb下会看到归属pdb的数据文件（不含临时表空间）
+
+select file_id,con_id,file_name,tablespace_name from cdb_data_files;  
+查看cdb或者pdb的数据文件信息和表空间名称（不含临时表空间）
+
+select file_id,con_id,file_name,tablespace_name，bytes from dba_data_files; 
+如果在cdb和pdbseed中需要去掉con_id字段，结果同上，如果是在pdb中，
+则查询pdb的数据文件信息和表空间名称（不含临时表空间）
+
+select TABLESPACE_NAME,STATUS,BIGFILE,SHARED,CON_ID from cdb_tablespaces; 
+在cdb中，可以查询cdb和pdb中的所有表空间基本信息，(含临时表空间)
+在pdb中，可以查询pdb中的所有表空间基本信息，(含临时表空间)
+select TABLESPACE_NAME,STATUS,BIGFILE,SHARED from dba_tablespaces;
+查询当前cdb或者pdb 表空间基本信息，含临时表空间
+
+
+创建自定义表空间，在CDB中
+create tablespace zhf_test datafile '+DATA/PROD/DATAFILE/zhf.dbf' size 1024m 
+autoextend on next 2000M   
+maxsize unlimited  
+extent management local autoallocate   
+segment space management auto ;
+
+创建自定义表空间，在pdb中创建（主要给pdb用户使用）
+create tablespace zhf_pdb1 datafile  '+DATA/PROD/EA22D44F52D45C09E0535803A8C01B4A/DATAFILE/zhf_pdb1.DBF'
+size 500m autoextend on next 500m maxsize 1g extent management local 
+AUTOALLOCATE SEGMENT SPACE MANAGEMENT AUTO;  
+
+如果创建用户的时候没有指定表空间，必须为用户提供quota配置
+alter user zhf1 QUOTA unlimited on zhf_test;
+
+  
+
+
+                                  临时表空间
+下面的链接讲解的不错：
+https://blog.csdn.net/weixin_42339061/article/details/116395477
+链接摘要：
+1、每个容器都有属于的自己的temp表空间，PDB不共享CDB的temp表空间，
+CDB有自己的temp表空间，每个PDB也有自己的tmep表空间
+
+2、当前容器下创建的tempfile只属于当前容器的temp表空间，
+也就是说CDB下创建的tempfile只属于CDB，某个PDB创建的tempfile只属于这个PDB自己
+
+3、当前容器可以删除CDB和任意PDB的tempfile，也就是说CDB可以删除任意PDB的tempfile，
+PDB也可以删除CDB和任意PDB的tempfile
+
+4、临时文件不能被备份并且没有任何redo信息产生，因此RMAN不会还原或恢复临时文件
+
+我们平时所说的temp表空间不做特殊说明就是指共享临时表空间，
+12.2开始引入了"本地临时表空间"的概念，
+"本地临时表空间"必须是BIGFILE表空间并且不支持tablespace groups表空间组的形式，
+几乎很少情况下会用到"本地临时表空间",一般没什么大用，
+主要用于Oracle Real Application ClustersOr和acle Flex Clusters。
+
+
+select name from v$tempfile;  sys用户或者dba权限可以查看pdb或者cdb下的临时表空间数据文件
+注意如果在cdb中操作，可以看到所有的temp文件（包括cdb和pdb）
+select file_name,tablespace_name,shared,inst_id,con_id from cdb_temp_files;
+查询当前cdb或者pdb的临时表空间信息
+
+
+查看临时表空间使用情况
+
+SELECT
+A.TABLESPACE_NAME,
+case when A.MAXBYTES/power(1024,3)>1 THEN ROUND(A.MAXBYTES/power(1024,3),4)||'GB'
+ELSE ROUND(A.MAXBYTES/power(1024,2),4)||'MB' END "允许最大值",
+case when A.BYTES/power(1024,3)>1 THEN ROUND(A.BYTES/power(1024,3),4)||'GB'
+ELSE ROUND(A.BYTES/power(1024,2),4)||'MB' END "历史峰值",
+case when B.BYTES_USED/power(1024,3)>1 THEN
+ROUND(B.BYTES_USED/power(1024,3),4)||'GB'
+ELSE ROUND(B.BYTES_USED/power(1024,2),4)||'MB' END "已使用",
+round((B.BYTES_USED/A.BYTES)*100,2)||'%' "已使用/历史峰值",
+round((B.BYTES_USED/A.MAXBYTES)*100,2)||'%' "已使用/允许最大值"
+FROM (SELECT F.TABLESPACE_NAME, SUM(F.BYTES) BYTES,SUM(F.MAXBYTES) MAXBYTES FROM DBA_TEMP_FILES F GROUP BY TABLESPACE_NAME) A,
+(SELECT P.TABLESPACE_NAME, SUM(P.BYTES_CACHED) BYTES_CACHED,SUM(P.BYTES_USED) BYTES_USED FROM V$TEMP_EXTENT_POOL P GROUP BY TABLESPACE_NAME ) B
+WHERE A.TABLESPACE_NAME = B.TABLESPACE_NAME;
+
+
+删除临时表空间
+drop tablespace temp
+including contents
+and  datafiles 
+cascade constraint;
+--  including contents 删除包含内容   and  datafiles 表示物理文件也删除  不再需要我们进入系统进行手工删除金数据文件。
+--cascade constraint  表示连参照完整性约束一起删除。如果其他表空间中的约束引用了要被删除的表空间的主键 --和唯一约束，则必须指定这个选项，否则删除表空间，会报告错误
+
+删除表空间
+drop tablespace zhf_test including contents and datafiles;
+
+查询表空间使用状态的详细信息（不包含临时表空间）
+select b.file_id , b.TABLESPACE_NAME, b.bytes/1024/1024 "BYTES(M)", 
+(b.bytes-sum(nvl(a.bytes,0)))/1024/1024 "USED(M)" , 
+sum(nvl(a.bytes,0))/1024/1024 "AVAIL(M)", sum(nvl(a.bytes,0))/(b.bytes)*100 "AVAIL_PERCENT(%)" 
+from dba_free_space a, dba_data_files b where a.file_id = b.file_id group by 
+b.tablespace_name,b.file_id,b.bytes order by b.file_id;
+
+//create tablespace 空间名 datafile 文件路径+dbf文件名  size 总大小 AUTOEXTEND ON next 自增大小;
+
+create temporary tablespace temp3 tempfile 
+'+DATA/PROD/E878DF8F63CC3B9FE0536303A8C0C4DA/DATAFILE/temp3.DBF' size 10m; 临时表空间
+注意：此种方法创建的临时表空间，默认为共享模式，所有的PDB和cdb都可以使用
+
+CREATE LOCAL TEMPORARY TABLESPACE for all temp_local tempfile 
+'/u02/data/test/temp_local_root1.dbf' size 10M;
+注意：此种方法创建的本地临时表空间，默认为local模式，
+cdb_tablespaces表中的BIG字段的值为yes
+
+
+如果已经创建pdb用户，但是未创建表空间，可以将两个表空间添加给我pdb用户
+alter user user2 default tablespace users; 将用户配置到表空间下
+alter user user2 temporary tablespace TEMP2; 将临时表空间分配给用户
+
+
+
+        各种数据库相关核心文件的知识
+
+select name from v$controlfile;  查看控制文件
+
+select * from v$diag_info;       查看实例的日志文件
+/u01/app/oracle/diag/rdbms/prod/prod1/alert
+sqlplus / as sysasm    show parameter dump 查看asm的日志
+/u01/app/oracle/diag/asm/+asm/+ASM1/trace
+cd $ORACLE_HOME/log/hostname/    集群日志查看 11g之前
+show parameter instance_name     查看实例名
+show parameter cluster;          集群基本信息查询
+
+                          参数文件详解
+链接地址：https://blog.csdn.net/baoyuhang0/article/details/108330413
+https://blog.csdn.net/weixin_31885729/article/details/116481047
+https://blog.csdn.net/chairrat/article/details/126709560
+show parameter spfile            参数文件路径查看
+show paramerer pfile             参数文件路径查看
+从12c开始，每个节点的$ORACLE_HOME/dbs目录下已经不存在initsid.ora文件。
+spfile信息只记录在OCR的数据库资源信息中，
+当数据库启动时，直接读取OCR中记录的spfile参数文件.
+
+1、查看参数文件的配置信息：
+srvctl config database -d DN_NAME
+
+查询数据库的参数详情
+select name,value,display_value from v$parameter where name='spfile';
+
+2、下面这两条语句用来查看是否是pfile启动的数据库
+select distinct isspecified from v$spparameter;
+
+show parameter spfile;  显示空值表示为pfile启动
+ISSPECIFIED只有FALSE，说明使用的是pfile。
+如果是TRUE,或既有TRUE也有FALSE时，则说明使用的是spfile。
+
+
+修改参数文件位置的流程：
+1.//修改OCR中记录的spfile位置
+srvctl modify database -database test12c -spfile '+DATA/pri/PARAMETERFILE/spfile'   
+2.//在相同位置创建spfile
+create spfile='+DATA/pri/PARAMETERFILE/spfile' from  pfile='/oracle/dg/initorcl.ora'
+3.创建pfile的方式
+创建用于启动的pfile文件，记得pfile需要指定绝对路径名，
+不然会覆盖掉默认路径的initSID.ora文件。
+即: 不要执行: "create pfile from spfile"
+--RAC下不建议这样创建参数文件，默认会生成$ORACLE_HOME/dbs/initSID.ora
+这会破坏掉原有的初始化参数文件.
+
+create spfile[='xxxxx'] from pfile[='xxxx'];   
+create pfile[='xxxxx'] from spfile[='xxxx']; 
+
+举例：
+create pfile='/tmp/initprod.ora' from spfile='+DATA/PROD/PARAMETERFILE/spfile.272.1114879021'
+
+2、参数文件中参数修改方式如下：
+alter system|session set parametername = values scope = 
+memory | spfile |both sid = 'sid' | '*' scope 
+	memory : 只对当前有效，下次启动则失效 
+	spfile : 只对spfile 修改，必须经过下一次启动才生效，当前的实例没有修改 
+	both ：内存与参数文件都将修改，当不指定scope时，缺省为both. 
+
+system | session 
+	system : system级别有效，影响整个系统及所有使用者 
+	session : 仅当前session有效，一旦退出之后将实效 
+
+sid='*'
+ 这个在RAC环境下使用的较为频繁，指定sid_name则当前指定的实例生效，
+ 如果指定 *，则所有实例都会被修改
+
+3、 startup启动顺序，spfile优先于pfile:
+查找文件的顺序是: spfileSID.ora->spfile.ora->initSID.ora->init.ora。
+
+
+                                        重做日志redo文件  
+参考链接：https://cdn.modb.pro/db/45506
+	Oracle 19c RAC数据库安装后，每个组的日志大小默认是200M，
+	如果写入或者更新很频繁的库，建议改大日志文件的大小。
+    每个日志组最好要有两个以上的成员。										 
+
+select member from v$logfile;    查看redo文件
+查看日志组的关联信息：
+select  lgf.group#,lgf.member,lg.THREAD#,lg.MEMBERS,lg.SEQUENCE#,lg.STATUS
+from v$logfile lgf inner join v$log lg on lgf.group#=lg.group# order by lgf.GROUP#;
+
+--查询日志组信息
+    select * from v$log ;
+    select * from v$logfile ;
+---删除日志组
+    alter database drop logfile group 1;
+---日志切换
+    alter system switch logfile;  
+---将active 的日志变为 inactive
+    alter system checkpoint ;  
+
+根据现有日志组，增加新的日志组
+alter database add logfile thread 1 group 5 
+('+DATA/PROD/ONLINELOG/','+FRA/PROD/ONLINELOG/') size 200M;
+
+删除日志组：注意删除的日志组必须是inactive状态
+alter database drop logfile group 1;
+
+                                        
+										
+										归档日志相关知识
+参考链接：https://www.cndba.cn/cndba/hbhe0316/article/4857										
+数据库使用归档方式运行时才可以进行灾难性恢复。
+										
+1、创建归档日志目录：举例
+[grid@tim1 ~]$ asmcmd
+ASMCMD> cd DATA
+ASMCMD> cd PROD/ 
+ASMCMD> mkdir ARCH
+ASMCMD> cd ARCH
+ASMCMD> pwd
++DATA/PROD/ARCH
+
+2.修改归档路径参数
+
+alter system set log_archive_dest_1='location=+DATA/PROD/ARCH' 
+scope=spfile sid='*';
+
+3、关闭数据库
+[root@tim1 ~]# srvctl stop database -d prod
+
+4.将一个节点数据库启动到mount状态
+srvctl start instance -d prod -i prod1 -o mount
+                               
+5、登录数据库 执行：SYS@ prod1>alter database archivelog;
+
+6、然后打开数据库  alter database open;	
+
+7、检查归档日志配置情况：archive log list;		
+
+8、节点2打开实例：srvctl start instance -d prod -i prod2		
+
+crsctl status res -t 检查集群状态
+
+打开附加日志
+alter database add supplemental log data;
+alter database add supplemental log data (primary key, unique,foreign key) columns;
+打开强制日志
+alter database force logging;
+查看附加日志状态
+SELECT supplemental_log_data_min FROM v$database;
+查看强制日志状态
+select FORCE_LOGGING  from v$database;
+取消强制日志
+ALTER DATABASE NO FORCE LOGGING;
+取消附加日志
+alter database drop supplemental log data (primary key, unique,foreign key) columns;
+alter database drop supplemental log data;
+
+
+                             集群控制文件相关知识
+
+查看控制文件路径和其他基本信息							 
+select * from v$controlfile;
+select value control_files from v$parameter where name = 'control_files';
+
+rac环境下，新增控制文件：
+1、关闭数据库
+srvctl status database -d prod
+2、在其中一个节点上启动rman
+[oracle@tim1 ~]$ rman target /
+3、将数据库启动到nomount状态下
+RMAN> startup nomount;
+4、采用restore拷贝一份controlfile到新路径
+restore controlfile to '+DATA/PROD/CONTROLFILE/control03.ctl' 
+from '+DATA/PROD/CONTROLFILE/current.261.1114878409';
+5、sqlplus中修改控制文件路径,修改完成后,关闭数据库  暂时不做未确认可行否
+alter system set control_files='+DATA/PROD/CONTROLFILE/Current.261.1114878409',
+'+DATA/PROD/CONTROLFILE/control03.ctl','+DATA/PROD/CONTROLFILE/current.273.1116783733' 
+scope=spfile sid='*';		   
+							   
+							   集群日志相关
+
+在 Oracle 12c/ 19c 中，集群日志的位置在 ADR_HOME。
+ADR（Automatic Diagnostic Repository）  自动诊断库
+/u01/app/oracle/diag/rdbms/prod/prod1  ADR的目录，目录最后是实例名，上级目录是数据库名
+每个子目录的作用如下：
+
+alert：XML格式的 alert log。
+
+cdump：core 文件。
+
+incident: 多个子目录，其中每个子目录都是针对特定事件命名的，每个子目录只包含与该事件相关的转储。
+
+trace: 后台和服务器进程跟踪文件、SQL跟踪文件和文本格式的alert log。alert Log 包含有严重错误（事件）、管理操作，如启动或关闭数据库、恢复数据库、创建或删除表空间等、自动刷新实化视图时出错、其他数据库事件。
+
+others: ADR home的其他子目录，存储事件包、运行状况监视报告、警报日志以外的日志（例如DDL日志和调试日志）以及其他信息。
+
+
+[grid@tim1 ~]$ adrci  可以进入adr的命令行模式
+show home  可以找到各个日志，也能看到集群日志以及各个进程的信息日志，
+为我们分析问题提供更好的帮助。
+结合操作系统日志 /var/log/messages 加上 OSW、nmon 等工具一起分析问题效果更佳。
+show problems  如果显示0 rows fetched 表示没有问题
+
+如果集群有问题会显示如下信息，然后按照 problem id 将相关日志打包存到指定的目录，如下是一个简单示例：
+
+ADR Home =/app/oracle/grid/diag/asm/+asm/+ASM1:
+*************************************************************************
+PROBLEM_ID           PROBLEM_KEY                                                LAST_INCIDENT        LASTINC_TIME                            
+--------------------------------------------------------------------------------------------------- ----------------------------------------
+1                    ORA 7445 [kghidmp_new]                                     158689               2020-10-10 10:17:21.841000 +08:00      
+adrci> sethomepath diag/crs/Jieker1/crs
+adrci> IPSCREATE PACKAGE PROBLEM 1
+Created package 1based on problem id 1, correlation level typical
+adrci> ipsgenerate package 1 in /tmp
+Generated package1 in file /tmp/IPSPKG_20201229110539_COM_1.zip, mode complete
+adrci> exit
+
+  TFA日志收集工具的使用介绍,
+
+
+                              重要：用户部分
+公用用户只存在于可插拔环境中，在传统的数据库环境中不存在这种应用。
+怎么理解公用用户呢？可以简单的把它当做容器（CDB）用户，
+可以在各个通用与所有可插拔数据库（PDB）中使用。
+这个用户就像是小区的物业管理员，由小区物业来任命并且可以管理小区所有用户。							  
+							  
+create user c##user1 identified by oracle;  CDB中创建c##用户 user1 公共用户
+select username,common,con_id from cdb_users where username like '%USER1';查询用户情况
+
+create user user2 identified by oracle;     pdb中创建user2本地用户
+select username,common,con_id from cdb_users where username in ('C##USER1','USER2');  查询用户情况 
+
+create role c##role1 container = all;  CDB中创建规则role1 公用角色， 
+                                       同公用用户一样也需要使用C##或者c##作为角色名的开头。 
+select role,common,con_id from cdb_roles where role like 'C##ROLE%'; 查看规则role1的信息
+
+create role role2;    pdb中创建规则role2   仅仅可以被授权给特定的pdb用户
+select role,common,con_id from cdb_roles where role in ('C##ROLE1','ROLE2'); 查看规则role2的信息
+
+grant connect,resource,dba to c##role1 container = all; CDB中将dba角色授予公用角色c##role1, 适用范围为所有PDB
+
+grant c##role1 to c##user1 container = all; CDB中将公用角色授予公用用户， 适用范围为所有PDB
+grant dba to c##user1 identified by oracle container = all; 效果同上一句
+全局用户可以登录到pdb中 sqlplus c##user1/oracle@zhf_pdb1
+select * from cdb_sys_privs where grantee like 'C##USER%'; 查询权限信息
+
+grant create session to user2;在pdb中，给USER2用户授予create session 权限，该权限仅限于本pdb
+select * from cdb_sys_privs where grantee in ('C##USER1','USER2'); 查询权限信息
+grant connect,resource,create session,create table,create view,create materialized view to user2
+
+create user user3  identified by oracle default tablespace users temporary tablespace TEMP3;建用户时同时指定两个表空间。                                       
+
+select * from dba_users; --查询全库所有的用户
+select username,user_id from dba_users;  —查询当前库中的用户
+
+select * from all_users; --查询当前用户可看到的用户
+
+select * from user_users; --查询当前登录的用户
+
+
+
+pdb内用户的切换
+conn / as sysdba   切换到sys用户，并切换到cdb
+conn c##user1/oracle@bj_zhf_pdb1  可以在相同pdb中切换用户
+
+cdb中登录dpb
+conn zhf1/oracle@bj_zhf_pdb1 登录到pdb切换到zhf1用户，
+
+1、CONNECT角色： --是授予最终用户的典型权利，最基本的
+        ALTER SESSION --修改会话
+        CREATE CLUSTER --建立聚簇
+        CREATE DATABASE LINK --建立数据库链接
+        CREATE SEQUENCE --建立序列
+        CREATE SESSION --建立会话
+        CREATE SYNONYM --建立同义词
+        CREATE VIEW --建立视图
+2、RESOURCE角色： --是授予开发人员的
+        CREATE CLUSTER --建立聚簇
+        CREATE PROCEDURE --建立过程
+        CREATE SEQUENCE --建立序列
+        CREATE TABLE --建表
+        CREATE TRIGGER --建立触发器
+        CREATE TYPE --建立类型
+        CREATE INDEXTYPE
+        CREATE OPERATOR
+
+
+
+                              用户的表空间配额
+CBD中创建用户：
+create user test1 identified by oracle default tablespace users;
+grant connect,resource to test1; 
+grant unlimited tablespace to test1;   用户无限使用表空间
+alter user test1 quota 1000M on users; 手动给用户分配表空间配额
+
+与表空间限额先关的数据字典：
+dba_ts_quotas：DBA_TS_QUOTASdescribes tabelspace quotas for all users
+user_ts_quotas：USER_TS_QUOTASdescribes tablespace quotas for the current user.
+ This view does not displaythe USERNAME column;
+
+解锁用户：
+ALTER USER ZHB(用户名) ACCOUNT UNLOCK;
+
+不限次数登录
+ALTER PROFILE DEFAULT LIMIT FAILED_LOGIN_ATTEMPTS UNLIMITED;
+永不过期
+ALTER PROFILE DEFAULT LIMIT PASSWORD_LIFE_TIME UNLIMITED;
+查看用户概要文件
+select username,profile from dba_users;
+
+
+									   
+							
+
+                      fast_recovery_area的相关知识
+
+详细解释参考以下链接
+https://blog.csdn.net/weixin_42513814/article/details/116533858
+
+数据库没有启用归档是不能起用闪回的，归档的默认存储区域就是指向的快速恢复区。
+
+快速恢复区是一个默认放置所有备份恢复操作有关文件的地方，
+包括：控制文件在线镜像、在线重做日志、归档日志、外来归档日志、
+控制文件镜像复制、数据文件镜像复制、RMAN备份片和闪回日志。
+放置在此位置的文件由Oracle数据库维护，生成的文件名以Oracle托管文件（OMF）格式维护。
+如果启用快速恢复区，它就成了RMAN备份默认的去处，
+无论是RMAN备份片、镜像复制、还是控制文件自动备份，
+只要没有在RMAN配置或在backup命令中指明路径就全部进入快速恢复区。
+
+闪回数据库使用闪回日志来访问数据块的之前版本，它的一些信息与归档重做日志一样。
+闪回数据库要求你对数据库设置了闪回区，因为闪回日志只能存储在这里。
+闪回日志缺省情况下是没启用的。闪回日志所使用的空间由数据库自动管理，
+在闪回区会让空间使用保持平衡。
+
+注意：闪回数据库被集成到RMAN中，在执行闪回数据库时可以自动从备份中检索的任何归档重做日志，
+它也能使用SQL*Plus来执行，但在这种情况下你必须保证它所要应用的归档日志都在磁盘上。
+
+DB_RECOVERY_FILE_DEST_SIZE参数值确定了快速恢复区能使用的存储空间上限。
+如果定义了备份保留策略，oracle会根据策略判断哪些文件过期（obsolete）进而删除，
+但只有在定义了备份保留策略时，oracle才会自动判断和删除。
+当快速恢复区空间使用率达到90%时，会触发自动删除。
+删除过程会在alert文件中记录日志，但是如果没有空间可以释放，
+并且使用空间超过85%，就会记录一个warning日志；如果超过了97%，
+会记录一条critical warning日志，
+这些日志内容可以从dba_outstanding_alerts视图中看到。
+
+
+查看快速恢复区的参数信息
+show parameter db_recovery_file_dest;
+设置快速恢复区大小
+alter system set db_recovery_file_dest_size=4g;					  
+重新设置快速恢复区在路径
+alter system set db_recovery_file_dest='/u01/app/oracle/recovery_area';
+--监控flash_recovery_area的使用情况
+select * from V$FLASH_RECOVERY_AREA_USAGE;
+ select * from V$RECOVERY_FILE_DEST;
+ 
+
+create table customers 
+(
+c_num number(11) generated by default as identity ,
+c_name  varchar2(50),
+c_contact varchar2(50) unique,
+c_city varchar2(50),
+c_birth date  not null, 
+primary key (c_num)
+);
+注意：19c可以直接创建在表中创建自增列；
+11g需要先创建序列；
+
+alter table customers modify c_name varchar2(70);
+
+alter table customers  rename column c_contact to c_phone;
+
+alter table customers add c_gender varchar2(1);
+
+alter table customers drop column c_city;
+
+
+
+create table orders
+(
+o_num number(11) generated by default as identity ,
+o_date date,
+c_id number(11),
+constraint fk1_or_c_id2ct_c_num foreign key(c_id) references customers(c_num)  
+);
+
+
+public不是角色，你可以理解为所有数据库用户的集合。
+
+如果某个权限赋于了public，那么所有数据库的用户都可以有这个权限(当然有些用户可能连connect的权限都可以没有)。
+
+
+
+                            关闭单个节点
+关闭步骤 ：停止节点2的监听服务–>>关闭数据库(实例)–>>关闭节点集群服务CRS–>>关闭服务器							
+							
+
+1、关闭节点监听命令-格式 srvctl stop listener -n <node_name>
+关闭监听  srvctl stop listener -n rac2
+查看监听状态：srvctl status listener -n rac2
+
+2、关闭数据库实例命令-格式 srvctl stop instance -d <db_unique_name> -n <node_name>
+关闭数据库实例 srvctl stop instance -d prod -n rac2 -o immediate
+查看实例状态：srvctl status database -d prod
+
+
+关闭nodeapps格式 srvctl stop nodeapps -n <node_name>
+关闭 srvctl stop nodeapps -n rac2
+
+
+3、检查本节点集群运行状态：
+crsctl check crs
+
+
+4、关闭集群（root权限） crsctl stop crs
+
+5、crsctl check has
+crsctl config has
+
+6、为了防止has自动启动需要执行：
+crsctl disable has
+
+建议不执行，如果是非人为关闭，意外节点宕机，则需要重启的时候能够启动
+
+
+
+                          重启HA服务和rac
+crsctl start crs
+
+srvctl start instance -d prod -n rac2 
+
+srvctl start listener -n rac2
+
+crsctl stat res -t
+
+
+
+--每天产生的日志量的查询
+
+select trunc(completion_time) as ARC_DATE,
+       count(*) as COUNT,
+       round((sum(blocks * block_size) / 1024 / 1024), 2) as ARC_MB
+  from v$archived_log
+ group by trunc(completion_time)
+ order by trunc(completion_time);
+ 
+ 
+--查看最近几天，每小时归档日志产生数量
+
+SELECT SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH:MI:SS'),1,5) Day,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'00',1,0)) H00,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'01',1,0)) H01,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'02',1,0)) H02,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'03',1,0)) H03,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'04',1,0)) H04,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'05',1,0)) H05,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'06',1,0)) H06,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'07',1,0)) H07,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'08',1,0)) H08,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'09',1,0)) H09,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'10',1,0)) H10,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'11',1,0)) H11,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'12',1,0)) H12,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'13',1,0)) H13,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'14',1,0)) H14,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'15',1,0)) H15,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'16',1,0)) H16,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'17',1,0)) H17,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'18',1,0)) H18,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'19',1,0)) H19,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'20',1,0)) H20,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'21',1,0)) H21,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'22',1,0)) H22,
+       SUM(DECODE(SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH24:MI:SS'),10,2),'23',1,0)) H23,
+       COUNT(*) TOTAL
+FROM v$log_history a
+WHERE first_time>=to_char(sysdate-10)
+GROUP BY SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH:MI:SS'),1,5)
+ORDER BY SUBSTR(TO_CHAR(first_time, 'MM/DD/RR HH:MI:SS'),1,5) DESC;
+
+

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="vue.js"></script>
+  <title>属性侦听器</title>
+</head>
+<body>
+  <div id="Application">
+    <!-- 输入框元素，双向绑定searchTexts属性 -->
+    <input type="text" v-model="searchText"
+      placeholder="请输入搜索词"/>
+  </div>
+  <hr/>
+  <script>
+    const App = {
+      data () {
+        return {
+          searchText: ''
+    }
+  },
+  watch: {
+    // 侦听searchText属性的变化
+    searchText (newVal, oldVal) {
+      //console.log(`搜索词：${newVal}`)
+      console.log(`搜索词：${newVal}`)
+      console.log(`搜索词：${oldVal}`)
+      if (newVal == ' ') {
+        alert('请输入搜索词')
+      }
+      else if (newVal.length >= 10) {
+        alert('搜索词太长，请缩短')
+        return this.searchText = ''
+      }
+}
+}
+}
+const app = Vue.createApp(App)
+app.mount('#Application')
+  </script>
+</body>
+</html>

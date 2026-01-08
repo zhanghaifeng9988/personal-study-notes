@@ -1,0 +1,226 @@
+--库中所有表空间的情况  1月30号统计
+TABLESPACE_NAME          USED-M     SIZE-M     FREE-M USED_PERCENT
+-------------------- ---------- ---------- ---------- ------------------
+CACHEDATA              32752248   33521648  769400.02  97.70
+IDXCACHE             14121110.8 14454777.8  333666.97  97.69
+HISCMPRS01           9171190.88    9461760  290569.13  96.93
+SHAREDATA            32337444.2 33472496.4  1135052.2  96.61
+DATA_RECOVER_IDX     5558219.13 5896189.67  337970.55  94.27
+EXCHANGDATA          4366522.44 4691965.95  325443.52  93.06
+DATA_RECOVER         12159314.5 13146107.3  986792.83  92.49
+MASTERDATA            372321.75  413683.92   41362.17  90.00
+SHAREIDX             4121019.63 4702207.98  581188.36  87.64
+OGG                   154761.56  186367.98   31606.42  83.04
+FDPSHAREBAK          3077952.81    4177920 1099967.19  73.67
+IDX_DATA                  23501   32767.98    9266.98  71.72
+IDX_A                  21271.44   32767.98   11496.55  64.92
+FKDATA               4357701.13    6819840 2462138.88  63.90
+MASTERIDX              40296.94   65535.97   25239.03  61.49
+SYSAUX                 33057.25   65535.97   32478.72  50.44
+HISCMPIDX1             42563.69      92160   49596.31  46.18
+SYSTEMDATA             13863.38   32767.98   18904.61  42.31
+DATA_A               2370250.75 9797627.33 7427376.58  24.19
+SYSTEM                  6002.13   65535.97   59533.84  09.16
+DATAISCV                   2765   32767.98   30002.98  08.44
+TEMP3                       216     522240     522024  00.04
+TEMP                        210  493567.98  493357.98  00.04
+USERS                      19.5   65535.97   65516.47  00.03
+ODIDATA                   10.19   32767.98    32757.8  00.03
+COGNOS_TS                  1.38   32767.98   32766.61  00.00
+
+
+
+--表空间中数据库对象情况
+
+col OWNER for a20
+col SEGMENT_NAME for a30
+col SEGMENT_TYPE for a30
+col tablespace_name for a20
+set lines 200 pages 999 long 20000
+
+select  OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name ,sum(BYTES)/1024/1024/1024 G
+from dba_segments
+where TABLESPACE_NAME='SHAREDATA'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name order by sum(BYTES)/1024/1024/1024; 
+
+OWNER                SEGMENT_NAME                   SEGMENT_TYPE                   TABLESPACE_NAME               G
+-------------------- ------------------------------ ------------------------------ -------------------- ----------
+EXCHANGER13          IDX_DM_STATISTICS_LOG_OBJ      INDEX                          DATA_A               .000549316
+
+CACHER01             D_MEAS_BOX                     TABLE PARTITION                DATA_A                  .328125
+CACHER02             M_CHARGEPOLE_CUR               TABLE                          DATA_A               .332946777
+CACHER01             FS_PAY_GRA_AMT                 TABLE                          DATA_A               .358032227
+
+
+
+
+EXCHANGER01          SX_YX_ZJ_RELA                  TABLE                          DATA_A                  .390625
+CACHER01             ARC_S_POWERON                  TABLE                          DATA_A               .403991699
+EXCHANGER01          SX_YX_C_PAYMENT_RELA           TABLE                          DATA_A                 .4140625
+EXCHANGER01          SX_YX_C_ACCT                   TABLE                          DATA_A                    .4375
+CACHER01             ARC_S_INVESTIGATE              TABLE                          DATA_A               .467224121
+EXCHANGER01          SX_YK_YDSQXX                   TABLE                          DATA_A                  .484375
+CACHER07             E_MP_DAY_UNBALANCE             TABLE SUBPARTITION             DATA_A               .484741211
+CACHER01             A_VOUCHER                      TABLE PARTITION                DATA_A                 .4921875
+CACHER01             R_DATA                         TABLE PARTITION                DATA_A                .49609375
+CACHER01             D_METER_ALLOC                  TABLE PARTITION                DATA_A                 .5078125
+EXCHANGER01          SX_YX_C_CONTACT_RELA           TABLE                          DATA_A                 .5234375
+CACHER07             E_MP_DAY_POWER                 TABLE SUBPARTITION             DATA_A               .575012207
+CACHER01             O_CHK_TASK                     TABLE                          DATA_A               .617004395
+CACHER01             A_CASH_ENTRY                   TABLE PARTITION                DATA_A                 .6640625
+CACHER01             C_CONS                         TABLE PARTITION                DATA_A                 .7109375
+CACHER01             P_APPROVE                      TABLE PARTITION                DATA_A                 .7421875
+CACHER01             D_MULTFUNC_DETECT              TABLE PARTITION                DATA_A                 .8828125
+CACHER01             A_RCA_EXCP_LIST                TABLE PARTITION                DATA_A                    .9375
+CACHER01             D_METER_ERR                    TABLE PARTITION                DATA_A                 .9453125
+EXCHANGER01          SX_YX_LXXX                     TABLE                          DATA_A                   1.0625
+CACHER01             ARC_E_CONSPRC_SNAP             TABLE SUBPARTITION             DATA_A               1.07305908
+CACHER01             C_SP                           TABLE                          DATA_A               1.12658691
+CACHER01             ARC_S_APP                      TABLE PARTITION                DATA_A                   1.1875
+CACHER01             C_MP                           TABLE PARTITION                DATA_A                   1.1875
+EXCHANGER01          SX_YX_ZJ                       TABLE                          DATA_A                   1.1875
+CACHER01             A_PREPAY_FLOW                  TABLE PARTITION                DATA_A                   1.3125
+EXCHANGER17          T_CMS_C_ELEC_ADDR              TABLE                          DATA_A               1.32037354
+CACHER01             C_CONTAINER_DEV                TABLE PARTITION                DATA_A                 1.359375
+FDPSHARE             A_PAYMODE_AGREEMENT            TABLE                          DATA_A                1.4140625
+CACHER01             S_METER_RELA_F                 TABLE                          DATA_A                1.4263916
+EXCHANGER01          SX_YX_C_ELEC_ADDR              TABLE                          DATA_A                   1.4375
+CACHER04             A_SEAL_IR                      TABLE                          DATA_A                   1.4375
+CACHER01             A_PAYABLE_ENTRY                TABLE PARTITION                DATA_A                   1.4375
+CACHER02             M_CHARGE_VOLT                  TABLE                          DATA_A               1.45239258
+CACHER02             M_CHARGE_CUR                   TABLE                          DATA_A               1.47442627
+CACHER01             ARC_S_APP_CERT                 TABLE                          DATA_A               1.50158691
+CACHER01             ARC_E_MP_PARA_SNAP             TABLE SUBPARTITION             DATA_A               1.64855957
+CACHER01             C_METER_READ                   TABLE                          DATA_A               1.77746582
+CACHER01             ARC_S_MP_USE_SCHEME            TABLE                          DATA_A               1.85876465
+CACHER01             ARC_E_CONS_SNAP                TABLE SUBPARTITION             DATA_A               2.23461914
+CACHER01             S_CHK_PLAN_DET                 TABLE                          DATA_A               2.30126953
+CACHER01             ARC_S_PRC_TACTIC_SCHEME        TABLE                          DATA_A                2.3079834
+CACHER01             ARC_S_CONSPRC_SCHEME           TABLE                          DATA_A               2.64227295
+CACHER01             INDY_USER_ACTION               TABLE                          DATA_A                2.7277832
+CACHER01             S_METER_SCHEME_F               TABLE                          DATA_A               2.80999756
+CACHER01             A_PAY_FLOW                     TABLE SUBPARTITION             DATA_A               2.89013672
+CACHER01             ARC_S_APP_VAT                  TABLE                          DATA_A               3.02282715
+EXCHANGER17          T_CMS_C_MP                     TABLE                          DATA_A               3.24572754
+CACHER01             D_SEAL                         TABLE PARTITION                DATA_A                   3.3125
+CACHER01             A_RCVED_PL_FLOW                TABLE SUBPARTITION             DATA_A               3.32342529
+CACHER04             T_CONST_MET_CONC               TABLE PARTITION                DATA_A               3.37109375
+CACHER01             S_IRREAD_F                     TABLE                          DATA_A               3.38366699
+CACHER04             L_STATUS_CHG_LOG               TABLE SUBPARTITION             DATA_A                   3.5625
+CACHER01             INDYWF_INSTANCES_CUR           TABLE PARTITION                DATA_A               3.56347656
+CACHER01             A_RCA_TACTIC_DET               TABLE PARTITION                DATA_A                3.7734375
+CACHER04             A_SEAL_DOC                     TABLE PARTITION                DATA_A               4.00488281
+EXCHANGER01          SX_YX_C_CONS                   TABLE                          DATA_A                   4.0625
+CACHER01             D_STATUS_CHG                   TABLE PARTITION                DATA_A               4.56640625
+CACHER01             ARC_S_PS_SCHEME                TABLE                          DATA_A               4.93328857
+CACHER04             A_SEAL_IO_DET                  TABLE                          DATA_A                   4.9375
+CACHER01             INDYWF_WORKLIST_HIS            TABLE PARTITION                DATA_A               7.30664063
+EXCHANGER01          SX_YX_YHDLDFXXB                TABLE                          DATA_A                   7.3125
+EXCHANGER15          P_MPED                         TABLE                          DATA_A               7.38482666
+CACHER01             C_BF_METER_READ                TABLE                          DATA_A               11.2254639
+CACHER04             T_BASICERR_MET_CONC            TABLE PARTITION                DATA_A               11.2958984
+CACHER01             S_APP_F                        TABLE                          DATA_A               13.1716919
+CACHER01             A_TRANSIT_DET                  TABLE                          DATA_A               18.6880493
+CACHER01             A_INV_PRINT_FLOW               TABLE                          DATA_A               23.3220825
+FDPSHARE             A_INV                          TABLE PARTITION                DATA_A               24.8004761
+CACHER04             D_DEV_ALLOC                    TABLE                          DATA_A               25.1904297
+CACHER04             D_IO_DET                       TABLE                          DATA_A               28.6376953
+CACHER07             E_MP_CUR_CURVE_20221118        TABLE SUBPARTITION             DATA_A               43.1015625
+FDPSHARE             A_VOUCHER                      TABLE PARTITION                DATA_A               58.2307739
+FDPSHARE             A_PC_TRAN                      TABLE PARTITION                DATA_A                67.491272
+CACHER01             A_PC_TRAN_CHK                  TABLE                          DATA_A               74.4733276
+CACHER01             E_CALC_LOG                     TABLE                          DATA_A               85.5628662
+CACHER01             ARC_E_CONS_ACCU_PQ             TABLE PARTITION                DATA_A               140.600586
+FDPSHARE             A_PREPAY_FLOW                  TABLE PARTITION                DATA_A                145.48114
+
+
+82 rows selected.
+
+
+165 rows selected.
+
+查看表空间中是否有包含LOB字段的表
+select owner,table_name,column_name from all_lobs where tablespace_name='DATA_A';
+
+
+--查询指定表中是否有blob，clob字段
+
+select column_name,data_type,table_name from dba_tab_columns
+ where owner='' and table_name='' and  data_type in('CLOB','BLOB','NCLOB','BFILE');
+
+
+
+
+--table
+  --移动表
+select 'alter table '||OWNER||'.'||table_name||' move '||' tablespace FKDATA nologging parallel 8 ;',tablespace_name
+from dba_tables where owner='CACHER01' and table_name='S_CONS_INFO'
+
+   --移动大对象字段
+  alter table 
+
+  --重建普通索引
+select 'alter index ' ||OWNER || '.' || index_name || ' REBUILD  parallel 8 nologging;' ,TABLESPACE_NAME,STATUS from dba_indexes where 
+owner='CACHER01' and table_name='S_CONS_INFO'
+
+
+--partition
+  --移动分区表
+select 'alter table '||table_owner||'.'||table_name||' move partition '||partition_name||' tablespace FKDATA nologging parallel 8;',partition_name,tablespace_name
+from dba_tab_partitions where table_owner='CACHER01' and tablespace_name='DATA_A' and table_name='C_PS'
+
+  重建普通索引
+select 'alter index ' ||OWNER || '.' || index_name || ' REBUILD  parallel 8 nologging;' ,TABLESPACE_NAME,STATUS from dba_indexes where 
+owner='CACHER01' and table_name='C_PS'
+  --重建分区索引
+select 'alter index '||t.INDEX_OWNER||'.'||t.INDEX_NAME||'  rebuild partition ' || t.PARTITION_NAME || ' parallel 8 nologging tablespace IDXCACHE ;' , STATUS
+ from dba_ind_partitions t where INDEX_OWNER='CACHER01' and STATUS='UNUSABLE'  AND INDEX_NAME='SYS_IL0000488971C00017$$';
+  
+   
+--subpartiton
+  --移动子分区表
+select 'alter table '||table_owner||'.'||table_name||' move subpartition '||subpartition_name||' tablespace FKDATA nologging parallel 8 ;',partition_name,tablespace_name
+from dba_tab_subpartitions where table_owner='CACHER07'  and tablespace_name='DATA_A' and table_name='E_TMNL_DAY_STAT'
+  
+  --重建普通索引
+select 'alter index ' ||OWNER || '.' || index_name || ' REBUILD  parallel 8 nologging;' ,TABLESPACE_NAME,STATUS
+from dba_indexes where  owner='CACHER07' and table_name='E_TMNL_DAY_STAT'
+  --重建分区索引
+select 'alter index '||t.INDEX_OWNER||'.'||t.INDEX_NAME||'  rebuild partition ' || t.PARTITION_NAME || ' parallel 8 nologging tablespace IDXCACHE ;' , STATUS
+ from dba_ind_partitions t where INDEX_OWNER='CACHER01' and STATUS='UNUSABLE' ;
+  --重建子分区索引
+select 'alter index '||t.INDEX_OWNER||'.'||t.INDEX_NAME||'  rebuild subpartition ' || t.SUBPARTITION_NAME ||  ' parallel 8 nologging tablespace IDXCACHE ;' , STATUS
+from dba_ind_subpartitions t where INDEX_OWNER='CACHER01' and STATUS='UNUSABLE' ;
+
+
+--移动完子分区后，需要修改分区的表空间信息,让子分区和分区在一个表空间中
+select  'alter table '||table_name||' modify defualt attributes  for partition '||'partition_name'||' tablespace DATA_A'
+ from  dba_tab_subpartitions where table_owner=''    and  table_name=''
+
+
+--普通表lob的move
+
+
+--分区表lob的move
+
+
+--
+
+
+
+
+--查询指定表空间中所有的段信息
+column OWNER format a25
+column SEGMENT_NAME format a35
+column SEGMENT_TYPE format a35
+select OWNER,SEGMENT_NAME,SEGMENT_TYPE,sum(BYTES)/1024/1024/1024 from dba_segments
+where TABLESPACE_NAME='FKDATA'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE order by sum(BYTES);
+
+
+--查询数据库中除'SYS','SYSTEM'用户外的所有分区表和子分区表
+select OWNER,SEGMENT_NAME,SEGMENT_TYPE,sum(BYTES)/1024/1024/1024 from dba_segments
+where SEGMENT_TYPE in ('TABLE PARTITION','TABLE SUBPARTITION') and OWNER not in('SYS','SYSTEM')
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE order by sum(BYTES);
+
+

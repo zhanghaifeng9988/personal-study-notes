@@ -1,0 +1,111 @@
+mongo 5.0 安装教程
+           https://www.cnblogs.com/cjsblog/p/15776066.html
+systemctl start mongod  启动数据库
+systemctl status mongod  状态查看
+systemctl stop mongod   停止数据库
+systemctl restart mongod  重启数据库
+mongosh                  连接数据库
+help                     帮助
+yum erase $(rpm -qa | grep mongodb-org)  # 删除安装包
+# 删除数据库和日志文件
+ rm -r /var/log/mongodb
+ rm -r /var/lib/mongo
+ 
+mongo的用户创建：
+ https://blog.csdn.net/hbtj_1216/article/details/120875957
+ 登陆admin 数据库，创建用户（默认登陆不需要用户名，密码）
+ 
+ use db1  //切换到db1数据库,若没有db1数据库，同时创建数据库
+ 
+ db.createUser({
+  user: 'test1',    // 用户名（自定义）
+  pwd: 'Abc123++',  // 密码（自定义）
+  roles:[{
+    role: 'root',   // 使用超级用户角色
+    db: 'admin'     // 指定数据库
+  }]
+})
+
+db.dropDatabase() 删除数据库
+db.createCollection("users") 创建数据集
+db.users.drop()
+show users   显示当前数据库下的用户信息
+show dbs     显示数据库的信息
+show collections  显示当前数据库下的数据集的信息
+show tables         同上
+mongo db1  -u test1  -p Abc123++  使用新建用户登陆mongo的语法，db1是数据库名
+
+在 MongoDB 中不需要提前创建集合就可以直接插入文档，在插入文档的同时自动创建集合
+db.fruits.insert(
+    [
+        { "name": "apple", "price": 10, "color": ["red", "green"], },
+        { "name": "banana", "price": 8, "color": ["yellow", "green"], },
+        { "name": "mongo", "price": 12, "color": ["yellow", "green"], },
+    ]
+)
+——插入一条记录
+db.users.insertOne(
+    {
+        "username": "zhangsan",
+        "password": "88888888",
+        "form": { "country": "China", "city": "Beijing" }
+    }
+)
+
+——插入多条文档
+db.users.insertMany(
+    [
+        {
+            "username": "lisi",
+            "password": "4444",
+            "form": { "country": "China", "city": "Shanghai" }
+        },
+        {
+            "username": "wanger",
+            "password": "666666",
+            "form": { "country": "China", "city": "Shenzhen" }
+        },
+    ]
+)
+
+——查询操作
+db.users.find(
+    { "username": "zhangsan" }
+)
+——多条件 and 查询文档
+db.users.find(
+    { "username": "zhangsan", "password": "88888888" }
+)
+——正则表达式查询文档
+db.users.find(
+    { username: /^zhang/ }
+)
+——更新一条文档
+db.fruits.updateOne(
+    { "name": "banana" }, { $set: { "price": 20 } }
+)
+——更新多条文档
+db.fruits.updateMany(
+    { "name": "banana" }, { $set: { "price": 20 } }
+)
+——删除 price = 10 的文档
+db.fruits.remove(
+    { "price": 10 }
+)
+——删除 price < 12 的文档
+db.fruits.remove(
+ { "price": { $lt: 12 } }
+)
+——删除所有文档
+db.fruits.remove({})
+——聚合查询
+在 MongoDB 中聚合查询 aggregate 是以管道的形式进行处理数据
+并主要用于处理数据统计、平均值、求和等
+db.fruits.aggregate(
+    [
+        { $group: { _id: "$name", total: { $sum: 1 } } },
+        { $project: { name: "$name", total: "$total" } },
+    ]
+)
+注意：这里对 fruits 集合进行聚合查询，先按 name 字段进行分组并合计分组的数量，
+然后在返回 name 字段和分组后的 total 字段进行显示

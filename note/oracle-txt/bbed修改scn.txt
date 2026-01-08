@@ -1,0 +1,61 @@
+bbed 修改 数据文件scn
+
+bbed的使用：
+$ORACLE_HOME/rdbms/lib 该目录下必须有2个文件 sbbdpt.o ssbbded.o 
+$ORACLE_HOME/rdbms/mesg  该目录下必须有1个文件 bbedus.msb
+
+cd $ORACLE_HOME/rdbms/lib
+
+make -f ins_rdbms.mk $ORACLE_HOME/rdbms/lib/bbed
+
+默认密码：blockedit
+
+
+
+
+
+--模拟场景：
+oracle19c rac
+数据文件添加错误，offline该数据文件后，使用rman移动数据文件到正确的路径，修改数据文件名字
+recover数据文件，报错提示无法应用数据库，经查归档已经被删除；
+
+随后在修复过程中，又手动在asmcmd中删除了recover状态的数据文件
+
+此时需要修改数据文件的scn，并使其恢复online状态
+
+将测试场景的scn修改（发生问题的真实生产环境的scn值非常大）
+
+172345678912345  十进制
+
+9CBF5AF85B59   十六进制
+
+
+使用Oracle oradebug修改SCN，可以在两个场景下进行，就是Oracle启动Open状态和Mount状态。
+
+  --open状态下的操作
+使用oradebug查看内存中SCN对应的变量。
+
+SQL> oradebug setmypid
+
+Statement processed.
+
+SQL> oradebug dumpvar sga kcsgscn_
+
+kcslf kcsgscn_ [06001AE70, 06001AEA0) = 001AC52A 00000000 00000000 00000000 00000065 
+00000000 00000000 00000000 00000000 00000000 6001AB50 00000000
+
+Linux系统是Little位的操作系统，Base在前，Wrap在后。
+Linux系统是big位的操作系统，Base在后，Wrap在前。
+
+[oracle@oggtarget ~]$ lscpu
+Architecture:          x86_64
+CPU op-mode(s):        32-bit, 64-bit
+Byte Order:            Little Endian
+
+
+
+
+select FILE#,name,CHECKPOINT_CHANGE#,CHECKPOINT_TIME,LAST_CHANGE#,LAST_TIME from v$datafile;
+
+
+select FILE#,name,CHECKPOINT_CHANGE#,CHECKPOINT_TIME,STATUS from v$datafile;

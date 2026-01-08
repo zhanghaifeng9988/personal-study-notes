@@ -1,0 +1,182 @@
+
+1、pctfree  用来为一个块保留的空间百分比，
+它的值表示增加1列或者多列的内容的长度；
+
+2、行链接：一行数据放在多个块中，由insert造成的
+analyze table t1 compute statistics;首先分析表
+然后查看行链接、行迁移的情况
+SELECT chain_cnt,
+       round(chain_cnt/num_rows*100,2) pct_chained,
+       avg_row_len, pct_free , pct_used
+  FROM user_tables
+  WHERE table_name ='T1';
+
+where table_name='T1';
+
+
+当前schema下创建一个保存行链接的名为chained_rows的表
+@$ORACLE_HOME/rdbms/admin/utlchn1.sql
+analyze table t1 list chained rows;该命令会将上述表中记录行链接
+和行迁移的情况
+
+解决方案：行链接只有考虑使用更大的数据块，来解决。
+需要用到alter table t1 move 语句
+
+引起的问题：行链接则影响索引读和全表扫描。
+
+3、行迁移：update后，数据被重新定位到另一个块中，原始快保留1个指针，
+因为原始块有rowid。因为update更改的数据长度大于字段上原有存储的数据长度
+所造成。与pctfree的值的大小有关系，值不够用的时候，会引起行迁移。
+
+解决办法：
+1、需要使用alter table t1 move;解决行迁移（shrink不能解决）
+注意：过程中会锁表，其他用户不能在该表上做DML或DDL操作。需要重建索引
+而且需要预留和原表一样大小的空间才可以操作。
+2、手动解决：
+  1、将行迁移的情况进行分析，并写入chained_rows表
+  analyze table scott.t1 LIST CHAINED ROWS;
+  2、建立一个临时表，将发生行迁移的行写进临时表
+  create table scott.t2 as select * from scott.t1 where rowid in (select HEAD_ROWID from chained_rows);
+  3、删除发生行迁移的行
+  delete from  scott.t1 where rowid in (select HEAD_ROWID from chained_rows);
+  4、将临时表的数据插入t1中
+  insert into scott.t1 select * from sott.t2;
+  5、删除掉临时表
+  drop table scott.t2;
+  6、将表的pctfree值修改为合适的值；
+  alter table t1 pctfree xxx;
+  
+其他辅助语句
+analyze table t1 compute statistics;分析表（move前也需要分析表）
+查看行迁移的情况（move前也需要查看行迁移情况）
+select pct_free,pct_used,avg_row_len,chain_cnt,blocks from user_tables 
+where table_name='T1';
+
+行迁移会导致数据存储占用过多的块。move后会减少块的使用。
+
+引起的问题：行迁移影响OLTP系统使用索引读取单行。
+最糟糕的情形所对所有的读都增加额外的I/O。
+
+
+4、高水位
+（碎片问题）
+在数据库表刚建立的时候，由于没有任何数据，所以这个时候水位线是空的，
+也就是说HWM为最低值。当插入了数据以后，高水位线就会上涨，
+但是这里也有一个特性，就是如果你采用delete语句删除数据的话，
+数据虽然被删除了，但是高水位线却没有降低，
+还是你刚才删除数据以前那么高的水位。
+也就是说，这条高水位线在日常的增删操作中只会上涨，不会下跌。
+
+而Oracle select扫描高水位线以下的数据块，碎片多了，
+sql的执行效率自然就差了（高水位线（HWL）下的许多数据块都是无数据的，
+但全表扫描的时候要扫描到高水位线以下的数据块，
+也就是说oracle要做许多的无用功！）
+
+表空间碎片率检查语句
+select a.tablespace_name,sqrt(max(a.blocks)/sum(a.blocks))*(100/sqrt(sqrt(count(a.blocks)))) FSFI
+from dba_free_space a,dba_tablespaces b
+where a.tablespace_name=b.tablespace_name
+and b.contents not in ('TEMPORARY','UNDO')
+group by a.tablespace_name 
+order by 2;
+
+(数字越小，表空间碎片较多，当小于30%的时候说明碎片程度很可观了）
+
+一下脚本用来统计连续空间及对连续空间求和，当表中的总的free空间很大时，
+但有很多小块，说明碎片化越严重。
+Script : tfstsfgm
+========
+SET ECHO off 
+REM NAME:TFSTSFRM.SQL 
+REM USAGE:"@path/tfstsfgm" 
+REM ------------------------------------------------------------------------ 
+REM REQUIREMENTS: 
+REM    SELECT ON DBA_FREE_SPACE 
+REM ------------------------------------------------------------------------ 
+REM PURPOSE: 
+REM    The following is a script that will determine how many extents 
+REM    of contiguous free space you have in Oracle as well as the  
+REM total amount of free space you have in each tablespace. From  
+REM    these results you can detect how fragmented your tablespace is.  
+REM   
+REM    The ideal situation is to have one large free extent in your  
+REM    tablespace. The more extents of free space there are in the  
+REM    tablespace, the more likely you  will run into fragmentation  
+REM    problems. The size of the free extents is also  very important.  
+REM    If you have a lot of small extents (too small for any next   
+REM    extent size) but the total bytes of free space is large, then  
+REM    you may want to consider defragmentation options.  
+REM ------------------------------------------------------------------------ 
+REM DISCLAIMER: 
+REM    This script is provided for educational purposes only. It is NOT  
+REM    supported by Oracle World Wide Technical Support. 
+REM    The script has been tested and appears to work as intended. 
+REM    You should always run new scripts on a test instance initially. 
+REM ------------------------------------------------------------------------ 
+REM Main text of script follows: 
+
+create table SPACE_TEMP (   
+ TABLESPACE_NAME        CHAR(30),   
+ CONTIGUOUS_BYTES       NUMBER)   
+/   
+
+declare   
+  cursor query is select *   
+          from dba_free_space   
+                  order by tablespace_name, block_id;   
+  this_row        query%rowtype;   
+  previous_row    query%rowtype;   
+total           number;   
+
+begin   
+  open query;   
+  fetch query into this_row;   
+  previous_row := this_row;   
+  total := previous_row.bytes;   
+  loop   
+ fetch query into this_row;   
+     exit when query%notfound;   
+     if this_row.block_id = previous_row.block_id + previous_row.blocks then   
+        total := total + this_row.bytes;   
+        insert into SPACE_TEMP (tablespace_name)   
+                  values (previous_row.tablespace_name);   
+     else   
+        insert into SPACE_TEMP values (previous_row.tablespace_name,   
+               total);   
+        total := this_row.bytes;   
+     end if;   
+previous_row := this_row;   
+  end loop;   
+  insert into SPACE_TEMP values (previous_row.tablespace_name,   
+                           total);   
+end;   
+.   
+/   
+
+set pagesize 60   
+set newpage 0   
+set echo off   
+ttitle center 'Contiguous Extents Report'  skip 3   
+break on "TABLESPACE NAME" skip page duplicate   
+spool contig_free_space.lis   
+rem   
+column "CONTIGUOUS BYTES"       format 999,999,999   
+column "COUNT"                  format 999   
+column "TOTAL BYTES"            format 999,999,999   
+column "TODAY"   noprint new_value new_today format a1   
+rem   
+select TABLESPACE_NAME  "TABLESPACE NAME",   
+       CONTIGUOUS_BYTES "CONTIGUOUS BYTES"   
+from SPACE_TEMP   
+where CONTIGUOUS_BYTES is not null   
+order by TABLESPACE_NAME, CONTIGUOUS_BYTES desc;   
+
+select tablespace_name, count(*) "# OF EXTENTS",   
+         sum(contiguous_bytes) "TOTAL BYTES"    
+from space_temp   
+group by tablespace_name;   
+
+spool off   
+
+drop table SPACE_TEMP   
+/  

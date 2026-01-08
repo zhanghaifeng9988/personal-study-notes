@@ -1,0 +1,134 @@
+ cat /etc/redhat-release                           操作系统版本
+ sqlplus / as sysdba                               登录查看 oracle版本
+ cat /proc/cpuinfo |grep "cores"|uniq              查看CPU的核数
+ grep "physical id" /proc/cpuinfo |sort -u|wc -l   查看物理CPU的个数
+ free  -m
+ 
+--操作系统基本设置检测信息 
+ timedatectl   status                              查看本机时区
+ cat /etc/locale.conf                              操作系统字符集
+ cat /sys/kernel/mm/transparent_hugepage/enabled   透明大页状态查询
+ getenforce                                        查看selinux的状态
+ cat /proc/net/bonding/bond0                       查看网卡bonding状态
+  chronyc sources                                  查看npt_server的信息
+  echo $HISTTIMEFORMAT                             查看history命令显示时间和日期的格式
+ grep "Port" /etc/ssh/sshd_config                  查看ssh的端口设置
+
+--操作系统参数信息 
+ cat /etc/sysctl.conf                             查看操作系统的参数配置信息
+
+--系统服务检测信息
+ systemctl status firewalld.service                查看防火墙状态信息
+ systemctl status bluetooth                        查看蓝牙状态信息
+ systemctl status postfix                          查看邮件系统状态信息
+ systemctl status cups                             查看打印机服务状态信息
+ systemctl status NetworkManager                   查看网络管理状态信息
+ systemctl status nfs                              查看网络文件系统状态信息
+ systemctl status nfslock                          查看网络文件系统锁的状态信息
+
+-- spfile转pf
+ show  parameter spfile                            查看是否是spfile启动，及spfile文件的路径
+ create pfile='/home/oracle/pfile_20230214.ora' from  spfile='+DATA01/pmpbpm/spfilepmpbpm.ora';
+ 
+--grid  oracle两个用户的资源配置信息
+ cat /etc/security/limits.conf                     
+ 
+--ASM参数信息
+  show parameter memory                            ASM实例内存参数 ASM的需要到grid用户下查询
+  show parameter sga                               ASM实例SGA参数  ASM的需要到grid用户下查询
+  show parameter process                           process参数  ASM的需要到grid用户下查询
+  
+  select state, name, type, total_mb/1024 TOTAL_G, free_mb from v$asm_diskgroup_stat;  asm磁盘组
+  
+  select GROUP# ,round(BYTES/1024/1024,2) m from v$log;  查看日志组数量和每个日志组大小
+  
+col TABLESPACE_NAME for a20
+col name for a10
+set line 200 pages 999
+select TABLESPACE_NAME,round(USED_SPACE*8/1024/1024, 2) AS "USED-G",
+round(TABLESPACE_SIZE*8/1024/1024, 2) AS "SIZE-G",round((TABLESPACE_SIZE-USED_SPACE)*8/1024/1024, 2) "FREE-G",
+to_char(USED_PERCENT,'00.00') as "USED_PERCENT"  
+from dba_tablespace_usage_metrics  where TABLESPACE_NAME in('SYSAUX','SYSTEM','UNDO%','TEMP')
+order by used_percent desc ;
+
+
+--19c容器库undo情况查询
+select tablespace_name,extent_management,allocation_type,con_id,BLOCK_SIZE,round(max_size/1024/1024,2) AS "USED-G"
+from cdb_tablespaces 
+where tablespace_name like 'UNDO%';
+
+--19c容器库pdb和CDB的undo大小查询
+col file_name for a60
+col tablespace_name for a20
+select tablespace_name,file_name,bytes/1024/1024/1024 GB 
+from dba_data_files
+where tablespace_name like '%UNDO%';
+
+
+
+
+
+--普通参数查询
+
+  show parameter db_files                         数据库实例参数信息
+  show parameter log_archive_dest_1               归档日志的路径信息
+  show parameter recyclebin                       回收站的状态信息
+  show parameter audit_trail                      审计跟踪相关
+  show parameter process                          oracle的process参数
+  show parameter undo_retention                   undo保留时间
+  show parameter open_cursors                     打开游标参数
+  show parameter session_cached_cursors           会话缓存游标参数
+  show parameter memory_target                    内存目标参数
+  show parameter parallel_force_local            并行参数
+  
+  set line 200 pages 999 long 20000
+  col name for a25
+  col VALUE for a30 
+  select name,value from v$parameter where name in ('db_files',
+'log_archive_dest_1','recyclebin','audit_trail','processes','undo_retention','open_cursors',
+'session_cached_cursors','memory_target','parallel_force_local') order by name;
+  
+  
+--隐含参数查询：
+  set line 200 pages 999 long 20000
+ col  PARAMETER for a30 
+ col  DESCRIPTION for a30
+ col  SESSION_VALUE for a10
+ col  INSTANCE_VALUE for a20
+select a.ksppinm parameter,a.ksppdesc description,
+b.ksppstvl session_value,c.ksppstvl session_value,
+c.ksppstvl instance_value 
+from x$ksppi a,x$ksppcv b,x$ksppsv c
+where a.indx=b.indx
+and a.indx=c.indx
+and a.ksppinm in ('_optimizer_extended_cursor_sharing','_optimizer_extended_cursor_sharing_rel',
+'_serial_direct_read','_bloom_filter_enabled','_bloom_pruning_enabled',
+'_gc_defer_time','_PX_use_large_pool','_lm_tickets','_b_tree_bitmap_plans',
+'_use_adaptive_log_file_sync','_gc_read_mostly_locking',
+'_gc_undo_affinity')
+order by a.ksppinm;  
+  
+select * from dba_role_privs where granted_role='DBA';  查询拥有DBA权限的用户
+  
+  
+  
+  
+  
+  
+--更改内容
+  业务系统名称
+  数据库实例名
+  数据库名/服务名
+  日志组重新查
+  表空间重新查
+  数据库实例级检测详细信息
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  

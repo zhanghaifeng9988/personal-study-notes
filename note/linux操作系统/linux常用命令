@@ -1,0 +1,591 @@
+ 变量是计算机系统用于保存可变值的数据类型，
+ 我们可以直接通过变量名称来提取到对应的变量值。
+ 在 Linux 系统中，环境变量是用来定义系统运行环境的一些参数，
+ 比如每个用户不同的家目录（HOME）、邮件存放位置（MAIL）等。
+ which rm                           通过使用 which 命令，可以查找各个外部命令（和 Shell 内置命令相对）所在的绝对路径
+ who                                显示当前真正登录系统中的用户（不会显示那些用su命令切换用户的登录者）
+ who am i                           显示当前登录时的用户名，尽管切换了多个用户
+ whoami                             显示当前用户的用户名
+ getenforce                         获取系统的selinux状态
+ /etc/sysconfig/selinux             selinux的文件位置
+    ps -Z                           查看当前进程的域的信息，也就是进程的SELinux信息
+    ls -Z                       	查看文件上下文信息，也就是文件的SELinux信息：
+ restorecon                         可以用来恢复文件默认的上下文
+ userdel -r username                其中-r表示同时删除/home/username，否则，是无法删除/home/username的 
+ groupadd -g 组号 组名              创建有组号的组
+ groupadd 组名                       创建一个组（不包含组号）  
+ groupdel 组名                      删除一个组，非空组不能删除  
+ useradd  -g 属组组名 -u uid号 -G 附组组名，附组组名 用户名      创建用户并附组
+ usermod  -g 属组组名 -u uid号  -G 附组组名，附组组名 用户名     改变用户的属组
+ passwd  用户名                      创建密码
+ chmod  u g o  +r +w +x               改变目录和文件的权限
+ chown -R oracle:oinstall /u01       改变/u01所有的文档的用户和属组
+ 
+ gpasswd -a cold root //将用户cold加入到root组
+ gpasswd -d cold root //将用户cold从root组中移出
+
+ TOP是一个动态显示过程,即可以通过用户按键来不断刷新当前状态.
+ 如果在前台执行该命令,它将独占前台,直到用户终止该程序为止.比较准确的说,
+ top命令提供了实时的对系统处理器的状态监视.
+ top -ab -n 1
+   a表示按内存倒序排列，b表示将所有列输出，n表示只执行一次。
+   
+ sar -d  查看磁盘IO
+  DEV  磁盘设备的名称，如果不加-p，会显示dev253-0类似的设备名称，因此加上-p显示的名称更直接
+  tps  每秒I/O的传输总数
+  rd_sec/s  每秒读取的扇区的总数
+  wr_sec/s  每秒写入的扇区的总数
+  avgrq-sz  平均每次次磁盘I/O操作的数据大小（扇区）
+  avgqu-sz  磁盘请求队列的平均长度
+  await  从请求磁盘操作到系统完成处理，每次请求的平均消耗时间，包括请求队列等待时间，单位是毫秒（1秒等于1000毫秒），等于寻道时间+队列时间+服务时间
+  svctm  I/O的服务处理时间，即不包括请求队列中的时间
+  %util  I/O请求占用的CPU百分比，值越高，说明I/O越慢
+  
+ iostat 
+  安装命令：yum install sysstat
+  使用iostat -d -k 2 查看IO情况：
+-k:已kb为单位显示读写信息
+-m:已mb为单位显示读写信息
+device:磁盘名称
+tps:每秒钟发送到的I/O请求数.
+Blk_read/s:每秒读取的block数.
+Blk_wrtn/s:每秒写入的block数.
+Blk_read:读入的block总数.
+Blk_wrtn:写入的block总数.
+
+--linux7 设定主机名
+hostnamectl set-hostname  主机名           
+
+--linux6、7 设定主机名
+vi /etc/sysconfig/network
+# Created by anaconda
+hostname=cuug88
+
+重启网卡
+service network restart
+查看网络服务状态
+systemctl status network.service
+
+
+配置ip与主机解析文件
+[root@cuug88 ~]#vi /etc/hosts
+127.0.0.1   localhost localhost.localdomain
+192.168.3.88    cuug88
+
+ netstat -lnp|grep                       
+  ps -ef | grep /dsg/zhanghf2/dt1 | grep -v grep   以进程的路径去过滤（去掉自身grep）
+ kill -9  进程号                         
+ netstat  -anlp  |grep              端口号 查看端口占用情况                            
+ sqlplus -version;                 查看oracle数据库版本号                                     
+ uname -a                          查看当前linux系统的内核信息    
+ cat /etc/redhat-release           查看当前linux版本信息
+ lscpu                             查看cpu的统计信息
+ cat /proc/cpuinfo                 查看当前主机每个cpu信息
+ free -m                           查看内存信息
+ cat /proc/meminfo                 查看内存详细使用情况
+ lsblk                             查看硬盘和分区分布
+ fdisk -l                          如果要看硬盘和分区的详细信息  https://www.cnblogs.com/lhdz_bj/p/9930874.html linux逻辑卷详解https://www.cnblogs.com/gaojun/archive/2012/08/22/2650229.html
+ lspci | grep -i 'eth'             查看网卡硬件信息
+ ifconfig -a                       查看所有网络接口
+ cat /etc/oratab                   查看主机中有多少个oracle数据库
+ . oraenv                           查看当前实例信息，也是：db_name 
+ df -i                             查看文件系统的inode使用情况
+ find /（查找范围） -name '查找关键字' -type d
+ find /（查找范围） -name 查找关键字
+ rm -i -r  
+du -hc
+df -h
+du -sh 
+du -sh * | sort -nr   当前目录中，所有目录和文件的存储占用量的升序显示
+du --max-depth=1 -h
+  
+  ll -tr  t: 即time，按照文件修改时间查看，默认是降序；
+          r: 即reverse，升序查看；
+  S: 即:Size，按照文件文件大小排序，默认是降序，需要注意的是，这个S是大写的；
+  
+ tar –czvf [压缩包名] [文件或目录]                                        #打包，且使用 gzip 压缩		
+  tar –zxvf [压缩包名] -C [目录]                                          #解压到指定目录
+  unzip  /opt/sdc/ue/tomcat/portal.zip -d /opt/sdc/ue/tomcat/webapps    #解压到指定目录
+  zip -v filename.zip a.c b.c c.c e.c                                     #压缩文件
+  zip -r <dirName/compressedFile>.zip <targetDir>                         #压缩指定目录的文件
+  zip -r filename.zip file1 file2 file3 <targetDir>                       #压缩多个文件或目录
+  gunzip -c abc.sql.gz > abc.sql                                          #解压到指定目录，保留源文件,-c
+  gzip -dv 压缩文件	                                                      #解压并打印执行过程
+  gzip -c 待压缩文件 > 压缩文件.gz	                                      #压缩文件并保留源文件
+  df -h                                                                 查看整体磁盘空间使用情况
+  du -sh 目录路径                                                       查看该目录的空间情况
+  ls -ld 目录路径                                                       查看该目录的相关信息                                                              
+  ipcrm用法
+    ipcrm -M shmkey  移除用shmkey创建的共享内存段
+    ipcrm -m shmid    移除用shmid标识的共享内存段
+    ipcrm -Q msgkey  移除用msqkey创建的消息队列
+    ipcrm -q msqid  移除用msqid标识的消息队列
+    ipcrm -S semkey  移除用semkey创建的信号
+    ipcrm -s semid  移除用semid标识的信号
+  ipcs用法  
+   ipcs -a  是默认的输出信息 打印出当前系统中所有的进程间通信方式的信息
+   ipcs -m  打印出使用共享内存进行进程间通信的信息
+   ipcs -q   打印出使用消息队列进行进程间通信的信息
+   ipcs -s  打印出使用信号进行进程间通信的信息
+   
+   sftp -oport=8001 service@192.168.1.151:/service/gan/5300/tools.64bit/linux/oxad.gz ./   sftp的典型应用
+   
+   
+  cat /proc/cpuinfo |grep "processor"|sort -u|wc -l     查看逻辑cpu的个数
+  grep "physical id" /proc/cpuinfo|sort -u|wc -l      查看物理CPU的个数
+  cat /proc/cpuinfo |grep "cores"|uniq                查看CPU的核数            
+      
+
+	  
+											 系统资源消耗查询
+
+
+lscpu											 
+  1.CPU占用最多的前10个进程： 
+
+ps auxw|head -1;ps auxw|sort -rn -k3|head -10 
+
+
+2.内存消耗最多的前10个进程 
+
+ps auxw|head -1;ps auxw|sort -rn -k4|head -10 
+
+
+3.虚拟内存使用最多的前10个进程 
+
+ps auxw|head -1;ps auxw|sort -rn -k5|head -10
+
+ 
+
+ps auxw
+
+a: 显示当前终端的所有进程信息
+u：以用户为主的格式来显示程序状况
+x：显示所有程序，不以终端机来区分 
+w：采用宽阔的格式来显示程序状况
+
+ps auxw|head -1
+
+输出表头
+
+sort -rn -k5
+
+-n是按照数字大小排序，-r是以相反顺序，-k是指定需要排序的栏位
+
+                                                LVM
+物理存储介质（The physical media）
+这里指系统的存储设备：硬盘，如：/dev/hda、/dev/sda等等，是存储系统最低层的存储单元。
+
+物理卷（PV physical volume）
+物理卷就是指硬盘分区或从逻辑上与磁盘分区具有同样功能的设备(如RAID)，是LVM的基本存储逻辑块，
+但和基本的物理存储介质（如分区、磁盘等）比较，却包含有与LVM相关的管理参数。
+
+卷组（VG Volume Group）
+LVM卷组类似于非LVM系统中的物理硬盘，其由物理卷组成。可以在卷组上创建一个或多个“LVM分区”（逻辑卷），
+LVM卷组由一个或多个物理卷组成。
+
+逻辑卷（LV logical volume）
+LVM的逻辑卷类似于非LVM系统中的硬盘分区，在逻辑卷之上可以建立文件系统(比如/home或者/usr等)
+
+物理存储介质》物理卷》卷组》逻辑卷
+
+
+
+grep -i -E "abc|dfg|dcf" ./*.txt    -i 大小写不敏感  -E 过滤多个字符
+
+lsblk   查看LVM基本信息
+vgs     查看相关卷组信息
+pvs     查看物理卷，卷组等信息 
+lvs     查看LV的数量    
+
+1.跳转到命令行行首:ctrl+a
+2.跳转到命令行行尾:ctrl+e
+3.删除行首到光标位置的字符:ctrl+u
+4.删除光标位置到行尾的字符:ctrl+k
+
+使用图形界面的环境变量声明语句
+ export DISPLAY=192.168.3.100:0.0
+ 
+在root下执行visudo命令，等同于  vi /etc/sudoers
+
+如何配置sudo权限
+
+
+在root    ALL=(ALL)       ALL下
+
+添加如下内容
+
+test    ALL=(ALL)       ALL
+
+想免除密码输入加上NOPASSWD: 
+
+test    ALL=(ALL)      NOPASSWD: ALL
+
+保存并退出  test为要赋予权限的用户名
+
+--centos的mirror网址，有各种依赖包
+http://mirror.centos.org/centos/7/os/x86_64/Packages/
+比如缺少ksh依赖包，在页面使用Ctrl+F搜索"ksh"下载相应的依赖包即可。
+
+cron服务是linux的内置服务，但它不会开机自动启动。可以用以下命令启动和停止服务：/sbin/service crond start/sbin/service crond stop/sbin/service crond restart/sbin/service crond reload
+
+以上1-4行分别为启动、停止、重启服务和重新加载配置。
+
+要把cron设为在开机的时候自动启动，在 /etc/rc.d/rc.local 脚本中加入 /sbin/service crond start 即可
+
+查看当前用户的crontab内容，输入 crontab -l
+
+编辑crontab，输入 crontab -e
+
+删除crontab，输入 crontab -r
+
+查看crontab程序是否已经启动  cat /var/log/cron
+
+
+mobaxterm的sz  rz使用方法
+      从linux下载文件到客户端（windows）桌面
+1、sz  filename
+2、ctrl + 鼠标右键
+3、选择菜单 Receive file using Z-modem
+
+      从windows桌面上传到linux系统
+1：ctrl + 鼠标右键
+2：Send file using Z-modem
+3：选择上传文件（上传到当前执行命令的目录中了）
+
+
+查找过期文件：
+find 目录 -mtime +3 |xargs rm -rf {} 
+
+查找指定日期的文件：
+ls --full-time ./ | sed -n '/2022-10-30/p'
+
+查找当前目录中所有文件和目录中包含的内容：
+grep -rnR "192.168.3.11" *
+* : 表示当前目录所有文件，也可以是某个文件名，或者某种后缀的文件
+-r 是递归查找
+-n 是显示行号
+-R 查找所有文件包含子目录
+-i 忽略大小写
+-l 只列出匹配的文件名
+-L 列出不匹配的文件名
+-w 只匹配整个单词，而不是字符串的一部分（匹配 hello，不匹配helloo）
+
+
+firewall-cmd --list-all  防火墙状态查看 centos7
+firewall-cmd --zone=public --add-port=3306/tcp --permanent  添加3306端口
+firewall-cmd --reload  
+
+
+lsof -i：列出所有网络文件的信息。
+lsof -i4：仅列出 IPv4 网络文件的信息。
+lsof -i6：仅列出 IPv6 网络文件的信息。
+lsof -iTCP：列出所有 TCP 网络连接的信息。
+lsof -iUDP：列出所有 UDP 网络文件的信息。
+
+netstat -anp   显示所有已开放端口
+
+netstat -tunlp   正在侦听的所有 TCP 或 UDP 端口，包括使用端口和套接字状态的服务
+
+套接字：进程通过一个为套接字的软件接口向网络发送报文和从网络接受报文。
+所谓套接字(Socket)，就是对网络中不同主机上的应用进程之间进行双向通信的端点的抽象。
+一个套接字就是网络上进程通信的一端，提供了应用层进程利用网络协议交换数据的机制。
+从所处的地位来讲，套接字上联应用进程，下联网络协议栈，是应用程序与网络协议栈进行交互的接口
+
+
+
+
+ls -l --block-size=m
+
+nuhup  执行程序的路径和名称  &
+
+
+jobs 查看nohup开启运行的程序
+
+
+先执行fg %n命令
+再执行“ctrl + c”结束进程
+
+指定安装路径
+rpm -ivh --prefix=/opt/grafana grafana-enterprise-9.4.3-1.x86_64.rpm
+
+
+rpm -qf 文件名 查看一个文件是由哪个包安装的
+
+rpm -ql 包名 查看一个包安装了哪些文件
+
+rpm -qa 查看系统中安装了哪些包
+
+rpm -e --nodeps 包名  卸载已经安装的软件
+
+
+yum 安装到指定目录
+
+yum  install  包名
+
+移除程序
+yum remove 包名
+
+ 使用YUM查找软件包
+
+      命令：yum search ~
+
+      2.列出所有可安装的软件包
+
+      命令：yum list
+
+      3.列出所有可更新的软件包
+
+      命令：yum list updates
+
+      4.列出所有已安装的软件包
+
+      命令：yum list installed
+
+      5.列出所有已安装但不在Yum Repository內的软件包
+
+      命令：yum list extras
+
+      6.列出所指定软件包
+
+      命令：yum list～
+
+      7.使用YUM获取软件包信息
+
+      命令：yum info～
+
+      8.列出所有软件包的信息
+
+      命令：yum info
+
+      9.列出所有可更新的软件包信息
+
+      命令：yum info updates
+
+      10.列出所有已安裝的软件包信息
+
+      命令：yum info installed
+
+      11.列出所有已安裝但不在Yum Repository內的软件包信息
+
+      命令：yum info extras
+
+      12.列出软件包提供哪些文件
+
+      命令：yum provides ~
+	  
+	  
+
+
+less [选项] 文件
+
+命令选项
+-N：显示行号。
+
+-n：不显示行号。
+
+-i：忽略大小写。
+
+-F：一次性显示整个文件，不进行分页。
+
+-f：强制显示文件名。
+
+-q：静默模式，不显示任何提示信息。
+
+/：搜索指定字符串。
+
+h：显示帮助信息。
+
+命令操作
+上下箭头：向上、向下滚动。
+
+空格：向下翻页。
+
+b：向上翻页。
+
+g：跳到文件开头。
+
+G：跳到文件结尾。
+
+q：退出 less。
+
+
+命令示例
+查看文件内容：
+
+less file.txt
+
+查看文件内容并显示行号：
+
+less -N file.txt
+
+搜索指定字符串：
+
+less file.txt
+
+/keyword
+
+注意事项
+less 命令可以用于查看大文件，比 cat 命令更加高效。
+
+less 命令支持搜索、滚动、翻页等操作，可以方便地查找和浏览文件内容。
+
+less 命令默认不显示行号，可以使用 -N 选项显示行号。
+
+less 命令一般用于终端操作，不适用于图形界面，如果需要在图形界面中查看文件，可以使用文本编辑器或文件浏览器。
+
+
+--装载虚拟机光盘镜像
+mount /dev/cdrom /media
+
+
+--获取系统位数
+getconf LONG_BIT
+
+
+--history配置
+vi /etc/profile
+添加：
+
+export HISTTIMEFORMAT="[%Y-%m-%d %H:%M:%S] "            #显示内容的日期格式
+export HISTSIZE=1000                         #保存1000条记录
+
+export HISTCONTROL=ignoredups                #忽略重复命令
+shopt -s histappend                          #多个终端同时操作时，避免命令覆盖，采用追加方式
+
+
+
+
+--用户目录下的 .bashrc  .bash_profile
+
+.bashrc是home目录下的一个shell文件，用于储存用户的个性化设置。
+在bash每次启动时都会加载.bashrc文件中的内容，并根据内容定制当前bash的配置和环境。
+
+.bash_profile:每个用户都可使用该文件输入专用于自己使用的shell信息,当用户登录时,
+该文件仅仅执行一次!默认情况下,他设置一些环境变量,执行用户的.bashrc文件。
+
+补充： .bash_profile和.bashrc的区别？
+两者在登陆bash时都会被bash执行，但是.bash_profile只在会话开始时被读取，
+而.bashrc在每次打开新的终端时都会被读取。
+
+--/etc/目录下的 bashrc  profile
+/etc/profile:此文件为系统的每个用户设置环境信息,当用户第一次登录时,该文件被执行。
+并从/etc/profile.d目录的配置文件中搜集shell的设置。可以认为系统环境变量。
+
+/etc/bashrc:为每一个运行bash shell的用户执行此文件，当bash shell被打开时,该文件被读取。
+
+--修改端口
+vi /etc/services
+
+
+--查看系统运行时间
+uptime
+
+--vmstat 
+该命令报告关于内核线程、虚拟内存、磁盘、陷阱和 CPU 活动的统计信息。
+
+
+--mpstat
+其实就是主要查看CPU负载的一个工具。
+
+
+--iotop    
+Linux系统磁盘I/O检测工具
+yum -y install iotop
+
+
+
+--查看和调整 oracle用户的参数
+chage -l oracle
+最近一次密码修改时间 ：从不
+密码过期时间 ：从不
+密码失效时间 ：从不
+帐户过期时间 ：从不
+两次改变密码之间相距的最小天数 ：0
+两次改变密码之间相距的最大天数 ：99999
+在密码过期之前警告的天数 ：7
+
+
+chage
+  -m 设置密码修改的最小天数
+  -M 设置密码修改的最大天数
+  -d 设置密码最后修改日期
+  -I 设置密码过期后，锁定账号的天数
+  -E 设置账号过期日期，0=立即过期，-1=永不过期
+  -W 设置密码过期前的警告天数
+-l 查看指定用户的相关信息
+-h 帮助
+
+ 举例：chage -M 99999  oracle
+ 
+ 
+--查看防火墙开放的端口号
+firewall-cmd --list-all
+
+--设置防火墙开放的端口号
+firewall-cmd --add-service=http --permanent
+firewall-cmd --add-port=80/tcp --permanent
+
+--重启防火墙
+firewall-cmd --reload
+
+--配置开机自启动
+systemctl enabled mysqld.service
+
+--取消开机自启动
+systemctl disable mysqld.service
+
+--开机自动启动服务的状态
+systemctl is-enabled sshd.service
+
+--开机自动启动程序查看
+
+chkconfig --list //命令查看已设置的开启自启动列表。
+
+
+--开机自启动配置（init.d模式 centos7）
+ vi /etc/rc.local
+ 写入启动用的语句：举例
+ #普罗米修斯启动，需要后面接config配置文件路径选项
+
+nohup /opt/prometheus/prometheus --config.file=/opt/prometheus/prometheus.yml &
+
+
+#node_exporter启动
+nohup /opt/node_exporter/node_exporter &
+
+#mysql_exporter启动
+nohup /opt/mysqld_exporter/mysqld_exporter
+
+#启动influxdb数据库
+#influxd -config influxdb.conf
+
+#启动grafana
+systemctl start grafana-server.service
+
+
+
+systemctl list-dependencies [target] 查看在特定目标用户上启用的服务
+systemctl list-dependencies oracle
+
+systemctl list-unit-files --type=service --state=enabled
+
+--使用systemctl命令杀死服务
+systemctl  kill  httpd
+
+--学习
+systemctl和service、chkconfig命令的关系
+
+systemctl命令：是一个systemd工具，主要负责控制systemd系统和服务管理器。
+service命令：可以启动、停止、重新启动和关闭系统服务，还可以显示所有系统服务的当前状态。
+chkconfig命令：是管理系统服务(service)的命令行工具。所谓系统服务(service)，就是随系统启动而启动，随系统关闭而关闭的程序。
+systemctl命令是系统服务管理器指令，它实际上将 service 和 chkconfig 这两个命令组合到一起。
+
+systemctl是RHEL 7 的服务管理工具中主要的工具，它融合之前service和chkconfig的功能于一体。可以使用它永久性或只在当前会话中启用/禁用服务。
+
+所以systemctl命令是service命令和chkconfig命令的集合和代替。
+
+
+
+--nohup
+jobs  -l   查看当前以nohup方式后台运行的进程

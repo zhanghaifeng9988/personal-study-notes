@@ -1,0 +1,31 @@
+
+
+https://www.cnblogs.com/holychan/p/15864295.html 日志学习相关链接
+
+MySQL的日志主要分为六类：
+
+（1） 错误日志log_error：记录MySQL服务的启动、运行或停止MySQL服务时出现的问题
+
+（2） 查询日志general_log：记录简历的客户端连接和执行的语句
+
+（3） 慢查询日志slow_query_log：记录所有执行时间超过long_query_time的所有查询或不使用索引的查询
+
+（4）二进制日志binlog：记录所有更改数据的语句，可以用于数据复制
+
+（5）事务日志innodb_log：用来记录数据库更新情况的文件，它可以记录针对数据库的任何操作，并将记录的结果保存到独立的文件中
+
+（6）中继日志relay_log:复制中使用
+
+
+show variables  like '%log%';  --查看mysql所有日志类型、配置信息及状态
+
+
+
+show master status; --查看日志的路径
+
+
+SELECT @@GLOBAL.log_error_services;--查询当前的错误日志配置
+
+select * from mysql.component;  --查询已经安装的组件
+
+

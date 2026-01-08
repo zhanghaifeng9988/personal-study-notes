@@ -1,0 +1,53 @@
+
+--查询用户被授予的系统权限
+select * from dba_sys_privs where grantee='ZFS_OP';
+
+select * from dba_sys_privs where grantee in('ZFS_SYS','ZFS_BOE','ZFS_OP','ZFS_FSC','ZFS_FMC','ZFS_LOG','ZFS_GUIDE','ZFS_JOB','ZFS_CLAIM','ZFS_RPT',
+'ZFS_BGT','ZFS_RULE','ZFS_IP','ZFS_IPE','ZFS_MONITOR','ZFS_LDG','ZFS_SCP','ZFS_EXCHANGE','ERS','EVS') order by GRANTEE;
+
+一共20个用户，有4个是dba用户
+
+--用户授权相关
+grant select on DBA_USERS to  ;
+grant select on DBA_TAB_COMMENTS to  ;
+grant select on DBA_OBJECTS to  ;
+grant select on  DBA_TABLES to  ;
+grant select on USER_TAB_COLS to ;
+
+create user   用户名  identified by " "
+grant  unlimited tablespace to   ;
+grant  connect to   ;
+grant  select any table to  ;
+grant  create any synonym to    ;
+
+
+grant  resource to   ;
+grant   select on 用户名.表名 to    ;
+grant  update on  用户名.表名 to   ;
+grant  insert on  用户名.表名 to   ;
+
+
+
+--查询用户被授予的表级权限
+select * from dba_tab_privs where grantee='ZFS_OP';
+
+--查询当前用户的缺省表空间
+select username,default_tablespace from dba_users where username='ZFS_OP';
+
+--查询用户的角色
+select *  from dba_role_privs where   GRANTEE='ZFS_OP';
+
+--查询拥有DBA权限的用户
+select * from dba_role_privs where granted_role='DBA';  
+
+
+--查看用户的被授权内容
+ 
+ select dbms_metadata.get_granted_ddl('ROLE_GRANT',username) from dba_users where account_status='OPEN';
+ 
+ 2)查询用户的权限：
+select 'grant '||t.privilege||' to '||t.grantee||';', t.* from dba_sys_privs t where t.grantee='username';
+select t.privilege,t.grantee,t.* from dba_tab_privs t where t.grantee='METADATA’;
+
+3)查询用户的角色：
+select * from dba_role_privs t where t.grantee='username’;

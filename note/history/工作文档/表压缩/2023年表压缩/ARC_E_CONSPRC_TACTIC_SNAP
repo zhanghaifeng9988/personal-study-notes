@@ -1,0 +1,273 @@
+
+
+
+--查询表的大小
+col OWNER for a20
+col SEGMENT_NAME for a30
+col SEGMENT_TYPE for a30
+col tablespace_name for a20
+set lines 200 pages 999 long 20000
+select  OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name ,sum(BYTES)/1024/1024/1024 
+from dba_segments
+where segment_name='ARC_E_CONSPRC_TACTIC_SNAP' and owner='FDPSHARE'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name;
+
+OWNER                SEGMENT_NAME                   SEGMENT_TYPE                   TABLESPACE_NAME      SUM(BYTES)/1024/1024/1024
+-------------------- ------------------------------ ------------------------------ -------------------- -------------------------
+FDPSHARE             ARC_E_CONSPRC_TACTIC_SNAP      TABLE SUBPARTITION             DATA_RECOVER                        1.61401367
+FDPSHARE             ARC_E_CONSPRC_TACTIC_SNAP      TABLE SUBPARTITION             SHAREDATA                           121.432678
+
+--查询表是否包含大对象字段
+select column_name,data_type,table_name from dba_tab_columns
+ where owner='FDPSHARE' and table_name='ARC_E_CONSPRC_TACTIC_SNAP' and  data_type in('CLOB','BLOB','NCLOB','BFILE');
+
+
+--查看分区表类型统计信息
+col OWNER for a20
+col TABLE_NAME for a30
+set lines 200 pages 999 long 20000
+select OWNER,TABLE_NAME,PARTITIONING_TYPE,SUBPARTITIONING_TYPE,PARTITION_COUNT
+from dba_part_tables
+where OWNER='FDPSHARE' and TABLE_NAME='ARC_E_CONSPRC_TACTIC_SNAP';
+
+OWNER                TABLE_NAME                     PARTITIONING_TYPE           SUBPARTITIONING_TYPE        PARTITION_COUNT
+-------------------- ------------------------------ --------------------------- --------------------------- ---------------
+FDPSHARE             ARC_E_CONSPRC_TACTIC_SNAP      RANGE                       LIST                                     12
+
+
+分区是range
+子分区是list
+
+
+--查看子分区统计信息
+col TABLE_OWNER for a20
+col TABLE_NAME for a30
+col partition_name for a30
+set lines 200 pages 999 long 20000
+select table_owner,table_name,partition_name,subpartition_count from dba_tab_partitions where  table_owner='FDPSHARE'  
+and TABLE_NAME='ARC_E_CONSPRC_TACTIC_SNAP';
+
+TABLE_OWNER          TABLE_NAME                     PARTITION_NAME                 SUBPARTITION_COUNT
+-------------------- ------------------------------ ------------------------------ ------------------
+FDPSHARE             ARC_E_CONSPRC_TACTIC_SNAP      P14401                                        199
+FDPSHARE             ARC_E_CONSPRC_TACTIC_SNAP      P14402                                        199
+FDPSHARE             ARC_E_CONSPRC_TACTIC_SNAP      P14403                                        199
+FDPSHARE             ARC_E_CONSPRC_TACTIC_SNAP      P14404                                        199
+FDPSHARE             ARC_E_CONSPRC_TACTIC_SNAP      P14405                                        199
+FDPSHARE             ARC_E_CONSPRC_TACTIC_SNAP      P14406                                        199
+FDPSHARE             ARC_E_CONSPRC_TACTIC_SNAP      P14407                                        199
+FDPSHARE             ARC_E_CONSPRC_TACTIC_SNAP      P14408                                        199
+FDPSHARE             ARC_E_CONSPRC_TACTIC_SNAP      P14409                                        199
+FDPSHARE             ARC_E_CONSPRC_TACTIC_SNAP      P14410                                        199
+FDPSHARE             ARC_E_CONSPRC_TACTIC_SNAP      P14411                                        199
+FDPSHARE             ARC_E_CONSPRC_TACTIC_SNAP      PMAX                                          140
+
+
+
+--查看子分区详细信息
+col TABLE_OWNER for a20
+col TABLE_NAME for a30
+col partition_name for a30
+col subpartition_name for a30
+
+select table_owner,table_name,partition_name,SUBPARTITION_NAME from dba_tab_subpartitions 
+ where  table_owner='FDPSHARE'  and TABLE_NAME='ARC_E_CONSPRC_TACTIC_SNAP' order by partition_name;
+
+--查询索引大小(已经在索引表空间了,不需要移动表空间)
+col INDEX_NAME for a30
+col DEGREE for a5
+col tablespace_name for a30
+col status for a10
+set lines 200 pages 999 long 20000
+select index_name,degree,status,tablespace_name 
+from dba_indexes 
+where owner='FDPSHARE' and table_name='ARC_E_CONSPRC_TACTIC_SNAP';
+
+INDEX_NAME                     DEGRE STATUS     TABLESPACE_NAME
+------------------------------ ----- ---------- ------------------------------
+IDX_ARC_E_CC_TC_SNAP_ORG_NO    1     VALID      DATA_RECOVER_IDX
+IDX_ARC_E_CC_TC_SNAP_YM        1     VALID      DATA_RECOVER_IDX
+
+
+
+col OWNER for a20
+col SEGMENT_NAME for a30
+col SEGMENT_TYPE for a20
+set lines 200 pages 999 long 20000
+select  OWNER,SEGMENT_NAME,SEGMENT_TYPE,sum(BYTES)/1024/1024/1024 
+from dba_segments
+where segment_name in ('IDX_ARC_E_CC_TC_SNAP_ORG_NO','IDX_ARC_E_CC_TC_SNAP_YM') and owner='FDPSHARE'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE order by sum(BYTES);
+
+OWNER                SEGMENT_NAME                   SEGMENT_TYPE         SUM(BYTES)/1024/1024/1024
+-------------------- ------------------------------ -------------------- -------------------------
+FDPSHARE             IDX_ARC_E_CC_TC_SNAP_YM        INDEX                               39.3243408
+FDPSHARE             IDX_ARC_E_CC_TC_SNAP_ORG_NO    INDEX                               45.2940674
+
+
+
+--查询小于2022年1月份的数据量
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_CONSPRC_TACTIC_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_CONSPRC_TACTIC_SNAP'  
+and partition_name='P14401' and subpartition_name<'P14401_P202201');
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               8.25891113
+			   
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_CONSPRC_TACTIC_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_CONSPRC_TACTIC_SNAP'  
+and partition_name='P14402' and subpartition_name<'P14402_P202201');
+
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               4.24719238
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_CONSPRC_TACTIC_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_CONSPRC_TACTIC_SNAP'  
+and partition_name='P14403' and subpartition_name<'P14403_P202201');
+
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               8.61437988
+
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_CONSPRC_TACTIC_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_CONSPRC_TACTIC_SNAP'  
+and partition_name='P14404' and subpartition_name<'P14404_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               10.3282471
+
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_CONSPRC_TACTIC_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_CONSPRC_TACTIC_SNAP'  
+and partition_name='P14405' and subpartition_name<'P14405_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               11.8387451
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_CONSPRC_TACTIC_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_CONSPRC_TACTIC_SNAP'  
+and partition_name='P14406' and subpartition_name<'P14406_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               13.0126953
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_CONSPRC_TACTIC_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_CONSPRC_TACTIC_SNAP'  
+and partition_name='P14407' and subpartition_name<'P14407_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               17.2293091
+
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_CONSPRC_TACTIC_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_CONSPRC_TACTIC_SNAP'  
+and partition_name='P14408' and subpartition_name<'P14408_P202201');
+
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               10.9384155
+
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_CONSPRC_TACTIC_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_CONSPRC_TACTIC_SNAP'  
+and partition_name='P14409' and subpartition_name<'P14409_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+                5.7442627
+
+
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_CONSPRC_TACTIC_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_CONSPRC_TACTIC_SNAP'  
+and partition_name='P14410'  and subpartition_name<'P14410_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               4.27844238
+
+
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_CONSPRC_TACTIC_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_CONSPRC_TACTIC_SNAP'  
+and partition_name='P14411'   and subpartition_name<'P14411_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+                7.4473877
+				
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_CONSPRC_TACTIC_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_CONSPRC_TACTIC_SNAP'  
+and partition_name='PMAX'   and subpartition_name<'PMAX_P202201');
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+
+
+
+
+ select 7.4473877+4.27844238+5.7442627+10.9384155+17.2293091+13.0126953+11.8387451+10.3282471+8.61437988+4.24719238+8.25891113 from dual;
+
+7.4473877+4.27844238+5.7442627+10.9384155+17.2293091+13.0126953+11.8387451+10.3282471+8.61437988+4.24719238+8.25891113
+----------------------------------------------------------------------------------------------------------------------
+                                                                                                            101.937988
+
+																	  
+--转移分区表并压缩表的语句
+select 'alter table '||table_owner||'.'||table_name||' move subpartition '||subpartition_name||' 
+tablespace HISCMPRS01 nologging parallel 8 compress;',compression,partition_name,subpartition_name,tablespace_name
+from dba_tab_subpartitions 
+where table_owner='FDPSHARE' and table_name='ARC_E_CONSPRC_TACTIC_SNAP' and  partition_name='P14401' and subpartition_name<'P14401_P202201';																	  
+
+
+
+--查询失效索引
+col owner for a20
+col status for a20
+col index_name for a30
+select owner,index_name,status from dba_indexes 
+where STATUS='UNUSABLE' and  owner='FDPSHARE' and table_name='ARC_E_CONSPRC_TACTIC_SNAP';
+
+
+--重建索引
+alter index FDPSHARE.IDX_ARC_E_CC_TC_SNAP_ORG_NO rebuild parallel 12  nologging;
+alter index FDPSHARE.IDX_ARC_E_CC_TC_SNAP_YM rebuild parallel 12  nologging;
+
+
+
+
+
+
+

@@ -1,0 +1,463 @@
+hive用户管理相关内容：
+                   https://www.tinymind.net.cn/articles/3ab66e988a2377
+				   
+				   https://blog.csdn.net/changlina_1989/article/details/119033304#:~:text=hive%E7%94%A8%E6%88%B7%E5%B0%B1%E6%98%AF,doop%E7%B1%BB%E4%BC%BC%EF%BC%89%E3%80%82
+一、hive用户授权机制
+  大家知道hive把元数据存储在metastore数据库中，一般都是mysql库中。
+metastore库中主要存储hive的库、表、分区、用户、角色等信息。
+比如：db_privs:记录了用户/角色在库上的权限，tbl_privs:记录了用户/角色在ge上的权限，
+tbl_col_privs：记录了用户/角色在表字段上的权限，tbls：记录了所有表信息。
+从元数据库中可以看出Hive是通过存储在元数据中的信息来管理用户权限，
+或者说是基于GRANT/REVOKE的授权机制。hive的数据分为元数据和数据文件两部分，
+元数据存储在metastore数据库中，而数据文件则存储在HDFS，控制元数据即控制可访问的数据文件。
+
+  Hive的用户是如何产生的？hive用户就是linux的用户，hive本身没有用户管理，
+只提供权限管理（这一点与hadoop类似）。
+二、
+
+二、HIVE相关配置
+        在“数据仓库架构中的ETL”曾经提到Hive可以用于原始数据和转换后的数据仓库数据存储。使用Hive作为多维数据仓库的主要挑战是处理渐变维（SCD）和生成代理键。处理渐变维需要配置Hive支持行级更新，并在建表时选择适当的文件格式。生成代理键在关系数据库中一般都是用自增列（如MySQL）或序列对象（如Oracle），但Hive中没有这样的机制，必须用其它方法实现。在后面“数据转换与装载”中将说明渐变维的概念和Hive中生成代理键的方法。
+
+1. 选择文件格式
+        Hive是Hadoop上的数据仓库组件，便于查询和管理分布式存储上的大数据集。Hive提供了一种称为HiveQL的语言，允许用户进行类似于SQL的查询。和普遍使用的所有SQL方言一样，它不完全遵守任何一种ANSI SQL标准，并对标准SQL进行了扩展。HiveQL和MySQL的方言最为接近，但是两者还是存在显著差异。HiveQL只处理结构化数据，并且不区分大小写。缺省时Hive使用内建的derby数据库存储元数据，也可以配置Hive使用MySQL、Oracle等关系数据库存储元数据，生产环境建议使用外部数据库存储Hive元数据。Hive里的数据最终存储在HDFS的文件中，常用的数据文件格式有以下4种：
+
+TEXTFILE
+SEQUENCEFILE
+RCFILE
+ORCFILE
+        在深入讨论各种类型的文件格式前，先看一下什么是文件格式。所谓文件格式是一种信息被存储或编码成计算机文件的方式。在Hive中文件格式指的是记录以怎样的编码格式被存储到文件中。当我们处理结构化数据时，每条记录都有自己的结构。记录在文件中是如何编码的就定义了文件格式。不同文件格式的主要区别在于它们的数据编码、压缩率、使用的空间和磁盘I/O。
+
+        当用户向传统数据库中增加数据的时候，系统会检查写入的数据与表结构是否匹配，如果不匹配则拒绝插入数据，这就是所谓的写时模式。Hive与此不同，它使用的是读时模式，就是直到读取时再进行数据校验。在向Hive装载数据时，它并不验证数据与表结构是否匹配，但这时它会检查文件格式是否和表定义相匹配。
+
+（1）TEXTFILE
+
+        TEXTFILE就是普通的文本型文件，是Hadoop里最常用的输入输出格式，
+		也是Hive的缺省文件格式。如果表定义为TEXTFILE，则可以向该表中装载以逗号、
+		TAB或空格作为分隔符的数据，也可以导入JSON格式的数据。
+		文本文件中除了可以包含普通的字符串、数字、日期等简单数据类型外，
+		还可以包含复杂的集合数据类型。如表4-1所示，
+		Hive支持STRUCT、MAP和ARRAY三种集合数据类型。
+
+数据类型
+
+描述
+
+语法示例
+
+STRUCT
+
+结构类型可以通过“点”符号访问元素内容。例如，某个列的数据类型是STRUCT{first STRING,last STRING}，那么第一个元素可以通过字段名.first来引用。
+
+columnname struct(first string, last string)
+
+MAP
+
+MAP是一组键/值对元组集合，使用数组表示法可以访问元素。例如，如果某个列的数据类型是MAP，其中键/值对是’first’/’John’和’last’/’Doe’，那么可以通过字段名[’ last’]获取最后一个元素的值。
+
+columnname map(string, string)
+
+ARRAY
+
+数组是一组具有相同类型和名称的变量集合。这些变量被称为数组的元素，每个数组元素都有一个编号，编号从0开始。例如，数组值为[‘John’,’Doe’]，那么第2个元素可以通过字段名[1]进行引用。
+
+columnname array(string)
+
+表4-1 Hive的集合数据类型
+
+        Hive中缺省的记录和字段分隔符如表4-2所示。TEXTFILE格式缺省每一行被认为是一条记录。
+
+分隔符
+
+描述
+
+\n
+
+对文本文件来说，每行都是一条记录，因此换行符可以分隔记录
+
+^A（Ctrl+A）
+
+用于分隔字段。在CREATE TABLE 语句中可以使用八进制编码的\001表示
+
+^B（Ctrl+B）
+
+用于分隔ARRARY或STRUCT中的元素，或用于MAP中键/值对之间的分隔。在CREATE TABLE 语句中可以使用八进制编码的\002表示
+
+^C（Ctrl+C）
+
+用于MAP中键和值之间的分隔。在CREATE TABLE 语句中可以使用八进制编码的\003表示
+
+表4-2 Hive中缺省的记录和字段分隔
+
+（2）SEQUENCEFILE
+
+        我们知道Hadoop处理少量大文件比大量小文件的性能要好。如果文件小于Hadoop里定义的块尺寸（Hadoop 2.x缺省是128M），可以认为是小文件。元数据的增长将转化为NameNode的开销。如果有大量小文件，NameNode会成为性能瓶颈。为了解决这个问题，Hadoop引入了sequence文件，将sequence作为存储小文件的容器。
+
+        Sequence文件是由二进制键值对组成的平面文件。Hive将查询转换成MapReduce作业时，决定一个给定记录的哪些键/值对被使用。Sequence文件是可分割的二进制格式，主要的用途是联合多个小文件。
+
+（3）RCFILE
+
+        RCFILE指的是Record Columnar File，是一种高压缩率的二进制文件格式，被用于在一个时间点操作多行的场景。RCFILEs是由二进制键/值对组成的平面文件，这点与SEQUENCEFILE非常相似。RCFILE以记录的形式存储表中的列，即列存储方式。它先分割行做水平分区，然后分割列做垂直分区。RCFILE把一行的元数据作为键，把行数据作为值。这种面向列的存储在执行数据分析时更高效。
+
+（4）ORCFILE
+        ORC指的是Optimized Record Columnar，就是说相对于其它文件格式，它以更优化的方式存储数据。ORC能将原始数据的大小缩减75%，从而提升了数据处理的速度。OCR比Text、Sequence和RC文件格式有更好的性能，而且ORC是目前Hive中唯一支持事务的文件格式。
+
+        应该依据数据需求选择适当的文件格式，例如：
+
+如果数据有参数化的分隔符，那么可以选择TEXTFILE格式。
+如果数据所在文件比块尺寸小，可以选择SEQUENCEFILE格式。
+如果想执行数据分析，并高效地存储数据，可以选择RCFILE格式。
+如果希望减小数据所需的存储空间并提升性能，可以选额ORCFILE格式。
+多维数据仓库需要处理渐变维（SCD），必然要用到行级更新，而当前的Hive只有ORCFILE文件格式可以支持此功能。因此在我们的销售订单示例中，所有数据仓库里的表，除日期维度表外，其它表都使用ORCFILE格式。日期维度表数据一旦生成就不会修改，所以使用TEXTFILE格式。原始数据存储里的表数据是从源数据库直接导入的，只有追加和覆盖两种导入方式，不存在数据更新的问题，因此使用缺省的TEXTFILE格式。
+
+2. 选择表类型
+（1）管理表
+        管理表有时也被称为内部表，因为Hive会控制这些表中数据的生命周期。默认情况下，Hive会将这些表的数据存储在由hive-site.xml文件中属性hive.metastore.warehouse.dir所定义目录的子目录下。当我们删除一个管理表时，Hive也会删除这个表中的数据。
+
+        管理表的主要问题是只能用Hive访问，不方便和其它系统共享数据。例如，假如有一份由Pig或其它工具创建并且主要由这一工具使用的数据，同时希望使用Hive在这份数据上执行一些查询，可是并没有给予Hive对数据的所有权，这时就不能使用管理表了。我们可以创建一个外部表指向这份数据，而并不需要对其具有所有权。（2）外部表
+        我们来看一个Hive文档中外部表的例子。
+
+create external table page_view(viewtime int, userid bigint,
+     page_url string, referrer_url string,
+     ip string comment 'ip address of the user',
+     country string comment 'country of origination')
+ comment 'this is the staging page view table'
+ row format delimited fields terminated by '\054'
+ stored as textfile
+ location '<hdfs_location>';
+        上面的语句建立一个名为page_view的外部表。EXTERNAL关键字告诉Hive这是一个外部表，后面的LOCATION子句指示数据位于HDFS的哪个路径下，而不使用hive.metastore.warehouse.dir定义的缺省位置。外部表方便对已有数据的集成。
+
+        因为表是外部的，所以Hive并不认为其完全拥有这个表的数据。在对外部表执行删除操作时，只是删除掉描述表的元数据信息，并不会删除表数据。
+
+        我们需要清楚的重要一点是管理表和外部表之间的差异要比看起来的小得多。即使对于管理表，用户也可以指定数据是存储在哪个路径下的，
+		因此用户也可以使用其它工具（如hdfs的dfs命令等）来修改甚至删除管理表所在路径下的数据。
+		从严格意义上说，Hive是管理着这些目录和文件，但是并不具有对它们的完全控制权。
+		Hive实际上对于所存储的文件的完整性以及数据内容是否和表结构一致并没有支配能力，
+		甚至管理表都没有给用户提供这些管理能力。   
+		用户可以在DESCRIBE FORMATTED tablename语句的输出中看到表是管理表还是外部表。对于管理表，
+
+1、分桶表
+分桶和分区一样，也是一种通过改变表的存储模式，从而完成对表优化的一种调优方式，但和分区不同的是，分区是将表拆分到不同的子目录中进行存储，而分桶是将表拆分到不同文件中进行存储。
+分桶操作目的
+改变数据的存储分布，提升查询、取样、Join等特定任务的执行效率。
+  分桶表示例：
+  建表语句格式
+CREATE [EXTERNAL] TABLE <table_name>
+(<col_name> <data_type> [, <col_name> <data_type> ...])]
+[PARTITIONED BY ...]
+CLUSTERED BY (<col_name>)
+[SORTED BY (<col_name> [ASC|DESC] [, <col_name> [ASC|DESC]...])]
+INTO <num_buckets> BUCKETS
+[ROW FORMAT <row_format>]
+[LOCATION '<file_path>']
+[TBLPROPERTIES ('<property_name>'='<property_value>', ...)];
+
+表1：
+drop table if exists tbl_buckets;
+create table tbl_buckets(
+id int,
+name string
+)
+clustered by(id) 
+sorted by (id desc) -- 分桶时，数据默认按照分桶键升序排列
+into 4 buckets
+stored as textfile;
+
+表2：
+create table t_update(id int, name string)     
+clustered by (id) into 8 buckets     
+stored as orc tblproperties ('transactional'='true'); 
+ 
+ 说明：
+
+必须存储为ORC格式。
+建表语句必须带有into buckets子句和stored as orc tblproperties ('transactional'='true')子句，并且不能带有sorted by子句。
+关键字clustered声明划分桶的列和桶的个数，这里以id来划分桶，划分8个桶。
+Hive会计算id列的hash值再以桶的个数取模来计算某条记录属于哪个桶。
+
+ dml语句：
+insert into t_update values (1,'aaa'), (2,'bbb');
+ 
+update t_update set name='ccc' where id=1;
+ 
+delete from t_update where id=2;
+ 
+select * from t_update;
+
+
+***mysql数据库中源数据建表语句：
+
+-- 建立客户表 
+1、create table customer (
+    -> customer_number int not null auto_increment primary key comment '客户编号，主键',
+    -> customer_name varchar(50) comment '客户名称',
+    -> customer_street_address varchar(50) comment '客户住址',
+    -> customer_zip_code int comment '邮编',
+    -> customer_city varchar(30) comment '所在城市',
+    -> customer_state varchar(2) comment '所在省份');
+	
+	插入数据：
+	insert into customer 
+(customer_name,customer_street_address,customer_zip_code,
+customer_city,customer_state) 
+values      
+('really large customers', '7500 louise dr.',17050, 'mechanicsburg','pa'),    
+('small stores', '2500 woodland st.',17055, 'pittsburgh','pa'),    
+('medium retailers','1111 ritter rd.',17055,'pittsburgh','pa'),    
+('good companies','9500 scott st.',17050,'mechanicsburg','pa'),    
+('wonderful shops','3333 rossmoyne rd.',17050,'mechanicsburg','pa'),    
+('loyal clients','7070 ritter rd.',17055,'pittsburgh','pa'),    
+('distinguished partners','9999 scott st.',17050,'mechanicsburg','pa');
+
+
+-- 建立产品表
+2、 create table product (
+    -> product_code int not null auto_increment primary key comment '产品编码，主键',
+    -> product_name varchar(30) comment '产品名称',
+    -> product_category varchar(30) comment '产品类型');
+	
+	插入数据：
+	insert into product (product_name,product_category)    
+values     
+('hard disk drive', 'storage'),    
+('floppy drive', 'storage'),    
+('lcd panel', 'monitor');  
+
+
+-- 建立销售订单表
+3、create table sales_order (
+    -> order_number int not null auto_increment primary key comment '订单号，主键',
+    -> customer_number int comment '客户编号',
+    -> product_code int comment '产品编码',
+    -> order_date datetime comment '订单日期',
+    -> entry_date datetime comment '登记日期',
+    -> order_amount decimal(10 , 2 ) comment '销售金额',
+    -> foreign key (customer_number)
+    -> references customer (customer_number)
+    -> on delete cascade on update cascade,
+    -> foreign key (product_code)
+    -> references product (product_code)
+    -> on delete cascade on update cascade);
+	
+	插入数据：通过存储过程创建100条
+	drop procedure if exists generate_sales_order_data;  
+delimiter //    
+create procedure generate_sales_order_data()  
+begin   
+    drop table if exists temp_sales_order_data;  
+    create table temp_sales_order_data as select * from sales_order where 1=0;  
+  
+    set @start_date := unix_timestamp('2020-03-01');  
+    set @end_date := unix_timestamp('2020-09-01');  
+    set @i := 1;  
+  
+    while @i<=100 do  
+        set @customer_number := floor(1 + rand() * 6);  
+        set @product_code := floor(1 + rand() * 2);  
+        set @order_date := from_unixtime(@start_date + rand() * (@end_date - @start_date));  
+        set @amount := floor(1000 + rand() * 9000);  
+  
+        insert into temp_sales_order_data values (@i,@customer_number,@product_code,@order_date,@order_date,@amount);  
+        set @i:=@i+1;  
+    end while;  
+  
+    truncate table sales_order;  
+    insert into sales_order   
+    select null,customer_number,product_code,order_date,entry_date,order_amount from temp_sales_order_data order by order_date;  
+    commit;  
+  
+end   
+//    
+delimiter ;   
+  
+call generate_sales_order_data();
+
+建立RDS的表：
+
+create table
+sales_order (
+order_number int comment
+'order number',
+customer_number int comment
+'customer number',
+product_code int comment
+'product code',
+order_date timestamp comment
+'order date',
+entry_date timestamp comment
+'entry date',
+order_amount decimal
+(10 , 2 ) comment
+'order amount'
+) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\u0001' STORED AS TEXTFILE;
+
+create table
+customer (
+customer_number int comment
+'number',
+customer_name varchar
+(30) comment
+'name',
+customer_street_address varchar
+(30) comment
+'address',
+customer_zip_code int comment
+'zipcode',
+customer_city varchar
+(30) comment
+'city',
+customer_state varchar(2) comment
+'state'
+) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\u0001' STORED AS TEXTFILE;
+
+create table
+product (
+product_code int comment
+'code',
+product_name varchar
+(30) comment
+'name',
+product_category varchar
+(30) comment
+'category'
+) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\u0001' STORED AS TEXTFILE;
+
+建立dw层的维度表：
+建立时间维度表
+create table date_dim (    
+    date_sk int comment '日期代理键',  
+    dt date comment '日期，格式为yyyy-mm-dd',  
+    month tinyint comment '月份',  
+    month_name varchar(9) comment '月名称',  
+    quarter tinyint comment '季度',  
+    year smallint comment '年份'  
+)  
+comment '日期维度表'  
+row format delimited fields terminated by ','  
+stored as textfile; 
+
+
+建立客户维度表
+create table customer_dim (    
+    customer_sk int comment '代理键',    
+    customer_number int comment '客户编号，业务主键',    
+    customer_name varchar(50) comment '客户名称',    
+    customer_street_address varchar(50) comment '客户住址',    
+    customer_zip_code int comment '邮编',    
+    customer_city varchar(30) comment '所在城市',    
+    customer_state varchar(2) comment '所在省份',  
+    version int comment '版本号',  
+    effective_date date comment '生效日期',    
+    expiry_date date comment '到期日期'    
+)  
+clustered by (customer_sk) into 8 buckets    
+stored as orc tblproperties ('transactional'='true');
+
+
+create table product_dim (    
+    product_sk int comment '代理键',    
+    product_code int comment '产品编码，业务主键',    
+    product_name varchar(30) comment '产品名称',    
+    product_category varchar(30) comment '产品类型',  
+    version int comment '版本号',  
+    effective_date date comment '生效日期',    
+    expiry_date date comment '到期日期'    
+)  
+clustered by (product_sk) into 8 buckets    
+stored as orc tblproperties ('transactional'='true');  
+
+create table order_dim (    
+    order_sk int comment '代理键',    
+    order_number int comment '订单号，业务主键',   
+    version int comment '版本号',  
+    effective_date date comment '生效日期',  
+    expiry_date date comment '到期日期'    
+)  
+clustered by (order_sk) into 8 buckets    
+stored as orc tblproperties ('transactional'='true'); 
+
+create table sales_order_fact (    
+    order_sk int comment '订单维度代理键',    
+    customer_sk int comment '客户维度代理键',    
+    product_sk int comment '产品维度代理键',    
+    order_date_sk int comment '日期维度代理键',    
+    order_amount decimal(10 , 2 ) comment '销售金额' 
+)  
+clustered by (order_sk) into 8 buckets    
+stored as orc tblproperties ('transactional'='true'); 
+
+日期维度数据生成的存储过程
+
+-- 生成日期维度数据
+#!/bin/bash
+date1="$1"
+date2="$2"
+tempdate=`date -d "$date1" +%F`
+tempdateSec=`date -d "$date1" +%s`
+enddateSec=`date -d "$date2" +%s`
+min=1
+max=`expr \( $enddateSec - $tempdateSec \) / \( 24 \* 60 \* 60 \) + 1`
+cat /dev/null > ./date_dim.csv
+while [ $min -le $max ]
+do
+month=`date -d "$tempdate" +%m`
+month_name=`date -d "$tempdate" +%B`
+quarter=`echo $month | awk '{print int(($0-1)/3)+1}'`
+year=`date -d "$tempdate" +%Y`
+echo ${min}","${tempdate}","${month}","${month_name}","${quarter}","${year}>> ./date_dim.csv
+tempdate=`date -d "+$min day $date1" +%F`
+tempdateSec=`date -d "+$min day $date1" +%s`
+min=`expr $min + 1`
+done
+hdfs dfs -put -f date_dim.csv /user/hive/warehouse/dw.db/date_dim/
+
+
+理论上分为三层：ODS数据运营层，DW数据仓库层，ADS数据服务层，
+
+数据运营层（ODS）:原始数据：
+　　ODS：Operation Data Store 数据准备区，也称为贴源层。数据仓库源头系统的数据表通常会原封不动的存储一份，
+这称为ODS层，是后续数据仓库加工数据的来源。
+　　ODS层数据的来源方式：
+　　　　1.业务库 : 经常会使用sqoop来抽取，例如每天定时抽取一次。实时方面，可以考虑用canal监听mysql的binlog，实时接入即可。
+　　　　2.埋点日志 : 日志一般以文件的形式保存，可以选择用flume定时同步可以用spark streaming或者Flink来实时接入
+　　　　3.kafka也OK消息队列：即来自ActiveMQ、Kafka的数据等.
+数据仓库层（DW）：数据清洗：
+　   1. DWD：data warehouse details 细节数据层，是业务层与数据仓库的隔离层。主要对ODS数据层做一些数据清洗和规范化的操作。
+数据清洗：去除空值、脏数据、超过极限范围的
+　　 2. DWB：data warehouse base 数据基础层，存储的是客观数据，一般用作中间层，可以认为是大量指标的数据层。
+　　 3. DWS：data warehouse service 数据服务层，基于DWB上的基础数据，整合汇总成分析某一个主题域的服务数据层，一般是宽表。用于提供后续的业务查询，OLAP分析，数据分发等。
+用户行为，轻度聚合
+数据服务层/应用层（ADS）：出报表:
+　　ADS：applicationData Service应用数据服务，该层主要是提供数据产品和数据分析使用的数据，一般会存储在ES、mysql等系统中供线上系统使用。
+
+
+hive版本查询命令：
+select * from hive.version;
+
+hive主要的命令:
+dfs -ls /;       可以执行hadoop命令：这种使用hadoop命令的方式实际上比与其等价的在bash shell中执行的hadoop dfs命令效率更高，
+
+dfs -help;       查看dfs所提供的所有功能选项列表；
+show functions;  查看当前Hive会话中所加载的所有函数名称；其中包括内置的和用户加载的函数
+desc function 函数名;   展示对应函数的简短介绍；
+desc function extended 函数名;  查看更详细的函数文档
+
+
+hive的函数：
+1、row_number是窗口排序函数，但是hive 也没有提供非窗口的排序函数，但是我们前面说过了如果没有窗口的定义中没有partition by
+ 那就是将整个数据输入当成一个窗口，那么这种情况下我们也可以使用窗口排序函数完成全局排序。
+2、over只对聚合函数起作用，count分别对各组内进行计数，over统计一共有多少个组(有一个count进行累加一次)；
+
+例：ROW_NUMBER() OVER (ORDER BY 【列名】DESC) 
+是先把【列名】降序排列，
+再为降序以后的每条【列名】记录返回一个降序序号，序号从1开始，依次往下排。
+
+3、COALESCE(a1,a2,......,an) 返回a1,a2,......,an中遇到的第一个不为NULL的值；
+
+查询维度表中数据是否已经装载：
+select
+order_number,customer_name,product_name,dt, order_amount amount
+from sales_order_fact a, customer_dim b, product_dim c,order_dim d, date_dim e
+where a.customer_sk = b.customer_sk and a.product_sk = c.product_sk
+and a.order_sk = d.order_sk
+and a.order_date_sk = e.date_sk
+order by order_number;

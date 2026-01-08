@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src='Vue.js'></script>
+</head>
+<body>
+  <div id="Application">
+    自定义getfocus指令
+    <!-- 这个输入框使用了自定义指令 v-getfocus，
+并传入了一个名为 custom 的修饰符（arg），以及数值 1 -->
+<!-- 修饰符是用来扩展和增强指令功能 -->
+    <input v-getfocus:custom="1"/>
+  </div>
+  <script>
+    //vue实例定义，这个实例可以用来定义组件等，也可以配置应用，也可以配置全局属性，也可以挂载到DOM上
+    const App = Vue.createApp({})
+    //配置指令，这里定义了一个名为getfocus的指令，指令的定义是一个对象，
+    //对象中有mounted钩子函数，mounted钩子函数在指令被绑定到元素（这里是 <input>）上时被调用，
+    //并传入元素作为参数
+    //该钩子接收两个参数：element 是被绑定的 DOM 元素，param 是指令传递的参数。
+    //如果传入的参数为 1，则调用 element.focus() 方法，使输入框获得焦点。
+    App.directive('getfocus', {
+      mounted(element,param) {
+        if (param.value == 1){
+          element.focus()
+        }
+//不在 if 块中，因此每次指令被绑定时，都会执行这条语句并打印参数的信息。
+        console.log('参数:'+param.arg+':'+param.value)
+      }
+    })
+    App.mount('#Application')
+  </script>
+</body>
+</html>

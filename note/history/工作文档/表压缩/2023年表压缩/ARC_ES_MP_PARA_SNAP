@@ -1,0 +1,272 @@
+
+
+
+--查询表的大小
+col OWNER for a20
+col SEGMENT_NAME for a30
+col SEGMENT_TYPE for a30
+col tablespace_name for a20
+set lines 200 pages 999 long 20000
+select  OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name ,sum(BYTES)/1024/1024/1024 
+from dba_segments
+where segment_name='ARC_ES_MP_PARA_SNAP' and owner='FDPSHARE'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name;
+
+OWNER                SEGMENT_NAME                   SEGMENT_TYPE                   TABLESPACE_NAME      SUM(BYTES)/1024/1024/1024
+-------------------- ------------------------------ ------------------------------ -------------------- -------------------------
+FDPSHARE             ARC_ES_MP_PARA_SNAP            TABLE SUBPARTITION             SHAREDATA                           444.898438
+
+--查询表是否包含大对象字段
+select column_name,data_type,table_name from dba_tab_columns
+ where owner='FDPSHARE' and table_name='ARC_ES_MP_PARA_SNAP' and  data_type in('CLOB','BLOB','NCLOB','BFILE');
+
+
+--查看分区表类型统计信息
+col OWNER for a20
+col TABLE_NAME for a30
+set lines 200 pages 999 long 20000
+select OWNER,TABLE_NAME,PARTITIONING_TYPE,SUBPARTITIONING_TYPE,PARTITION_COUNT
+from dba_part_tables
+where OWNER='FDPSHARE' and TABLE_NAME='ARC_ES_MP_PARA_SNAP';
+
+OWNER                TABLE_NAME                     PARTITIONING_TYPE           SUBPARTITIONING_TYPE        PARTITION_COUNT
+-------------------- ------------------------------ --------------------------- --------------------------- ---------------
+FDPSHARE             ARC_ES_MP_PARA_SNAP            RANGE                       LIST                                     11
+
+分区是range
+子分区是list
+
+
+--查看子分区统计信息
+col TABLE_OWNER for a20
+col TABLE_NAME for a30
+col partition_name for a30
+set lines 200 pages 999 long 20000
+select table_owner,table_name,partition_name,subpartition_count from dba_tab_partitions where  table_owner='FDPSHARE'  
+and TABLE_NAME='ARC_ES_MP_PARA_SNAP';
+
+TABLE_OWNER          TABLE_NAME                     PARTITION_NAME                 SUBPARTITION_COUNT
+-------------------- ------------------------------ ------------------------------ ------------------
+FDPSHARE             ARC_ES_MP_PARA_SNAP            P14401                                         86
+FDPSHARE             ARC_ES_MP_PARA_SNAP            P14402                                         86
+FDPSHARE             ARC_ES_MP_PARA_SNAP            P14403                                         86
+FDPSHARE             ARC_ES_MP_PARA_SNAP            P14404                                         86
+FDPSHARE             ARC_ES_MP_PARA_SNAP            P14405                                         86
+FDPSHARE             ARC_ES_MP_PARA_SNAP            P14406                                         86
+FDPSHARE             ARC_ES_MP_PARA_SNAP            P14407                                         86
+FDPSHARE             ARC_ES_MP_PARA_SNAP            P14408                                         86
+FDPSHARE             ARC_ES_MP_PARA_SNAP            P14409                                         86
+FDPSHARE             ARC_ES_MP_PARA_SNAP            P14410                                         86
+FDPSHARE             ARC_ES_MP_PARA_SNAP            P14411                                         86
+
+
+--查看子分区详细信息
+col TABLE_OWNER for a20
+col TABLE_NAME for a30
+col partition_name for a30
+col subpartition_name for a30
+
+select table_owner,table_name,partition_name,SUBPARTITION_NAME from dba_tab_subpartitions 
+ where  table_owner='FDPSHARE'  and TABLE_NAME='ARC_ES_MP_PARA_SNAP';
+
+--查询索引大小(已经在索引表空间了,不需要移动表空间)
+col INDEX_NAME for a30
+col DEGREE for a5
+col tablespace_name for a30
+col status for a10
+set lines 200 pages 999 long 20000
+select index_name,degree,status,tablespace_name 
+from dba_indexes 
+where owner='FDPSHARE' and table_name='ARC_ES_MP_PARA_SNAP';
+
+INDEX_NAME                     DEGRE STATUS     TABLESPACE_NAME
+------------------------------ ----- ---------- ------------------------------
+PK_ARC_ES_MP_PARA_SNAP         1     VALID      DATA_RECOVER_IDX
+
+
+col OWNER for a20
+col SEGMENT_NAME for a30
+col SEGMENT_TYPE for a20
+set lines 200 pages 999 long 20000
+select  OWNER,SEGMENT_NAME,SEGMENT_TYPE,sum(BYTES)/1024/1024/1024 
+from dba_segments
+where segment_name in ('PK_ARC_ES_MP_PARA_SNAP') and owner='FDPSHARE'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE order by sum(BYTES);
+
+OWNER                SEGMENT_NAME                   SEGMENT_TYPE         SUM(BYTES)/1024/1024/1024
+-------------------- ------------------------------ -------------------- -------------------------
+FDPSHARE             PK_ARC_ES_MP_PARA_SNAP         INDEX                               58.2340698
+
+
+--查询小于2022年1月份的数据量
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_ES_MP_PARA_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_ES_MP_PARA_SNAP'  
+and partition_name='P14401' and subpartition_name<'P14401_P202201');
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               46.0087891
+			   
+   --问题 
+
+    select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_ES_MP_PARA_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_ES_MP_PARA_SNAP'  
+and partition_name='P14401' and subpartition_name='P14401_IFNULL');
+   
+   SUM(BYTES)/1024/1024/1024
+   -------------------------
+                 .0078125
+    
+	select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_ES_MP_PARA_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_ES_MP_PARA_SNAP'  
+and partition_name='P14401' and substr(subpartition_name,-7)< 'P202201');
+	
+	SUM(BYTES)/1024/1024/1024
+-------------------------
+               46.0009766
+
+	两者相加的结果
+	select 46.0009766+0.0078125 from dual;
+
+46.0009766+0.0078125
+--------------------
+          46.0087891
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_ES_MP_PARA_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_ES_MP_PARA_SNAP'  
+and partition_name='P14402' and subpartition_name<'P14402_P202201');
+
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               20.7978516
+
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_ES_MP_PARA_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_ES_MP_PARA_SNAP'  
+and partition_name='P14403' and subpartition_name<'P14403_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               40.6679688
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_ES_MP_PARA_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_ES_MP_PARA_SNAP'  
+and partition_name='P14404' and subpartition_name<'P14404_P202201');
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               47.4941406
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_ES_MP_PARA_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_ES_MP_PARA_SNAP'  
+and partition_name='P14405' and subpartition_name<'P14405_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               51.3310547
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_ES_MP_PARA_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_ES_MP_PARA_SNAP'  
+and partition_name='P14406' and subpartition_name<'P14406_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               51.5380859
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_ES_MP_PARA_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_ES_MP_PARA_SNAP'  
+and partition_name='P14407' and subpartition_name<'P14407_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               71.0527344
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_ES_MP_PARA_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_ES_MP_PARA_SNAP'  
+and partition_name='P14408' and subpartition_name<'P14408_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               43.4384766
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_ES_MP_PARA_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_ES_MP_PARA_SNAP'  
+and partition_name='P14409' and subpartition_name<'P14409_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               23.1083984
+
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_ES_MP_PARA_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_ES_MP_PARA_SNAP'  
+and partition_name='P14410'  and subpartition_name<'P14410_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+                  18.4375
+
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_ES_MP_PARA_SNAP' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_ES_MP_PARA_SNAP'  
+and partition_name='P14411'   and subpartition_name<'P14411_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               29.9921875
+
+
+select 29.9921875+18.4375+23.1083984+43.4384766+71.0527344+ 51.5380859+51.3310547+ 47.4941406+ 40.6679688+ 20.7978516 from dual;
+
+29.9921875+18.4375+23.1083984+43.4384766+71.0527344+51.5380859+51.3310547+47.494
+--------------------------------------------------------------------------------
+                                                                      397.858399
+																	  
+--转移分区表并压缩表的语句
+select 'alter table '||table_owner||'.'||table_name||' move subpartition '||subpartition_name||' 
+tablespace HISCMPRS01 nologging parallel 8 compress;',compression,partition_name,subpartition_name,tablespace_name
+from dba_tab_subpartitions 
+where table_owner='FDPSHARE' and table_name='ARC_ES_MP_PARA_SNAP' and  partition_name='P14401' and subpartition_name<'P14401_P202201';																	  
+
+
+
+
+
+
+--查询失效索引
+col owner for a20
+col status for a20
+col index_name for a30
+select owner,index_name,status from dba_indexes 
+where STATUS='UNUSABLE' and  owner='FDPSHARE' and table_name='ARC_ES_MP_PARA_SNAP';
+
+
+--重建索引
+alter index FDPSHARE.PK_ARC_ES_MP_PARA_SNAP  rebuild parallel 12  nologging;
+
+
+
+
+
+
+

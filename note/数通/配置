@@ -1,0 +1,214 @@
+步骤一：STP、Eth-trunk配置
+
+STP配置
+
+<LSW1>sys  进入系统视图模式[LSW1]sysname sw1  更改设备名
+[sw1]un in en  关闭弹出日志（可选）
+[sw1]stp root primary  将核心交换机设为根桥
+
+[sw2]port-group group-member e0/0/1 to e0/0/22  批量配置端口
+[sw2-port-group]stp edged-port enable  设为边缘端口（sw2-sw5）
+同理对sw3、sw4、sw5进行配置
+
+
+进行链路捆绑（sw2-sw5）：
+
+[sw2]int eth-trunk 2
+[sw2-eth-trunk2]mode lacp-static  建议使用lacp模式
+[sw2]trunkport gi 0/0/1 0/0/2  将捆绑端口划入eth-trunk 2
+[sw2]int eth-trunk 2
+[sw2-eth-trunk2]stp cost 10000  
+将STP的cost改为固定值（建议）进入对端（核心交换机sw1）进行对应链路捆绑配置
+同理对sw3、sw4、sw5进行链路捆绑配置
+
+
+
+步骤二：VLAN、trunk配置
+
+对交换机端口进行VLAN划分和trunk配置：
+
+[sw2]vlan 10  创建VLAN10
+[sw2-vlan10]vlan 20  创建VLAN20
+[sw2-vlan10]qu  退出接口
+[sw2]int e0/0/2  进入e0/0/2接口
+[sw2-e0/0/2]port link-type access  设置链路类型为access
+[sw2-e0/0/2]port default vlan 10  将e0/0/2划分到VLAN10
+[sw2-e0/0/2]int e0/0/3  进入e0/0/3接口
+[sw2-e0/0/3]port link-type access  设置链路类型为access
+[sw2-e0/0/3]port default vlan 20  将e0/0/3划分到VLAN20
+[sw2-e0/0/3]qu  退出接口
+[sw2]int eth-trunk 2  创建聚合链路eth-trunk2
+[sw2-eth-trunk2]port link-type trunk  设置链路类型为trunk
+[sw2-eth-trunk2]port trunk allow-pass vlan all  允许全部的VLAN数据包通过
+同理对sw3、sw4、sw5进行vlan、trunk配置
+
+
+核心交换机sw1配置：
+
+[sw1]valn batch 10 20 30 40 50 200  批量创建多个VLAN
+[sw1]port-g g eth-trunk 2 to eth-trunk 5  批量配置eth-trunk
+[sw1-port-group]port link-type trunk  配置链路类型为trunk
+[sw1-port-group]port trunk allow-pass vlan all  允许全部VLAN数据包通过
+
+
+查看VLAN的配置情况：
+
+[sw2]display vlan[sw2]display port vlan active
+
+
+步骤三：网关、SVI配置
+
+将核心交换机sw1作为网关，配置如下：
+
+[sw1]vlanif10  进入vlanif10接口
+[sw1-vlanif10]ip add 192.168.10.1 24  配置ip地址（下同）
+[sw1-vlanif10]vlanif 20
+[sw1-vlanif20]ip add 192.168.20.1 24
+[sw1-vlanif20]vlanif 30
+[sw1-vlanif30]ip add 192.168.30.1 24
+[sw1-vlanif30]vlanif 40
+[sw1-vlanif40]ip add 192.168.40.1 24
+[sw1-vlanif40]vlanif 200
+[sw1-vlanif200]ip add 192.168.200.1 24
+
+路由器和核心交换机sw1之间的对接
+
+方法：将核心交换机sw1的gi0/0/24口划入vlan800并在vlanif800接口配置ip地址即可与出口路由器R1对接。
+
+[sw1]vlan 800
+[sw1-vlan800]int gi0/0/24
+[sw1-gi0/0/24]port link-type access
+[sw1-gi0/0/24]port default vlan 800
+[sw1-gi0/0/24]qu
+[sw1]int vlanif 800
+[sw1-vlanif800]ip add 192.168.254.2 24
+
+
+步骤四：DHCP配置
+
+在核心交换机sw1上配置DHCP服务（有多少个网段就建立多少个地址池）。
+
+[sw1]dhcp enable  启用DHCP服务
+[sw1]ip pool XiaoShou1  建立地址池1
+[sw1-pool-xiaoshou1]network 192.168.10.0 mask 24  配置地址网段
+[sw1-pool-xiaoshou1]gateway-liat 192.168.10.1  配置网关
+[sw1-pool-xiaoshou1]dns-list 114.114.114.114 8.8.8.8  配置DNS
+[sw1-pool-xiaoshou1]qu[sw1]ip pool XiaoShou2  建立地址池2
+[sw1-pool-xiaoshou2]network 192.168.20.0 mask 24  配置地址网段
+[sw1-pool-xiaoshou2]gateway-list 192.268.20.1  配置网关
+[sw1-pool-xiaoshou2]dns-list 114.114.114.114 8.8.8.8  配置DNS
+[sw1-pool-xiaoshou1]qu
+[sw1]int vlanif 10  进入接口
+[sw1-vlanif10]dhcp select global  全局分配地址继续配置其它地址池
+
+
+步骤五：出口NAT配置
+
+首先在核心交换机sw1上配置一条通往出口的静态路由：
+[sw1]ip route-static 0.0.0.0 0 192.168.254.1  配置缺省路由
+
+对出口R1路由器做如下配置：
+[R1]int gi0/0/0  配置接口地址
+[R1-gi0/0/0]ip add 192.168.254.1 24
+[R1-gi0/0/0]int gi0/0/1
+[R1-gi0/0/0]ip add 12.1.1.1 29
+[R1-gi0/0/0]qu
+[R1]ip route-static 0.0.0.0 0 12.1.1.6  配置缺省路由转向运营商R2
+[R1]ip route-static 192.168.0.0 16 192.168.254.2  配置回包路由指向核心sw1
+
+[R1]acl 2000  
+创建访问控制列表
+[R1-acl-basic-2000]rule permit source 192.168.0.0 0.0.255.255  配置规则（匹配整个内网）
+[R1-acl-basic-2000]int gi0/0/1[R1-gi0/0/1]nat outbound 2000  在接口gi0/0/1调用acl2000
+
+
+对运营商R2路由器进行配置：
+
+[R2]int gi0/0/0
+[R2-gi0/0/0]ip add 12.1.1.2 29
+[R2-gi0/0/0]int loopback 0  启用一个环回接口模拟百度
+[R2-loopback0]ip add 9.9.9.9 24  环回接口配置地址
+
+
+步骤六：服务器端口映射
+
+在出口路由器R1上进行nat server配置：
+[R1]int gi0/0/1
+[R1-gi0/0/1]nat server protocol tcp global 12.1.1.2 80 inside 192.168.200.10 80  
+将服务器192.168.200.10的80端口映射到12.1.1.2的80端口
+
+
+步骤七：ACL配置
+
+在核心交换机sw1上配置ACL：
+
+[sw1]acl 3000  建立访问控制列表3000
+[sw1-acl-adv-3000]rule permit ip source 192.168.30.0 0.0.255.255 destionation 192.168.200.20 0  
+允许30网段（财务部）访问财务服务器
+[sw1-acl-adv-3000]rule deny ip source any destionation 192.168.200.20 0  拒绝其他任何网段访问财务服务器
+[sw1-acl-adv-3000]qu
+[sw1]int eth-trunk 5  进入eth-trunk5接口
+[sw1-eth-trunk5]traffic-filter outband acl 3000  调用访问控制列表3000
+
+
+步骤八：Telnet配置
+
+Telnet远程管理配置：
+
+[R1]aaa  配置aaa
+[R1-aaa]local-user admin privilege level 3 password cipher 123456  设置用户名和密码
+[R1-aaa]local-user admin service-type telnet  设置服务类型为Telnet
+[R1-aaa]qu
+[R1]telnet server enable  开启Telnet服务
+[R1]stelnet server enable  开启ssh（可选配置）
+[R1]user-interface vty 0 4  进入虚拟接口
+[R1-ui-vty0-4]authentication-mode aaa  设置认证模式为aaa认证对需要远程的所有交换机做以上同样配置
+
+
+在eNSP模拟器里的PC不支持Telnet，可用路由器模拟PC，配置如下：
+
+[pc]dhcp enable  开启DHCP服务
+[pc]int e0/0/0
+[pc-e0/0/0]ip add dhcp-alloc  设置为自动获得地址
+[pc-e0/0/0]qu
+[pc]qu  退到用户视图模式
+<pc>telnet 192.168.254.1  Telnet测试 
+路由器模拟PC时自动获得地址和网关，网关以一条缺省路由实现。
+
+
+由于进行了vlan划分，且接入层交换机无地址，部分交换机无法被ping通，不能进行远程管理，因此交换机还需做如下操作：
+
+规划为管理vlan：999
+管理网段：192.168.253.0/24。
+
+sw1—192.168.253.1/24、sw2—192.168.253.2/24、…、sw5—192.168.253.5/24
+
+[sw1]vlan 999  创建管理vlan 999
+[sw1-vlan999]qu
+[sw1]int vlanif 999
+[sw1-vlanif999]ip add 192.168.253.1 24  配置管理地址同理对其他交换机进行配置
+
+
+除sw1外的交换机还需配置缺省路由（将核心交换机sw1的管理地址192.168.253.1作为其他交换机的网关）：
+
+[sw2]ip route-static 0.0.0.0 0 192.168.253.1  管理流量的回包路由
+
+
+步骤九：VLAN限制
+
+当前所有的eth-trunk链路允许所有的vlan通过，导致广播域过大，造成网络不稳定，因此可对每条eth-trunk链路的vlan进行限制（过滤、修剪）：
+
+[sw2]int eth-trunlk 2[sw1-eth-trunlk2]undo port trunk allow-pass vlan 2 to 4094  清除原先的配置[sw1-eth-trunlk2]port trunk allow-pass vlan 10 20 999  设置只允许vlan10、20和999通过进入对端（核心交换机sw1）进行对应链路vlan限制同理对sw3、sw4、sw5进行链路vlan限制
+
+
+
+
+--Access端口和Hybrid端口区别在于可以属于的VLAN数量以及处理VLAN标签的方式。
+
+  Access端口只能属于一个VLAN，通常用于连接单个主机，如计算机，且在发送数据时不携带VLAN标签。
+这意味着所有进入或离开该端口的数据包都包含有相同的VLAN ID，通常是最初配置的VLAN ID。
+
+  Hybrid端口则可以属于多个VLAN，它可以用于交换机之间的连接，也可以用于连接用户计算机。
+Hybrid端口在发送数据时，可以根据需要决定是否为数据包添加或去除VLAN标签，这使得Hybrid端口更加灵活，
+适用于更广泛的网络配置。
+  这种模式通常用于需要连接多个VLAN，但同时需要单个设备可以访问不同的VLAN的网络中。

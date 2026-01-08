@@ -1,0 +1,296 @@
+--1
+
+SQL> @/home/oracle/20230324/ddl/6-database_sgpm_out_SX0009030995_20230213_01.sql;
+database_sgpm_out_SX0009030995_20230213_01.sql
+SG186_SX0009030995_20230213.xls
+sgpm_out
+appNo: SX0009030995
+▒▒ģִ▒л▒▒ڴ▒▒▒▒▒
+ALTER TABLE SGPM_OUT.E_CALC_PL_AMT_DET_SCH ADD MARKET_TYPE VARCHAR2(8)
+                                               *
+ERROR at line 1:
+ORA-01430: column being added already exists in table
+
+
+
+Comment created.
+
+--2
+
+SQL> @/home/oracle/20230324/ddl/7-database_sgpm_out_SX0009031233_20230214_01.sql;
+database_sgpm_out_SX0009031233_20230214_01.sql
+SG186_SX0009031233_20230214.xls
+sgpm_out
+appNo: SX0009031233
+▒▒ģִ▒л▒▒ڴ▒▒▒▒▒
+ALTER TABLE SGPM_OUT.ARC_E_CALC_PL_AMT_DET_SCH ADD MARKET_TYPE VARCHAR2(8)
+                                                   *
+ERROR at line 1:
+ORA-01430: column being added already exists in table
+
+
+
+Comment created.
+
+--3
+
+SQL> @/home/oracle/20230324/ddl/26-database_sgpm_out_SX0009031493_20230215_01.sql;
+database_sgpm_out_SX0009031493_20230215_01.sql
+MPEXT_SX0009031493_20230215.xls
+sgpm_out
+appNo: SX0009031493
+▒▒ģִ▒л▒▒ڴ▒▒▒▒▒
+create table sgpm_out.d_receive_info
+                      *
+ERROR at line 1:
+ORA-00955: name is already used by an existing object
+
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+  add constraint PK_d_receive_info primary key (ID)
+                                   *
+ERROR at line 2:
+ORA-02260: table can have only one primary key
+
+
+
+Grant succeeded.
+
+
+
+
+
+--4
+SQL> @/home/oracle/20230324/ddl/27-database_sgpm_out_SX0009033787_20230314_01.sql;
+database_sgpm_out_SX0009033787_20230314_01.sql
+SG186_SX0009033787_20230314.xls
+sgpm_out
+appNo: SX0009033787
+▒▒ģִ▒л▒▒ڴ▒▒▒▒▒
+create table SGPM_OUT.SX_APP_DIST  (
+                      *
+ERROR at line 1:
+ORA-00955: name is already used by an existing object
+
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+create index SGPM_OUT.IDX_SX_APP_DIST_APP_NO on SGPM_OUT.SX_APP_DIST(APP_NO) tablespace IDX_OUT
+                      *
+ERROR at line 1:
+ORA-00955: name is already used by an existing object
+
+
+alter table  SGPM_OUT.SX_APP_DIST add constraint PK_SX_APP_DIST primary key (DIST_ID) using index tablespace IDX_OUT
+                                                                *
+ERROR at line 1:
+ORA-02260: table can have only one primary key
+
+
+
+Grant succeeded.
+
+
+Table altered.
+
+ALTER TABLE sgpm_out.SX_APP_DIST ADD job_qty number(16,0)
+                                     *
+ERROR at line 1:
+ORA-01430: column being added already exists in table
+
+Comment created.
+
+ALTER TABLE sgpm_out.SX_APP_DIST ADD job_finish_qty number(16,0)
+                                     *
+ERROR at line 1:
+ORA-01430: column being added already exists in table
+
+
+
+Comment created.
+
+
+--5
+SQL> @/home/oracle/20230324/ddl/28-database_sgpm_out_SX0009033787_20230314_03.sql;
+database_sgpm_out_SX0009033787_20230314_03.sql
+SG186_SX0009033787_20230314.xls
+sgpm_out
+appNo: SX0009033787
+▒▒ģִ▒л▒▒ڴ▒▒▒▒▒
+create table sgpm_out.SX_APP_DIST_DET  (
+                      *
+ERROR at line 1:
+ORA-00955: name is already used by an existing object
+
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+
+Comment created.
+
+create index sgpm_out.IDX_SX_APP_DIST_DET_APP_NO on sgpm_out.SX_APP_DIST_DET(APP_NO) tablespace IDX_OUT
+                      *
+ERROR at line 1:
+ORA-00955: name is already used by an existing object
+
+
+alter table  sgpm_out.SX_APP_DIST_DET add constraint PK_SX_APP_DIST_DET primary key (DIST_DET_ID) using index tablespace IDX_OUT
+                                                                        *
+ERROR at line 1:
+ORA-02260: table can have only one primary key
+
+
+
+Grant succeeded.
+
+
+Table altered.
+
+
+Comment created.
+
+
+Table altered.
+
+
+Comment created.
+
+
+--6
+
+
+SQL> @/home/oracle/20230324/ddl/database_sgpm_SX0009031539_20230216_02.sql;
+database_sgpm_SX0009031539_20230216_02.sql
+SG186_SX0009031539_20230216.xls
+sgpm
+appNo: SX0009031539
+▒▒ģִ▒л▒▒ڴ▒▒▒▒▒
+create synonym sgpm.d_receive_info for SGPM_OUT.d_receive_info
+                    *
+ERROR at line 1:
+ORA-00955: name is already used by an existing object
+
+
+
+--7
+
+-- 脚本无执行内容     @/home/oracle/20230324/ddl/10-database_sgpm_out_SX0009033745_20230302_01.sql;
+
+
+
+

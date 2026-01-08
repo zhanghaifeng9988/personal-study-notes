@@ -1,0 +1,75 @@
+
+2023-02-05T14:18:11.807+0800  ERROR   OGG-02028  Oracle GoldenGate Capture for Oracle, 
+ext_yx.prm:  Failed to attach to logmining server OGG$EXT_YX error 1,292 - 
+ORA-01292: LogMiner for upstream capture cannot find log file.
+2023-02-05T14:18:11.808+0800  ERROR   OGG-01668  Oracle GoldenGate Capture for Oracle, ext_yx.prm:  PROCESS ABENDING.
+
+[oracle@]$ ./logdump
+
+Oracle GoldenGate Log File Dump Utility for Oracle
+Version 19.1.0.0.1 OGGCORE_19.1.0.0.0_PLATFORMS_190524.2201
+
+Copyright (C) 1995, 2019, Oracle and/or its affiliates. All rights reserved.
+
+
+
+Logdump 279 >open /goldengate/jcptogg/dirdat/yx/yx000061449
+Current LogTrail is /goldengate/jcptogg/dirdat/yx/yx000061449
+Logdump 280 >ghdr on     --显示记录头信息（事务类型，事务长度，记录提交时间）
+Logdump 281 >detail on   -- 
+Logdump 282 >detail data
+Logdump 283 >usertoken on
+Logdump 284 >n
+
+
+打开trace日志
+
+send extract EXTQBZD trace /tmp/qbzd.log 
+send extract EXTQBZD trace2 /tmp/qbzd.log  
+
+send extract EXTQBZD trace off
+send extract EXTQBZD trace2 off 
+
+
+
+select name from v$archived_log where sequence#=194818;
+
+exec dbms_logmnr.add_logfile(logfilename=>'+RECOC1/SXDLYX/ARCHIVELOG/2023_03_07/thread_1_seq_194818.52511.1130856789');
+
+exec dbms_logmnr.start_logmnr(options=>dbms_logmnr.dict_from_online_catalog + dbms_logmnr.no_rowid_in_stmt);
+
+col scn for 9999999999999999
+select  scn from v$logmnr_contents where rbablk*512+rbabyte=588459560;
+
+select sql_redo from v$logmnr_contents where scn=17012208257218;
+
+
+
+
+
+update "SGPM"."P_PRT_GROUPTRADE_SX_C" set "SNMJZ" = '0' where "PRT_ID" = '775230
+407' and "ORG_NO" = '144070752' and "PRT_DATE" = '202302' and "DISP_NO" = '5450'
+ and "ITEM_NAME" = '人民法院和人民检察院' and "ITEM_ID" = '9430' and "YHGS" = '0
+' and "YHGS_TQ" = '0' and "RUNCAP" = '0' and "RUNCAP_TQ" = '0' and "YDLBY" = '0'
+ and "YDLTQ" = '0' and "YDLBY_ZJ" = '0' and "YDLBY_ZL" = '0' and "YDLLS" = '0' a
+nd "YDLLS_ZJ" = '0' and "YDLLS_ZL" = '0' and "YDLLJ" = '0' and "YDLLJ_TQ" = '0'
+and "YDLLJ_ZL" = '0' and "YSDFBY_HJ" = '0' and "SDSRBY" = '0' and "SDSRBY_KWH" =
+ '0' and "SDSRBY_PF" = '0' and "SDSRBY_BA" = '0' and "YSDFBY_PL" = '0' and "YSDF
+TQ_HJ" = '0' and "SDSRTQ" = '0' and "SDSRTQ_KWH" = '0' and "SDSRTQ_PF" = '0' and
+ "SDSRTQ_BA" = '0' and "YSDFTQ_PL" = '0' and "YSDFLJ_HJ" = '0' and "SDSRLJ" = '0
+' and "SDSRLJ_KWH" = '0' and "SDSRLJ_PF" = '0' and "SDSRLJ_BA" = '0' and "YSDFLJ
+_PL" = '0' and "YSDFLJLY_HJ" = '0' and "SDSRLJLY" = '0' and "SDSRLJLY_KWH" = '0'
+ and "SDSRLJLY_PF" = '0' and "SDSRLJLY_BA" = '0' and "YSDFLJLY_PL" = '0' and "PR
+C_BY" = '0' and "PRC_LS" = '0' and "PRC_TB" = '0' and "PRC_HB" = '0' and "PRC_LJ
+" = '0' and "PRCLJ_LY" = '0' and "PRCLJ_TB" = '0' and "SNMJZ" = '0' and "SNMJZ_L
+J" = '0' and "QFDN" = '0' and "CQDN" = '0' and "CQLY" = '0' and "LMDM" = '8523'
+and "SJLMDM" = '852' and "CYDM" = '3' and "QZBZ" = '0' and "SJQGZDM" IS NULL and
+ "JS" = '9' and "DISP_FLAG" = '0' and "YDLLJ_ZJ" = '0' and "PRC_TQ" IS NULL;
+ 
+ 
+--查询某张表上的sql
+
+select SQL_FULLTEXT,SQL_ID from v$sql where hash_value in 
+(select from_hash from v$object_dependency where to_owner='SGPM' and to_name='P_PRT_GROUPTRADE_SX_C');
+ 
+ 

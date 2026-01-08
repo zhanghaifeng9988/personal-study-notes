@@ -1,0 +1,571 @@
+Oracle:一个库可以有多个用户，每个用户有自己的表
+MySql:多个用户共享每个库，每个库有自己的表
+
+                                   mysql表空间
+MySQL的表空间可以分为系统表空间和用户表空间两种，其中：
+
+– 系统表空间：是MySQL自行管理的一类表空间，负责存储MySQL系统对象，
+包括库(databas)、表(table)、视图(view)、存储过程(procedure)等，
+系统表空间的空间大小一般由MySQL自行管理，用户无法直接调整。
+
+– 用户表空间：是由MySQL的用户分配和管理的一类表空间，主要用于存储用户定义的表格、视图、函数等。
+用户可以自行创建、分配和调整用户表空间。
+
+-在MySQL中，默认的表空间是`innodb_system`。
+该表空间包含了MySQL内部的系统表和其他元数据，
+比如ibdata，ib_logfile0和ib_logfile1等。如果用户需要查看默认表空间的具体信息和状况
+
+-查询系统表空间的大小
+SELECT * FROM INFORMATION_SCHEMA.FILES WHERE TABLESPACE_NAME = 'innodb_system';
+
+
+
+
+select version();                                      查看mysql的版本信息
+show variables like '%char%';                          查看mysql数据库的字符集
+show variables like "%log_bin%";                       查看MySQL数据库是否打开binlog日志
+show variables like "%binlog%";                        查看binlog的日志级别是否为row类型
+show global variables like 'port';                     查看mysql的默认端口号
+         其中：statement格式记录的我们写的SQL语句，而row格式记录的则是实际受影响的数据的变化前后值
+show variables like '%lower_case%';                    查看mysql的大小设置情况
+     1）lower_case_table_names = 0                     区分大小写（即对表名大小写敏感），默认是这种设置。这样设置后，在mysql里创建的表名带不带大写字母都没有影响，都可以正常读出和被引用。                 
+     2）lower_case_table_names = 1                     不区分大小写（即对表名大小写不敏感）。这样设置后，表名在硬盘上以小写保存，MySQL将所有表名转换为小写存储和查找表上。该行为也适合数据库名和表的别名。
+
+insert into mysql.user(host,user,password) values('%','zhanghaifeng1',password('zhf123123')); root下创建用户
+insert into mysql.user(host,user,password) values('%','zhanghaifeng2',password('123123'));
+ CREATE USER 'zhanghaifeng1'@'localhost' IDENTIFIED BY 'tiger';第二种创建方法；这个是创建可本地登陆的用户
+ CREATE USER 'zhanghaifeng1'@'%' IDENTIFIED BY 'tiger';这个是创建可远程登陆的账户
+flush privileges;  创建完需要刷新  
+mysql 新设置用户或更改密码后需用flush privileges刷新MySQL的系统权限相关表，否则会出现拒绝访问，
+还有一种方法，就是重新启动mysql服务器，来使新设置生效,重启命令：service mysqld restart
+  grant all privileges on *.* to zhanghaifeng1@'localhost' ; 授权用户
+
+常用权限：all、create、drop、select、insert、delete、update
+flush privileges;                            用户权限立即生效。
+
+--选择数据库，可以查看用户
+select user from user;
+
+--查看指定用户的权限
+show grants for repl;
+  举例：SHOW GRANTS FOR 'exporter'@'localhost';
+
+--查看当前的数据库
+select database();
+
+--查看当前的用户
+select user();
+
+--系统表空间的大小（字节为单位）
+SELECT SUM(data_length + index_length)   
+FROM information_schema.tables   
+WHERE table_schema = 'mysql';
+
+
+--用户表空间的大小（字节为单位）
+SELECT SUM(data_length + index_length)   
+FROM information_schema.tables   
+WHERE table_schema NOT IN ('mysql', 'information_schema');
+
+
+--查看表的表空间信息
+SHOW TABLE STATUS LIKE 'table_name';
+
+
+SELECT 
+    table_name AS `表名`,
+    ROUND(data_length/1024/1024,2) AS `数据大小(MB)`,
+    ROUND(index_length/1024/1024,2) AS `索引大小(MB)`,
+    ROUND(data_free/ 1024 / 1024, 2) AS `未使用空间(MB)`
+FROM 
+    information_schema.tables 
+
+
+--InnoDB表空间的数据文件和日志文件的路径和大小信息。
+SHOW VARIABLES LIKE 'innodb_data_file_path';  
+SHOW VARIABLES LIKE 'innodb_log_file_path';
+
+--查询所有数据库容量大小
+SELECT
+    table_schema AS '数据库',
+    sum( table_rows ) AS '记录数',
+    sum(
+    TRUNCATE ( data_length / 1024 / 1024, 2 )) AS '数据容量(MB)',
+    sum(
+    TRUNCATE ( index_length / 1024 / 1024, 2 )) AS '索引容量(MB)'
+FROM
+    information_schema.TABLES 
+GROUP BY
+    table_schema 
+ORDER BY
+    sum( data_length ) DESC,
+    sum( index_length ) DESC;
+
+--查询数据库中所有表的大小
+SELECT
+    table_schema AS '数据库',
+    table_name AS '表名',
+    table_rows AS '记录数',
+    TRUNCATE ( data_length / 1024 / 1024, 2 ) AS '数据容量(MB)',
+    TRUNCATE ( index_length / 1024 / 1024, 2 ) AS '索引容量(MB)'
+FROM
+    information_schema.TABLES 
+ORDER BY
+    data_length DESC,
+    index_length DESC;
+
+--查看指定数据库容量大小
+SELECT
+    table_schema AS '数据库',
+    sum( table_rows ) AS '记录数',
+    sum(
+    TRUNCATE ( data_length / 1024 / 1024, 2 )) AS '数据容量(MB)',
+    sum(
+    TRUNCATE ( index_length / 1024 / 1024, 2 )) AS '索引容量(MB)'
+FROM
+    information_schema.TABLES 
+WHERE
+    table_schema = 'osale_im';
+
+--查看指定数据库各表容量大小
+SELECT
+    table_schema AS '数据库',
+    table_name AS '表名',
+    table_rows AS '记录数',
+    TRUNCATE ( data_length / 1024 / 1024, 2 ) AS '数据容量(MB)',
+    TRUNCATE ( index_length / 1024 / 1024, 2 ) AS '索引容量(MB)'
+FROM
+    information_schema.TABLES 
+WHERE
+    table_schema = 'osale_im'
+ORDER BY
+    data_length DESC,
+    index_length DESC;
+	
+
+
+
+
+create database zhf default charset utf8;    创建数据库
+create database zhf2 default charset utf8;
+默认端口：3306
+show databases;    查数据库
+use zhf;           打开数据库
+show tables;       查看数据库中的表
+desc emp;          查看表结构
+show status;        用于显示广泛的服务器状态信息
+show create database;用来显示创建数据库的MySQL语句
+show create table;   用来显示创建表的MySQL语句
+show grants;         用来显示授予用户的安全权限
+show errors;         用来显示服务器的错误
+show warnings;       用来显示服务器的警告
+select Host,User,Grant_priv,account_locked  from mysql.user;   查询用户情况
+delete from user where user=''and host='localhost';                         删除空用户
+drop user XXX;
+删除已存在的用户，默认删除的是'XXX'@'%'这个用户，如果还有其他的用户如'XXX'@'localhost'等，
+不会一起被删除。如果要删除'XXX'@'localhost'，使用drop删除时需要加上host即drop user XXX@localhost
+
+***注意*****
+drop不仅会将user表中的数据删除，还会删除其他权限表的内容。
+而delete只删除user表中的内容，所以使用delete删除用户后需要执行FLUSH PRIVILEGES;刷新权限，
+否则下次使用create语句创建用户时会报错。
+
+
+
+/etc/my.cnf                                             mysql的配置文件
+[root@db11 etc]# service mysqld restart                 重启mysql
+   binlog_format=ROW    log-bin=mysql-bin               修改my.cnf中的参数，改变binlog_format为row
+show variables like '%lower_case%';                     查看大小写敏感是否打开，ON说明对文件名的大小写不敏感，OFF表示敏感
+lower_case_table_names=0                                修改my.cnf中的参数，对文件名大小写不敏感         
+ps -ef|grep mysqld                                       查看datadir的路径
+
+查询某个数据库的大小
+select concat(round(sum(DATA_LENGTH/1024/1024),2),'MB') as data from information_schema.TABLES where table_schema = 'zhf'
+
+show index from table_name                              查询某个表的索引,注意：mysql主键和外键都自带索引
+
+查询分区表的分区信息
+SELECT
+  partition_name part, 
+  partition_expression expr, 
+  partition_description descr,
+  PARTITION_METHOD method,
+  table_name,
+  table_rows 
+FROM
+  INFORMATION_SCHEMA.partitions 
+WHERE
+  TABLE_SCHEMA = 'zhf' 
+  AND TABLE_NAME='employees1'; 
+
+SHOW CREATE TABLE comm_types;                           查询某个表的建表语句
+SELECT * FROM information_schema.`TABLE_CONSTRAINTS` where TABLE_SCHEMA='zhf';   查询数据库中的约束相关信息（不包含非空约束）
+SELECT * FROM information_schema.triggers  where TRIGGER_SCHEMA='zhf';          查询数据库中的触发器相关信息
+show procedure status;                                                          查询当前数据库中的存储过程相关信息  
+SELECT TABLE_SCHEMA,TABLE_NAME,TABLE_TYPE from information_schema.TABLES where table_SCHEMA='zhf';    查询数据库中的表和视图相关信息
+SELECT DISTINCT TABLE_NAME,INDEX_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='zhf';    查询数据库中的所有索引信息
+
+
+
+新建表
+CREATE TABLE `comm_types` (
+  `id` int(11) NOT NULL,
+  `c0` decimal(5,2) DEFAULT NULL,
+  `c1` bigint(20) DEFAULT NULL,
+  `c2` smallint(6) DEFAULT NULL,
+  `c3` tinyint(4) DEFAULT NULL,
+  `c4` mediumint(9) DEFAULT NULL,
+  `c5` set('music','movie','football') DEFAULT NULL,
+  `c6` enum('T','F') DEFAULT NULL,
+  `c7` bit(1) DEFAULT NULL,
+  `c8` double DEFAULT NULL,
+  `c9` datetime DEFAULT NULL,
+  `c10` date DEFAULT NULL,
+  `c11` year(4) DEFAULT NULL,
+  `c12` time DEFAULT NULL,
+  `c13` timestamp NULL DEFAULT NULL,
+  `c14` char(10) DEFAULT NULL,
+  `c15` varchar(10) DEFAULT NULL,
+  `c16` blob,
+  `c17` longblob,
+  `c18` mediumblob,
+  `c19` tinytext,
+  `c20` longtext,
+  `c21` mediumtext,
+  `c22` binary(10) DEFAULT NULL,
+  `c23` float(6,1) DEFAULT NULL,
+  `c24` int(11) DEFAULT '0',
+  `c25` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `idx_comm_types_1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4；
+
+
+ create table `liuqiyang` (`id` int,`name` char(20) ,`age`  int,`sex`  char(20),`birthday` datetime ,`shcool`  char(20));
+
+
+                  表空间是物理层面的概念。在innodb存储引擎中数据是按照表空间来组织存储的
+				  
+--sys系统表空间 （共享表空间）
+
+  默认情况下，MySQL会初始化一个大小为12MB，名为ibdata1文件，并且随着数据的增多，它会自动扩容。
+  存放内容 ： InnoDB data dictionary(InnoDB元数据信息)、doublewrite buffer(双写缓冲区)、change buffer(改变缓冲区)、undo logs以及用户创建的表也可以指定在系统表空间（但一般不这么做）
+  查看命令：show variables like '%innodb_data_file_path%'; 
+  配置命令：innodb_data_file_path=/dir1/ibdata1:2000M;/dir2/ibdata2:2000M:autoextend
+  
+--file per table 表空间  （独立表空间）
+
+   一般用来存放用户创建的表数据及索引的一个独立表空间，即一张表对应一个表空间文件
+    存放内容 ： 用户表数据及索引
+	innodb_file_per_table=ON    是否开启单表表空间，该参数为全局参数，可动动态修改，SET GLOBAL innodb_file_per_table=ON;
+	默认为ON，如果设置为OFF，在没有显式指定表空间情况下，数据及索引默认存放到系统表空间ibdata下
+	查看命令：show variables like '%innodb_file_per_table%';
+	
+--临时表空间
+
+   用于存放用户创建的临时表和磁盘内部临时表。
+   查看命令：show variables like '%innodb_temp_data_file_path%';
+   路径查看：show variables like '%innodb_data_home_dir%';
+   
+--undo表空间
+
+    在MySQL的设定中，有一个表空间可以专门用来存放undolog的日志文件。
+    然而，在MySQL的设定中，默认的会将undolog放置到系统表空间中。
+    查看命令：show variables like '%innodb_undo_tablespaces%';
+
+
+--数据库大小查询
+SELECT
+table_schema AS '数据库',
+sum(table_rows) AS '记录数',
+sum(TRUNCATE (data_length / 1024 / 1024, 2)) AS '数据容量(MB)',
+sum(TRUNCATE (index_length / 1024 / 1024, 2)) AS '索引容量(MB)'
+FROM
+information_schema. TABLES
+GROUP BY table_schema
+ORDER BY
+sum(data_length) DESC,
+sum(index_length) DESC;
+
+--查看所有数据库各表容量大小
+SELECT
+table_schema AS '数据库',table_name AS '表名',table_rows AS '记录数',
+TRUNCATE (data_length / 1024 / 1024, 2) AS '数据容量(MB)',
+TRUNCATE (index_length / 1024 / 1024, 2) AS '索引容量(MB)'
+FROM
+information_schema. TABLES
+ORDER BY
+data_length DESC,
+index_length DESC;
+
+--查看指定数据库的大小
+SELECT table_schema AS '数据库',sum(table_rows) AS '记录数',
+sum(TRUNCATE (data_length / 1024 / 1024, 2)) AS '数据容量(MB)',
+sum(TRUNCATE (index_length / 1024 / 1024, 2)) AS '索引容量(MB)'
+FROM
+information_schema. TABLES
+WHERE
+table_schema = 'sys';
+
+
+--查看指定数据库各表容量大小
+SELECT table_schema AS '数据库',sum(table_rows) AS '记录数',
+sum(TRUNCATE (data_length / 1024 / 1024, 2)
+) AS '数据容量(MB)',
+sum(TRUNCATE (index_length / 1024 / 1024, 2)) AS '索引容量(MB)'
+FROM
+information_schema. TABLES
+WHERE
+table_schema = 'mysql';
+
+
+
+
+
+
+
+mysql到db2测试语句（DML)
+
+insert into emp (EMPNO, ENAME, JOB, MGR, HIREDATE, SAL, COMM, DEPTNO)
+values ('0001', 'PETER', 'CLERK', '7782', '1982-01-23', '1300', null, '10');
+
+update emp set empno=0000 where empno=0001;
+
+select empno from emp where empno=0000;
+delete from emp where empno=0000;
+
+增加列
+alter table comm_types add column a1 timestamp not null default current_timestamp;
+更改列属性
+alter table comm_types modify a1 date;  
+此处目标端db2会有问题，db2无法将更大范围的字段属性，修改为小范围的字段属性
+alter table comm_types modify c10 timestamp;
+
+更改列名
+alter table comm_types change a1 atime timestamp not null;
+此处目标端db2会报错，但不影响结果，因为mysql修改字段名的命令，需要有字段属性的定义，所以会报错
+
+
+删除列
+alter table comm_types drop column atime;
+删除表
+drop table comm_types;
+创建索引
+create index inx_1 on comm_types(c0);
+
+删除索引
+alter table comm_types drop index inx_1;
+此处目标端db2会报错，db2无法执行同步后的语句：alter table  "ZHF2"."COMM_TYPES"  drop index inx_1
+db2能够执行的语句形式为：drop index INX_1去删除索引，此处可能是bug
+
+创建唯一索引
+alter table comm_types add constraint uq_c0 unique(c0);
+此处目标端db2会报错，db2无法执行同步后的语句：alter table  "ZHF2"."COMM_TYPES" add constraint "UQ_C0" unique  ("C0")
+创建和修改唯一的约束，要修改这个约束，您必须删除它，然后重新创建它。Creating and modifying unique constraints, To modify this constraint, you would have to drop it, and then re-create it.
+
+更改字段为not null类型
+alter table comm_types modify c0 decimal(5,2) not null; 
+此处目标端db2会报错，db2无法执行同步后的下列语句：  alter table  "ZHF2"."COMM_TYPES" alter column  "C0" set data type decimal(5,2)  set not null
+db2能够执行的语句形式为：alter table  "ZHF2"."COMM_TYPES" alter column  "C0" set not null
+
+创建分区表
+create table employees1 (id int not null,fname varchar(30),lname varchar(30),hired date not null default '1970-01-01',separated date not null default '9999-12-31',job_code int not null,store_id int not null) partition by range (store_id) ( partition p0 values less than (6),  partition p1 values less than (11),  partition p2 values less than (16),  partition p3 values less than (21))
+
+create table employees1 (  
+    id int not null,  
+    fname varchar(30),  
+    lname varchar(30),  
+    hired date not null default '1970-01-01',  
+    separated date not null default '9999-12-31',
+    job_code int not null,  
+    store_id int not null  
+)  
+partition by range (store_id) (  
+     partition p0 values less than (6),  
+    partition p1 values less than (11),  
+    partition p2 values less than (16),  
+    partition p3 values less than (21)   
+);
+此处目标端db2有问题，装载正常，没有正确装载分区信息
+mysql分区表中的values less than取值条件，在db2中不能被识别，db2能够识别的子句格式为：STARTING value  ENDING value。
+反过来说mysql也无法识别STARTING value  ENDING value取值条件语句
+
+截断表
+truncate table emp1;
+压力测试
+update emp1 set empno=8888 where empno=7788;
+insert into emp1 select * from emp2；
+delete from emp1 where empno=8888;
+
+
+create procedure comm_types_data ( in start int ( 10 ), in max_num int ( 10 ) ) begin
+	declare i int default 0;
+	set autocommit = 0;
+	repeat
+insert into comm_types ( id, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19, c20, c21, c22, c23 )
+values(( start + i ),elt( ceiling(rand() * 5), 111.11, 222.22, 333.33, 444.44, 555.55 ),elt( ceiling(rand() * 2), -9223372036854775808, 9223372036854775807 ),elt( ceiling(rand() * 2), -32768, 32767 ),
+elt( ceiling(rand() * 2), -128, 123 ),elt( ceiling(rand() * 2), -8388608, 8388607 ),elt( ceiling(rand() * 3), 1, 2, 4 ),elt( ceiling(rand() * 2), 1, 2 ),elt( ceiling(rand() * 2), b'0', b'1' ),9999999.00000001,
+now(),current_date,year(now()),time(now()),	timestamp(now()),'mysql','数据',0xCCDD00CCDD,X'E697B6E997B42061313233333441',		X'E697B6E997B420',
+'MySQL是一种关系型数据库管理系统，关系数据库将数据保存在不同的表中，而不是将所有数据放在一个大仓库内，这样就增加了速度并提高了灵活性。',
+'MySQL所使用的 SQL 语言是用于访问数据库的最常用标准化语言。MySQL 软件采用了双授权政策，分为社区版和商业版，由于其体积小、速度快、总体拥有成本低，尤其是开 放源码这一特点，一般中小型网站的开发都选择 MySQL 作为网站数据库。',
+'MySQL是一个关系型数据库管理系统，由瑞典MySQL AB 公司开发，属于 Oracle 旗下产品。MySQL 是最流行的关系型数据库管理系统之一，在 WEB 应用方面，MySQL是最好的 RDBMS 应用软件之一。',
+unhex('544553542D42494E'),11111.1);
+        set i = i + 1;
+		until i = max_num 
+	end repeat;
+	commit;
+end $$ 
+delimiter ;
+
+
+https://www.cnblogs.com/zhoading/p/11491398.html  如果正常启动数据库的一种解决方案
+
+
+
+
+                  安装相关：centos7.7下安装   mysql  Ver 8.0.21 for Linux on x86_64
+				  
+				  
+卸载现有mysql
+[root@oggtarget yum.repos.d]# rpm -qa|grep -i mysql
+mysql57-community-release-el7-8.noarch
+[root@oggtarget yum.repos.d]# rpm -e mysql57-community-release-el7-8.noarch
+[root@oggtarget yum.repos.d]# rpm -qa|grep -i mysql
+[root@oggtarget yum.repos.d]#  find / -name mysql
+[root@oggtarget opt]# yum remove mysql
+
+//普通删除模式
+rpm -e xxx(mysql_libs)
+//强力删除模式,如果上述命令删除时，提示有依赖其他文件，则可以用该命令对其进行强力删除
+rpm -e --nodeps xxx(mysql_libs)
+
+[root@oggtarget opt]# rpm -qa | grep mariadb
+
+[root@oggtarget opt]# rpm -e --nodeps mariadb-libs-5.5.64-1.el7.x86_64
+
+[root@oggtarget opt]# yum install libaio   依赖包安装
+安装
+[root@oggtarget opt]# tar -zxvf mysql-8.0.21-el7-x86_64.tar.gz
+目录改名
+[root@oggtarget opt]# mv mysql-8.0.21-el7-x86_64 mysql
+移动
+[root@oggtarget opt]# mv /opt/mysql/ /usr/local/
+创建数据库文件的目录
+[root@oggtarget mysql]# mkdir -p /opt/mysql/mysqldb
+赋予mysql目录权限
+[root@oggtarget local]# chmod -R 777 /usr/local/mysql/
+
+创建mysql用户的组
+[root@oggtarget local]# groupadd mysql
+
+创建用户(-s /bin/false参数指定mysql用户仅拥有所有权，而没有登录权限)
+useradd -r -g mysql -s /bin/false mysql
+
+给mysql目录下的所有文件配置用户和属组
+[root@oggtarget mysql]# chown -R mysql:mysql ./
+
+修改mysql配置文件
+[root@oggtarget mysql]# vi /etc/my.cnf
+[mysqld]
+# 设置3306端口
+port=3306
+# 设置mysql的安装目录
+basedir=/usr/local/mysql
+# 设置mysql数据库的数据的存放目录
+datadir=/usr/local/mysql/mysqldb
+# 允许最大连接数
+max_connections=10000
+# 允许连接失败的次数。这是为了防止有人从该主机试图攻击数据库系统
+max_connect_errors=10
+# 服务端使用的字符集默认为UTF8
+character-set-server=utf8
+# 创建新表时将使用的默认存储引擎
+default-storage-engine=INNODB
+# 默认使用“mysql_native_password”插件认证
+default_authentication_plugin=mysql_native_password
+# 设置错误日志文件路径和日志级别
+log-error=/usr/local/mysql/mysqld.log
+log-output=FILE
+general-log=0
+slow-query-log=1
+slow-query-log-file=/usr/local/mysql/mysql-slow.log
+long_query_time=2
+[mysql]
+# 设置mysql客户端默认字符集
+default-character-set=utf8
+[client]
+# 设置mysql客户端连接服务端时默认使用的端口
+port=3306
+default-character-set=utf8
+
+创建日志文件，root用户
+touch /usr/local/mysql/mysqld.log
+chown mysql:mysql /usr/local/mysql/mysqld.log
+chmod 666 /usr/local/mysql/mysqld.log
+
+
+安装mysql，并记住初始化随机密码
+cd /usr/local/mysql/bin
+[root@oggtarget bin]# ./mysqld --initialize  --console
+root@localhost: Xr%v%j7o?x>?    这是初始密码
+
+启动mysql
+cd /usr/local/mysql/support-files
+[root@oggtarget support-files]# ./mysql.server start
+Starting MySQL.Logging to '/usr/local/mysql/mysqldb/oggtarget.err'.
+ ERROR! The server quit without updating PID file (/usr/local/mysql/mysqldb/oggtarget.pid).
+
+赋权，重新启动
+chmod -R 777 /usr/local/mysql
+[root@oggtarget support-files]# ./mysql.server start
+Starting MySQL.. SUCCESS!
+将mysql添加到系统进程中
+ cp /usr/local/mysql/support-files/mysql.server /etc/init.d/mysqld
+
+设置mysql随操作系统自动启动
+chmod +x /etc/init.d/mysqld  
+systemctl enable mysqld.service
+
+配置环境变量
+[root@oggtarget bin]# vi /etc/profile
+添加：export PATH=$PATH:/usr/local/mysql/bin/
+[root@oggtarget bin]# source /etc/profile  
+[root@oggtarget bin]# mysql -u root -p     --密码为初始密码
+
+修改root用户初始密码
+mysql>  alter user 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'mysql';
+Query OK, 0 rows affected (0.01 sec)
+
+设置允许远程登陆
+mysql> use mysql
+mysql> update user set user.Host='%'where user.User='root';
+重启mysql
+[root@oggtarget support-files]# ./mysql.server restart
+Shutting down MySQL.. SUCCESS!
+Starting MySQL.. SUCCESS!
+
+数据库关闭的两种方式
+mysql> shutdown
+cd /usr/local/mysql/support-files      执行：./mysql.server stop
+
+
+创建账户:create user '用户名'@'访问主机' identified by '密码';
+赋予权限:grant 权限列表 on 数据库 to '用户名'@'访问主机' ;(修改权限时在后面加with grant option)
+
+
+
+
+show binlog events "in 'binlog.000002'";
+
+
+
+
+
+mysql> show  master status\G
+
+mysql> show  slave  status\G
+
+nfs网络文件系统
+
+
+

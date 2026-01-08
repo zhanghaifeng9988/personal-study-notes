@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+<script>
+  //定义对象数据
+  let a = {
+      value: 1
+  }
+  let b = {
+      value: 2
+  }
+  //定义数据变量的处理器
+  handleA = {
+      //set方法会在设置时调用，其中第1个参数为操作的对象，第2个参数为要处理的属性
+      //第3个参数为要设置的值
+      set(target, key, value) {
+        target[key] = value
+      }
+  }
+  handleB = {
+      set(target, key, value) {
+        target[key] = value
+      }
+  }
+  //进行对象的代理包装
+  var pa = new Proxy(a, handleA) //创建1个基于a对象的代理对象
+  var pb = new Proxy(b, handleB) //创建1对象的
+  pa.value=3
+  pb.value=4
+  var sum = 0
+  //实现触发器的逻辑
+  alert(pa.value) //3
+    alert(pb.value) //4
+    alert(a.value)  //3
+    alert(b.value)  //4
+ function trigger ()  {
+      sum = pa.value + pb.value //计算总和
+     return alert(`总和为：${sum}`) //打印总和
+  }
+  trigger() //初始化数据
+</script>
+</body>
+</html>

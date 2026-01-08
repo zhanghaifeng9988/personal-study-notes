@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="vue.js"> </script>
+</head>
+<body>
+  <div id="Application">
+  </div>
+  <script>
+    const App = Vue.createApp({
+      setup () {
+        let a =Vue.ref(1)
+        let stop = Vue.watchEffect(
+          () => {//当变量a发生变化时，即可执行当前函数
+            alert('变量a变化了')
+            alert(a.value)
+          })
+        a.value = 2
+        a.value = 3  // 变量a发生变化，会触发watchEffect函数
+        return {a}
+        stop()
+      },
+    template:`<div>测试数据：{{a}}</div>`
+  })
+    App.mount('#Application')
+  </script>
+</body>
+</html>

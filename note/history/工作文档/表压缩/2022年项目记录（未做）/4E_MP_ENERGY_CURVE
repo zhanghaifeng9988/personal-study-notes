@@ -1,0 +1,1413 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SQL> --查询表的大小
+SQL> col OWNER for a20
+SQL> col SEGMENT_NAME for a30
+SQL> col SEGMENT_TYPE for a30
+SQL> col tablespace_name for a20
+SQL> set lines 200 pages 999 long 20000
+SQL> select  OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name ,sum(BYTES)/1024/1024/1024 
+from dba_segments
+where segment_name='E_MP_ENERGY_CURVE' and owner='CACHER07'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name order by sum(BYTES);
+
+OWNER                SEGMENT_NAME                   SEGMENT_TYPE                   TABLESPACE_NAME      SUM(BYTES)/1024/1024/1024
+-------------------- ------------------------------ ------------------------------ -------------------- -------------------------
+CACHER07             E_MP_ENERGY_CURVE              TABLE SUBPARTITION             CACHEDATA                          319.6492309
+
+
+SQL> --查看分区表类型统计信息
+SQL> col OWNER for a20
+SQL> col TABLE_NAME for a30
+SQL> set lines 200 pages 999 long 20000
+SQL> select OWNER,TABLE_NAME,PARTITIONING_TYPE,SUBPARTITIONING_TYPE,PARTITION_COUNT
+from dba_part_tables
+where OWNER='CACHER07' and TABLE_NAME='E_MP_ENERGY_CURVE';
+
+OWNER                TABLE_NAME                     PARTITIONING_TYPE           SUBPARTITIONING_TYPE        PARTITION_COUNT
+-------------------- ------------------------------ --------------------------- --------------------------- ---------------
+CACHER07             E_MP_ENERGY_CURVE              RANGE                       LIST                                    151
+
+
+SQL> --查看分区统计信息
+SQL> col TABLE_OWNER for a20
+SQL> col TABLE_NAME for a30
+SQL> col partition_name for a30
+SQL> set lines 200 pages 999 long 20000
+SQL> select table_owner,table_name,partition_name,subpartition_count from dba_tab_partitions where  table_owner='CACHER07'  
+and TABLE_NAME='E_MP_ENERGY_CURVE';
+
+TABLE_OWNER          TABLE_NAME                     PARTITION_NAME                 SUBPARTITION_COUNT
+-------------------- ------------------------------ ------------------------------ ------------------
+CACHER07             E_MP_ENERGY_CURVE              P1007                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1008                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1009                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1010                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1011                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1012                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1101                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1102                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1103                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1104                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1105                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1106                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1107                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1108                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1109                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1110                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1111                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1112                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1201                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1202                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1203                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1204                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1205                                          12
+CACHER07             E_MP_ENERGY_CURVE              P1206                                          12
+CACHER07             E_MP_ENERGY_CURVE              P201207                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201208                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201209                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201210                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201211                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201212                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201301                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201302                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201303                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201304                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201306                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201307                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201308                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201309                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201310                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201311                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201312                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201401                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201402                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201403                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201404                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201405                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201406                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201407                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201408                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201409                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201410                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201411                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201412                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201501                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201502                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201503                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201504                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201505                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201506                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201507                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201508                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201509                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201510                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201511                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201512                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201601                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201602                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201603                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201604                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201605                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201606                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201607                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201608                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201609                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201610                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201611                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201612                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201701                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201702                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201703                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201704                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201705                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201706                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201707                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201708                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201709                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201710                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201711                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201712                                        12
+CACHER07             E_MP_ENERGY_CURVE              P201801                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201802                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201803                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201804                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201805                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201806                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201807                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201808                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201809                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201810                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201811                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201812                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201901                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201902                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201903                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201904                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201905                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201906                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201907                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201908                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201909                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201910                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201911                                         1
+CACHER07             E_MP_ENERGY_CURVE              P201912                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202001                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202002                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202003                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202004                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202005                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202006                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202007                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202008                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202009                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202010                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202011                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202012                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202101                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202102                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202103                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202104                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202105                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202106                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202107                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202108                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202109                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202110                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202111                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202112                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202201                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202202                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202203                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202204                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202205                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202206                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202207                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202208                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202209                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202210                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202211                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202212                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202301                                         1
+CACHER07             E_MP_ENERGY_CURVE              P202302                                         1
+
+151 rows selected.
+
+
+
+
+SQL> --查询索引大小(已经在索引表空间了,不需要移动表空间)
+SQL> col INDEX_NAME for a30
+SQL> col DEGREE for a5
+SQL> col tablespace_name for a30
+SQL> col status for a10
+SQL> set lines 200 pages 999 long 20000
+SQL> select index_name,degree,status,tablespace_name 
+from dba_indexes 
+where owner='CACHER07' and table_name='E_MP_ENERGY_CURVE';
+
+INDEX_NAME                     DEGRE STATUS     TABLESPACE_NAME
+------------------------------ ----- ---------- ------------------------------
+IDX_E_MP_ENERGY_CURVE             1  VALID      IDXCACHE
+
+
+SQL> col OWNER for a20
+SQL> col SEGMENT_NAME for a30
+SQL> col SEGMENT_TYPE for a20
+SQL> set lines 200 pages 999 long 20000
+SQL> select  OWNER,SEGMENT_NAME,SEGMENT_TYPE,sum(BYTES)/1024/1024/1024 
+from dba_segments
+where segment_name in ('IDX_E_MP_ENERGY_CURVE') and owner='CACHER07'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE order by sum(BYTES);
+
+OWNER                SEGMENT_NAME                   SEGMENT_TYPE         SUM(BYTES)/1024/1024/1024
+-------------------- ------------------------------ -------------------- -------------------------
+CACHER07             IDX_E_MP_ENERGY_CURVE             INDEX                            45.9578247
+
+
+
+
+SQL> --查看分区所有信息(plsql执行)
+SQL> select * from dba_tab_subpartitions where  table_owner='CACHER07'  and TABLE_NAME='E_MP_ENERGY_CURVE';
+
+
+SQL> --查询小于2022年1月份的数据量
+
+SQL> select sum(bytes)/1024/1024/1024 from dba_segments where owner='CACHER07' and segment_name='E_MP_ENERGY_CURVE' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='CACHER07' and table_name='E_MP_ENERGY_CURVE' and partition_name<'P202201');
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+              263.2429809
+
+SQL> --转移分区表并压缩表的语句
+SQL> select 'alter table '||table_owner||'.'||table_name||' move subpartition '||subpartition_name||' 
+tablespace HISCMPRS01 nologging parallel 8 compress;',compression,subpartition_name 
+from dba_tab_subpartitions 
+where table_owner='CACHER07' and table_name='E_MP_ENERGY_CURVE' and partition_name<'P202201';
+
+SQL> alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1007_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1007_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1007_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1007_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1007_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1007_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1007_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1007_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1007_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1007_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1007_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1007_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1008_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1008_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1008_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1008_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1008_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1008_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1008_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1008_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1008_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1008_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1008_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1008_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1009_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1009_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1009_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1009_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1009_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1009_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1009_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1009_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1009_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1009_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1009_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1009_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1010_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1010_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1010_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1010_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1010_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1010_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1010_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1010_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1010_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1010_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1010_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1010_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1011_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1011_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1011_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1011_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1011_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1011_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1011_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1011_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1011_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1011_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1011_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1011_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1012_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1012_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1012_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1012_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1012_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1012_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1012_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1012_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1012_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1012_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1012_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1012_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1101_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1101_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1101_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1101_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1101_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1101_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1101_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1101_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1101_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1101_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1101_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1101_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1112_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1112_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1112_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1112_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1112_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1112_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1112_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1112_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1112_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1112_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1112_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1112_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1201_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1201_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1201_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1201_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1201_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1201_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1201_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1201_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1201_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1201_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1201_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1201_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1202_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1202_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1202_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1202_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1202_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1202_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1202_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1202_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1202_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1202_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1202_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1202_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1203_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1203_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1203_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1203_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1203_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1203_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1203_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1203_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1203_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1203_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1203_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1203_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1204_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1204_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1204_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1204_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1204_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1204_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1204_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1204_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1204_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1204_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1204_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1204_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1205_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1205_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1205_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1205_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1205_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1205_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1205_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1205_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1205_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1205_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1205_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1205_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1206_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1206_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1206_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1206_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1206_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1206_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1206_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1206_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1206_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1206_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1206_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1206_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1107_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1107_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1107_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1107_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1107_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1107_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1107_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1107_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1107_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1107_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1107_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1107_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1108_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1108_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1108_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1108_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1108_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1108_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1108_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1108_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1108_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1108_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1108_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1108_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1109_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1109_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1109_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1109_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1109_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1109_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1109_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1109_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1109_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1109_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1109_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1109_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1110_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1110_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1110_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1110_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1110_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1110_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1110_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1110_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1110_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1110_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1110_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1110_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1111_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1111_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1111_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1111_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1111_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1111_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1111_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1111_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1111_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1111_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1111_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1111_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1102_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1102_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1102_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1102_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1102_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1102_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1102_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1102_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1102_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1102_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1102_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1102_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1103_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1103_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1103_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1103_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1103_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1103_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1103_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1103_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1103_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1103_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1103_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1103_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1104_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1104_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1104_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1104_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1104_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1104_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1104_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1104_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1104_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1104_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1104_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1104_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1105_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1105_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1105_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1105_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1105_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1105_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1105_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1105_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1105_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1105_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1105_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1105_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1106_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1106_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1106_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1106_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1106_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1106_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1106_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1106_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1106_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1106_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1106_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P1106_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201207_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201207_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201207_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201207_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201207_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201207_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201207_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201207_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201207_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201207_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201207_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201207_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201208_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201208_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201208_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201208_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201208_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201208_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201208_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201208_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201208_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201208_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201208_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201208_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201209_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201209_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201209_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201209_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201209_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201209_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201209_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201209_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201209_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201209_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201209_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201209_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201210_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201210_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201210_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201210_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201210_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201210_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201210_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201210_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201210_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201210_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201210_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201210_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201211_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201211_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201211_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201211_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201211_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201211_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201211_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201211_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201211_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201211_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201211_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201211_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201311_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201311_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201311_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201311_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201311_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201311_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201311_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201311_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201311_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201311_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201311_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201311_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201312_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201312_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201312_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201312_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201312_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201312_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201312_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201312_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201312_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201312_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201312_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201312_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201401_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201401_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201401_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201401_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201401_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201401_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201401_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201401_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201401_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201401_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201401_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201401_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201402_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201402_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201402_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201402_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201402_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201402_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201402_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201402_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201402_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201402_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201402_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201402_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201403_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201403_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201403_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201403_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201403_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201403_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201403_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201403_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201403_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201403_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201403_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201403_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201404_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201404_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201404_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201404_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201404_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201404_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201404_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201404_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201404_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201404_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201404_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201404_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201405_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201405_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201405_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201405_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201405_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201405_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201405_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201405_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201405_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201405_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201405_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201405_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201406_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201406_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201406_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201406_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201406_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201406_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201406_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201406_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201406_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201406_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201406_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201406_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201407_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201407_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201407_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201407_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201407_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201407_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201407_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201407_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201407_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201407_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201407_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201407_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201306_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201306_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201306_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201306_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201306_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201306_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201306_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201306_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201306_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201306_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201306_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201306_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201307_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201307_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201307_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201307_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201307_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201307_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201307_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201307_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201307_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201307_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201307_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201307_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201308_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201308_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201308_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201308_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201308_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201308_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201308_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201308_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201308_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201308_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201308_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201308_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201309_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201309_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201309_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201309_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201309_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201309_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201309_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201309_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201309_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201309_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201309_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201309_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201310_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201310_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201310_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201310_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201310_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201310_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201310_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201310_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201310_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201310_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201310_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201310_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201212_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201212_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201212_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201212_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201212_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201212_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201212_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201212_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201212_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201212_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201212_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201212_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201301_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201301_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201301_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201301_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201301_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201301_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201301_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201301_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201301_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201301_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201301_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201301_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201302_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201302_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201302_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201302_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201302_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201302_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201302_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201302_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201302_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201302_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201302_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201302_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201303_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201303_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201303_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201303_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201303_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201303_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201303_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201303_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201303_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201303_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201303_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201303_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201304_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201304_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201304_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201304_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201304_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201304_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201304_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201304_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201304_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201304_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201304_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201304_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201501_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201501_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201501_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201501_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201501_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201501_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201501_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201501_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201501_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201501_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201501_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201501_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201502_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201502_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201502_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201502_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201502_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201502_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201502_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201502_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201502_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201502_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201502_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201502_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201503_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201503_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201503_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201503_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201503_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201503_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201503_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201503_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201503_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201503_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201503_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201503_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201504_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201504_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201504_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201504_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201504_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201504_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201504_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201504_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201504_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201504_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201504_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201504_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201505_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201505_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201505_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201505_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201505_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201505_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201505_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201505_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201505_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201505_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201505_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201505_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201506_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201506_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201506_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201506_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201506_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201506_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201506_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201506_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201506_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201506_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201506_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201506_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201507_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201507_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201507_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201507_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201507_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201507_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201507_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201507_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201507_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201507_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201507_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201507_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201508_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201508_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201508_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201508_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201508_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201508_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201508_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201508_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201508_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201508_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201508_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201508_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201509_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201509_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201509_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201509_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201509_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201509_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201509_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201509_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201509_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201509_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201509_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201509_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201510_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201510_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201510_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201510_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201510_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201510_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201510_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201510_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201510_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201510_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201510_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201510_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201511_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201511_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201511_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201511_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201511_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201511_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201511_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201511_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201511_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201511_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201511_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201511_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201512_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201512_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201512_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201512_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201512_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201512_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201512_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201512_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201512_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201512_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201512_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201512_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201601_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201601_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201601_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201601_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201601_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201601_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201601_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201601_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201601_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201601_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201601_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201601_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201602_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201602_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201602_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201602_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201602_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201602_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201602_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201602_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201602_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201602_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201602_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201602_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201408_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201408_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201408_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201408_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201408_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201408_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201408_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201408_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201408_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201408_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201408_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201408_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201409_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201409_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201409_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201409_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201409_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201409_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201409_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201409_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201409_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201409_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201409_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201409_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201410_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201410_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201410_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201410_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201410_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201410_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201410_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201410_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201410_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201410_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201410_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201410_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201411_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201411_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201411_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201411_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201411_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201411_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201411_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201411_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201411_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201411_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201411_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201411_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201412_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201412_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201412_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201412_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201412_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201412_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201412_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201412_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201412_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201412_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201412_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201412_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201701_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201701_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201701_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201701_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201701_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201701_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201701_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201701_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201701_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201701_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201701_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201701_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201702_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201702_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201702_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201702_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201702_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201702_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201702_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201702_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201702_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201702_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201702_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201702_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201703_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201703_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201703_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201703_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201703_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201703_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201703_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201703_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201703_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201703_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201703_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201703_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201704_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201704_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201704_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201704_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201704_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201704_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201704_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201704_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201704_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201704_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201704_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201704_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201705_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201705_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201705_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201705_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201705_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201705_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201705_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201705_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201705_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201705_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201705_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201705_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201706_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201706_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201706_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201706_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201706_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201706_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201706_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201706_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201706_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201706_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201706_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201706_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201707_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201707_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201707_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201707_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201707_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201707_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201707_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201707_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201707_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201707_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201707_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201707_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201708_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201708_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201708_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201708_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201708_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201708_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201708_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201708_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201708_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201708_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201708_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201708_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201709_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201709_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201709_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201709_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201709_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201709_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201709_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201709_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201709_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201709_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201709_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201709_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201710_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201710_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201710_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201710_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201710_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201710_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201710_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201710_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201710_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201710_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201710_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201710_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201711_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201711_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201711_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201711_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201711_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201711_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201711_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201711_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201711_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201711_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201711_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201711_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201608_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201608_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201608_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201608_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201608_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201608_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201608_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201608_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201608_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201608_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201608_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201608_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201609_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201609_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201609_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201609_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201609_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201609_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201609_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201609_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201609_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201609_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201609_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201609_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201610_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201610_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201610_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201610_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201610_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201610_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201610_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201610_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201610_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201610_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201610_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201610_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201611_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201611_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201611_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201611_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201611_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201611_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201611_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201611_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201611_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201611_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201611_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201611_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201612_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201612_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201612_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201612_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201612_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201612_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201612_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201612_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201612_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201612_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201612_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201612_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201603_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201603_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201603_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201603_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201603_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201603_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201603_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201603_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201603_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201603_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201603_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201603_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201604_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201604_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201604_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201604_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201604_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201604_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201604_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201604_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201604_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201604_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201604_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201604_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201605_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201605_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201605_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201605_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201605_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201605_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201605_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201605_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201605_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201605_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201605_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201605_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201606_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201606_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201606_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201606_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201606_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201606_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201606_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201606_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201606_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201606_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201606_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201606_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201607_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201607_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201607_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201607_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201607_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201607_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201607_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201607_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201607_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201607_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201607_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201607_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201712_OTH tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201712_SX14401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201712_SX14402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201712_SX14403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201712_SX14404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201712_SX14405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201712_SX14406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201712_SX14407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201712_SX14408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201712_SX14409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201712_SX14410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition P201712_SX14411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP1781 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP1782 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP1783 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP1784 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP1785 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP1786 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP1787 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP1788 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP1789 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP1790 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP1791 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP1792 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP2176 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP2177 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP2178 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP2179 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP2180 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP2181 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP2182 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP2183 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP2184 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP2185 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP2186 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP2187 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP3030 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP3031 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP3032 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP3033 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP3034 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP3035 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP3036 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP3037 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP3038 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP3039 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP3040 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP3041 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP8533 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP8534 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP8535 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP8536 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP8537 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP8538 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP8539 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP8540 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP8541 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP8542 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP941 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table CACHER07.E_MP_ENERGY_CURVE move subpartition SYS_SUBP942 tablespace HISCMPRS01 nologging parallel 8 compress;
+
+
+SQL> --查询失效索引
+SQL> col owner for a20
+SQL> col status for a20
+SQL> col index_name for a30
+SQL> select owner,index_name,status from dba_indexes 
+where STATUS='UNUSABLE' and owner='CACHER07' and table_name='E_MP_ENERGY_CURVE';
+
+OWNER                INDEX_NAME                     STATUS
+-------------------- ------------------------------ --------------------
+CACHER07             IDX_E_MP_ENERGY_CURVE             UNUSABLE
+
+ 
+SQL> --重建索引
+SQL> alter index CACHER01.IDX_E_MP_ENERGY_CURVE rebuild parallel 12  nologging;
+
+Index altered.
+
+
+
+SQL> --查询表的大小
+SQL> col OWNER for a20
+SQL> col SEGMENT_NAME for a30
+SQL> col SEGMENT_TYPE for a30
+SQL> col tablespace_name for a20
+SQL> set lines 200 pages 999 long 20000
+SQL> select  OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name ,sum(BYTES)/1024/1024/1024 
+from dba_segments
+where segment_name='E_MP_ENERGY_CURVE' and owner='CACHER07'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name order by sum(BYTES);
+
+OWNER                SEGMENT_NAME                   SEGMENT_TYPE                   TABLESPACE_NAME      SUM(BYTES)/1024/1024/1024
+-------------------- ------------------------------ ------------------------------ -------------------- -------------------------
+CACHER07             E_MP_ENERGY_CURVE              TABLE SUBPARTITION             HISCMPRS01                          65.5896606

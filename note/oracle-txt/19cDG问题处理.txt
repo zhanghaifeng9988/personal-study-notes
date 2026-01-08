@@ -1,0 +1,105 @@
+
+1、问题：备库pdb同步成功后，目录下查找，没有临时表空空间的数据文件
+
+ 解答：
+所有的dg都是open后添加临时文件的，你open read only，dg一样可以添加临时文件
+   经测试主库的pdb中创建临时数据文件
+ALTER TABLESPACE temp ADD TEMPFILE '/u01/oradata/ORCL/zhf_pdb1/zhf_pdb1temp.dbf' SIZE 20m;
+！！但是，备库的对应pdb中没有创建
+   经查，备库的pdb中的表空间包含临时表空间，但是查找临时数据文件是没有的
+   
+   我理解的原因是：临时文件不能被备份并且没有任何redo信息产生
+   
+   所以可能在备库切成主库后，可能需要给pdb中增加临时数据文件，以保证使用，不确定按共享的临时表空间的空间大小了
+2、问题：创建pdb的时候，已经让用户制定了默认的表空间，但是在实际操作过程中，
+还是发现插入数据报错：
+insert into dept (DEPTNO, DNAME, LOC)
+第 1 行出现错误:
+ORA-01950: 对表空间 'ZHF_TEST' 无权限
+  
+  解答：必须为用户提供quota配置
+alter user zhf1 QUOTA unlimited on zhf_test;
+
+测试内容：
+
+1、建立pdb，建表语句包含建立默认的表空间：
+create pluggable database zhf_pdb1 admin user zhf1 identified by oracle
+storage（maxsize 2G）
+DEFAULT TABLESPACE zhf_test datafile '/u01/oradata/ORCL/zhf_pdb1/zhf01.dbf' size 100m AUTOEXTEND ON
+path_prefix='/u01/oradata/ORCL/zhf_pdb1/'
+FILE_NAME_CONVERT = ('/u01/oradata/ORCL/pdbseed/', '/u01/oradata/ORCL/zhf_pdb1/');
+
+结果：成功在备库创建zhf_pdb1,并且创建默认表空间
+
+2、创建pdb用户，授权，及登录配置
+create user c##user1 identified by oracle;
+grant dba to c##user1 identified by oracle container = all;
+grant connect,resource,create session,create table,create view,create materialized view to zhf1;
+   
+   tns的配置（主备库要一样）
+tj =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = tjcuug)(PORT = 1521))
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = tj)
+    )
+  )
+bj =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = bjcuug)(PORT = 1521))
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = bj)
+    )
+  )
+  
+bj_zhf_pdb1 =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = bjcuug)(PORT = 1521))
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = zhf_pdb1)
+    )
+  )
+tj_zhf_pdb1 =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = tjcuug)(PORT = 1521))
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = zhf_pdb1)
+    )
+  )
+
+结果：sys用户可以登录主库和备库的CDB和pdb；
+c##user1 用户可以登录主库和备库的cdb和pdb；
+pdb 用户zhf1的授权也可以同步；
+zhf1可以登录到pdb
+
+3、在主库的pdb中创建测试对象及数据
+包括表，插入数据，主外键、约束
+注意要给用户分配表空间使用的空间配额；
+alter user zhf1 QUOTA unlimited on zhf_test;
+
+4、DG日志增长问题：
+   主备库归档日志的清理：
+ 在备库增加归档日志清理的脚本，并定期执行
+ [oracle@tjcuug u01]$ cat auto-del-archive.sh
+#!/bin/bash
+rman target / > delarchive.log << EOF
+
+delete archivelog until time 'sysdate-1';
+
+YES
+
+exit
+
+EOF
+
+
+[oracle@bjcuug u01]$ crontab -l
+0 18 * * * sh  /u01/auto-del-archive.sh
+##*/1 * * * * sh /u01/abc.sh
+   （2）备库tarce日志的清理
+   
+

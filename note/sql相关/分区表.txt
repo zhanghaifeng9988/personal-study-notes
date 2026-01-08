@@ -1,0 +1,292 @@
+Oracle建议如果单个表超过2G就最好对其进行分区，
+一个分区数据行不要超过30w对于大表创建分区的好处是显而易见的
+1、查询一个表的大小
+select owner,segment_name,sum(bytes)/1024/1024 M 
+from dba_extents u 
+where u.segment_type='TABLE' 
+and segment_name = 'TABLE_NAME' 
+group by owner,segment_name;
+
+2、创建分区以及子分区
+create table sales_part_test
+(
+  prod_id       NUMBER not null,
+  cust_id       NUMBER not null,
+  time_id       DATE not null,
+  channel_id    NUMBER not null,
+  promo_id      NUMBER not null,
+  quantity_sold NUMBER(10,2) not null,
+  amount_sold   NUMBER(10,2) not null
+)
+partition by range(time_id) subpartition  by range  (time_id)  
+--指定主表分区和子分区分区方式都是:范围分区，并按照列time_id 进行范围划分
+( 
+ partition sales_part_1998 values less than (TO_DATE('1999-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))
+ tablespace   EXAMPLE
+ (
+   subpartition sales_part_1998_01 values less than ( TO_DATE('1998-02-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE,
+   --指定主分区sales_part_1998子分区 sales_part_1998_01 注意每个主分区的子分区名字不能一样
+   subpartition sales_part_1998_02 values less than ( TO_DATE('1998-03-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE,
+   subpartition sales_part_1998_03 values less than ( TO_DATE('1998-04-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE,
+   subpartition sales_part_1998_04 values less than ( TO_DATE('1998-05-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE,
+   subpartition sales_part_1998_05 values less than ( TO_DATE('1998-06-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_1998_06 values less than ( TO_DATE('1998-07-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_1998_07 values less than ( TO_DATE('1998-08-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_1998_08 values less than ( TO_DATE('1998-09-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE,
+   subpartition sales_part_1998_09 values less than ( TO_DATE('1998-10-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_1998_10 values less than ( TO_DATE('1998-11-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_1998_11 values less than ( TO_DATE('1998-12-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_1998_12 values less than ( TO_DATE('1999-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE 
+
+ )
+ ,                 
+ partition sales_part_1999 values less than (TO_DATE('2000-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))
+ tablespace EXAMPLE
+ (
+   subpartition sales_part_1999_01 values less than ( TO_DATE('1999-02-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE,
+   subpartition sales_part_1999_02 values less than ( TO_DATE('1999-03-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE,
+   subpartition sales_part_1999_03 values less than ( TO_DATE('1999-04-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE,
+   subpartition sales_part_1999_04 values less than ( TO_DATE('1999-05-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE,
+   subpartition sales_part_1999_05 values less than ( TO_DATE('1999-06-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_1999_06 values less than ( TO_DATE('1999-07-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_1999_07 values less than ( TO_DATE('1999-08-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_1999_08 values less than ( TO_DATE('1999-09-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE,
+   subpartition sales_part_1999_09 values less than ( TO_DATE('1999-10-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_1999_10 values less than ( TO_DATE('1999-11-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_1999_11 values less than ( TO_DATE('1999-12-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_1999_12 values less than ( TO_DATE('2000-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE 
+ ),
+ partition sales_part_2000 values less than (TO_DATE('2001-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))
+ tablespace EXAMPLE
+ (
+   subpartition sales_part_2000_01 values less than ( TO_DATE('2000-02-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE,
+   subpartition sales_part_2000_02 values less than ( TO_DATE('2000-03-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE,
+   subpartition sales_part_2000_03 values less than ( TO_DATE('2000-04-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE,
+   subpartition sales_part_2000_04 values less than ( TO_DATE('2000-05-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE,
+   subpartition sales_part_2000_05 values less than ( TO_DATE('2000-06-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_2000_06 values less than ( TO_DATE('2000-07-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_2000_07 values less than ( TO_DATE('2000-08-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_2000_08 values less than ( TO_DATE('2000-09-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE,
+   subpartition sales_part_2000_09 values less than ( TO_DATE('2000-10-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_2000_10 values less than ( TO_DATE('2000-11-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_2000_11 values less than ( TO_DATE('2000-12-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_2000_12 values less than ( TO_DATE('2001-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE 
+  ),
+ partition sales_part_2001 values less than (TO_DATE('2002-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))
+ tablespace EXAMPLE (
+   subpartition sales_part_2001_01 values less than ( TO_DATE('2001-02-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE,
+   subpartition sales_part_2001_02 values less than ( TO_DATE('2001-03-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE,
+   subpartition sales_part_2001_03 values less than ( TO_DATE('2001-04-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE,
+   subpartition sales_part_2001_04 values less than ( TO_DATE('2001-05-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE,
+   subpartition sales_part_2001_05 values less than ( TO_DATE('2001-06-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_2001_06 values less than ( TO_DATE('2001-07-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_2001_07 values less than ( TO_DATE('2001-08-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_2001_08 values less than ( TO_DATE('2001-09-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE,
+   subpartition sales_part_2001_09 values less than ( TO_DATE('2001-10-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_2001_10 values less than ( TO_DATE('2001-11-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_2001_11 values less than ( TO_DATE('2001-12-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE, 
+   subpartition sales_part_2001_12 values less than ( TO_DATE('2002-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'))  tablespace   EXAMPLE 
+
+
+
+
+
+
+
+移动分区表的语句
+
+1、移动非组合分区表到新的表空间
+ALTER TABLE [table_name] MOVE PARTITION [partition_name] TABLESPACE [tablespace_name]  nologging parallel 8 compress;
+2、移动组合分区表
+1）先移动子分区到另一个表空间
+alter table [table_name] move SUBPARTITION [subpartition_name] tablespace [tablespace_name] nologging parallel 8 compress;
+2）再修改父分区的属性为另一个表空间
+ALTER TABLE [table_name] MODIFY DEFAULT ATTRIBUTES FOR PARTITION [partition_name] TABLESPACE [tablespace_name];
+
+
+
+
+
+和分区相关的索引概念有很多，有本地索引和全局索引，
+
+本地索引：本地索引一定是分区索引，分区键等同于表的分区键，分区数等同于表的分区数，
+一句话，本地索引的分区机制和表的分区机制一样。
+对于本地索引，其索引分区的维护自动进行，就是说你add/drop/split/truncate表的分区时，
+本地索引会自动维护其索引分区。
+
+前缀索引：
+1）当本地索引列只有一列，而该列正是表的分区列时。
+2）如果本地索引列是组合多列，那么第一列必须是表分区列。
+非前缀索引：与前缀索引相反，索引列中不包含分区列
+
+
+本地索引:1.本地前缀分区索引    2.本地非前缀分区索引。
+
+前缀和非前缀索引都可以支持索引分区消除，前提是查询的条件中包含索引分区键。
+本地索引只支持分区内的唯一性，无法支持表上的唯一性，
+因此如果要用本地索引去给表做唯一性约束，
+则约束中必须要包括分区键列。
+
+本地分区索引是对单个分区的，每个分区索引只指向一个表分区，
+全局索引则不然，一个分区索引能指向n个表分区，同时，一个表分区，也可能指向n个索引分区，
+对分区表中的某个分区做truncate或者move，shrink等，可能会影响到n个全局索引分区，
+正因为这点，本地分区索引具有更高的可用性。
+
+位图索引只能为本地分区索引。
+
+
+全局索引：
+全局索引即可以分区，也可以不分区。即可以建range分区，也可以建hash分区，即可建于分区表，
+又可创建于非分区表上，就是说，全局索引是完全独立的，因此它也需要我们更多的维护操作。
+
+1.分区键和分区数和表的分区键和分区数可能都不相同，表和全局索引的分区机制不一样。
+2.全局索引可以分区，也可以是不分区索引，全局索引必须是前缀索引，
+即全局索引的索引列必须是以索引分区键作为其前几列。
+3.全局分区索引只按范围或者散列hash分区，hash分区是10g以后才支持。
+4.全局索引多应用于oltp系统中
+5.全局分区索引的索引条目可能指向若干个分区，因此，
+对于全局分区索引，即使只截断一个分区中的数据，都需要rebuild若干个分区甚至是整个索引。
+可以查询dba_ind_partitions，或者user_ind_partitions，找到partition_name，
+然后对每个分区重建
+select index_name,partition_name from user_ind_partitions where index_name='INDEX_NAME';
+alter index 全局索引名 rebuild partition 分区名 online nologging;
+
+6.oracle9i以后对分区表做move或者truncate的时候，可以用update global indexes语句
+来同步更新全局分区索引，用消耗一定资源来换取高度的可用性。
+7.全局分区索引只能是B树索引；
+8.Oracle默认不会自动维护全局分区索引；
+
+
+全局索引:1.全局非分区索引      2.全局分区索引
+
+关于分区索引的几个视图：
+dba_ind_partitions 描述了每个分区索引的分区情况，以及统计信息
+dba_part_indexes 分区索引的概要统计信息，可以得知每个表上有哪些分区索引，分区索引的类型(local/global)
+dba_indexes minus dba_part_indexes （minus操作）可以得到每个表上有哪些非分区索引
+
+从以上索引的结构不难看出，全局索引的维护工作更加复杂，本地索引具有更高的可用性。
+从可维护的角度看：我们更倾向于选择本地索引。
+
+创建本地索引时，索引分区和表分区数量必须相同
+如果创建本地索引时指定分区，需要和表分区数量相同。
+举例：
+CREATE INDEX i_range_03 ON RANGE_PART_TAB(id) 
+local (PARTITION A1,
+       PARTITION A2,
+       PARTITION A3,
+       PARTITION A4,
+       PARTITION A5,
+       PARTITION A6,
+       PARTITION A7,
+       PARTITION A8,
+       PARTITION A9,
+       PARTITION A10,
+       PARTITION A11,
+       PARTITION A12,
+       PARTITION A13);
+
+显示数据库所有分区表的信息：DBA_PART_TABLES
+显示当前用户可访问的所有分区表信息：ALL_PART_TABLES
+显示当前用户所有分区表的信息：USER_PART_TABLES
+显示表分区信息 显示数据库所有分区表的详细分区信息：DBA_TAB_PARTITIONS
+显示当前用户可访问的所有分区表的详细分区信息：ALL_TAB_PARTITIONS
+显示当前用户所有分区表的详细分区信息：USER_TAB_PARTITIONS
+显示子分区信息 显示数据库所有组合分区表的子分区信息：DBA_TAB_SUBPARTITIONS
+显示当前用户可访问的所有组合分区表的子分区信息：ALL_TAB_SUBPARTITIONS
+显示当前用户所有组合分区表的子分区信息：USER_TAB_SUBPARTITIONS
+显示分区列 显示数据库所有分区表的分区列信息：DBA_PART_KEY_COLUMNS
+显示当前用户可访问的所有分区表的分区列信息：ALL_PART_KEY_COLUMNS
+显示当前用户所有分区表的分区列信息：USER_PART_KEY_COLUMNS
+显示子分区列 显示数据库所有分区表的子分区列信息：DBA_SUBPART_KEY_COLUMNS
+
+
+
+1.查询指定表中的索引信息及状态是不可用的情况
+select * from dba_indexes
+where owner='FDPSHARE' 
+and table_name='ARC_ES_RCA_MRDATA' 
+STATUS='UNUSABLE'; 
+
+  查询某张表的详细分区信息
+  select * from dba_tab_partitions where table_name='table_name';
+  
+  查询某张分区表上的索引信息
+  select index_name,partitioning_type,subpartitioning_type from dba_part_indexes
+  where table_name='table_name';
+
+ 查询分区表的索引的详细信息
+select index_name,partition_name,tablespace_name,compression from 
+dba_ind_partitions where index_name in（'index_name');
+
+
+
+2.查询出重建失效子分区索引的语句
+select 'alter index ' ||t.INDEX_OWNER||'.'||t.index_name
+||' rebuild subpartition '|| t.SUBPARTITION_NAME || 
+'parallel 8 nologging tablespace IDXCACHE;',STATUS 
+from dba_ind_subpartitions t 
+where INDEX_OWNER='FDPSHARE' and STATUS='UNUSABLE';
+
+3.查询出重建失效分区索引的语句
+select 'alter index '||t.index_owner||'.'||t.index_name
+||' rebuild partition '|| t.patition_name || ' parallel 8 nologging
+tablespace IDXCACHE;',status from dba_ind_partitions t 
+where index_name='FDPSHARE' and status='UNUSABLE';
+
+4.查询出重建表ARC_ES_RCA_MRDATA索引的语句
+select 'alter index '||owner||'.'||index_name||' rebuild parallel 8 nologging
+tablespace IDXCACHE;',tablespace_name,status 
+from dba_indexes 
+where owner='FDPSHARE' and  table_name='ARC_ES_RCA_MRDATA';
+  
+5.显示当前数据库中指定模式用户下的表的分区信息
+select owner,table_name,partitioning_type,subpartitioning_type,partition_count
+from dba_part_tables 
+where owner='FDPSHARE' and table_name='ARC_ES_RCA_MRDATA';
+
+
+6.显示当前数据库中指定模式用户下的表的所有详细分区信息,
+select  * from dba_tab_partitions 
+where table_owner='FDPSHARE' 
+and table_name='ARC_ES_RCA_MRDATA' order by 1;
+
+7.查询出重建表ARC_ES_RCA_MRDATA_BAK索引的语句
+select 'alter index '||owner||'.'||index_name||
+' rebuild parallel 8 nologging tablespace IDXCACHE;' ,
+tablespace_name,status from dba_indexes 
+where owner='FDPSHARE' and table_name='ARC_ES_RCA_MRDATA_BAK';
+
+8.将指定的表移动到新的表空间中
+ select 'alter table  '||owner||'.'||table_name||' move  tablespace FDPSHAREBAK 
+ nologging parallel 8;' 
+ from dba_tables 
+ where owner='FDPSHARE' and table_name='GC_POWER_HOUR_BAK';
+
+
+
+
+疑问：
+1、move表会锁表，是否要停业务？断开连接？
+2、移动的表是不是有含有子分区的分区表？
+
+
+会话情况查看：
+--查看系统当前进程的连接数
+select count(*) from v$process;
+--查看系统当前会话的连接数
+select count(*) from v$session;
+--查看当前系统的并发连接数
+select count(*) from v$session where status='ACTIVE';
+--查看当前系统允许的进程连接数
+select value from v$parameter where name = 'processes';
+--查询oracle会话信息
+select * from v$session;
+select * from v$session t where t.program = 'plsqldev.exe'; 
+select * from v$session t where t.program <> 'plsqldev.exe';
+select * from v$process;
+--查看当前oracle中正在执行的sql语句——即查询oracle进程的sql
+select a.program,a.MACHINE,a.OSUSER,a.USERNAME, b.spid, c.sql_text,c.SQL_ID
+from v$session a, v$process b, v$sqlarea c
+where a.paddr = b.addr
+and a.sql_hash_value = c.hash_value
+and a.username is not null;

@@ -1,0 +1,113 @@
+
+
+如何高效的在 Linux 环境下配置 yum 源？
+
+                方法一：使用脚本的方式创建本地 YUM 仓库
+				
+首先，脚本开始时检查光盘是否已经挂载。如果已经挂载，就将光盘挂载到/mnt 目录下。
+如果没有挂载，脚本会输出：请挂载光盘的提示并以退出码 2 进行退出。
+
+然后，脚本切换到/etc/yum.repos.d/目录。
+判断a文件夹是否存在，如果存在，则输出：文件已经存在。
+如果a文件夹不存在，将创建a文件夹。
+
+将Cent*开头的文件移动到a文件夹下，在/etc/yum.repos.d目录下创建一个名为a.repo的文件，a.repo文件包含了YUM仓库的配置信息，指定了baseurl为file:///mnt，表示YUM仓库的源为/mnt目录。
+
+脚本执行yum clean all和yum makecache命令，清理并创建YUM缓存。
+如果这两个命令执行成功（退出码为0），脚本会输出：本地yum仓库已经创建完成的提示。
+
+--脚本代码
+#!/bin/bash
+mount |grep sr0 &> /dev/null
+if [ $? -eq 0 ];then
+ mount /dev/cdrom /mnt &> /dev/null
+else
+ echo "请挂载光盘！"
+ exit 2 
+fi
+cd /etc/yum.repos.d/
+if [ -e a ];then
+ echo "文件已经存在"
+else
+ mkdir a
+fi
+mv Cent* a &> /dev/null
+cat << EOR >> a.repo
+[base]
+name=a
+baseurl=file:///mnt
+gpgcheck=0
+EOR
+yum clean all
+yum makecache
+if [ $? -eq 0 ];then
+echo "本地yum仓库已经创建完成！"
+fi
+
+
+                方法二：通过镜像制作本地 YUM 仓库
+				
+首先，需要将CentOS-7-x86_64-DVD-1611.iso本地镜像iso文件上传到/opt目录下。
+
+--创建挂载目录
+
+mkdir /mnt/centos7.5
+
+--挂载ISO光盘文件
+
+mount /opt/CentOS-7-x86_64-DVD-1611.iso /mnt/centos7.5
+
+--将原有的yum源备份到/etc/yum.repos.d/bak目录下
+
+mv /etc/yum.repos.d/*.repo  /etc/yum.repos.d/bak
+
+--进入yum源配置文件目录
+
+cd /etc/yum.repos.d/
+
+--创建CentOS.Base.repo配置文件，在创建yum配置文件后缀名必须为.repo
+
+vim CentOS.Base.repo
+
+# 如下为配置文件中的内容
+[centos7.5]                       # yum 源区别名称，用来区分其他的 yum 源
+name=centos7.5                    # yum 源名字
+baseurl=file:///mnt/centos7.5     # 指定本地 yum 源的路径
+enabled=1                         # 是否使用此 yum 源（1：打开，0：关闭）
+gpgcheck=0                        # 检查软件（1：检查，0：不检查）
+gpgkey=file:///mnt/centos7.5/RPM-GPG-KEY-CentOS-7
+
+
+--刷新缓存
+yum clean all
+yum repolist
+
+
+                  方法三：使用 aliyun 官方 YUM 仓库
+				  
+--进入yum源配置文件目录
+cd /etc/yum.repos.d/
+
+--创建文件夹
+mkdir bak
+
+--将/etc/yum.repos.d/目录下所有的.repo的文件移动到bak目录下
+mv *.repo bak
+
+--下载aliyun的yum源
+wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+
+--在wget中，-O：选项用于指定要将下载的内容保存为的文件名。
+安装扩展源epel.repo
+
+wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo
+
+--进入yum源配置文件目录下，CentOS-Base.repo和epel.repo是否下载成功。
+# ls
+a  bak  CentOS-Base.repo  epel.repo
+
+--下载安装cowsay程序
+yum  -y install cowsay
+
+--运行并输入想要表达的信息
+cowsay  goodbye 2023，hello 2024！

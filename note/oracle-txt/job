@@ -1,0 +1,277 @@
+  
+  
+  oracle中的job能为你做的就是在你规定的时间格式里执行一段过程，定时执行一个任务 。
+  job定时任务需要依托存储过程。
+
+--创建存储过程
+create or replace procedure myinsert as
+begin 
+insert into test1 values(1);
+end;
+  
+--创建job定时任务  实现自动调用存储过程
+declare
+  job number;
+BEGIN
+  DBMS_JOB.SUBMIT(  
+        JOB => job,  /*自动生成JOB_ID*/  
+        WHAT => 'myinsert;',  /*需要执行的存储过程名称*/  
+        NEXT_DATE => sysdate+1/(24*60),  /*初次执行时间-下一个1分钟*/  
+        INTERVAL => 'trunc(sysdate,''mi'')+1/(24*60)' /*每隔1分钟执行一次*/
+      );  
+  commit;
+end;
+
+--可以通过查询系统表查看该job信息
+select job from user_jobs;
+
+--查看job是否分配了进程，如果没有分配，需要手动分配
+show parameter job_queue_process;
+如果结果为0，说明Oracle没有为job分配进程，所以不会执行
+手动分配job的执行进程
+ALTER SYSTEM SET JOB_QUEUE_PROCESSES = 5;
+
+通过查阅资料发现原来有一个参数job_queue_processes数字为0是定时任务都不会执行
+1、job_queue_processes取值范围为0到1000，总共可创建多少个job进程由job_queue_processes参数来决定。
+
+2、当job_queue_processes大于1时，且并行执行job时，至少一个为协调进程。其总数不会超出job_queue_processes的值。
+
+3、job_queue_processes参数的值为且DBMS_JOB与DBMS_SCHEDULER共享。
+
+4、job_queue_processes参数，当设定该值为0的时候则任意方式创建的job都不会运行。
+
+5、非零值的job_queue_processes，其job子进程数依赖于可用资源，资源配置方式以及当前运行的job数来自行调整。
+
+6、此外对于Scheduler jobs方式还受限制于scheduler属性MAX_JOB_SLAVE_PROCESSES的设置。
+
+7、可以通过DBMS_SCHEDULER.SET_SCHEDULER_ATTRIBUTE来设置max_job_slave_processes
+
+--手动sql调用job
+begin
+   DBMS_JOB.RUN(4); /*4 job的id*/
+ end;
+ 
+--删除任务
+begin
+  /*删除自动执行的job*/
+  dbms_job.remove(4);
+end;
+
+
+--停止job
+
+   --正在运行的dbms_job方式创建的任务，获取到jobid
+
+select * from dba_jobs_running;
+   --查询当前用户，或者指定用户的job
+select t.what,t.* from user_jobs t; 
+select t.what,t.* from dba_jobs t where t.log_user ='用户名' 
+
+   
+   --停止job
+exec dbms_job.broken(jobid,true); 
+commit;       
+   --kill掉session
+   应为BROKEN后该JOB还在运行，如果要求该JOB立刻停止，就需要找到该job的对应SESSION(SID,SERIAL#)，
+   然后执行以下命令：
+  select t.action,t.* from  v$session t where t.action like '%4%';
+  
+  select b.sid,b.serial# from v$process a ,v$session b 
+where a.addr=b.paddr and b.sid in (select sid from dba_jobs_running);
+  alter system kill session 'sid, serial#';
+
+--重新启动job
+EXEC DBMS_JOB.BROKEN(4,FALSE);
+commit;
+
+
+
+
+
+
+
+
+
+--修改间隔时间
+dbms_job.interval(job，interval);
+
+--修改下次执行时间
+dbms_job.next_date(job，next_date);
+
+--修改要执行的操作
+dbms_job.what(jobno，'sp_fact_charge_code;');  --修改某个job名 
+
+
+--INTERVAL参数常用值示例
+每天午夜12点            ''TRUNC(SYSDATE + 1)''     
+每天早上8点30分         ''TRUNC(SYSDATE + 1) + （8*60+30）/(24*60)''     
+每星期二中午12点         ''NEXT_DAY(TRUNC(SYSDATE ), ''''TUESDAY'''' ) + 12/24''     
+每个月第一天的午夜12点    ''TRUNC(LAST_DAY(SYSDATE ) + 1)''     
+每个季度最后一天的晚上11点 ''TRUNC(ADD_MONTHS(SYSDATE + 2/24, 3 ), ''Q'' ) -1/24''     
+每星期六和日早上6点10分    ''TRUNC(LEAST(NEXT_DAY(SYSDATE, ''''SATURDAY"), NEXT_DAY(SYSDATE, "SUNDAY"))) + （6×60+10）/（24×60）''    
+每3秒钟执行一次             'sysdate+3/(24*60*60)'   
+每2分钟执行一次           'sysdate+2/(24*60)'   
+  
+1:每分钟执行  
+Interval => TRUNC(sysdate,'mi') + 1/ (24*60) --每分钟执行  
+interval => 'sysdate+1/（24*60）'  --每分钟执行  
+interval => 'sysdate+1'    --每天  
+interval => 'sysdate+1/24'   --每小时  
+interval => 'sysdate+2/24*60' --每2分钟  
+interval => 'sysdate+30/24*60*60'  --每30秒  
+2:每天定时执行  
+Interval => TRUNC(sysdate+1)  --每天凌晨0点执行  
+Interval => TRUNC(sysdate+1)+1/24  --每天凌晨1点执行  
+Interval => TRUNC(SYSDATE+1)+(8*60+30)/(24*60)  --每天早上8点30分执行  
+3:每周定时执行  
+Interval => TRUNC(next_day(sysdate,'星期一'))+1/24  --每周一凌晨1点执行  
+Interval => TRUNC(next_day(sysdate,1))+2/24  --每周一凌晨2点执行  
+4:每月定时执行  
+Interval =>TTRUNC(LAST_DAY(SYSDATE)+1)  --每月1日凌晨0点执行  
+Interval =>TRUNC(LAST_DAY(SYSDATE))+1+1/24  --每月1日凌晨1点执行  
+5:每季度定时执行  
+Interval => TRUNC(ADD_MONTHS(SYSDATE,3),'q')  --每季度的第一天凌晨0点执行  
+Interval => TRUNC(ADD_MONTHS(SYSDATE,3),'q') + 1/24  --每季度的第一天凌晨1点执行  
+Interval => TRUNC(ADD_MONTHS(SYSDATE+ 2/24,3),'q')-1/24  --每季度的最后一天的晚上11点执行  
+6:每半年定时执行  
+Interval => ADD_MONTHS(trunc(sysdate,'yyyy'),6)+1/24  --每年7月1日和1月1日凌晨1点  
+7:每年定时执行  
+Interval =>ADD_MONTHS(trunc(sysdate,'yyyy'),12)+1/24  --每年1月1日凌晨1点执行  
+
+
+
+
+
+
+      ***ORACLE 建议使用 Scheduler 替换普通的 job（DBMS_JOB）***
+	  
+	  所谓 JOBS，其实就是 Scheduler 管理的一个(或多个)任务的执行调度。
+	  
+--创建job定时任务
+BEGIN
+
+       DBMS_SCHEDULER.CREATE_JOB (
+
+       job_name =>   'INSERT_TEST_JOB',
+
+       job_type  =>   'STORED_PROCEDURE',
+
+       job_action      =>   'P_INSERTINTOTEST',
+
+       start_date =>   sysdate,
+
+       repeat_interval =>   'FREQ=DAILY;INTERVAL=1');
+
+       END;
+
+
+有权限的话，用户也可以创建其它 SCHEMA 下的 JOB，只需要在指定 JOB_NAME 时，按照
+
+schema.job_name 的格式即可。这种情况下创建的 JOB，其 CREATED 与 OWNER 有可能并不相同的。
+
+
+
+JOB_NAME：指定任务的名称，必选值，注意要确保指定的名称唯一。
+JOB_TYPE：任务执行的操作类型，必选值，有下列几个可选值：
+（1） PLSQL_BLOCK：表示任务执行的是一个PL/SQL 匿名块。
+（2）STORED_PROCEDURE：表示任务执行的是ORACLE 过程(含L/SQL PROCEDURE 和JAVA PROCEDURE)，本例中正是指定这一参数值。
+（3）EXECUTABLE：表示任务执行的是一个外部程序，比如说操作系统命令。
+（4）CHAIN：表示任务执行的是一个CHAIN。
+JOB_ACTION：任务执行的操作，必选值，应与JOB_TYPE 类型中指定的参数相匹配。比如说对于PL/SQL 匿名块，此处就可以放置PL/SQL 块的具体代表，类似DECLARE .. BEGIN ..END这类；如果是ORACLE 过程，那么此处应该指定具体的过程名，注意由于任务执行，即使过程中有OUT之类参数，实际执行时也不会有输出的。
+START_DATE：指定任务初次执行的时间，本参数可为空，当为空时，表示任务立刻执行，效果等同于指定该参数值为SYSDATE。
+REPEAT_INTERVAL：指定任务执行的频率，比如多长时间会被触发再次执行。本参数也可以为空，如果为空的话，就表示当前设定的任务只执行一次。REPEAT_INTERVAL 参数与标准JOB 中的INTERVAL 参数有很大区别，相比之下，REPEAT_INTERVAL 参数的语法结构要复杂的多。其中最重要的是FREQ 和INTERVAL 两个关键字。
+（1）FREQ 关键字用来指定间隔的时间周期，可选参数有：YEARLY,MONTHLY,WEEKLY,DAILY,HOURLY,MINUTELY,and SECONDLY，分别表示年、月、周、日、时、分、秒等单位。
+（2）INTERVAL 关键字用来指定间隔的频繁，可指定的值的范围从1-99。
+例如：REPEAT_INTERVAL=>'FREQ=DAILY;INTERVAL=1';表示每天执行一次，如果将INTERVAL 改为7 就表示每7 天执行一次，效果等同于FREQ=WEEKLY;INTERVAL=1。
+一般来说，使用DBMS_SCHEDULER.CREATE_JOB 创建一个JOB，至少需要指定上述参数中的前3 项。除此之外，还可以在CREATE_JOB 时，指定下列参数：
+（1）NUMBER_OF_ARGUMENTS：指定该JOB 执行时需要附带的参数的数量，默认值为0，注意当JOB_TYPE 列值为PLSQL_BLOCK 或CHAIN 时，本参数必须设置为0，因为上述两种情况下不支持附带参数。
+（2）END_DATE：指定任务的过期时间，默认值为NULL。任务过期后，任务的STATE 将自动被修改为COMPLETED，ENABLED 被置为FALSE。如果该参数设置为空的话，表示该任务永不过期，将一直按照    REPEAT_INTERVAL 参数设置的周期重复执行，直到达到设置的MAX_RUNS 或MAX_FAILURES 值。
+（3）JOB_CLASS：指定任务关联的CLASS，默认值为DEFAULT_JOB_CLASS。
+（4）ENABLED：指定任务是否启用，默认值为FALSE。FALSE 状态表示该任务并不会被执行，除非被用户手动调用，或者用户将该任务的状态修改为TRUE。
+（5）AUTO_DROP：当该标志被置为TRUE 时，ORACLE 会在满足条件时自动删除创建的任务
+1）任务已过期；
+2）任务最大运行次数已达MAX_RUNS 的设置值；
+3）任务未指定REPEAT_INTERVAL 参数，仅运行一次；
+该参数的默认值即为TRUE。用户在执行CREATE_JOB 过程时可以手动将该标志指定为FALSE，当参数值设置为FALSE 时，即使满足上述提到的条件任务也不会被自动删除，这种情况下，唯一能够导致任务被删除的情况，就是用户主动调用DROP_JOB 过程。
+（6）COMMENTS：设置任务的注释信息，默认值为NULL。
+
+
+
+
+
+举例：
+
+缺省情况下,job会被创建在当前的schema下，并且是没有激活的; 如果要使job一创建
+就自动激活，需要显式的设置enabled 属性为true, 
+
+begin
+dbms_scheduler.create_job
+(
+job_name =>'sys.test_insert',
+/* schedule_name => 'EVERY_60_MINS’,  */
+job_type => 'STORED_PROCEDURE',
+job_action => 'sys.MYINSERT',
+start_date => sysdate,
+repeat_interval => 'FREQ=SECONDLY;interval=10',
+enabled => true,
+comments => 'test insert'
+);
+end;
+
+
+--!!!注意！！！
+不过这个JOB 与普通JOB 不同，此时查询USER_JOBS 视图是查不到刚刚创建的JOB 的信息，
+因为这个JOB 是SCHEDULER 管理的JOB
+
+
+--存储过程查询
+select text  from user_source where name='MYINSERT';  存储过程查询
+
+
+--查询scheduler job
+select job_name,job_type,job_action,to_char(start_date,'yyyy-mm-ddhh24:mi:ss') TM,
+repeat_interval,enabled,state from dba_scheduler_jobs  where job_name='TEST_INSERT';
+
+--job执行日志查询
+select * from dba_scheduler_job_log;
+  
+--查询job运行的细节
+select JOB_NAME,STATUS
+ from dba_scheduler_job_run_details where job_name='TEST_INSERT';
+  
+--查询正在执行的job
+select * from dba_scheduler_running_jobs;
+
+
+--禁用scheduler job
+exec dbms_scheduler.disable('TEST_INSERT');
+
+
+--启用scheduler job
+exec dbms_scheduler.enable('TEST_INSERT');
+
+
+--修改scheduler job
+对scheduler job的修改(或者说重定义)，DBMS_SCHEDULER 包中专门提供了一个过程SET_ATTRIBUTE，可以用来修改任务的属性值。
+执行语句如下：
+说明：可以参考dbms_scheduler.set_attribute包定义；name,attribute,value这样的格式，并且一次只能修改一个属性。
+
+exec dbms_scheduler.set_attribute('sys.test_insert','repeat_interval','FREQ=SECONDLY;interval=20')
+
+
+
+--手动执行scheduler job
+exec dbms_scheduler.run_job('TEST_INSERT');
+
+--停止job（用来停止正在运行的job）如果job不是正在运行，可以使用禁用方式
+exec dbms_scheduler.stop_job('TEST_INSERT');
+
+！！！注意：
+注意，STOP_JOB 过程不仅仅是更新job 的状态，而是停止当前正在执行的任务，
+如果你处理的任务当前未在运行的话，那么执行STOP_JOB 过程，会触发ORA-27366 错误。
+
+--删除job
+exec dbms_scheduler.drop_job('TEST_INSERT');
+
+--以上操作都是在sys用户下执行的，也可以用sys用户创建其他用户的job，也可以在当前用户下创建job
+

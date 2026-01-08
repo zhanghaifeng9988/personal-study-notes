@@ -1,0 +1,109 @@
+
+
+--安装
+yum install epel-release -y
+
+yum install ansible
+
+--查看版本
+ansible --version
+
+--查看定义主机清单
+ansible all --list
+
+--ansible的配置文件为/etc/ansible/ansible.cfg
+[defaults]
+inventory = /etc/ansible/hosts		  #这个参数表示资源清单inventory文件的位置
+library = /usr/share/ansible		 #指向存放Ansible模块的目录，支持多个目录方式，只要用冒号（：）隔开就可以
+forks = 5		                      #并发连接数，默认为5
+sudo_user = root		              #设置默认执行命令的用户
+remote_port = 22		              #指定连接被管节点的管理端口，默认为22端口，建议修改，能够更加安全
+ask_pass = True                #是否需要密码
+host_key_checking = False		     #设置是否检查SSH主机的密钥，值为True/False。关闭后第一次连接不会提示配置实例
+timeout = 60		                #设置SSH连接的超时时间，单位为秒
+log_path = /var/log/ansible.log		#指定一个存储ansible日志的文件（默认不记录日志）
+
+
+  在ansible.cfg的[defaults]部分添加配置（用于减少返回结果的python错误提示）
+  interpreter_python = auto_legacy_silent
+  
+错误提示如下：
+[WARNING]: Platform linux on host node1 is using the discovered Python interpreter at
+/usr/bin/python, but future installation of another Python interpreter could change this. See
+https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for more
+information.
+
+  
+--ssh互信
+ssh-keygen  生成公私钥（主控端）
+ssh-copy-id root@192.168.1.111  发送公钥到被控端
+
+需要自行测试ssh免密登录
+
+如果要使用dns，需要配置 /etc/hosts
+例如：
+192.168.3.111  node1
+192.168.3.55  oggtarget
+
+
+--ansible主机清单
+/etc/ansible/hosts
+举例：
+[test]
+node1
+oggtarget
+
+--命令模块
+ping模块 主要用来检测网络的连通性
+command模块，执行shell命令 
+
+--测试ping
+ ansible test -m ping
+--测试命令 
+ ansible -m command -a "uptime" test
+ ansible -m command -a "date" test
+ ansible -m command -a "hostname" test
+ 
+--检查节点内存
+ ansible -m command -a "free -m " test
+
+
+--给节点增加用户
+ansible -m command -a "useradd ans01" test
+
+--查看是否创建成功
+ansible -m command -a "id ans01"  test
+
+--使用shell 获取df -h 命令第一行的信息
+ansible -i /etc/ansible/hosts  test -m shell -a "source ~/.bash_profile && df -h|head -n 1"
+
+--使用script 执行脚本（脚本只需要放到主控端就可以）
+vi /etc/ansible/test.sh
+#!/bin/bash
+date
+hostname
+echo "大家好，我是hf，脚本执行成功！"
+
+ansible -i /etc/ansible/hosts test -m script -a "/etc/ansible/test.sh"
+
+--copy模块的使用：copy模块：实现主控端向目标主机拷贝文件，类似scp功能
+# Ansible copy模块主要用于文件或者目录拷贝，支持文件、目录、权限、用户组功能，copy模块使用详解：
+
+# 常用参数
+src		 	 	Ansible端源文件或者目录，空文件夹不拷贝；
+content		 	用来替代src，用于将指定文件的内容，拷贝到远程文件内；
+dest			    客户端目标目录或者文件，需要绝对路径；
+backup			# 拷贝之前，先备份远程节点上的原始文件；backup=yes
+directory_mode	用于拷贝文件夹，新建的文件会被拷贝，而老旧的不会被拷贝；
+follow			支持link文件拷贝；
+force			覆盖远程主机不一致的内容；
+group		 	设定远程主机文件夹的组名；
+mode		 	指定远程主机文件及文件及的权限；
+owner		 	设定远程主机文件夹的用户名，拥有者。
+
+以下两种方式都可以：
+ansible -i /etc/ansible/hosts test -m copy -a "src=/etc/hosts dest=/root owner=root group=root mode=0777"
+
+ansible test -m copy -a "src=/etc/hosts dest=/root owner=root group=root mode=0777"
+
+

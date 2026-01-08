@@ -1,0 +1,71 @@
+<!-- 这是使用 Vue 实现的 demo -->
+<!DOCTYPE html> 
+<html lang="en"> 
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
+    <title>Hello Vue</title>
+    <script src="https://unpkg.com/vue@3"></script>
+  </head>
+  <body>
+   <div id="app">    <!-- 创建一个 div 元素，赋予它一个 ID 为 app，这是 Vue 应用的挂载点。 -->
+      <!-- 通过 `{{ 变量名 }}` 语法渲染响应式变量 -->
+      <!-- 使用 Mustache 语法 ({{ name }}) 渲染响应式变量 name 的值。 -->
+      <p>Hello {{ name }}!</p>
+
+      <!-- 通过 `v-model` 双向绑定响应式变量 -->
+      <!-- 当您在输入框中输入内容（例如 "abc"）时，由于 v-model 的双向绑定，name 的值会立即更新为 "abc"。 -->
+      <!-- 通过 `@input` 给输入框绑定输入事件 -->
+      <!-- placeholder,输入框提示文字 -->
+      <input
+        type="text"
+        v-model="name" 
+        placeholder="输入名称打招呼"  
+        @input="printLog"
+      />
+
+      <!-- 通过 `@click` 给按钮绑定点击事件 -->
+      <button @click="reset">重置</button>
+    </div>
+
+    <script>
+      // Vue 应用的初始化
+      //createApp：这是 Vue 3 中用于创建一个新的 Vue 应用的函数。
+      //调用 createApp 后，可以传入一个包含应用配置（如数据、生命周期钩子等）的对象，
+      //最终返回一个应用实例。这个实例可以挂载到 DOM 上，从而启动应用。
+      // ref：这是 Vue 3 中用于创建响应式引用的函数。ref 可以创建一个响应式的变量，
+      //当这个变量的值发生变化时，
+      //依赖于这个变量的视图会自动更新。在组件中使用 ref 可以实现数据的双向绑定。
+      const { createApp, ref } = Vue 
+      createApp({
+        // `setup` 是一个生命周期钩子
+        setup() {
+          // 默认值
+          const DEFAULT_NAME = 'World'
+ 
+          // ref用于双向绑定的响应式变量，此时页面中有绑定 {{ name }} 的地方，
+          // <p>Hello {{ name }}!</p>，页面上会显示 Hello World!。
+          const name = ref(DEFAULT_NAME)
+ 
+          // 打印响应式变量的值到控制台
+          function printLog() {
+            // `ref` 变量需要通过 `.value` 操作值
+            console.log(name.value)
+          }
+ 
+          // 重置响应式变量为默认值
+          function reset() {
+            name.value = DEFAULT_NAME
+            printLog()
+          }
+ 
+          // 需要 `return` 出去才可以被模板使用
+          return { name, printLog, reset }
+        },
+        //调用 .mount('#app')，将创建的 Vue 应用实例挂载到 ID 为 app 的 DOM 元素上，从而启动应用。
+      }).mount('#app')
+    </script>
+  </body>
+</html>
+<!-- Vue 的这种编程方式，称之为 “数据驱动” 编程。 -->

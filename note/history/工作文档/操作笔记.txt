@@ -1,0 +1,130 @@
+-- 查询表空间使用率
+col TABLESPACE_NAME for a20
+col name for a10
+set line 200 pages 999
+select TABLESPACE_NAME,round(USED_SPACE*8/1024, 2) AS "USED-M",
+round(TABLESPACE_SIZE*8/1024, 2) AS "SIZE-M",round((TABLESPACE_SIZE-USED_SPACE)*8/1024, 2) "FREE-M",
+to_char(USED_PERCENT,'00.00') as "USED_PERCENT"  
+from dba_tablespace_usage_metrics order by used_percent desc  ;
+
+
+--磁盘组使用情况带百分号 
+col USED_PERCENT for a10
+select state, name, type, ROUND(total_mb/1024,2) AS "TOTAL_G", round(free_mb/1024 ,2) AS "FREE_G",
+concat(round((1-(round(free_mb/1024 ,2))/(ROUND(total_mb/1024,2)))*100,2) , '%') AS "USED_PERCENT"
+from v$asm_diskgroup_stat;
+
+--磁盘组使用情况不带百分号
+select state, name, type, ROUND(total_mb/1024,2) AS "TOTAL_G", round(free_mb/1024 ,2) AS "FREE_G",
+round((round(free_mb/1024 ,2))/(ROUND(total_mb/1024,2))*100,2)  AS "USED_PERCENT"
+from v$asm_diskgroup_stat;
+
+alter tablespace DATA_OM_KM add datafile '+DATA02' size 30G autoextend off;
+alter tablespace DATA_CK_KM add datafile '+DATA02' size 30G autoextend off;
+alter tablespace IDX_OM_KM add datafile '+DATA02' size 30G autoextend off;
+alter tablespace DSS_CK add datafile '+DATA02' size 30G autoextend off;
+
+
+
+
+
+alter tablespace DATA_ARC add datafile '+DATA01' size 30G autoextend off;
+alter tablespace DATA_ARC add datafile '+DATA01' size 30G autoextend off;
+alter tablespace DATA_ARC add datafile '+DATA01' size 30G autoextend off;
+alter tablespace DATA_ARC add datafile '+DATA01' size 30G autoextend off;
+alter tablespace DATA_ARC add datafile '+DATA01' size 30G autoextend off;
+
+
+
+alter tablespace IDX_SXGXH add datafile '+DATAC1' size 30G autoextend off;
+alter tablespace IDX_A add datafile '+DATAC1' size 30G autoextend off;
+alter tablespace IDX_D add datafile '+DATAC1' size 30G autoextend off;
+
+alter tablespace DATA_P add datafile  '+DATA01' size 30G autoextend off;
+
+
+-- 获取sar日志
+sar -u -f /var/log/sa/sa04 -s 00:00:00 -e 23:59:59
+sar -r -f /var/log/sa/sa04 -s 00:00:00 -e 23:59:59
+sar -d -f /var/log/sa/sa04 -s 00:00:00 -e 23:59:59
+sar -n DEV -f /var/log/sa/sa04 -s 00:00:00 -e 23:59:59
+
+-- 查看对象占用空间
+select * from 
+(select segment_name, sum(bytes)/1024/1024 MB from dba_segments where tablespace_name = 'SYSTEM' group by segment_name order by 2 desc) 
+where rownum < 10;
+
+-- 清空AUD$表
+truncate table sys.AUD$;
+
+# 命令历史记录
+wget http://20.38.163.19:18000/database/oracle/19c/hislog.sh && sh hislog.sh
+
+-- 扩展TEMP表空间
+alter tablespace TEMP add tempfile '+DATA01' size 30G autoextend off;
+
+-- EXPDP导出数据
+# 转换表名为大写
+select upper('g_tg、c_meter_mp_rela、c_meter、indywf_instances_cur、S_FAULT_ERR_INFO、C_RUN_CONTAINER_DEV、R_DATA、R_COLL_OBJ、C_CONTAINER_DEV、S_DEV_IR、C_BF_METER_READ、C_METER_READ_TYPE  2  ') from dual;
+# 查询SCN
+col aaa for 999999999999999999999
+select dbms_flashback.get_system_change_number aaa from dual;
+# 0121.par
+directory=EXPDP
+dumpfile=0121_%U.dmp
+logfile=0121.log
+exclude=statistics
+filesize=30G
+parallel=4
+cluster=N
+compression=all
+version=11.2.0.4.0
+flashback_SCN=16479530358381
+tables=(
+CACHER01.G_TG,
+CACHER01.C_METER_MP_RELA,
+CACHER01.C_METER,
+CACHER01.INDYWF_INSTANCES_CUR,
+CACHER01.S_FAULT_ERR_INFO,
+CACHER01.C_RUN_CONTAINER_DEV,
+CACHER01.R_DATA,
+CACHER01.R_COLL_OBJ,
+CACHER01.C_CONTAINER_DEV,
+CACHER01.S_DEV_IR,
+CACHER01.C_BF_METER_READ,
+CACHER01.C_METER_READ_TYPE
+)
+# 执行
+expdp \'/ as sysdba\' parfile=0121.par
+
+# 传输
+scp -P 10022 0127_01.dmp 0127.log zshield@10.124.44.207:/home/zshield/
+
+#远程登录
+ssh -p 10022 oracle@192.168.163.130
+
+# 查询并清理磁盘空间
+df -h
+
+#定期删除日志文件
+du -sh ./*
+
+find ./ -ctime +3 -name "*.trc" -exec rm -f {} \;
+find ./ -ctime +3 -name "*.trm" -exec rm -f {} \;
+find ./ -ctime +3 -name "*.aud" -exec rm -f {} \;
+find ./ -ctime +3 -name "*.xml" -exec rm -f {} \;
+find ./ -ctime +3 -name "*.log" -exec rm -f {} \;
+
+CREATE  USER EPMGIS identyfied by 
+
+grid 用户
+/u01/app/grid/diag/rdbms/
+
+oracle 用户
+
+
+
+--表空间建立时间查询
+select a.file_name,a.tablespace_name,b.creation_time from dba_data_files a,v$datafile b where a.file_id=b.file#;
+
+

@@ -1,0 +1,104 @@
+SERVER111上安装的
+ systemctl start mariadb           mariadb启动命令
+ systemctl stop  mariadb           mariadb停止命令
+mairadb root的密码:ZHF@4933807
+mysql -uroot -p 登陆mariadb
+用户：hive 密码：hive
+exit 退出
+mariadb的配置文件路径 /etc/my.cnf.d/server.cnf
+
+yum remove mariadb 卸载mariadb
+rpm -qa|grep mariadb  查询mariadb的安装情况
+rpm -e mariadb-libs-5.5.60-1.el7_5.x86_64 --nodeps  强制卸载（如果要依赖包的话）
+
+mariadb更改binlog的方法，见如下链接：
+https://www.cnblogs.com/chong-zuo3322/p/14551869.html
+增加对mariadb的配置，开启binlog：
+vim /etc/my.cnf.d/server.cnf
+在[mysqld]一节中增加下列配置：
+log-bin=mysql-bin
+max-binlog-size=1G
+expire_logs_days=180
+
+#如果启用了这一行，则会使得binlog更大，但是最安全。
+
+binlog_format=row
+
+保存后，重启mariadb服务：
+systemctl restart mariadb
+登录mysql后执行：
+SHOW VARIABLES LIKE 'log_bin';
+如果提示：
++---------------+-------+
+| Variable_name | Value |
++---------------+-------+
+| log_bin       | ON    |
++---------------+-------+
+1 row in set (0.002 sec)
+
+则说明binlog开启成功，然后执行：
+SHOW BINLOG EVENTS;
+如果显示数据库操作记录，则说明binlog启用成功。
+也可以进入mariadb的data——dir中查看二进制日志文件是否已经产生：
+cd /home/mariadb/
+ll
+如果显示类似的文件，则说明binlog成功：
+mysql-bin.000001
+mysql-bin.index
+
+创建用户：
+create user 'tapdata'@'localhost' identified by 'password';
+create user 'tapdata'@'%' identified by 'password';
+
+给用户授权：注意如果加上@及后面的内容则是在创建用户的同时，给予用户授权
+grant all privileges on *.* to tapdata2@localhost identified by 'password';
+grant all privileges on *.* to tapdata2@'%' identified by 'password';
+flush privileges;记得刷新一下
+源库中增加数据（测试sqoop的maria2hive）：
+
+特别注意：如果用root用户执行select user,host,password from user;发现user列有空的，
+但对应的host列有值，需要删除，执行语句：delete from user where user=' '; flush privileges;
+这个问题会导致新建的用户授权后都无法新建数据库，也会出现用户登录不需要输入密码的情况
+
+set
+@customer_number := floor
+(1 + rand()
+* 6);
+set
+@product_code := floor
+(1 + rand()
+* 2);
+set
+@order_date := from_unixtime(unix_timestamp('2016-07-03') + rand()
+*
+(unix_timestamp('2016-07-04') - unix_timestamp('2016-07-03')));
+set
+@amount := floor
+(1000 + rand()
+* 9000);
+insert into
+sales_order
+values
+(101,@customer_number,@product_code,@order_date,@order_date,@amount);
+set
+@customer_number := floor
+(1 + rand()
+* 6);
+set
+@product_code := floor
+(1 + rand()
+* 2);
+set
+@order_date := from_unixtime(unix_timestamp('2016-07-04') + rand()
+*
+(unix_timestamp('2016-07-05') - unix_timestamp('2016-07-04')));
+set
+@amount := floor
+(1000 + rand()
+* 9000);
+insert into
+sales_order
+values
+(102,@customer_number,@product_code,@order_date,@order_date,@amount);
+commit
+;

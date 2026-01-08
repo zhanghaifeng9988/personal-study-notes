@@ -1,0 +1,104 @@
+
+安装记录（centos7）
+[root@oggtarget opt]#tar -zxvf postgresql-14.4.tar.gz
+
+groupadd postgres
+
+useradd  -g postgres  postgres
+
+密码：postgres
+yum install -y perl-ExtUtils-Embed readline-devel zlib-devel pam-devel libxml2-devel libxslt-devel openldap-devel python-devel gcc-c++ openssl-devel cmake gcc* readline-devel
+
+[root@oggtarget postgresql-14.4]# pwd
+/opt/postgresql-14.4
+在解压文件的目录中执行下列语句：进行检查环境 
+./configure --prefix=/opt/postgres/ --with-python --with-libxml --with-libxslt
+
+报错如下：configure: error: readline library not found
+If you have readline already installed, see config.log for details on the
+failure.  It is possible the compiler isn't looking in the proper directory.
+Use --without-readline to disable readline support.
+
+需要安装依赖包
+yum install readline-devel
+yum install gcc -y
+yum install zlib-devel
+
+依赖包安装完后编译
+./configure --prefix=/usr/local/postgresql
+
+安装
+[root@oggtarget postgresql-14.4]#make && make install
+
+安装完毕
+[root@oggtarget local]# cd postgresql/
+[root@oggtarget postgresql]# pwd
+/usr/local/postgresql
+
+创建data和log目录
+mkdir /usr/local/postgresql/data
+mkdir /usr/local/postgresql/log
+
+修改环境变量
+vim /etc/profile
+
+export PGDATA=/usr/local/postgresql/data
+export PGHOME=/usr/local/postgresql
+export PATH=$PATH:/usr/local/mysql/bin/:$PGHOME/bin
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PGHOME/lib
+
+[root@oggtarget opt]# source /etc/profile
+
+给程序目录配置用户和属组
+chown -R postgres:root /usr/local/postgresql/
+
+# 切换为自己前面创建的用户
+su postgres
+# 初始化数据库操作
+/usr/local/postgresql/bin/initdb -D /usr/local/postgresql/data/
+
+
+编辑配置文件
+打开postgresql.conf配置文件
+vim /usr/local/postgresql/data/postgresql.conf
+# 设置所有ip可连接
+listen_addresses = '*' 
+# 设置监听端口
+port = 5432 
+
+打开pg_hba.conf配置文件
+vim /usr/local/postgresql/data/pg_hba.conf
+
+修改配置信息（暂不配置，权限太大）
+# 所有数据库（all）、所有用户（all）、从本机（127.0.0.1/32）均可免密访问（trust）
+host    all             all             0.0.0.0/0               trust
+
+
+TYPE：pg的连接方式，local：本地unix套接字，host：tcp/ip连接
+DATABASE：指定数据库
+USER：指定数据库用户
+ADDRESS：ip地址，可以定义某台主机或某个网段，32代表检查整个ip地址，相当于固定的ip，24代表只检查前三位，最后一位是0~255之间的任何一个
+METHOD：认证方式，常用的有ident，md5，password，trust，reject。
+md5是常用的密码认证方式。
+password是以明文密码传送给数据库，建议不要在生产环境中使用。
+trust是只要知道数据库用户名就能登录，建议不要在生产环境中使用。
+reject是拒绝认证。
+
+
+启动了服务
+pg_ctl start -l /usr/local/postgresql/log/pg_server.log
+
+关闭服务
+pg_ctl stop -l /usr/local/postgresql/log/pg_server.log
+
+重启服务
+pg_ctl restart  -l /usr/local/postgresql/log/pg_server.log
+
+[postgres@oggtarget ~]$ psql --version
+psql (PostgreSQL) 14.4
+
+登录数据库
+[postgres@oggtarget ~]$ psql -U postgres -d postgres
+
+修改postgres初始密码
+alter user postgres with password '123123';

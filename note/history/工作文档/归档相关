@@ -1,0 +1,23 @@
+0 0,3,6,9,12,15,18,21
+
+https://blog.csdn.net/yabingshi_tech/article/details/43966033  学习资料
+
+delete archivelog all completed before 'sysdate-0.1';
+delete archivelog until time 'sysdate-0.1';
+的区别
+
+until_time   
+time指的是ARCHIVELOG的FRIST_TIME,即归档日志中LOW SCN对应的时间戳；
+其意思为找出所有LOW SCN TIMESTAMP小于等于指定时间变量的归档日志；
+
+COMPLETE BEFORE
+指的是ARCHIVELOG的COMPLETE_TIME,即实际归档操作完成的时间；
+其意思为找出所有归档完成时间小于指定的时间变量的归档日志。
+
+
+ delete archivelog all  completed before 'sysdate-0.1';
+ 
+  delete noprompt archivelog all  completed before 'sysdate-0.1';
+  
+  
+  

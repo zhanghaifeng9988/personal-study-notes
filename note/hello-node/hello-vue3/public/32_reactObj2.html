@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="vue.js"></script>
+</head>
+<body>
+  <div id="Application">
+  </div>
+  <script>
+    const App = Vue.createApp({
+    //进行组件数据的初始化
+    setup () {
+      //数据初始化1,使用reactive方法进行数据响应式处理
+      let myData1 = Vue.reactive( {
+         value:0
+       })
+       //数据初始化2,使用ref方法进行数据响应式处理
+      let myData2 = Vue.ref(10)
+      //数据初始化3，使用解构赋值的方法，将myData3的对象进行数据响应式处理
+      let myData3 = Vue.reactive({
+        value:100})
+      let {value} = myData3
+      //按钮的单击方式
+      function click () {
+        myData1.value +=1
+        myData2.value +=1
+        myData3.value +=1
+        alert(myData1.value,myData2.value,myData3.value)
+      }
+      //将数据与函数方法返回
+      return {
+        myData1,
+        myData2,
+        myData3,
+        click
+      }
+    },
+    //模板中可以直接使用setup方法中定义的数据和函数方法
+    template:`
+    <h1>测试数据1：{{myData1.value}}</h1>
+    <h1>测试数据2：{{myData2}}</h1>
+    <h1>测试数据3：{{myData3.value}}</h1>
+    <button @click="click">单击</button>`
+  })
+  App.mount('#Application')
+  </script>
+</body>
+</html>

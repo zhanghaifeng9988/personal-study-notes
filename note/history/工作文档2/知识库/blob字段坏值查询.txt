@@ -1,0 +1,40 @@
+sqlplus / as sysdba
+alter system set events '600 trace name errorstack forever';
+alter system set events '1555 trace name errorstack forever';
+alter system set events '22924 trace name errorstack forever';
+
+set concat off
+create table corrupted_lob_data (corrupted_rowid rowid,err_num number); 
+set concat off
+declare  
+  error_1555 exception;  
+  pragma exception_init(error_1555,-1555); 
+  error_22924 exception;  
+  pragma exception_init(error_22924,-22924);  
+  num number;  
+begin  
+  for cursor_lob in (select rowid r, &&lob_column from &table_owner.&table_with_lob) loop  
+    begin  
+      num := dbms_lob.instr (cursor_lob.&&lob_column, hextoraw ('889911')) ;  
+    exception  
+      when error_1555 then  
+        insert into corrupted_lob_data values (cursor_lob.r,01555);  
+        commit;  
+      when error_22924 then
+        insert into corrupted_lob_data values (cursor_lob.r,22924);  
+        commit;   
+    end;  
+  end loop;  
+end;  
+复制代码
+执行完成后通过查询corrupted_lob_data表即可得到blob有问题的数据，可通过empty_blob()函数充值blob的值来解决该错误。
+
+update xcky.common_picture set content= empty_blob() where rowid in (select corrupt_rowid from corrupt_lobs);
+commit;
+#说明：清空clob值（若表类型为blob，使用empty_blob() 否则为(empty_clob() ) )
+ 关闭跟踪
+
+sqlplus / as sysdba
+alter system set events '600 trace name errorstack off';
+alter system set events '1555 trace name errorstack off';
+alter system set events '22924 trace name errorstack off';

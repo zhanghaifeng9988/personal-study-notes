@@ -1,0 +1,22 @@
+
+#一般刚安装Git都要配置用户名和密码，因为你提交代码到本地仓库（上传代码到远程仓库）
+时会用到
+
+ git config --global user.name "username"
+ git config --global user.email "email"
+ git config --global user.password "password"
+ 
+#   1.查看git的配置列表
+     git config --list
+	 
+常用命令(重点)	 
+ git clone ：将远程仓库clone到本地计算机。
+   git status ：展示工作区及暂存区域中不同状态的文件。
+   git add ：将内容从工作目录添加到暂存区。
+   git commit ：所有通过 git add 暂存的文件提交到本地仓库。
+   git push ：将本地仓库的记录提交到远程仓库。
+   git reset HEAD <file> ：从暂存区移除指定文件。
+   git pull ：拉取远程仓库的数据。
+
+
+#我使用的是远程仓库是：Gitee

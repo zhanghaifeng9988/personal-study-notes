@@ -1,0 +1,172 @@
+消息队列中间件是分布式系统中重要的组件，主要解决应用耦合，异步消息，流量削锋等问题。
+实现高性能，高可用，可伸缩和最终一致性架构，是大型分布式系统不可缺少的中间件。
+
+消息系统介绍：
+
+一个消息系统负责将数据从一个应用传递到另外一个应用
+应用只需关注于数据，无需关注数据在两个或多个应用间是如何传递的。
+有两种主要的消息传递模式：点对点传递模式（一对一）、发布-订阅模式（一对多）。
+Kafka就是一种发布-订阅模式。
+
+这是一个实时数据处理系统，可以横向扩展、高可靠，而且还变态快
+实时数据处理系统就是:数据一旦产生，就要能快速进行处理的系统。
+对于实时数据处理，我们最常见的，就是消息中间件了，也叫MQ（Message Queue，消息队列），也有叫Message Broker的。
+
+为什么需要消息中间件:
+
+  想象一个场景，你的一个创建订单的操作，在订单创建完成之后，需要触发一系列其他的操作，
+比如进行用户订单数据的统计、给用户发送短信、给用户发送邮件等等
+可是过了一段时间，你给系统引进了一个用户行为分析服务，它也需要在订单创建完成之后，进行一个分析用户行为的操作，
+而且随着系统的逐渐壮大，创建订单之后要触发的操作也就越来越多，代码也渐渐膨胀
+
+这就好比BBC的记者，在知道皇马拿到欧冠冠军之后，拿起手机，翻开皇马球迷通讯录，给球迷一个一个打电话，告诉他们皇马夺冠了。
+BBC的记者只需要在他们官网发布这条消息，然后球迷自行访问BBC，去上面获取这条新闻；
+又或者球迷订阅了BBC，那么订阅系统会主动把发布在官网的消息推送给球迷。
+
+在订单创建完成之后，把一条主题为“orderCreated”的消息，放到消息中间件去就ok了，不必关心需要把这条消息发给谁。
+这就完成了消息的生产。
+
+至于需要在订单创建完成之后触发操作的服务，则只需要订阅主题为“orderCreated”的消息，
+在消息中间件出现新的“orderCreated”消息时，就会收到这条消息，然后进行相应的处理。
+
+
+
+https://blog.csdn.net/yuan_xw/article/details/51210954   重要的kafka基础学习资料
+https://blog.csdn.net/valada/article/details/80892612     重要的kafka基础学习资料
+
+1、消息生产者：即：Producer，是消息的产生的源头，负责生成消息并发送到Kafka
+2、消息消费者：即：Consumer，是消息的使用方，负责消费Kafka服务器上的消息。
+3、主题：Topic，由用户定义并配置在Kafka服务器，用于建立生产者和消费者之间的订阅关系：
+生产者发送消息到指定的Topic下，消息者从这个Topic下消费消息。
+4、消息分区：Partition，一个Topic下面会分为很多分区，例如：“kafka-test”这个Topic下可以分为6个分区，
+分别由两台服务器提供，那么通常可以配置为让每台服务器提供3个分区，假如服务器ID分别为0、1，
+则所有的分区为0-0、0-1、0-2和1-0、1-1、1-2。Topic物理上的分组，
+一个 topic可以分为多个 partition，每个 partition 是一个有序的队列。
+partition中的每条消息都会被分配一个有序的 id（offset）。
+5、Broker：即Kafka的服务器（Kafka 实例），用户存储消息，Kafa集群中的一台或多台服务器统称为 broker。
+6、消费者分组：Group，用于归组同类消费者，在Kafka中，多个消费者可以共同消费一个Topic下的消息，
+每个消费者消费其中的部分消息，这些消费者就组成了一个分组，拥有同一个分组名称，通常也被称为消费者集群。
+
+关于broker的一些具体概念：
+1、Offset：消息存储在Kafka的Broker上，消费者拉取消息数据的过程中需要知道消息在文件中的偏移量，这个偏移量就是所谓的Offset。
+2、Message在Broker中通过Log追加的方式进行持久化存储。并进行分区（patitions)。
+3、为了减少磁盘写入的次数,broker会将消息暂时buffer起来,当消息的个数(或尺寸)达到一定阀值时,再flush到磁盘,这样减少了磁盘IO调用的次数。
+4、Broker没有副本机制，一旦broker宕机，该broker的消息将都不可用。Message消息是有多份的。
+5、Broker不保存订阅者的状态，由订阅者自己保存。
+6、无状态导致消息的删除成为难题（可能删除的消息正在被订阅），kafka采用基于时间的SLA(服务水平保证)，
+消息保存一定时间（通常为7天）后会被删除。
+7、消息订阅者可以rewind back到任意位置重新进行消费，当订阅者故障时，可以选择最小的offset(id)进行重新读取消费消息。
+
+Kafka的Message组成：
+1、Message消息：是通信的基本单位，每个 producer 可以向一个 topic（主题）发布一些消息。
+2、Kafka中的Message是以topic为基本单位组织的，不同的topic之间是相互独立的。每个topic又可以分成几个不同的partition
+(每个topic有几个partition是在创建topic时指定的)，每个partition存储一部分Message。
+3、partition中的每条Message包含了以下三个属性：
+offset      即：消息唯一标识:对应类型：long
+MessageSize 对应类型：int32
+data        是message的具体内容。
+
+Kafka的Partitions分区：
+1、Kafka基于文件存储.通过分区，可以将日志内容分散到多个server上,来避免文件尺寸达到单机磁盘的上限，
+每个partiton都会被当前server(kafka实例)保存，每个 partition 在存储层面是 append log 文件。
+2、可以将一个topic切分成任意多个partitions，来消息保存/消费的效率。
+3、越多的partitions意味着可以容纳更多的consumer，有效提升并发消费的能力。
+
+Kafka的Consumers：
+1、消息和数据消费者，订阅 topics并处理其发布的消息的过程叫做 consumers。
+2、在 kafka中,我们可以认为一个group是一个“订阅者”，一个Topic中的每个partions，
+只会被一个“订阅者”中的一个consumer消费，不过一个 consumer可以消费多个partitions中的消息
+（消费者数据小于Partions的数量时）。注意：kafka的设计原理决定，对于一个topic，
+同一个group中不能有多于partitions个数的consumer同时消费，否则将意味着某些consumer将无法得到消息。
+3、一个partition中的消息只会被group中的一个consumer消息。每个group中consumer消息消费互相独立。
+
+zookeeper的理解：
+是一个分布式的、开放源码的分布式应用程序协调服务管理集群配置，选举leader，负载均衡等。
+分布式应用程序可以基于它实现统一命名服务、状态同步服务、集群管理、分布式应用配置项的管理等工作。
+在基于 Kafka 的分布式消息队列中，ZooKeeper 的作用有：broker 注册、topic 注册、producer 和 consumer 负载均衡、
+维护 partition 与 consumer 的关系、记录消息消费的进度以及 consumer 注册等。
+
+
+kafka常用命令：
+
+jps  查看当前服务器上正在运行的kafka（java程序）
+启动：程序目录下，有启动和停止脚本
+
+创建topic（kafka程序路径的bin目录下）
+./kafka-topics.sh --create --topic zhftest --zookeeper 192.168.4.117:2181 --config max.message.bytes=12800000 --config flush.messages=1 --partitions 5 --replication-factor 1
+--create： 指定创建topic动作
+
+--topic：指定新建topic的名称
+
+--zookeeper： 指定kafka连接zk的连接url，该值和server.properties文件中的配置项{zookeeper.connect}一样
+
+--config：指定当前topic上有效的参数值，参数列表参考文档为: Topic-level configuration
+
+--partitions：指定当前创建的kafka分区数量，默认为1个
+
+--replication-factor：指定每个分区的复制因子个数，默认1个
+
+查看当前Kafka集群中Topic的情况（kafka程序路径的bin目录下）
+./kafka-topics.sh --list --zookeeper 192.168.4.117:2181
+
+查看对应topic的描述信息（kafka程序路径的bin目录下）
+./kafka-topics.sh --describe --zookeeper 192.168.4.117:2181  --topic zhftest
+
+Topic信息修改
+bin/kafka-topics.sh --zookeeper 192.168.4.117:2181 --alter --topic zhftest --config max.message.bytes=128000
+bin/kafka-topics.sh --zookeeper 192.168.4.117:2181 --alter --topic zhftest --delete-config max.message.bytes
+bin/kafka-topics.sh --zookeeper 192.168.4.117:2181 --alter --topic zhftest --partitions 10
+bin/kafka-topics.sh --zookeeper 192.168.4.117:2181 --alter --topic zhftest --partitions 3 
+## Kafka分区数量只允许增加，不允许减少
+
+topic信息删除（kafka程序路径的bin目录下）
+/kafka-topics.sh --delete --topic test0 --zookeeper 192.168.4.117:2181
+   ## 默认情况下，删除是标记删除，没有实际删除这个Topic；如果运行删除Topic，两种方式：
+方式一：通过delete命令删除后，手动将本地磁盘以及zk上的相关topic的信息删除即可
+方式二：配置server.properties文件，给定参数delete.topic.enable=true，重启kafka服务，
+此时执行delete命令表示允许进行Topic的删除。
+
+生产命令行，测试使用（kafka程序路径的bin目录下）
+./kafka-console-producer.sh --broker-list 192.168.4.117:9092 --topic zhftest
+消费命令行，测试使用（kafka程序路径的bin目录下）kafkaAgent.properties
+./kafka-console-consumer.sh --bootstrap-server 192.168.4.117:9092 --topic zhftest --from-beginning
+
+日志路径：
+/tmp/kafka-logs/zhftest-0            topic的日志路径
+bin/kafka-run-class.sh kafka.tools.DumpLogSegments --files /tmp/kafka-logs/zhftest-0/00000000000000000000.log  --print-data-log
+
+
+config/kafkaAgent.properties
+KAFKA_DEFAULT_TOPIC=test
+KAFKA_DDL_TOPIC=test
+KAFKA_BOOTSTRAP_SERVER=（kafka集群的ip、port）
+
+config/config.properties
+SERVERPORT=（yloader连接yxad的端口）
+LOG_LEVEL_TYPE=debug（日志级别）
+
+kafka集群个别节点无法正常启动，日志报错的问题：
+报错如下：FATAL [Kafka Server 2], Fatal error during KafkaServer startup. Prepare to shutdown (kafka.server.KafkaServer)
+java.lang.RuntimeException: A broker is already registered on the path /brokers/ids/2. 
+This probably indicates that you either have configured a brokerid that is already in use,
+ or else you have shutdown this broker and restarted it faster than the zookeeper timeout
+ so it appears to be re-registering.
+
+大概率因为上次意外停止集群节点，zookeeper没有释放brokerid导致的问题的
+解决办法：
+1、进入zookeeper的客户端
+[admin@hadoop102 zookeeper-3.4.10]$ bin/zkCli.sh
+
+2、进入客户端以后查看注册信息
+
+[zk: localhost:2181(CONNECTED) 2] ls /
+
+ 3、进入brokers查看ids的信息
+
+[zk: localhost:2181(CONNECTED) 10] ls /brokers/ids
+
+4、删除这些注册信息就ok
+
+[zk: localhost:2181(CONNECTED) 11] delete /brokers/ids
+
+5、在开启kafka，就没问题了。

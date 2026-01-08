@@ -1,0 +1,26 @@
+
+
+
+
+--查询 数据文件种的对象
+
+SELECT ds.OWNER                  AS OWNER
+      ,df.FILE_NAME              AS FILE_NAME
+      ,ds.SEGMENT_NAME           AS SEGMENT_NAME
+      ,ds.SEGMENT_TYPE           AS SEGMENT_TYPE
+      ,SUM(ds.BYTES)/1024/1024   AS SEGMENT_SIZE
+FROM DBA_SEGMENTS ds 
+LEFT JOIN DBA_DATA_FILES df ON ds.HEADER_FILE = df.FILE_ID
+WHERE ds.TABLESPACE_NAME='DATA_OUT'
+  AND df.FILE_ID=1858
+GROUP BY OWNER,FILE_NAME,SEGMENT_NAME,SEGMENT_TYPE
+ORDER BY 4;
+
+
+
+col owner for a10
+col file_name for a45
+col segement_name for a40
+col segement_type for a10
+
+

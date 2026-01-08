@@ -1,0 +1,79 @@
+select GROUP_NUMBER,NAME,STATE,TYPE,TOTAL_MB ,FREE_MB from v$asm_diskgroup;    查询asm用户下的磁盘组的基本情况
+select GROUP_NUMBER,NAME,DISK_NUMBER,PATH,TOTAL_MB,FREE_MB from v$asm_disk;    查询asm用户下的磁盘组的进本情况2（linnux下的磁盘相关信息）
+crsctl check crs                                                               用于检查后台进程状态，集群健康状态检查
+crsctl status res -t                                                           表格显示资源状态
+crsctl start res -all                                                          启动所有CRS资源
+crsctl start crs 	                                                           启动crs，需要root用户操作。
+crsctl stop crs                                                                关闭crs，需要root用户操作。
+srvctl start database -d prod (sid)                                                  开启某个节点的数据库
+srvctl stop  database -d prod (sid)                                               关闭某个节点的数据库
+srvctl start vip -n                                                             重启node1 的vip
+
+
+ cluvfy stage -list                                                           grid用户下   cluster verify 简称cvu 检查工具
+  cluvfy stage -pre crsinst -n node1,node2 -r 11gR2 -verbose                  grid用户下  查看集群安装前的情况
+  cluvfy comp asm -n node1,node2 -verbose                                     grid用户下  对集群的asm环境进行检查
+  cluvfy stage -pre crsinst -n node1,node2 -r 11gR2 -verbose -fixup           grid用户下  对rac进行修复
+  
+  
+  crsctl stop cluster                                                         root用户下，bin目录下  /u01/app/grid/product/11.2.0/bin
+  crsctl stop has                                                             同上
+  crsctl stop crs                                                              同上
+  
+rac重启操作
+  srvctl status database -d orcl                                             oracle用户：查看数据库实例状态
+  srvctl stop database -d orcl                                                oracle用户：停止所有节点
+  srvctl status database -d orcl                                              oracle用户：确认数据库实例状态，两个节点执行
+  crsctl check crs                                                            grid用户：查看节点集群进程状态，两个节点执行  
+  crs_stat -t -v                                                              grid用户：查看节点集群状态，两个节点执行
+  
+  停止has服务
+  [root@db1 ~]# find / -name crsctl
+/u01/app/grid/11.2.0/bin/crsctl
+[root@db1 ~]# cd /u01/app/grid/11.2.0/bin/
+[root@db1 bin]# ./crsctl stop has -f
+
+[root@db2 ~]# find / -name crsctl
+/u01/app/grid/11.2.0/bin/crsctl
+[root@db2 ~]# cd /u01/app/grid/11.2.0/bin/
+[root@db2 bin]# ./crsctl stop has -f
+
+
+停止crs服务
+需要在RAC的所有节点上执行，启动也一样。has与crs等同
+[root@db1 bin]# ./crsctl stop crs -f
+CRS-4544: Unable to connect to OHAS
+[root@db2 bin]# ./crsctl stop crs -f
+CRS-4544: Unable to connect to OHAS
+
+停止节点集群服务
+停止节点集群服务，必须以root用户：
+[root@db1 oracle]# cd /u01/grid/11.2.0/grid/bin
+[root@db1 bin]# ./crsctl stop cluster        ----停止本节点集群服务
+[root@db1 bin]# ./crsctl stop cluster -all  ---停止所有节点服务
+ 也可以如下控制所停节点：
+[root@rac1 bin]# crsctl stop cluster -n rac1 rac2
+ CRS-2677: Stop of 'ora.cssd' on 'rac1' succeeded
+ CRS-2677: Stop of 'ora.cssd' on 'rac2' succeeded
+ 
+ 
+ 
+ 
+ 
+ 
+  alter database drop supplemental log data;  关闭附加日志
+  
+  
+  
+                                         asmcmd相关
+[grid@node1 ~]$ asmcmd          登陆asmcmd
+ls -l                          --查看磁盘组的基本信息  
+ls -s                          --查看磁盘组的详细信息，如磁盘大小，可用空间，扇区大小等
+ ls -ld                        --查看目录信息
+  du                             --查看当前目录磁盘已使用的容量
+select GROUP_NUMBER,NAME,STATE,TYPE,TOTAL_MB ,FREE_MB from v$asm_diskgroup;
+  
+  
+rac 重建日志组
+ALTER DATABASE ADD LOGFILE thread 1 GROUP 1 ('+FRA/orcl/onlinelog/group_1.257.1014064211') size 10M reuse;
+ALTER DATABASE ADD LOGFILE thread 1 GROUP 1 ('+FRA/orcl/onlinelog/group_7') size 10M;

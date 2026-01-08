@@ -1,0 +1,15 @@
+--ORACLE RAC TAF 配置（透明故障转移）
+
+TAF（Transparent Application Failover）即透明应用程序故障转移技术。当初始化连接出现问题无法连接时，
+该功能可以保证应用程序重新连接到可用服务。在重新连接过程中，之前的活动事务将会被回滚，但在“具体条件”下TAF可以保证SELECT语句不被终止。
+这也是RAC亮点之一。
+所谓的“具体条件”指的就是FAILOVER_MODE中METHOD选择“BASIC”、TYPE选择“SELECT”
+
+
+TAF的特性：
+1：TAF是ORACLE客户端提供的一项特性，使用TAF，对客户端的环境有一定的要求，比如JAVA的JDBC驱动、Oracle客户端的版本等（8i开始支持TAF)；
+2：大致上TAF可以分为2种，连接时的TAF和会话建立后TAF；
+3：TAF本身与是否RAC环境无关，但一般都用在RAC环境，最小程度的减少对应用的影响，单实例环境下也可以使用TAF，
+这样使用PL/SQL developer连接数据库，即使数据库实例重启，也不需要重新连接；
+4：RAC环境下，还可以把TAF配置在服务器端；
+5：配置listener.ora文件的GLOBAL_DBNAME参数后将会禁用TAF

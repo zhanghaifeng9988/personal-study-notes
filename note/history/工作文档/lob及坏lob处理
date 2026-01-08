@@ -1,0 +1,268 @@
+
+
+
+select BYTES/1024/1024/1024 G from dba_segments where OWNER='ZFS_OP' and SEGMENT_NAME='OP_INVOICE_IMAGE_RELATION';
+
+
+--查询用户含有LOB字段的表
+
+col column_name for a25
+col table_name fro a40
+col table_name for a40
+select column_name,data_type,table_name from dba_tab_columns
+ where owner='ZFS_OP' and data_type in('CLOB','BLOB','NCLOB','BFILE') order by data_type;
+
+COLUMN_NAME               DATA_TYPE                      TABLE_NAME
+------------------------- ------------------------------ ----------------------------------------
+ROLLBACK_INFO             BLOB                           UNDO_LOG
+FILE_BASE64               BLOB                           OP_INVOICE_IMAGE_RELATION
+PARAM2                    CLOB                           DATA_PUSH_HIS
+PARAM3                    CLOB                           DATA_PUSH_HIS
+PARAM4                    CLOB                           DATA_PUSH_HIS
+PARAM5                    CLOB                           DATA_PUSH_HIS
+PARAM6                    CLOB                           DATA_PUSH_HIS
+PARAM7                    CLOB                           DATA_PUSH_HIS
+PARAM8                    CLOB                           DATA_PUSH_HIS
+PARAM1                    CLOB                           DATA_PUSH_RECORD
+PARAM2                    CLOB                           DATA_PUSH_RECORD
+PARAM3                    CLOB                           DATA_PUSH_RECORD
+PARAM4                    CLOB                           DATA_PUSH_RECORD
+PARAM5                    CLOB                           DATA_PUSH_RECORD
+PARAM6                    CLOB                           DATA_PUSH_RECORD
+PARAM7                    CLOB                           DATA_PUSH_RECORD
+PARAM8                    CLOB                           DATA_PUSH_RECORD
+ERROR_MSG                 CLOB                           DATA_PUSH_RECORD
+REQUEST_PARAM             CLOB                           INTERFACE_LOG
+RESPONSE_PARAM            CLOB                           INTERFACE_LOG
+FAILURE_TICKET            CLOB                           OP_BOE_IMAGE_SEG
+OCR_RESULT                CLOB                           OP_BOE_IMAGE_SEG_OCR
+REQUEST_PARAM             CLOB                           OP_EFS_PAY_OPER_LOG
+BOFORE_REQUEST_PARAM      CLOB                           OP_EFS_PAY_OPER_LOG
+REQUEST_PARAM             CLOB                           OP_PREPAY_OPER_LOG
+BOFORE_REQUEST_PARAM      CLOB                           OP_PREPAY_OPER_LOG
+BUDGET_DIMENSION          CLOB                           ZFS_BOE_BUDGET_LOG
+REQUEST                   CLOB                           ZFS_BOE_BUDGET_LOG
+RESPONSE                  CLOB                           ZFS_BOE_BUDGET_LOG
+BOE_HEADER                CLOB                           ZFS_BOE_HISTORY_CONTRAST
+BOE_LINE                  CLOB                           ZFS_BOE_HISTORY_CONTRAST
+BOE_PAYMENT               CLOB                           ZFS_BOE_HISTORY_CONTRAST
+BOE_HEADER_CHILD          CLOB                           ZFS_BOE_HISTORY_CONTRAST
+BOE_INVOICE               CLOB                           ZFS_BOE_HISTORY_CONTRAST
+SOURCE_VAL                CLOB                           ZFS_BOE_UPDATE_HIS
+ERROR_MSG                 CLOB                           DATA_PUSH_HIS
+PARAM1                    CLOB                           DATA_PUSH_HIS
+
+
+--LOB表大小查询
+ 
+ --OP_INVOICE_IMAGE_RELATION
+
+select (
+(select sum(s.bytes) from dba_segments s 
+where s.owner='ZFS_OP' and
+(s.segment_name='OP_INVOICE_IMAGE_RELATION')) + (select sum(s.bytes)
+from dba_segments s, dba_lobs l
+where s.owner='ZFS_OP' and
+(l.segment_name=s.segment_name and l.table_name='OP_INVOICE_IMAGE_RELATION' and l.owner='ZFS_OP')) +(select sum(s.bytes)
+from dba_segments s,dba_indexes i 
+where s.owner='ZFS_OP' and 
+(i.index_name=s.segment_name and i.table_name='OP_INVOICE_IMAGE_RELATION' and index_type='LOB' 
+and i.owner='ZFS_OP')) )/1024/1024/1024 as "TOTAL_TABLE_SIZE_G" from dual;
+
+TOTAL_TABLE_SIZE_G
+------------------
+        93.5546875
+
+  --UNDO_LOG
+ 
+select (
+(select sum(s.bytes) from dba_segments s 
+where s.owner='ZFS_OP' and
+(s.segment_name='UNDO_LOG')) + (select sum(s.bytes)
+from dba_segments s, dba_lobs l
+where s.owner='ZFS_OP' and
+(l.segment_name=s.segment_name and l.table_name='UNDO_LOG' and l.owner='ZFS_OP')) +(select sum(s.bytes)
+from dba_segments s,dba_indexes i 
+where s.owner='ZFS_OP' and 
+(i.index_name=s.segment_name and i.table_name='UNDO_LOG' and index_type='LOB' 
+and i.owner='ZFS_OP')) )/1024/1024/1024 as "TOTAL_TABLE_SIZE_G" from dual;
+
+TOTAL_TABLE_SIZE_G
+------------------
+        .000244141
+
+
+
+
+--数据泵分片
+
+. ~/.bash_profile
+chunk=10
+for((i=0;i<=9;i++)
+do
+nohup  expdp \'/ as sysdba\' tables=ZFS_OP.OP_INVOICE_IMAGE_RELATION 
+query=ZFS_OP.OP_INVOICE_IMAGE_RELATION:\"where mod\(dbm_rowid.rowid_block_number\(rowid\)\,${chunk}\)= ${i}\"
+CLUSTER=N
+filesize=15G
+exclude=statistics
+directory=DMP
+parallel=4
+compression=all
+dumpfile=20230321_zhbz02_${i}.dmp
+logfile=20230321_zhbz02_${i}.log &
+echo $i
+done
+
+
+
+
+--打开跟踪
+
+alter system set events '600 trace name errorstack forever';
+alter system set events '1555 trace name errorstack forever';
+alter system set events '22924 trace name errorstack forever';
+
+--匿名块查询坏lob(该语句经测试，没有结果）
+
+set concat off
+create table ZFS_OP.corrupted_lob_data (corrupted_rowid rowid,err_num number); 
+set concat off
+declare  
+  error_1555 exception;  
+  pragma exception_init(error_1555,-1555); 
+  error_22924 exception;  
+  pragma exception_init(error_22924,-22924);  
+  num number;  
+begin  
+  for cursor_lob in (select rowid r, &&lob_column from &table_owner.&table_with_lob) loop  
+    begin  
+      num := dbms_lob.instr (cursor_lob.FILE_BASE64, hextoraw ('889911')) ;  
+    exception  
+      when error_1555 then  
+        insert into ZFS_OP.corrupted_lob_data values (cursor_lob.r,01555);  
+        commit;  
+      when error_22924 then
+        insert into ZFS_OP.corrupted_lob_data values (cursor_lob.r,22924);  
+        commit;   
+    end;  
+  end loop;  
+end; 
+/
+
+--查看问题记录表中是否有数据
+ select count(corrupted_rowid) from ZFS_OP.corrupted_lob_data;
+
+
+--查看存在问题的数据记录
+select * from ZFS_OP.OP_INVOICE_IMAGE_RELATION 
+where rowid in(select * from  ZFS_OP.corrupted_lob_data);
+
+
+
+关闭跟踪
+
+sqlplus / as sysdba
+alter system set events '600 trace name errorstack off';
+alter system set events '1555 trace name errorstack off';
+alter system set events '22924 trace name errorstack off';
+
+
+FILE_BASE64
+
+ZFS_OP.OP_INVOICE_IMAGE_RELATION
+
+"ZFS_IP"."IP_LOG_RECORD  120g
+
+
+--第二次执行的语句：查找lob坏的数据
+
+set concat off
+create table ZFS_OP.corrupted_lob_data (corrupted_rowid rowid,err_num number); 
+set concat off
+declare  
+  error_1555 exception;  
+  pragma exception_init(error_1555,-1555);   
+  num number;  
+begin  
+  for cursor_lob in(select rowid r, &lob_column from &table_owner.&table_with_lob) loop  
+    begin  
+      num := dbms_lob.instr(cursor_lob.&lob_column, hextoraw ('889911')) ;  
+    exception  
+      when error_1555 then  
+        insert into ZFS_OP.corrupted_lob_data values (cursor_lob.r,01555);  
+        commit;    
+    end;  
+  end loop;  
+end; 
+/
+
+
+Enter value for lob_column: FILE_BASE64
+Enter value for table_owner: ZFS_OP.
+Enter value for table_with_lob: OP_INVOICE_IMAGE_RELATION
+old   6:   for cursor_lob in(select rowid r, &lob_column from &table_owner.&table_with_lob) loop
+new   6:   for cursor_lob in(select rowid r, FILE_BASE64 from ZFS_OP.OP_INVOICE_IMAGE_RELATION) loop
+Enter value for lob_column: FILE_BASE64
+old   8:       num := dbms_lob.instr(cursor_lob.&lob_column, hextoraw ('889911')) ;
+new   8:       num := dbms_lob.instr(cursor_lob.FILE_BASE64, hextoraw ('889911')) ;
+
+PL/SQL procedure successfully completed
+
+
+SYS@ztefssc1> select count(corrupted_rowid) from ZFS_OP.corrupted_lob_data;
+
+COUNT(CORRUPTED_ROWID)
+----------------------
+                     0
+
+
+
+                  --以上方法没有发现问题，继续查找
+查看 undo_retention
+SYS@ztefssc1> show parameter undo;
+
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+undo_management                      string      AUTO
+undo_retention                       integer     5400
+undo_tablespace                      string      UNDOTBS1
+				  
+				  
+				  
+检查undo中最长查询时间：
+Select max(maxquerylen) from v$undostat;
+
+
+
+MAX(MAXQUERYLEN)
+----------------
+           11745
+		   
+按lob表查询retention		   
+Select pctversion,retention from dba_lobs where owner='ZFS_OP' and table_name='OP_INVOICE_IMAGE_RELATION';
+
+ RETENTION
+----------
+       900
+
+修改undo_retention
+Alter system set undo_retention=10800  scope=both;
+show parameter undo;
+
+
+修改 lob undo_retention 使其等于undo_retention
+
+alter table ZFS_OP.OP_INVOICE_IMAGE_RELATION modify lob(FILE_BASE64) (pctversion 5);
+
+alter table ZFS_OP.OP_INVOICE_IMAGE_RELATION modify lob(FILE_BASE64) (retention);
+
+Select pctversion,retention from dba_lobs where owner='ZFS_OP' and table_name='OP_INVOICE_IMAGE_RELATION';
+
+PCTVERSION  RETENTION
+---------- ----------
+                10800
+
+
+
+
+

@@ -1,0 +1,121 @@
+onstat -       查看服务器状态
+1    CREATE DATABASE database_name [WITH LOG IN “pathname”]    创建数据库。
+database_name：数据库名称。“pathname”：事务处理日志文件。创建一database_name.dbs目录，存取权限由GRANT设定，无日志文件就不能使用
+BEGIN WORK等事务语句（可用START DATABASE语句来改变）。可选定当前数据库的日志文件。
+如：select dirpath form systables where tabtype = “L”;
+例：create databse customerdb with log in “/usr/john/log/customer.log”; DATABASE databse-name [EXCLUSIVE] 
+选择数据库。
+database_name：数据库名称。
+EXCLUSIVE：独占状态。
+存取当前目录和DBPATH中指定的目录下的数据库，事务中处理过程中不要使用此语句。
+例：dtabase customerdb; 
+2.      CLOSE DATABASE   关闭当前数据库。
+database_name：数据库名称。
+此语句之后，只有下列语句合法：
+CREATE DATABASE； DATABASE； DROP DATABSE； ROLLFORWARD DATABASE；
+删除数据库前必须使用此语句。
+例：close database; 
+3.      DROP DATABASE database_name   删除指定数据库。
+database_name：数据库名称。
+用户是DBA或所有表的拥有者；删除所有文件，但不包括数据库目录；不允许删除当前数据库（须先关闭当前数据库）；事务中处理过程中不能使用此语句，通过ROLLBACK WORK 也不可将数据库恢复。
+例：drop databse customerdb; 
+4.      CREATE [TEMP] TABLE table-name (column_name datatype [NOT NULL], …)
+[IN “pathname”]
+创建表或临时表。
+table-name ：表名称。
+column_name：字段名称。
+data-type：字段数据类型。
+path-name：指定表的存放位置
+TEMP用于指定建立临时表；表名要唯一，字段要唯一；有CONNECT权限的用户可建立临时表；创建的表缺省允许CONNECT用户存取，但不可以ALTER。
+例：create table user
+( c0 serial not null, c1 char (10),
+c2 char(2),
+c3 smallint,
+c4 decimal(6,3),
+c5 date
+) in “usr/john/customer.dbs/user; 
+6.      ALTER TABLE
+ALTER TABLE table-name
+{ADD (newcol_name newcol_type [BEFORE oldcol_name], …) | DROP (oldcol_name, …)
+| MODIFY (oldcol_name newcol_type [NOT NULL], … )}, …
+修改表结构。
+table-name：表名称。
+newcol_name：新字段名称
+newcol_type：新字段类型
+oldcol_name：老字段名称
+可以使用单个或多个ADD子句、DROP子句、MODIFY子句，但某个字句失败，操作即中止；原字段是NULL，不允许MODIFY为NOT NULL，除非所有NULL字段中均非空，反之可以；ALTER使用者是表的拥有者或拥有DBA权限，或被授权；事务中处理过程中不要使用此语句。
+例：alter table user
+add ( c6 char(20) before c5);
+7.      RENAME TABLE oldname TO newname
+修改表名。
+oldname：原名称。
+newname：新名称。
+RENAME使用者是表的拥有者或拥有DBA权限，或被授权；事务中处理过程中不要使用此语句。
+例：rename user to bbb; 
+8.      DROP TABLE table-name
+删除表。
+table-name：表名称。
+删除表意味着删除其中所有数据、各字段上的索引及对表的赋权、视图等；用户不能删除任何系统目录表；语句使用者是表拥有者或拥有DBA权限，事务中处理过程中不要使用此语句。 
+9.      RENAME COLUMN table.oldcolumn， TO newcolumn
+修改字段名。
+table.oldcolumn：表名及原字段名称
+newcolumn：新字段名称。
+语句使用者是表的拥有者或拥有DBA权限或有ALTER权限的用户，事务中处理过程中不要使用此语句。
+例：rename column user.c6 to c7; 
+10. CREATE VIEW view-name column-list
+CREATE VIEW view-name column-list AS select_statement [WITH CHECK OPTION]
+创建视图。
+view-name：视图名称。
+column-list：字段列表。
+select_statement：SELECT语句。
+以下语句不使用视图：ALTER TABLE，DROP INDEX，ALTER INDEX，LOCK TABLE，CREATE INDEX， RENAME TABLE；视图将延用基表的字段名，对表达式等虚字段和多表间字段重名必须指明标识其字段名；若对视图中某些字段命名，则所有字段都必须命名；视图中数据类型延用基表中的数据类型，虚字段起诀于表达式；不能使用ORDER BY和UNION子句；对视图中所有的字段要有SELECT权限；事务中处理过程中使用此语句，即使事务回滚，视图也将建立，不能恢复。
+例：create view v_user as select * from user where c1 = “B1”; 
+11. DROP VIEW view-name    删除视图。
+view-name：视图名称。
+用户可删除自己建立的视图；视图的后代视图也被删除；事务中处理中不要使用此语句。
+例：drop view v_user; 
+12. CREATE INDEX
+CREATE [UNIQUE/DISTINCT] [CLUSTER] INDEX index_name ON table_name
+([column_name ASC/DESC],…)
+创建索引。
+index_name：索引名称。
+table_name：表名称。
+column_name：字段名称。
+UNIQUE/DISTINCT：唯一索引。
+CLUSTER：使表的物理存放顺序按索引排列。
+ASC/DESC：升序或降序，缺省升序。
+语句执行时，将表的状态置为EXCLUSIVE；复合索引最多包含8个字段，所有字段长度和不得大于120字节；事务中处理过程中使用此语句，即使事务回滚，索引将建立，不能恢复。
+例：create cluster index ix_user on user(c5); 
+13. ALTER INDEX index-name TO [NOT] CLUSTER   修改索引性质。
+index-name：索引名称。
+TO [NOT] CLUSTER：去掉或加上CLUSTER属性。
+语句执行时，将表的状态置为EXCLUSIVE；事务中处理过程中使用此语句，即使事务回滚，索引性质将改变，不能恢复。
+例：alter index ix_user to not cluster; 
+14. DROP INDEX index-name    删除索引。
+index-name：索引名称。
+语句使用者是索引的拥有者或拥有DBA权限，事务中处理过程中不要使用此语句，否则事务无法恢复。
+例：drop index ix_user; 
+15. CREATE SYNONYM synonym FOR table-name   创建同义名。
+synonym：同义名
+table-name：表名称
+数据库的创建者可以使用同义名；没有赋予同义名权限的用户不能使用同义名；同义名不能和表名相同；事务中处理过程中不要使用此语句。
+例：create synonym user_alias for user; 
+16. DROP SYNONYM synonym   删除同义名。
+synonym：同义名
+可以删除自己建立的同义名；事务中处理过程中不要使用此语句，否则无法恢复。
+例：drop synonym user_alias; 
+17. UPDATE STATISTICS [FOR TABLE table-name]  更新数据库的统计数字。
+table-name：表名称
+此语句仅作用于当前数据库；可提高查询效率；只有执行此语句，才改变统计数据。 
+    例：update statistics for table user;<?xml:namespace prefix = o ns = "urn:schemas-microsoft-com:office:office" />
+
+ GRANT {DBA|RESOURCE|CONNECT} TO {PUBLIC|user-list} 
+ 
+ 
+ onstat -c | grep DBSERVER  查看数据库名
+ dbschema -d test -t all | grep TABLE | awk '{print $3}' | cut -d \. -f 2   获取database下的表
+ 
+ 如何登陆数据库
+1、输入：dbaccess    
+2、选择：database
+3、选择：select  选择需要操作的数据库    数据库名@符号后面的内容，即为数据库实例名

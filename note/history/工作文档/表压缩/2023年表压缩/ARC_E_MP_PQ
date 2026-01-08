@@ -1,0 +1,280 @@
+
+
+
+
+
+--查询表的大小
+col OWNER for a20
+col SEGMENT_NAME for a30
+col SEGMENT_TYPE for a30
+col tablespace_name for a20
+set lines 200 pages 999 long 20000
+select  OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name ,sum(BYTES)/1024/1024/1024 
+from dba_segments
+where segment_name='ARC_E_MP_PQ' and owner='FDPSHARE'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name;
+
+OWNER                SEGMENT_NAME                   SEGMENT_TYPE                   TABLESPACE_NAME      SUM(BYTES)/1024/1024/1024
+-------------------- ------------------------------ ------------------------------ -------------------- -------------------------
+FDPSHARE             ARC_E_MP_PQ                    TABLE SUBPARTITION             SHAREDATA                           135.926208
+
+--查询表是否包含大对象字段
+select column_name,data_type,table_name from dba_tab_columns
+ where owner='FDPSHARE' and table_name='ARC_E_MP_PQ' and  data_type in('CLOB','BLOB','NCLOB','BFILE');
+
+
+--查看分区表类型统计信息
+col OWNER for a20
+col TABLE_NAME for a30
+set lines 200 pages 999 long 20000
+select OWNER,TABLE_NAME,PARTITIONING_TYPE,SUBPARTITIONING_TYPE,PARTITION_COUNT
+from dba_part_tables
+where OWNER='FDPSHARE' and TABLE_NAME='ARC_E_MP_PQ';
+
+OWNER                TABLE_NAME                     PARTITIONING_TYPE           SUBPARTITIONING_TYPE        PARTITION_COUNT
+-------------------- ------------------------------ --------------------------- --------------------------- ---------------
+FDPSHARE             ARC_E_MP_PQ                    RANGE                       LIST                                     12
+
+
+分区是range
+子分区是list
+
+
+--查看子分区统计信息
+col TABLE_OWNER for a20
+col TABLE_NAME for a30
+col partition_name for a30
+set lines 200 pages 999 long 20000
+select table_owner,table_name,partition_name,subpartition_count from dba_tab_partitions where  table_owner='FDPSHARE'  
+and TABLE_NAME='ARC_E_MP_PQ';
+
+TABLE_OWNER          TABLE_NAME                     PARTITION_NAME                 SUBPARTITION_COUNT
+-------------------- ------------------------------ ------------------------------ ------------------
+FDPSHARE             ARC_E_MP_PQ                    P14401                                        175
+FDPSHARE             ARC_E_MP_PQ                    P14402                                        175
+FDPSHARE             ARC_E_MP_PQ                    P14403                                        175
+FDPSHARE             ARC_E_MP_PQ                    P14404                                        175
+FDPSHARE             ARC_E_MP_PQ                    P14405                                        175
+FDPSHARE             ARC_E_MP_PQ                    P14406                                        175
+FDPSHARE             ARC_E_MP_PQ                    P14407                                        175
+FDPSHARE             ARC_E_MP_PQ                    P14408                                        175
+FDPSHARE             ARC_E_MP_PQ                    P14409                                        175
+FDPSHARE             ARC_E_MP_PQ                    P14410                                        175
+FDPSHARE             ARC_E_MP_PQ                    P14411                                        175
+FDPSHARE             ARC_E_MP_PQ                    PMAX                                          140
+
+
+--查看子分区详细信息
+col TABLE_OWNER for a20
+col TABLE_NAME for a30
+col partition_name for a30
+col subpartition_name for a30
+
+select table_owner,table_name,partition_name,SUBPARTITION_NAME from dba_tab_subpartitions 
+ where  table_owner='FDPSHARE'  and TABLE_NAME='ARC_E_MP_PQ' order by partition_name;
+
+--查询索引大小(已经在索引表空间了,不需要移动表空间)
+col INDEX_NAME for a30
+col DEGREE for a5
+col tablespace_name for a30
+col status for a10
+set lines 200 pages 999 long 20000
+select index_name,degree,status,tablespace_name 
+from dba_indexes 
+where owner='FDPSHARE' and table_name='ARC_E_MP_PQ';
+
+INDEX_NAME                     DEGRE STATUS     TABLESPACE_NAME
+------------------------------ ----- ---------- ------------------------------
+IDX_ARC_E_MP_PQ_YM             1     N/A
+PK_ARC_E_MP_PQ                 1     VALID      DATA_RECOVER_IDX
+
+
+
+
+col OWNER for a20
+col SEGMENT_NAME for a30
+col SEGMENT_TYPE for a20
+set lines 200 pages 999 long 20000
+select  OWNER,SEGMENT_NAME,SEGMENT_TYPE,sum(BYTES)/1024/1024/1024 
+from dba_segments
+where segment_name in ('IDX_ARC_E_MP_PQ_YM','PK_ARC_E_MP_PQ') and owner='FDPSHARE'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE order by sum(BYTES);
+
+OWNER                SEGMENT_NAME                   SEGMENT_TYPE         SUM(BYTES)/1024/1024/1024
+-------------------- ------------------------------ -------------------- -------------------------
+FDPSHARE             IDX_ARC_E_MP_PQ_YM             INDEX SUBPARTITION                  26.5227051
+FDPSHARE             PK_ARC_E_MP_PQ                 INDEX                               29.7716675
+
+
+
+
+--查询小于2022年1月份的数据量
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_MP_PQ' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_MP_PQ'  
+and partition_name='P14401' and subpartition_name<'P14401_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               8.41821289
+
+			   
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_MP_PQ' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_MP_PQ'  
+and partition_name='P14402' and subpartition_name<'P14402_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               2.65557861
+
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_MP_PQ' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_MP_PQ'  
+and partition_name='P14403' and subpartition_name<'P14403_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               5.67791748
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_MP_PQ' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_MP_PQ'  
+and partition_name='P14404' and subpartition_name<'P14404_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               8.98413086
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_MP_PQ' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_MP_PQ'  
+and partition_name='P14405' and subpartition_name<'P14405_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               12.0038452
+
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_MP_PQ' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_MP_PQ'  
+and partition_name='P14406' and subpartition_name<'P14406_P202201');
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               17.7595215
+
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_MP_PQ' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_MP_PQ'  
+and partition_name='P14407' and subpartition_name<'P14407_P202201');
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               25.8604126
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_MP_PQ' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_MP_PQ'  
+and partition_name='P14408' and subpartition_name<'P14408_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               10.5136719
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_MP_PQ' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_MP_PQ'  
+and partition_name='P14409' and subpartition_name<'P14409_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               5.38983154
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_MP_PQ' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_MP_PQ'  
+and partition_name='P14410'  and subpartition_name<'P14410_P202201');
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               2.46887207
+
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_MP_PQ' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_MP_PQ'  
+and partition_name='P14411'   and subpartition_name<'P14411_P202201');
+
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+               7.04217529
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='ARC_E_MP_PQ' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='ARC_E_MP_PQ'  
+and partition_name='PMAX'   and subpartition_name<'PMAX_P202201');
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+
+
+
+
+ select 7.04217529+2.46887207+5.38983154+10.5136719+25.8604126+17.7595215+12.0038452+8.98413086+5.67791748+2.65557861+8.41821289 from dual;
+
+-------------
+ 106.77417
+
+
+																	  
+--转移分区表并压缩表的语句
+select 'alter table '||table_owner||'.'||table_name||' move subpartition '||subpartition_name||' 
+tablespace HISCMPRS01 nologging parallel 8 compress;',compression,partition_name,subpartition_name,tablespace_name
+from dba_tab_subpartitions 
+where table_owner='FDPSHARE' and table_name='ARC_E_MP_PQ' and  partition_name='P14401' and subpartition_name<'P14401_P202201';																	  
+
+
+
+--查询失效索引
+col owner for a20
+col status for a20
+col index_name for a30
+select owner,index_name,status from dba_indexes 
+where STATUS='UNUSABLE' and  owner='FDPSHARE' and table_name='ARC_E_MP_PQ';
+
+
+--重建普通索引
+  alter index FDPSHARE.PK_ARC_E_MP_PQ rebuild parallel 12  nologging;
+
+--重建子分区索引
+  select 'alter index '||t.INDEX_OWNER||'.'||t.INDEX_NAME||'  rebuild subpartition ' || t.SUBPARTITION_NAME ||  ' parallel 8 nologging tablespace IDXCACHE ;' , STATUS,tablespace_name
+from dba_ind_subpartitions t where INDEX_OWNER='FDPSHARE' and STATUS='UNUSABLE' and INDEX_NAME='INDEX_NAME';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

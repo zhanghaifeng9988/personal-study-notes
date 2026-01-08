@@ -1,0 +1,40 @@
+Oracle 11g中对于归档日志的删除，除了遵循RMAN保留策略外，
+也可以通过RMAN来配置归档日志的删除策略，也就是归档日志何时可以被删除。
+归档日志删除策略适用于所有归档位置(使用快速闪回区FRA/不使用FRA)。
+ 本文主要描述归档日志删除策略并给出了具体的演示。
+ 
+ 1、当启用该策略后，如归档日志存在于FRA中，则Oracle会尽可能根据保留他们，
+ 一旦FRA空间告急，则Oracle会根据归档日志删除策略自动删除。
+ 
+ 2、对于不在FRA中的归档日志，
+ 需要手动使用delete obsolete或delete archivelog方式来删除日志
+ 
+ 3、无论归档日志存在于FRA内或外，都可以通过
+ BACKUP ... DELETE INPUT or DELETE ARCHIVELOG方式来删除
+ 
+ 4、注意：该策略不适用于使用LogMiner方式从主数据库传送到逻辑standby生成的外部归档日志文件，
+ 因为这些日志文件不能够在逻辑standy上备份或恢复
+
+rman配置信息解释，详情见如下链接：
+https://www.modb.pro/db/12949
+
+
+RMAN>show all;     列出RMAN的配置信息
+RMAN>list archivelog all; /*列出所有的归档日志文件
+RMAN>crosscheck archivelog all; /*与物理归档日志文件保持同步,显示有效的归档文件
+因此执行此命令后会在/oracle目录下找不到的归档日志标记为expired
+RMAN>list expired archivelog all; /*列出所有expired（过期）的归档日志文件，
+此时你就可看到移走的归档日志文件均被标记为expired
+RMAN>delete expired archivelog all; /*在oracle中删除所有过期的expired文件
+RMAN>list archivelog all; /*再列出所有的归档日志文件，就可发现移走的日志文件被删掉了
+RMAN>exit /*退出
+ 
+ 
+删除已经在备库应用的归档日志，备库上删除归档日志的配置语句（DG专用）
+configure archivelog deletion policy to applied on standby;
+只要传到备库就删。(DG专用）
+configure archivelog deletion policy to shipped on standby;
+
+
+ 
+ 

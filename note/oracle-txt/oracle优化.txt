@@ -1,0 +1,213 @@
+1、数据库、表空间和表的创建标准，就形成了优化数据可用性和可扩展性的基础；
+2、数据库的表空间必须要是本地管理模式；
+3、一定要创建用户默认的永久表空间；
+4、一定要在创建临时表空间（用于排序操作运算）
+5、重做日志切换太过频繁，也会导致性能下降；
+6、默认的永久表空间查询：
+select * from database_properties where
+property_name='DEFAULT_PERMANENT_TABLESPACE';
+
+7、检查临时表空间的设置
+select * from database_properties 
+where property_name='DEFAULT_TEMP_TABLESPACE';
+
+8、查询undo表空间
+select name,value from v$parameter 
+where name in('undo_management','undo_tablesapce');
+select * from v$parameter 
+where name in('undo_management','undo_tablesapce');
+
+9、查询表空间区和段的管理方式
+select tablespace_name,extent_management,segment_space_management
+from dba_tablespaces;
+
+10、oracle大文件
+
+大文件bigfile只能在表空间创建一个数据文件；进而能够创建非常大的数据库。
+如果采用大文件，如果是8KB的块，能够创建最大32TB的数据文件；
+32KB的块，能够创建数据文件最大可达128TB；
+
+create bigfile tablespace b datafile '/u01/oradata/prod/b01.dbf' size 10m
+extent management local uniform size 128k  
+segment space management auto
+
+查询表空间类型：
+select tablespace_name,extent_management,segment_space_management,
+bigfile from dba_tablespaces;
+
+11、oracle小文件
+oracle 表空间创建默认是smallfile。
+ 
+ 数据块大小  单个文件最大容量
+    4k              16G
+    8K              32G
+    16k             64G
+    32K             128G
+
+create tablespace  tools 
+datafile '/u01/oradata/tools01.dbf'
+size 100m  --固定表空间数据文件大小
+size 100m autoextend on maxsize 1G --另一种写法，表示可以自动扩充数据文件容量到最大值
+extent management local uniform size 128k  --默认不需要写，如果需要改变块的大小，需要写
+segment space management manual --默认不需要写，如果改手动方式段管理需要写
+
+注意小文件也可以制定块的大小
+
+12、单个表空间最大支持1022个数据文件 
+13、表类型：堆表
+临时表，索引组织表，分区表，物化视图，簇表
+14、如果数据能够很容易重建，那么在你想要提升大数据量加载的性能时，
+就可以考虑使用nologging
+  如果制定了nologging,则会生成最少量的重做。
+  避开了缓冲区缓存，直接将数据加载到数据文件中，能极大的提升加载性能。
+  可以在数据库、表空间以及对象级制定日志记录特性。
+  如果数据库启用了强制日志记录，则会覆盖对表制定的nologging。
+
+关于匿名块：匿名块就像没有名称的存储过程一样，SQL语句在开发工具上，可以直接执行，
+但PL/SQL语句是不可以的，必须将要执行的PL/SQL语句，放置在begin与end之间，
+如果不建成存储过程，就要建成匿名块(即没有名称的执行脚本)，匿名块实现的功能和存储过程是一样的，
+只是将代码建成存储过程，系统会自动保存起来，而将代码建成匿名块，就不会自动保存。
+
+15、oracle会扫描高水位线下的所有数据块，不管这些数据块中是否有数据；
+                       
+					   手动创建自动段顾问建议
+  执行包需要dbms_advisor权限：
+grant advisor to zhf1;
+  创建段顾问任务，指定create_task的advisor_name参数为“段顾问”。
+  查询dba_advisor_definitions来获得所有有效的顾问列表。
+
+匿名块：
+ DECLARE
+my_task_id   number;
+obj_id       number;
+my_task_name varchar2(100);
+my_task_desc varchar2(500);
+BEGIN
+my_task_name := 'BIG_TABLE Advice'; --运行任务名，可以任意指定，不过建议为有意义的名称
+my_task_desc := 'Manual Segment Advisor Run';--运行任务描述，可以任意指定，不过建议为有意义的描述
+---------
+-- Step 1 创建一个任务
+---------
+dbms_advisor.create_task (
+advisor_name => 'Segment Advisor',--运行段顾问任务这个参数必须指定为segment advisor
+task_id      => my_task_id,
+task_name    => my_task_name,
+task_desc    => my_task_desc);
+---------
+-- Step 2 为这个任务分配一个对象
+---------
+dbms_advisor.create_object (
+task_name   => my_task_name,
+object_type => 'TABLE',--指定对象级别，如果为表对象则为’table’，如果为表空间级别则为’tablespace’
+attr1       => 'ZHF1',--如果在表对象级别运行，这个属性为用户名，表空间级别这个属性为表空间名字
+attr2       => 'T1',--如果在表对象级别运行，这个属性为表名，表空间级别这个属性为null
+attr3       => NULL,
+attr4       => NULL,
+attr5       => NULL,
+object_id   => obj_id);
+---------
+-- Step 3 设置任务参数
+---------
+dbms_advisor.set_task_parameter(
+task_name => my_task_name,
+parameter => 'recommend_all',
+value     => 'TRUE');
+---------
+-- Step 4 执行这个任务
+---------
+dbms_advisor.execute_task(my_task_name);
+END;
+/
+ 
+ 查询执行结果
+SELECT
+'Segment Advice --------------------------'|| chr(10) ||
+'TABLESPACE_NAME  : ' || tablespace_name   || chr(10) ||
+'SEGMENT_OWNER    : ' || segment_owner     || chr(10) ||
+'SEGMENT_NAME     : ' || segment_name      || chr(10) ||
+'ALLOCATED_SPACE  : ' || allocated_space   || chr(10) ||
+'RECLAIMABLE_SPACE: ' || reclaimable_space || chr(10) ||
+'RECOMMENDATIONS  : ' || recommendations   || chr(10) ||
+'SOLUTION 1       : ' || c1                || chr(10) ||
+'SOLUTION 2       : ' || c2                || chr(10) ||
+'SOLUTION 3       : ' || c3 Advice
+FROM 
+TABLE(dbms_space.asa_recommendations('TRUE', 'TRUE', 'FALSE'));
+ 
+ 
+ 删除1个已经创建的段顾问任务
+exec dbms_advisor.delete_task('BIG_TABLE Advice');
+
+块使用情况查询语句：
+
+  表分配的数据块数量
+select segment_name,blocks from dba_segments where segment_name='T1';
+  表占用空间大小
+select segment_name,round(sum(bytes / 1024 / 1024 / 1024), 2) G
+from user_segments
+where segment_name in
+('T1', 'EMP','DEPT') group by segment_name;
+  
+  表段中已经使用的块和高水位以上的块
+select table_name,blocks,empty_blocks,num_rows from dba_tables where table_name='T1';
+
+查看表空间使用情况
+select tablespace_name,
+ROUND(sum(bytes / 1024 / 1024 / 1024),2) G，ROUND(sum(maxbytes / 1024 / 1024 / 1024),2) max_G
+from dba_data_files
+where file_name like '/u01/oradata/ORCL%'
+GROUP BY TABLESPACE_NAME ORDER BY 2 DESC;
+
+查看表空间中的数据文件情况：
+col TABLESPACE_NAME for a15;
+col FILE_NAME for a60;
+SELECT a.tablespace_name,
+a.file_name,
+round(a.bytes / 1024 / 1024 / 1024, 2) AS "current_bytes(GB)",
+round(a.bytes / 1024 / 1024 / 1024 -b.resize_to / 1024 / 1024 / 1024,2) AS "shrink_by_bytes(GB)",
+round(ceil(b.resize_to / 1024 / 1024 / 1024), 2) AS "resize_to_bytes(GB)"
+FROM dba_data_files a,
+(SELECT file_id,
+MAX((block_id + blocks - 1) *
+(select value from v$parameter where name = 'db_block_size')) AS resize_to
+FROM dba_extents GROUP by file_id) b
+WHERE a.file_id = b.file_id 
+and a.TABLESPACE_NAME in ('UNDOTBS1','ZHF_TEST','SYSAUX','SYSTEM','OGGUSER_DATA')
+ORDER BY a.tablespace_name, a.file_name;
+
+查看所有数据文件，undo文件
+占用空间大小(filesize)，
+空闲空间大小(freesize)，
+使用空间大小(usedsize)，
+高水位线(hwmsize)，
+可以回收的空间(canshirnksize)，
+回收resize语句(cmd)
+select a.file_id,
+       a.file_name,
+       a.filesize,
+       b.freesize,
+       (a.filesize - b.freesize) usedsize,
+       c.hwmsize,
+       c.hwmsize - (a.filesize - b.freesize) unsedsize_belowhwm,
+       a.filesize - c.hwmsize canshrinksize,
+       'alter database datafile ' || a.file_name || ' resize ' || c.hwmsize || 'M;' cmd
+  from (select file_id, file_name, round(bytes / 1024 / 1024) filesize
+          from dba_data_files) a,
+       (select file_id, round(sum(dfs.bytes) / 1024 / 1024) freesize
+          from dba_free_space dfs
+         group by file_id) b,
+       (select file_id, round(max(block_id) * 8 / 1024) HWMsize
+          from dba_extents
+         group by file_id) c
+ where a.file_id = b.file_id
+   and a.file_id = c.file_id
+ order by unsedsize_belowhwm desc;
+
+
+
+
+
+shrink：压缩和降低
+1、alter table zhf1.t1 enable row movement;
+2、alter table zhf1.t1 shrink space compact;
+3、alter table "ZHF1"."T1" shrink space;

@@ -1,0 +1,291 @@
+objn: object name id         objd: object data id
+数据字典：描述数据库对象的信息，数据字典是Oracle数据库对象结构的元数据信息
+oracle数据库对象：用户，表，视图，索引，函数，存储过程，触发器，表空间
+oracle的模式对象：表，视图，索引，同义词，序列，plsql子程序和包
+数据字典表：用以存储表、索引、约束以及其他数据库结构信息，通常以$结尾，如tab$,obj$,ts$,aud$等(这些内容用以下两个视图的方式提供展示）
+静态数据字典视图 all  dba  user
+动态性能视图   v$
+
+双引号表示标识符，比如别名，列名，表名，存储过程名等。
+一般情况下标识符oracle会自动转为大写再跟数据字典做比较。
+如果加了双引号则不再做大写转换，直接按双引号内的内容进行比较。所以一般不加双引号。
+
+而单引号则表示：这个加了单引号的字段是一个字类似字符串，并不区分大小写。
+单引号用于标识字符与数字的区别,当指定字符串文本时，必须用单引号将字符串文本引住
+
+模式和表空间之间没有关系：一个表空间可以包含来自不同模式的对象，而一个模式的对象可以包含在不同的表空间中。
+每个对象的数据物理上包含在一个或多个数据文件中。
+
+sqlplus sys/oracle@rac-scan:1521/prod as sysdba   prod为数据库名即tnsname中配置的SERVICE_NAME = prod
+sqlplus sys/oracle@PROD as sysdbA                 @后面直接跟tnsname中配置的连接符
+
+select * from v$nls_parameters  where parameter='NLS_CHARACTERSET'         字符集查询
+ select * from v$version                                                   数据库版本查询                                                                                                                                                       bbbbbbbbbbbbb  bbbbbbbbb bbbbbbbbb   b                                 b          
+create user dsg1 identified by dsg1;                                       建立用户并赋予密码
+select * from dba_users where username='DSG';                              查看oracle用户的信息
+ delete expired archivelog all;   删除过期归档
+ select name from v$database;      查看数据库名
+ select * from v$datafile;        查看数据文件相关信息
+ select tablespace_name from dba_tablespaces;  查询表空间信息
+select * from dba_free_space where tablespace_name='SYSTEM';  查询system表空间的使用情况
+ delete archivelog until time 'sysdate';                                   删除归档，直到系统当前时间
+ delete archivelog until time 'sysdate-1';                                 删除归档，系统前一天 
+ crosscheck archivelog all;                                                查看归档信息
+ select * from session_privs where privilege='';                           查看当前用户权限信息
+ select * from v$pwfile_users;                                             查看密码文件用户权限的视图
+ select * from all_users;                                                   数据库所有用户查询
+ select * from v$ASM_CLIENT;                                               查看当前asm实例
+ select segment_name, bytes/1024 K from user_segments where segment_type = 'TABLE'; 查看当前用户下所有表的信息
+ select segment_name, bytes/1024 K from user_segments where segment_name = ' 表名'; 查看当前用户下某个表的信息
+ create table normal_tb(xingshi char(15),mingzi varchar2(30), xunhao int,age number,birth date,graph blob,intro clob);
+  root下 create or replace directory images as 路径
+  grant read,write on directory DIRECTORY to MYUSER;
+  declare
+
+
+                                                 关于联机重做日志文件组的删除需要注意以下几点：
+                                                  ①日志组为active和current状态时不可以删除
+                                                  ②日志组在数据库级别删除后操作系统上的文件不会被级链删除
+                                                  ③对于一个Oracle数据库实例，至少要包含两个联机重做日志组
+select  thread#,group#,archived,status from v$log;                          查看当前日志组运行状态
+select * from v$logfile;                                                     查看日志组属性
+alter system switch logfile;                                                 切换当前日志组
+alter database drop logfile group 5;                                         删除日志组（rac的话，只能删除本节点的日志组），前提是非当前日志可删除
+alter database add logfile group 5;                                          添加日志组（rac的话，只能添加本节点的日志组）
+
+ select sid,serial# from v$session where username='ZHANGHF1';              查看数据库连接用户信息
+ alter system kill session 'sid,serial';                                  关闭连接
+select * from user_part_tables                                             查看分区表信息？？？
+select * from user_tab_partitions                                          查看分区表信息？？？
+
+select table_name,tablespace_name from user_tables where table_name ='XXX'; 查看表格属于哪个分区
+
+rename  test1 to testt;                                                     更换表名
+              
+			  在删除一个表主键的时候索引没有删掉的问题，如果主键索引是和主键约束一起建的，
+              则删除约束的时候索引会自动删除掉，如果是先建了索引，然后建立主键，则删除约束的时候索引不会一起被删除掉
+
+select * from user_ind_columns where index_name=索引名称                    查看索引作用于哪一列
+select * from user_indexes where table_name='TESTEMP';                      查看表格的索引信息
+drop index  索引名  删除索引
+
+CREATE SEQUENCE seq INCREMENT BY 1 START WITH 1 MAXVALUE 1000 CYCLE NOCACHE
+select * from user_sequences where sequence_name='序列名'
+  
+ 
+ create synonym haha for testemp;    建立同义词 
+ select * from user_synonyms where synonym_name='同义词名字';
+ ALTER  SYNONYM T COMPILE; --当同义词的原对象被重新建立时，同义词需要重新编译
+ --修改同义词t1的owner为u1
+ ALTER SYNONYM t1 OWNER TO u1;
+
+create view v1 as select * from scott.emp;                             创建一个视图
+select owner , view_name from dba_views;
+ alter view v2 compile；                                              视图和同义词  的源表的结构改变，可造成同义词和视图的失效，需要使用alter
+ 
+ purge recyclebin                                                      清除回收站内容
+ archive log list                                                      归档配置情况查询
+ show parameter DB_RECOVERY_FILE_DEST                                  显示归档文件存放的路径
+  SELECT *  FROM DATABASE_PROPERTIES  WHERE PROPERTY_NAME IN           Oracle数据库中查NLS_LANG设置oracle字符集查询
+  ('NLS_LANGUAGE', 'NLS_TERRITORY', 'NLS_CHARACTERSET'); 
+  select userenv('language') from dual;
+  
+select index_name from user_indexes where table_name='LIST2';
+select  * from user_constraints where table_name='LIST2';
+select CONSTRAINT_NAME,constraint_type,TABLE_NAME,SEARCH_CONDITION,INDEX_NAME  from user_constraints;    查询约束和索引
+上条查询语句，需要调整sqlplus格式
+col SEARCH_CONDITION for a30;
+
+select * from user_indexes;                                             查询当前用户下的索引
+SELECT INDEX_NAME,INDEX_TYPE,TABLE_NAME,TABLE_OWNER,TABLE_TYPE,STATUS FROM user_INDEXES;   查询当前用户下的索引
+
+调整sqlplus的显示格式，针对上一条语句
+col INDEX_NAME for a25;
+col INDEX_TYPE for a10;
+col TABLE_NAME for a10;
+col TABLE_OWNER for a10;
+col TABLE_TYPE for a10;
+col STATUS for a10;
+
+alter table emp1 enable constraint fk_emp1                              打开约束或者关闭约束
+
+select 'drop table '||table_name|| 'purge'||';' from cat where table_type='TABLE' 删除用户下所有表格（生成sql命令，再执行）
+
+insert into dept1 values(10,'ACCOUNTIN',' NEW YORK');
+select timestamp_to_scn(to_timestamp('2021-11-18 10:30:00','YYYY-MM-DD HH24:MI:SS')) scn from dual 查询某个时间点的scn
+
+
+set long 20000
+set pagesize 500
+set linesize 100                                                        统一sqlplus显示格式
+
+select * from (select rownum no,ename from emp) where no=2;             查找某表的第二行数据
+
+show parameter background_dump  （查看alert日志所在位置） 
+
+ select * from v$diag_info;   告警信息目录查看
+ /u01/app/oracle/diag/rdbms/orcl/pryorcl1/alert
+ /u01/app/oracle/diag/rdbms/orcl/pryorcl1/trace/pryorcl1_ckpt_15182.trc
+ 
+ 
+ SELECT owner, tablespace_name, ROUND (SUM (BYTES) / 1024 / 1024, 2) "USED(M)" FROM dba_segments GROUP BY owner, tablespace_name ORDER BY SUM (BYTES) DESC;
+ 
+ SELECT OWNER as "yonghuming", sum(BYTES) / 1024 / 1024 / 1024 as "所有表的大小(GB)"
+  FROM DBA_SEGMENTS
+ WHERE SEGMENT_NAME in (select t2.OBJECT_NAME
+                          from dba_objects t2
+                         where t2.OBJECT_TYPE = 'TABLE')
+ group by OWNER order by 2 desc
+ 
+ 
+                                               联合主键和联合外键
+create table dsg_test9(sched_name varchar2(20),trigger_name varchar2(20），trigger_group varchar2(20）,deptno int,
+primary key(sched_name,trigger_name,trigger_group));
+
+create table dsg_test10(sched_name varchar2(20),trigger_name varchar2(20），trigger_group varchar2(20）,id int,
+foreign key(sched_name,trigger_name,trigger_group) references dsg_test9(sched_name,trigger_name,trigger_group)); 
+
+create table dsg_test10(sched_name varchar2(20),trigger_name varchar2(20），trigger_group varchar2(20）,id int,
+foreign key("SCHED_NAME","TRIGGER_NAME","TRIGGER_GROUP") references dsg_test9("SCHED_NAME","TRIGGER_NAME","TRIGGER_GROUP")) ;
+
+ select  CONSTRAINT_NAME,CONSTRAINT_TYPE,TABLE_NAME,SEARCH_CONDITION,STATUS,INDEX_NAME from user_constraints where table_name  in ('DSG_TEST9','DSG_TEST10');
+ 
+                                     表格的objn号查询
+ select o.obj# objn,o.dataobj# objd,u.name uname,o.name tname
+        from sys.obj$ o, sys.user$ u
+        where o.owner#=u.user# and u.name='ZHANGHAIFENG1' and o.name='OB_TEST';
+		
+select OBJECT_NAME,OBJECT_TYPE,STATUS from user_objects;      查询数据库用户下所有对象信息
+select * from user_objects where object_type='FUNCTION';         查询数据库用户下的函数情况
+select * from user_objects where object_type='PROCEDURE';
+select * from user_objects where object_type='TRIGGER';
+
+                                       分区信息查看
+显示数据库所有分区表的信息：DBA_PART_TABLES
+select * from DBA_PART_TABLES
+显示当前用户可访问的所有分区表信息：ALL_PART_TABLES
+select * from ALL_PART_TABLES
+显示当前用户所有分区表的信息：USER_PART_TABLES
+select TABLE_NAME,PARTITION_NAME,HIGH_VALUE from user_tab_partitions;
+
+
+                                      数据库各种存储容量的查询
+表空间容量查询：
+select df.tablespace_name "表空间名",totalspace "总空间M",freespace "剩余空间M",round((1-freespace/totalspace)*100,2) "使用率%" 
+from 
+(select tablespace_name,round(sum(bytes)/1024/1024) totalspace 
+from dba_data_files 
+group by tablespace_name) df, 
+(select tablespace_name,round(sum(bytes)/1024/1024) freespace 
+from dba_free_space 
+group by tablespace_name) fs 
+where df.tablespace_name=fs.tablespace_name;
+按照段类型进行容量查询：
+SELECT * FROM (SELECT SEGMENT_NAME,T.SEGMENT_TYPE,SUM(BYTES)/1024/1024  SEGMENT_SIZE_M 
+FROM USER_SEGMENTS T WHERE 1 = 1 GROUP BY T.SEGMENT_NAME, T.SEGMENT_TYPE) T 
+WHERE 1 = 1 ORDER BY SEGMENT_SIZE_M DESC;
+
+
+show parameter sec_case_sensitive_logon    查看数据库是否大小写敏感，ture表示敏感
+
+ select * from v$pwfile_users;             asm用户查看
+
+select name from v$archived_log;           查看归档日志的路径
+select file_name from dba_data_files;      查看数据文件的路径
+
+
+select * from dba_sys_privs where grantee='OGGUSER';  指定用户的权限查看
+
+
+
+ show parameter unique  数据库唯一名查询
+ show parameter db_name 数据库名查询
+ 
+ 
+
+ sqlplus 调整显示形式：
+ set lines 200 pages 999 long 20000
+ 
+to_date()函数 ：将字符串转换为具体指定的时间日期格式
+select to_date('2005-01-01 13:14:20','yyyy-mm-dd HH24:mi:ss') from dual;
+
+TO_DATE('2005-01-01
+-------------------
+2005-01-01 13:14:20
+
+
+to_char()函数：将时间日期按照指定的格式输出，得到的是字符串，而非date类型
+
+select sysdate,to_char(sysdate,'yyyy-mm-dd hh24:mi:ss') from dual;
+
+SYSDATE             TO_CHAR(SYSDATE,'YY
+------------------- -------------------
+2022-12-12 22:11:41 2022-12-12 22:11:41
+
+select sysdate,to_char(sysdate,'yyyy-mm-dd')from dual;
+SYSDATE             TO_CHAR(SY
+------------------- ----------
+2022-12-12 22:23:15 2022-12-12
+
+ select sysdate,to_char(sysdate,'yyyy/mm/dd')from dual;
+SYSDATE             TO_CHAR(SY
+------------------- ----------
+2022-12-12 22:23:31 2022/12/12
+ 
+ select sysdate,to_char(sysdate,'yyyymmdd')from dual;
+SYSDATE             TO_CHAR(
+------------------- --------
+2022-12-12 22:23:57 20221212
+
+ select sysdate,to_char(sysdate,'yyyymmdd hh24:mi:ss')from dual;
+SYSDATE             TO_CHAR(SYSDATE,'
+------------------- -----------------
+2022-12-12 22:24:32 20221212 22:24:32
+
+
+imp 用户名/"密码"@ip:端口/库名(pdb名） file=****.dmp full=y buffer=104857600
+ignore=y log=***.log
+
+
+ v$pq_tqstat
+通过此视图可以看出并行的执行及负载情况。
+ v$pq_sysstat
+可以看出所有并行语句操作的并行统计信息。
+ v$pq_sesstat
+查看当前会话的统计信息。
+
+show parameters parallel_thread
+默认的并行度被设置为系统CPU核数的两倍。
+
+show parameters parallel_degree_policy
+查看并行度的规则，默认：auto
+alter session set parallel_degree_policy = 'manual'
+配置并行度的规则，为手动
+
+1.查询
+Sql代码  
+SELECT /*+ Parallel(t,8) */ * FROM emp t;  
+SELECT /*+ Parallel(8) */ * FROM emp t;  
+SELECT /*+ Parallel */ * FROM emp t;         
+
+2.创建索引
+Sql代码  
+create index idx_emp_test on emp(empno,ename,job) nologging parallel 32;  
+
+3.执行表分析
+Sql代码  
+EXEC DBMS_STATS.GATHER_TABLE_STATS(ownname => 'scott',tabname => 'emp',    degree => 32,cascade => true);  
+
+
+4.插入
+Sql代码  
+INSERT /*+ append parallel(30) */   
+INTO t_a  
+SELECT /*+ parallel(30) */  
+FROM t_b  
+
+-- PS:使用insert select做测试, insert加 Append后, 加不加Parallel 效果没有什么差别,不知为何.  但后面的select 不加Parallel 差别太大了  
+
+
+最大并发数查询
+show parameter parallel_max_servers

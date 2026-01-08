@@ -1,0 +1,32 @@
+<template>
+    <div>
+      <h1>打印内容：</h1>
+      <ul>
+        <li v-for="item in items" :key="item">{{ item }}</li>
+      </ul>
+    </div>
+  </template>
+  
+  <script lang="ts">
+  import { defineComponent, ref } from 'vue';
+  
+  export default defineComponent({
+    setup() {
+      // 使用 ref 定义一个字符串数组
+      const items = ref<string[]>(['苹果', '香蕉', '橙子']);
+  
+      // 遍历 const 类型的值并打印内容
+      items.value.forEach(item => {
+        console.log(item); // 打印每个内容
+      });
+  
+      return {
+        items
+      };
+    }
+  });
+  </script>
+  
+  <style scoped>
+  /* 添加样式，如果需要 */
+  </style>

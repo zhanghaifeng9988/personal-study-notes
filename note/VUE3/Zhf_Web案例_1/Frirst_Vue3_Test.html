@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First_Vue3_Test</title>
+    <!--从一个名为 unpkg 的内容分发网络（CDN）中加载最新版本的 Vue.js 框架  -->
+    <script src='https://unpkg.com/vue@3'></script>
+</head>
+
+<body>
+    <div style="text-align: center;" id="app1">
+        <!-- 响应式数据绑定 -->
+        <h1> {{ count }} </h1>
+        <!-- 点击按钮事件绑定到clickButton函数上 -->
+        <button v-on:click="clickButton">click me</button>
+    </div>
+    <script>
+        // 创建一个新的 Vue 实例,名为 app
+        const App = {
+            // 定义数据
+            data() {
+                return {
+                    count: 0
+                }
+            },
+            // 定义方法
+            methods: {
+                // 点击按钮的方法
+                clickButton() {
+                    this.count = this.count + 1;
+                }
+            }
+        }
+        // 将 Vue 实例挂载到 div 元素上
+        Vue.createApp(App).mount('#app1')
+    </script>
+</body>
+
+</html>

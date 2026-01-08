@@ -1,0 +1,114 @@
+
+[grid@node1 ~]$ crsctl start res ora.crsd -init
+CRS-2672: Attempting to start 'ora.ctssd' on 'node1'
+CRS-2676: Start of 'ora.ctssd' on 'node1' succeeded
+CRS-2672: Attempting to start 'ora.evmd' on 'node1'
+CRS-2679: Attempting to clean 'ora.asm' on 'node1'
+CRS-2681: Clean of 'ora.asm' on 'node1' succeeded
+CRS-2672: Attempting to start 'ora.asm' on 'node1'
+CRS-2676: Start of 'ora.evmd' on 'node1' succeeded
+CRS-2676: Start of 'ora.asm' on 'node1' succeeded
+CRS-2672: Attempting to start 'ora.crsd' on 'node1'
+CRS-2676: Start of 'ora.crsd' on 'node1' succeeded
+
+
+
+'+DATA/orcl/controlfile/current.260.1014064209',
+'+FRA/orcl/controlfile/current.256.1014064209'
+  控制文件的两个位置
+备库节点一启动数据库报错：
+ORA-00214: control file '+DATA/orcl/controlfile/current.260.1014064209' version
+935346 inconsistent with file '+FRA/orcl/controlfile/current.256.1014064209'
+version 935326
+执行以下步骤：
+create pfile from spfile；
+修改pfile的控制文件路径，只保留一个
+shutdown abort
+create spfile from pfile;
+打开数据库继续报错：
+ERROR at line 1:
+ORA-01172: recovery of thread 2 stuck at block 272 of file 6
+ORA-01151: use media recovery to recover block, restore backup if needed
+执行以下步骤：
+reocver datafile 6;
+alter database open;
+
+
+备库节点二启动数据到mount下报错：
+ERROR at line 1:
+ORA-01105: mount is incompatible with mounts by other instances
+ORA-01104: number of control files (2) does not equal 1
+执行以下步骤：
+create pfile from spfile；
+修改pfile的控制文件路径，只保留一个
+shutdown abort
+create spfile from pfile;
+打开数据：
+alter database open;
+
+
+主库节点一启动没有控制文件：
+从备库拷贝一份过来，备库执行以下步骤：
+ASMCMD>  cp Current.260.1014064209 /home/grid                             备库asm拷贝命令
+[grid@node1 ~]$ scp Current.260.1014064209  10.0.0.185 /home/grid         拷贝文件到主库操作系统
+ASMCMD>  cp /home/grid/Current.260.1014064209 +DATA/PRYORCL/controlfile/Current    主库从目录中拷贝到asm，注意目标文件的命名规则
+修改参数pfile中controlfile的路径为： +DATA/PRYORCL/controlfile/Current
+shutdown abort 数据库，重新启动到mount下报错：
+ERROR at line 1:
+ORA-03113: end-of-file on communication channel
+Process ID: 15241
+Session ID: 63 Serial number: 3
+
+经研究发现，这跟$ORACLE_HOME/bin/oracle这个文件的属性有关系：
+
+在安装oracle soft之后：
+
+$ORACLE_HOME/bin/oracle文件属性权限为oracle:oninstall 751(-rwxr-x--x)
+
+在用安装ASM建库(DBCA)时：
+
+此文件属性会自动被修改为oracle:asmadmin6751(-rwsr-s--x)
+
+在升级之后：
+
+此文件属性又被自动被修改为oracle:oinstall751(-rwxr-x--x)
+
+解决办法:
+
+chown oracle:asmadmin $ORACLE_HOME/bin/oracle    root下作
+
+chmod 6751 $ORACLE_HOME/bin/oracle               root下作
+
+ORA-01157: cannot identify/lock data file 1 - see DBWR trace file
+ORA-01110: data file 1: '+DATA/orcl/datafile/system.256.1014064119'
+
+将已经开启的备库中复制来的数据文件和日志文件，在mount状态下，改变名称，然后可以打开数据库
+
+alter database rename file '+DATA/orcl/datafile/system.256.1014064119' to '+DATA/orcl/datafile/system';
+alter database rename file '+DATA/orcl/datafile/sysaux.257.1014064119' to '+DATA/orcl/datafile/sysaux';
+alter database rename file '+DATA/orcl/datafile/undotbs1.258.1014064119' to '+DATA/orcl/datafile/undotbs1';
+alter database rename file '+DATA/orcl/datafile/users.259.1014064119' to '+DATA/orcl/datafile/users';
+alter database rename file '+DATA/orcl/datafile/example.265.1014064243' to '+DATA/orcl/datafile/example';
+alter database rename file '+DATA/orcl/datafile/undotbs2.266.1014064381' to '+DATA/orcl/datafile/undotbs2';
+
+alter database rename file '+DATA/orcl/datafile/system' to '+DATA/orcl/datafile/SYSTEM';
+alter database rename file '+DATA/orcl/datafile/sysaux' to '+DATA/orcl/datafile/SYSAUX';
+alter database rename file '+DATA/orcl/datafile/undotbs1' to '+DATA/orcl/datafile/UNDOTBS1';
+alter database rename file '+DATA/orcl/datafile/users.259' to '+DATA/orcl/datafile/USERS';
+alter database rename file '+DATA/orcl/datafile/example' to '+DATA/orcl/datafile/EXAMPLE';
+alter database rename file '+DATA/orcl/datafile/undotbs2' to '+DATA/orcl/datafile/UNDOTBS2';
+
+alter database rename file '+DATA/orcl/onlinelog/group_1.261.1014064211' to '+DATA/orcl/onlinelog/group_1';
+alter database rename file '+DATA/orcl/onlinelog/group_3.263.1014064229' to '+DATA/orcl/onlinelog/group_3';
+alter database rename file '+DATA/orcl/onlinelog/group_4.267.1014064431' to '+DATA/orcl/onlinelog/group_4';
+alter database rename file '+DATA/orcl/onlinelog/group_2.262.1014064213' to '+DATA/orcl/onlinelog/group_2';
+alter database rename file '+DATA/orcl/onlinelog/group_5.268.1014064435' to '+DATA/orcl/onlinelog/group_5';
+alter database rename file '+DATA/orcl/onlinelog/group_6.269.1014064439' to '+DATA/orcl/onlinelog/group_6';
+alter database rename file '+DATA/orcl/onlinelog/group_11.282.1023014787' to '+DATA/orcl/onlinelog/group_11';
+alter database rename file '+DATA/orcl/onlinelog/group_12.283.1023014807' to '+DATA/orcl/onlinelog/group_12';
+alter database rename file '+DATA/orcl/onlinelog/group_13.284.1023014821' to '+DATA/orcl/onlinelog/group_13';
+alter database rename file '+DATA/orcl/onlinelog/group_14.285.1023014835' to '+DATA/orcl/onlinelog/group_14';
+alter database rename file '+DATA/orcl/onlinelog//group_15.286.1023014853' to '+DATA/orcl/onlinelog/group_15';
+alter database rename file '+DATA/orcl/onlinelog/group_16.287.1023014863' to '+DATA/orcl/onlinelog/group_16';
+alter database rename file '+DATA/orcl/onlinelog/group_17.288.1023014873' to '+DATA/orcl/onlinelog/group_17';
+alter database rename file '+DATA/orcl/onlinelog/group_18.289.1023014885' to '+DATA/orcl/onlinelog/group_18';

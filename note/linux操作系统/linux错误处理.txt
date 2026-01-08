@@ -1,0 +1,24 @@
+1、yum报错 ：
+  failed to set locale, defaulting to C
+
+  解决办法：
+  
+运行locale命令会出现类似如下提示：
+
+  locale: Cannot set LC_CTYPE to default locale: No such file or directory
+  locale: Cannot set LC_ALL to default locale: No such file or directory
+  
+  执行：
+  echo "export LC_ALL=en_US.UTF-8"  >>  /etc/profile
+  source /etc/profile
+  
+2、centos 7.6的yum配置
+   1、将原有/etc/yum.repos.d的所有文件mv到其他目录，比如/tmp/repo.d/
+   2、将CentOS-Media.repo文件cp一份到/etc/yum.repos.d进行编辑，编辑内容如下：
+     name=CentOS-$releasever - Media
+     baseurl=file:///media
+     #        file:///media/cdrom/
+     #        file:///media/cdrecorder/
+     gpgcheck=0
+     enabled=1
+     #gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7

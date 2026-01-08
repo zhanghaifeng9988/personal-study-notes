@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="vue.js"></script>
+</head>
+<body>
+  <div id="Application">
+    <comp1></comp1>
+  </div>
+  <script>
+    const App = Vue.createApp({})
+    const comp2 = {
+      template:`<div>component2</div>`
+    }
+    const comp1 = {
+      components:{//在组件1中注册组件2
+        'comp2':comp2
+      },
+      template:`<div>
+        component1<comp2></comp2>
+        </div>`
+    }
+    //全局注册comp1组件
+    App.component("comp1",comp1)
+    App.mount("#Application")
+  </script>
+</body>
+</html>

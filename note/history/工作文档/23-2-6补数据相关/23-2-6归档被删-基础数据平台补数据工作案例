@@ -1,0 +1,94 @@
+
+
+
+declare
+ vorg_no varchar2(20);
+ vsql varchar2(2000);
+begin 
+for c in (select * from sgpm.o_org@to_yxhisn where p_org_no ='14101' and org_no <> '14413' order by org_no )
+  loop
+    vorg_no := c.org_no||'%';
+
+insert into CACHER01.ARC_E_DEFECT_DETAIL(
+DEFECT_DET_ID,
+DEFECT_LOG_ID,
+CONS_ID,
+ORG_NO,
+YM,
+APP_NO,
+CONS_NO,
+CONS_NAME,
+CONS_SORT_CODE,
+MR_SECT_NO,
+READER_NO,
+DEFECT_TYPE,
+CR_NO,
+DEFECT_REMARK,
+BUS_ACT,
+SOURCE_APP_NO,
+EXCEPTION_TYPE,
+RELA_APP_NO,
+REPORT_NO,
+REPORT_DATE,
+CONFIRM_NO,
+CONFIRM_DATE,
+CONFIRM_REMARK,
+HANDLE_REMARK,
+EVENT_TYPE,
+CR_GRADE,
+INS_NAME,
+MP_ID,
+METER_ID,
+EXCP_TYPE_CODE,
+AUTO_VERI_FLAG,
+PLAN_TYPE_CODE,
+PEOCESS_DEF_ID,
+SOURCE_DATA                              
+)
+  
+    select 
+DEFECT_DET_ID,
+DEFECT_LOG_ID,
+CONS_ID,
+ORG_NO,
+YM,
+APP_NO,
+CONS_NO,
+CONS_NAME,
+CONS_SORT_CODE,
+MR_SECT_NO,
+READER_NO,
+DEFECT_TYPE,
+CR_NO,
+DEFECT_REMARK,
+BUS_ACT,
+SOURCE_APP_NO,
+EXCEPTION_TYPE,
+RELA_APP_NO,
+REPORT_NO,
+REPORT_DATE,
+CONFIRM_NO,
+CONFIRM_DATE,
+CONFIRM_REMARK,
+HANDLE_REMARK,
+EVENT_TYPE,
+CR_GRADE,
+INS_NAME,
+MP_ID,
+METER_ID,
+EXCP_TYPE_CODE,
+AUTO_VERI_FLAG,
+PLAN_TYPE_CODE,
+PEOCESS_DEF_ID,
+SOURCE_DATA                                                     
+    from SGPM_OUT.ARC_E_DEFECT_DETAIL@to_yxhisn  where   
+    DEFECT_DET_ID in (
+    select 
+    DEFECT_DET_ID 
+    from SGPM_OUT.ARC_E_DEFECT_DETAIL@to_yxhisn  
+minus
+    select DEFECT_DET_ID from CACHER01.ARC_E_DEFECT_DETAIL );
+    commit;
+    end loop;
+end;
+

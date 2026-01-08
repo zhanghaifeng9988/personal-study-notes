@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="vue.js"></script>
+  <title>用户注册</title>
+  <style>
+    .container {
+      margin:0 auto;/* 设置外边距，顶部和底部为 0，左右为自动，居中对齐 */
+      margin-top:70px;/* 设置上方外边距为 70 像素 */
+      text-align:center;/* 设置文本居中对齐 */
+      width:300px;/* 设置容器的宽度为 300 像素 */
+    }
+    .subTitle {
+      color:gray;/* 设置文本颜色为灰色 */
+      font-size: 14px;  /* 设置字体大小为 14 像素 */
+    }
+    .title {
+      font-size: 45px;  /* 设置字体大小为 45 像素 */
+    }
+    .inputContainer {
+      text-align: left;  /* 设置文本居左对齐 */
+      margin-bottom: 20px;  /* 设置下方外边距为 20 像素 */
+    }
+   .field {
+      font-size: 14px;  /* 设置字体大小为 14 像素 */
+   }
+    .input {
+      width:120px;  /* 设置输入框宽度为 120 像素 */
+    }
+   .tip {
+    margin-top: 5px;  /* 设置提示文本上方外边距为 5 像素 */
+    font-size: 12px;  /* 设置字体大小为 12 像素 */
+    color:gray;  /* 设置文本颜色为灰色 */
+   }
+   .subcontainer {
+      text-align:left;  /* 设置文本居左对齐 */
+   }
+   .setting {
+      font-size: 9px;  /* 设置字体大小为 9 像素 */
+      color:black;  /* 设置文本颜色为黑色 */
+   }
+   .checkbox {
+      height: 20px;  /* 设置 checkbox 高度为 20 像素 */
+      vertical-align: middle;  /* 设置 checkbox 垂直居中 */
+   }
+   .label {
+      font-size:12px;  /* 设置字体大小为 12 像素 */
+      margin-left: 5px;  /* 设置左侧外边距为 5 像素 */
+      height: 20px;  /* 设置 label 高度为 20 像素 */
+      vertical-align: middle;  /* 设置 label 垂直居中 */
+   }
+   .btn {
+      border-radius:10px;  /* 设置按钮圆角半径为 10 像素 */
+      height: 40px;  /* 设置按钮高度为 40 像素 */
+      width:300px;  /* 设置按钮宽度为 300 像素 */
+      margin-top:30px;  /* 设置上方外边距为 30 像素 */
+      background-color: #4CAF50;  /* 设置按钮背景色为深绿色 */
+      border-color:blues;  /* 设置按钮边框颜色为蓝色 */
+      color:white;  /* 设置按钮文本颜色为白色 */
+      font-size:18px;  /* 设置字体大小为 18 像素 */
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container" id="Application">
+    <div class="container">
+      <div class="subTitle">加入我们，一起创造美好世界</div>
+      <h1 class="title">创建你的账号</h1>
+      <div v-for="(item,index) in fields" class="inputContainer" :key="index"  >
+        <div class="field"> {{item.title}}
+          <span v-if="item.required" style="color:red;">*</span>
+        </div>
+        <input class="input" :type="item.type" v-model="item.model" />
+        <div class="tip" v-if="index==0">用户名必须是由字母、数字、字符组成，且长度在6-12位之间</div>
+        <div class="tip" v-else-if="index==1">请输入正确的邮箱地址</div>
+        <div class="tip" v-else-if="index==2">密码长度需要大于6位,至少数字和字母的组合</div>
+      </div>
+      <div class="subcontainer">
+        <div class="setting">偏好设置</div>
+        <input class="checkbox" type="checkbox" v-model="receiveMsg" />
+        <label class="label">接收更新邮件</label>
+      </div>
+      <button class="btn" @click="createAccount()">创建账号</button>
+    </div>
+  </div>
+  <script>
+    const App = {
+      data() {
+        return {
+          fields:[//绑定到输入框的数据
+            {
+              title:"用户名",
+              required:true,
+              type:"text",
+              model:""
+            },
+            {
+              title:"邮箱地址",
+              required:false,
+              type:"text",
+              model:""
+            },
+            {
+              title:"密码",
+              required:true,
+              type:"password",
+              model:""
+            }
+          ],
+            receiveMsg:false //接收更新邮件的选项
+        }
+      },
+      computed:{//计算属性，将输入框的内容赋值给自定义的属性，这些属性用于后期做校验和提交表单
+        name:{
+        /*   set(value){
+            this.fields[0].model = value //用户名输入框绑定到用户名数据
+          }, */
+          get(){
+            return this.fields[0].model //用户名数据绑定到用户名输入框
+          }
+        },
+        email:{
+         /*  set(value){
+            this.fields[1].model = value //邮箱输入框绑定到邮箱数据
+          }, */
+          get(){
+            return this.fields[1].model //邮箱数据绑定到邮箱输入框
+          }
+        },
+        password:{
+         /*  set(value){
+            this.fields[2].model = value //密码输入框绑定到密码数据
+          }, */
+          get(){
+            return this.fields[2].model //密码数据绑定到密码输入框
+          }
+        }
+      },
+      methods:{
+        nameCheck() {//验证用户名格式是否正确
+          let verify = /^[a-zA-Z0-9]{6,12}$/ //用户名只能由字母、数字组成，长度在6-12位之间
+          return verify.test(this.name)
+        },
+        emailCheck() {//验证邮箱格式是否正确
+          let verify = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
+         return verify.test(this.email)
+        },
+        passwordCheck() {//验证密码格式是否正确
+          let verify = /^(?=.*\d)(?=.*[a-zA-Z])[0-9a-zA-Z]{6,12}$/
+          return verify.test(this.password)
+        },
+        createAccount() {//提交表单
+          if (!this.nameCheck()){
+            alert("用户名格式不正确")
+            return false
+          }
+          if (this.name.trim() == ""){
+            alert("用户名不能为空")
+            return false
+          }
+          if (this.email.trim() != "" && !this.emailCheck()){
+            alert("邮箱格式不正确")
+            return false
+          }
+          if (this.password.trim() == ""){
+            alert("密码不能为空")
+            return false
+          }
+          if (!this.passwordCheck()){
+            alert("密码格式不正确")
+            return false
+          }
+          alert("注册成功")
+          alert("用户名：" + this.name,"邮箱地址：" + this.email,"密码：" + this.password,"接收更新邮件：" + this.receiveMsg)
+          console.log(`name:${this.name},email:${this.email},password:${this.password},receiveMsg:${this.receiveMsg}`)
+          this.fields[0].model = ""
+          this.fields[1].model = ""
+          this.fields[2].model = ""
+          this.receiveMsg = false
+        }
+      }
+    }
+    Vue.createApp(App).mount("#Application")
+  </script>
+</body>
+
+</html>

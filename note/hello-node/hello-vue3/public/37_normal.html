@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="vue.js"></script>
+    <style>
+      .container {
+        margin:100px;
+      }
+      .content {
+        margin:20px;
+      }
+    </style>
+</head>
+<body>
+  <div id="Application">
+    <div class="container">
+      <div class="content">
+        <input type="radio" :value="-1" v-model="sexFilter"/>不限
+        <input type="radio" :value="0" v-model="sexFilter"/>男
+        <input type="radio" :value="1" v-model="sexFilter"/>女
+      </div>
+      <div class="content">
+        搜索：<input type="text" v-model="searchKey"/>
+      </div>
+      <div class="content">
+        <table border="1" width="300px">
+          <tr>
+            <th>姓名</th>
+            <th>年龄</th>
+            <th>性别</th>
+          </tr>
+          <tr v-for="(item,index) in showDatas" :key="index">
+            <td>{{item.name}}</td>
+            <td>{{item.age}}</td>
+            <td>{{item.sex == 0 ? '男' : '女'}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+     let mock = [
+  {name:'张三',age:20,sex:0},
+   {name:'王五',age:30,sex:1},
+   {name:'李四',age:25,sex:0},
+   {name:'赵六',age:35,sex:1},
+   {name:'周七',age:28,sex:0}]
+
+/* 页面的功能：1.能够渲染用户列表；2.能够根据性别筛选数据
+  3.更够根据数据的关键字进行检索
+  因此需要至少3个响应式的数据：用户列表数据、性别筛选、关键字检索  */
+
+const App = Vue.createApp({
+  data() {
+    return {
+      //用户列表数据
+      showDatas: [],
+      //性别筛选字段,可以取值为-1,0,1，-1表示不筛选，0表示男，1表示女
+      sexFilter:-1,
+      //关键字检索字段
+      searchKey:'',
+    }
+  },
+  //第二步，思考页面需要支持的行为，
+  //首先从网络上请求用户数据并将其渲染到页面上
+  //要支持性别筛选功能，需要定义一个筛选函数来完成
+  //要支持关键字检索功能，需要定义一个检索函数来完成
+  methods:{
+    //获取用户数据，这里使用延时函数来模拟网络情况
+    queryAllData() {
+      return  this.showDatas = mock
+    },
+    //性别筛选函数
+    filterData() {
+      this.searchKey = ''
+      if(this.sexFilter == -1){
+        this.showDatas = mock
+      } else {
+        //回调函数。它的作用是检查每个元素（也就是用户数据对象）
+        //中 sex 属性的值是否等于 this.sexFilter
+        this.showDatas = mock.filter((data)=>{
+          return data.sex == this.sexFilter
+        })
+      }
+    },
+    //关键字检索函数
+    searchData() {
+      this.sexFilter = -1
+      if(this.searchKey.length == 0){
+        this.showDatas = mock
+      } else {
+        this.showDatas = mock.filter((data)=>{
+          return data.name.search(this.searchKey) !=-1
+          //search() 方法返回匹配的索引值，如果没有匹配，则返回 -1
+        })
+      }
+    }
+  },
+  mounted () {//表示组件被挂载到DOM上时，立即执行的函数
+    //模拟请求过程，3秒钟后获取数据
+    setTimeout(() => {
+      this.queryAllData()//获取当前组件的数据
+    }, 3000)
+  },
+  watch:{//监听两个属性的变化，如果数据变化了，则调用相应的函数
+    sexFilter(newVal,oldVal){
+      this.filterData()
+    },
+    searchKey(newVal,oldVal){
+      this.searchData()
+    }
+  }
+})
+App.mount('#Application')
+  </script>
+</body>
+</html>

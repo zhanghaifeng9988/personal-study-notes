@@ -1,0 +1,51 @@
+
+
+--table
+select 'alter table '||OWNER||'.'||table_name||' move '||' tablespace FKDATA nologging parallel 8 ;',tablespace_name
+from dba_tables where owner='CACHER01' and table_name='S_CONS_INFO'
+
+select 'alter index ' ||OWNER || '.' || index_name || ' REBUILD  parallel 8 nologging;' ,TABLESPACE_NAME,STATUS from dba_indexes where 
+owner='CACHER01' and table_name='S_CONS_INFO'
+
+
+
+--partition
+select 'alter table '||table_owner||'.'||table_name||' move partition '||partition_name||' tablespace FKDATA nologging parallel 8;',partition_name,tablespace_name
+from dba_tab_partitions where table_owner='CACHER01' and tablespace_name='DATA_A' and table_name='D_MEAS_BOX'
+
+
+select 'alter index ' ||OWNER || '.' || index_name || ' REBUILD  parallel 8 nologging;' ,TABLESPACE_NAME,STATUS from dba_indexes where 
+owner='CACHER01' and table_name='D_MEAS_BOX'
+
+
+select 'alter index '||t.INDEX_OWNER||'.'||t.INDEX_NAME||'  rebuild partition ' || t.PARTITION_NAME || ' parallel 8 nologging tablespace IDXCACHE ;' , STATUS
+ from dba_ind_partitions t where INDEX_OWNER='CACHER01' and STATUS='UNUSABLE'  AND INDEX_NAME='SYS_IL0000488971C00017$$';
+
+--subpartiton
+select 'alter table '||table_owner||'.'||table_name||' move subpartition '||subpartition_name||' tablespace FKDATA nologging parallel 8 ;',partition_name,tablespace_name
+from dba_tab_subpartitions where table_owner='CACHER07'  and tablespace_name='DATA_A' and table_name='E_TMNL_DAY_STAT'
+
+select 'alter index ' ||OWNER || '.' || index_name || ' REBUILD  parallel 8 nologging;' ,TABLESPACE_NAME,STATUS
+from dba_indexes where  owner='CACHER01' and table_name='A_RCVED_PL_FLOW'
+
+
+select 'alter index '||t.INDEX_OWNER||'.'||t.INDEX_NAME||'  rebuild partition ' || t.PARTITION_NAME || ' parallel 8 nologging tablespace IDXCACHE ;' , STATUS
+ from dba_ind_partitions t where INDEX_OWNER='CACHER01' and STATUS='UNUSABLE' 
+ 
+ 
+select 'alter index '||t.INDEX_OWNER||'.'||t.INDEX_NAME||'  rebuild subpartition ' || t.SUBPARTITION_NAME ||  ' parallel 8 nologging tablespace IDXCACHE ;' , STATUS
+from dba_ind_subpartitions t where INDEX_OWNER='CACHER01' and STATUS='UNUSABLE' 
+
+
+column OWNER format a25
+column SEGMENT_NAME format a35
+column SEGMENT_TYPE format a35
+select OWNER,SEGMENT_NAME,SEGMENT_TYPE,sum(BYTES)/1024/1024/1024 from dba_segments
+where TABLESPACE_NAME='DATA_A'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE order by sum(BYTES);
+
+select OWNER,SEGMENT_NAME,SEGMENT_TYPE,sum(BYTES)/1024/1024/1024 from dba_segments
+where SEGMENT_TYPE in ('TABLE PARTITION','TABLE SUBPARTITION') and OWNER not in('SYS','SYSTEM')
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE order by sum(BYTES);
+
+

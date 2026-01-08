@@ -1,0 +1,908 @@
+事务：是用户定义的一个数据库操作序列，这些操作要么全做要么全不做，是一个不可分割的工作单位。
+            默认隔离级别是读已提交
+管理员用户远程登陆（使用远程工具）https://www.cnblogs.com/lina-2159/p/14544176.html
+gs_om -t status --detail      数据库状态查询
+gs_om -t start/stop          数据库启动和停止
+gs_checkperf                 数据库性能检查
+ps -ef | grep gaussdb        查看模式特征：单进程多线程的模式
+ps -T -p  pid端口号
+select user; / select * from current_user;  查看当前用户
+show data_directory;         查看配置文件的存储位置
+ gsql -d postgres -p 15400 -r 登陆命令，其中postgres为需要连接的数据库名称（数据库安装完成后，默认生成名称为postgres的数据库。）
+                             注意在omm用户下（openguass的用户），端口为xml中配置的主节点的端口号
+							 omm用户是管理员用户，因此系统显示“DBNAME=#”
+							 -r方式进入数据库，可以实现命令自动补全
+  gsql -U zhf1 -d dbtt1 -r -W zhf@4933807 -p 15400
+
+  
+ \copyright    查询openGauss的版本和版权信息
+ \q            退出数据库
+ START TRANSACTION;   显示事务的命令，openguass默认隐式提交
+ \l            查看数据库相关信息
+ \l+           查看数据库相关信息（详细）
+ drop database tpcc1;   删除数据库
+  \du           查看所有数据库已经存在的角色信息
+  \du 角色名/用户名  查看角色或者用户的权限 
+数据库（Database）
+  \dn  \dn+         查看所有的模式相关信息和详细信息
+  \dn+ 模式名       查看指定模式名的详细信息
+  \db+              查看表空间信息 
+  \db+ 表空间名     查看指定表空间的相信信息
+  \d                查看数据库中当前用户下的表
+  \d+ 复合数据类型  查看复合数据类型的详细信息
+  \d+ 表名          查看表的相关详细信息
+  \sf func_sum_sql  查看函数信息   
+  \dS+ tb_src;      查看触发器 
+  
+  数据库用于管理各类数据对象，与其他数据库隔离。创建数据对象时可以指定对应的表空间，
+  如果不指定相应的表空间，相关的对象会默认保存在PG_DEFAULT空间中。
+  数据库管理的对象可分布在多个表空间上。
+
+数据块（Block）
+  数据块是数据库管理的基本单位，默认大小为8KB。
+
+  
+数据文件（Datafile Segment）
+  通常每张表只对应一个数据文件。如果某张表的数据大于1GB，则会分为多个数据文件存储。
+
+
+表空间（Tablespace）
+  在openGauss中，表空间是一个目录，在物理数据和逻辑数据间提供了抽象的一层，为所有的数据库对象分配存储空间，
+  里面存储的是它所包含的数据库的各种物理文件。由于表空间是一个目录，仅是起到了物理隔离的作用，其管理功能依赖于文件系统。
+  表空间可以存在多个，创建好之后，创建数据库对象时可以指定该对象所属的表空间。
+
+模式（schema）
+  数据库对象集，主要用于控制对数据库对象的访问。
+  包括逻辑结构，例如表、视图、序、存储过程、同义名、索引及数据库链接。
+  SCHEMA又称作模式。通过管理SCHEMA，允许多个用户使用同一数据库而不相互干
+   扰，可以将数据库对象组织成易于管理的逻辑组，同时便于将第三方应用添加到相应
+   的SCHEMA下而不引起冲突。
+   每个数据库包含一个或多个SCHEMA。数据库中的每个SCHEMA包含表和其他类型的
+   对象。数据库创建初始，默认具有一个名为PUBLIC的SCHEMA，且所有用户都拥有此
+   SCHEMA的USAGE权限，只有系统管理员和初始化用户可以在PUBLIC SCHEMA下创
+   建函数、存储过程和同义词对象，其他用户即使赋予CREATE权限后也不可以创建上述
+   三种对象。可以通过SCHEMA分组数据库对象。SCHEMA类似于操作系统目录，但
+   SCHEMA不能嵌套。
+   相同的数据库对象名称可以应用在同一数据库的不同SCHEMA中，而没有冲突。例
+   如，a_schema和b_schema都可以包含名为mytable的表。具有所需权限的用户可以访
+   问数据库的多个SCHEMA中的对象。
+   通过CREATE USER创建用户的同时，系统会在执行该命令的数据库中，为该用户创建
+     一个同名的SCHEMA。
+  
+  openGauss的模式是对数据库做一个逻辑分割。
+  所有的数据库对象都建立在模式下面。
+  openGauss的模式和用户是弱绑定的，
+  所谓的弱绑定是指虽然创建用户的同时会自动创建一个同名模式，
+  但用户也可以单独创建模式，并且为用户指定其他的模式。
+  
+
+事务（Transaction）
+  数据库管理系统执行过程中的一个逻辑单位，由一个有限的数据库操作序列构成。
+  在关系数据库中，一个事务可以是一条SQL语句，一组SQL语句或整个程序。
+
+   ，事务也是恢复和并发控制的基本单位，必须具备ACID特性，即：
+
+原子性（Atomicity）：一个事务是一个不可分割的工作单位，事务中包括的操作要么都做，要么都不做。
+一致性（Consistency）：事务必须是使数据库从一个一致性状态变到另一个一致性状态。一致性与原子性是密切相关的。
+隔离性（Isolation）：一个事务的执行不能被其他事务干扰。即一个事务内部的操作及使用的数据对并发的其他事务是隔离的，
+并发执行的各个事务之间不能互相干扰。
+持久性（Durability）：持久性也称永久性（Permanence），指一个事务一旦提交，它对数据库中数据的改变就应该是永久性的。
+接下来的其他操作或故障不应该对其有任何影响。
+
+可以使用\help语句查看所有openGauss的SQL语法。
+\h name                                可以查看具体的语法信息。例如：openGauss=# \h ABORT
+
+create database hfdb_test1;            建立数据库
+\l                                     查看已经存在的数据库
+\c  hfdb_test1                          进入数据库或者切换数据库
+openGauss=# alter database hfdb_test1 rename to zhfdb_test1;  修改数据库名，注意：不能再被改名数据库下执行，需要在管理员omm模式下执行
+drop database zhfdb_test1; 删除数据库，注意：不能再被删除数据库下执行，需要在管理员omm下执行
+
+
+\dt                                     查看数据库中的所有表
+\d customer_t1                          查看表结构
+
+
+                                     openguass的系统表
+												
+  select * from pg_tables where tablename = 表名     查看某个表的详细属性信息（不是表中的内容）
+  select * from pg_tables where schemaname ='zhf1';  查看某个schema中的表
+  select relname,parttype, parentid, boundaries,partkey from pg_partition;  查看分区表的相关信息
+  SELECT t1.relname, partstrategy, boundaries FROM pg_partition t1, pg_class t2 
+  WHERE t1.parentid = t2.oid AND t2.relname = 'store' AND t1.parttype = 'p';  查看分区表的相关信息，其中relname=基表名
+  
+  select * from pg_indexes where tablename = 'products';  查看某表上的索引信息
+  select * from PG_DATABASE;                              查看数据库信息
+  select * from pg_proc where proname = 'func_sum_sql';   查看存储过程及函数等对象信息
+  select * from PG_TRIGGER;                               查看触发器的信息
+  SELECT version();                                       查看版本信息
+  SELECT pg_table_size('table_name');                     指定表的容量检查
+  SELECT pg_database_size('database_name');               指定数据库的容量检查
+
+
+                                         实验一
+https://blog.csdn.net/qq_51594676/article/details/123550322?utm_medium=distribute.pc_aggpage_search_result.none-task-blog-2~aggregatepage~first_rank_ecpm_v1~rank_v31_ecpm-21-123550322.pc_agg_new_rank&utm_term=openeuler%E7%99%BB%E5%BD%95postgres%E6%95%B0%E6%8D%AE%E5%BA%93&spm=1000.2123.3001.4430
+
+
+  开始操作：默认情况下，PostgreSQL会将列名和表名全部转换为小写状态。
+  1、gsql -d postgres -p 15400   登陆数据库
+  2、CREATE TABLESPACE c_c RELATIVE LOCATION 'tablespace/c_c';   创建一个c_c的表空间
+  3、SELECT spcname FROM pg_tablespace;   查看表空间
+  4、CREATE DATABASE db_cc WITH TABLESPACE = c_c;  创建数据库匹配表空间
+  5、\c db_cc                                      切换数据库
+  6、CREATE SCHEMA S_C;                            创建模式
+  7、CREATE TABLE Teachers 
+( 
+    Tno                 char(7) PRIMARY KEY, 
+    Thame               char(10) NOT NULL,
+    Sex                 char(2) CHECK(Sex = '男' OR Sex = '女'),
+	Birthday            DATE,
+    Title               char(6),
+	Dno                 CHAR(4)
+); 
+  8、\d  Teachers                                 查看表结构、字段信息
+  9、CREATE TABLE Departments 
+( 
+    Dno                 char(4) PRIMARY KEY, 
+    Dhame               char(10),
+    Dheadno             char(7)
+); 
+  10、CREATE TABLE Students
+( 
+    Sno                 char(9) PRIMARY KEY, 
+    Shame               char(10) NOT NULL,
+	Birthday            DATE,
+    Enrollyear          char(4),
+	Speciality          char(20),
+	Dno                 char(4),
+	 Sex                 char(2)
+); 
+  11、CREATE TABLE Courses 
+( 
+    Cno                 char(5) PRIMARY KEY, 
+    Cname               char(20) NOT NULL,
+    Period              SMALLINT,
+	Credit              SMALLINT
+); 
+
+  12、CREATE TABLE Teaches 
+( 
+    Tno                 char(7) , 
+    Cno               char(5),
+    TCsores             SMALLINT,
+	PRIMARY KEY (Tno, Cno)
+); 
+
+  13、CREATE TABLE SC 
+( 
+    Sno                 char(9), 
+    Cno               char(5),
+    Grade              SMALLINT CHECK(Grade >0 AND Grade <=100),
+	PRIMARY KEY (Sno, Cno),
+	FOREIGN KEY (Sno) REFERENCES Students (Sno),
+	FOREIGN KEY (Cno) REFERENCES Courses (Cno)
+);
+  14、insert into courses(cno,cname,period,credit) values
+('cs101','计算机导论',2,1),
+('cs102','C语言',4,3),
+('cs201','数据结构',4,3),
+('cs202','离散数学',4,3),
+('cs301','数据库系统原理',4,3);
+   15、alter table courses modify cname char(25);  14中的语句有报错，需要修改字段属性
+   
+   
+   16、INSERT INTO teachers VALUES 
+(05001, '张海峰','男','1969-02-21','教授','CS'),
+(05002, '刘晓明','男','1978-10-06','副教授','CS'),
+(05003, '王梅','女','1972-02-25','副教授','CS'),
+(05004, '赵青山','男','1981-05-18','讲师','CS'),
+(06001, '朱杰','男','1963-01-30','教授','MA'),
+(06002, '欧阳梅','女','1970-08-11','副教授','MA')
+(07001,'张轶涵','男','2010-02-27','神童','PH')
+(07002,'张海滨','男','1985-02-22','副教授','PH')
+(08001,'杜晓萍','女','1980-08-26','教授','CH')
+(08002,'梁变兰','女','1975-01-11','副教授','CH');
+
+   17、alter table teachers modify sex char(3);
+       alter table teachers modify title char(15);
+
+   18、insert into departments values
+('CS' ,'计算机系',05001),
+('MA','数学系',06001),
+('PH','物理系',07001),
+('CH','化学系',08001);
+
+   19、alter table departments modify dhame char(15);
+
+   20、insert into students values
+(201705001,'张华' ,'1999_12_16',null,'计算机','cs','男'),
+(201705002,'李玉','1998_10_17',null,'计算机','cs','女'),
+(201705003,'欧阳山','1999_05_24',null,'计算机','cs','男'),
+(201706001,'林艳','1998_09_20',null,'数学','ma','女'),
+(201706002,'高山','1997_08_16',null,'数学','ma','男'),
+(201706003,'王海洋','1997_01_30',null,'数学','ma','男');
+   21、alter table students modify sex char(3);
+   
+   22、insert into sc values
+(201705001 ,'cs101',89),
+(201705002,'cs101',91),
+(201705003,'cs101',80),
+(201705001,'cs102',90),
+(201705002,'cs102',87),
+(201705003,'cs102',82),
+(201705001,'cs201',88),
+(201705002,'cs201',89),
+(201705003,'cs201',90),
+(201705001,'cs202',86),
+(201705002,'cs202',85),
+(201705001,'cs301',92);
+   
+   23、insert into teaches values
+(05001 ,'cs101',95),
+(05002,'cs101',92),
+(05003,'cs101',90),
+(05004,'cs101',95);
+
+	24、ALTER TABLE departments
+ADD FOREIGN KEY (Dheadno) REFERENCES Teachers(Tno);  添加外键
+
+    25、ALTER TABLE teachers
+ADD FOREIGN KEY (Dno) REFERENCES departments(Dno);   添加外键
+
+    26、ALTER TABLE students
+ADD FOREIGN KEY (Dno) REFERENCES departments(Dno);   添加外键
+
+ create user zhf with password 'zhf@4933807';     创建数据库用户
+ alter user zhf createdb;                         给普通用户zhf赋予创建数据库的权限
+
+
+
+
+
+
+                                      实验 二  https://www.modb.pro/db/184803
+CREATE TABLE products
+(product_id INTEGER,
+product_name Char(30),
+category Char(20)
+) ;
+
+insert into products VALUES (1502,'olympus camera','electrncs'),
+ (1601,'lamaze','toys'),
+(1700,'wait interface','Books'),
+(1666,'harry potter','toys');
+
+create database tpcc1;
+create database tpcc2;
+
+alter database tpcc1 rename to tpcc10;
+
+\c tpcc2;
+CREATE TABLE customer
+(id INTEGER,
+name Char(20),
+address Char(30)
+) ;
+
+openGauss=# drop database tpcc1;
+DROP DATABASE
+openGauss=# drop database tpcc2;
+DROP DATABASE
+
+角色的官方文档：create role 创建语法https://opengauss.org/zh/docs/2.1.0/docs/Developerguide/CREATE-ROLE.html
+alter role 创建语法 https://opengauss.org/zh/docs/2.1.0/docs/Developerguide/ALTER-ROLE.html
+
+重要概念:
+角色是拥有数据库对象和权限的实体。在不同的环境中角色可以认为是一个用户，一个组或者兼顾两者。
+
+注意事项：
+在数据库中添加一个新角色，角色无登录权限。
+创建角色的用户必须具备CREATE ROLE的权限或者是系统管理员。
+其实用户和角色都是角色，只是用户是具有登录权限的角色。
+
+
+                   
+  
+
+                                角色  相关
+								
+CREATE ROLE role1 SYSADMIN IDENTIFIED BY 'zhf@4933807';  创建role1角色为系统管理员
+
+CREATE ROLE role2 WITH LOGIN PASSWORD 'zhf@4933807' 
+VALID BEGIN '2021-12-04' VALID UNTIL '2022-04-21';       创建role2角色生效日期
+
+CREATE ROLE role3 LOGIN SYSADMIN IDENTIFIED BY 'zhf@4933807';  创建role3角色具有LOGIN属性
+
+ALTER ROLE role1 RENAME TO rolelxs_data01;               重命名role1
+ALTER ROLE role2 IDENTIFIED BY 'lxs_data_456';           修改role2的密码
+GRANT omm to role3;                                      授予omm 权限给role3
+GRANT omm to role3 with admin option;   
+------授予omm 权限给role3，
+同时赋予了role3 也可以把此权限授予其他角色或用户，
+
+WITH ADMIN OPTION解释：
+当声明了WITH ADMIN OPTION，被授权的用户可以将该权限再次授予其他角色或用户，
+以及撤销所有由该角色或用户继承到的权限。
+当授权的角色或用户发生变更或被撤销时，
+所有继承该角色或用户权限的用户拥有的权限都会随之发生变更。
+
+GRANT ALL PRIVILEGES TO joe;             并将sysadmin权限授权给joe
+revoke omm from role3;                   将role3 omm权限回收
+revoke ADMIN OPTION FOR omm from role3 ; 将role3 omm权限回收（赋予权限如果带了with admin option）
+REVOKE ALL PRIVILEGES FROM role3 ;       将role3 角色所有权限回收
+
+
+drop role role1                                          删除role1
+
+                            
+							
+							用户 相关
+	
+CREATE USER user1 CREATEROLE IDENTIFIED BY 'zhf@4933807'; 
+创建用户user1，具有CREATEROLE权限
+
+CREATE USER user2 CREATEDB IDENTIFIED BY 'zhf@4933807';
+创建用户user2， 具有CREATEDB权限
+
+CREATE USER user3 PASSWORD 'zhf@4933807';
+创建用户user3，使用不同的方法设置密码
+
+ALTER USER user1 IDENTIFIED BY 'dxp@0032';    修改用户user1的密码
+
+
+alter user user2 rename to userlxs_data;   将用户名user2 重命名为userlxs_data
+
+注意：只有拥有create role权限的角色和用户，
+      在其下使用\du 命令才能看到所有的用户和角色，否则只能看到自己
+	  
+
+grant user1 to user3;      将用户user1的权限授权给用户user3
+
+revoke user1 from user3;   回收用户user3的权限
+ 
+drop user user1;           删除user1
+ 
+drop user user3;           删除user3
+
+drop user userlxs_data;    删除userlxs_data  
+
+
+
+                                            模式相关
+											
+						  
+CREATE SCHEMA tpcds;                      omm用户下创建一个模式
+CREATE USER zhf PASSWORD 'zhf@4933807';   创建一个用户
+\dn+ zhf                                  查看默认模式名zhf的信息
+\du+ tpcds                                查看tpcds模式名的权限
+CREATE SCHEMA test1 AUTHORIZATION zhf;    创建一个属于zhf用户的schema
+ALTER SCHEMA tpcds OWNER TO zhf;          将tpcds的owner修改为zhf
+\dn+ tpcds;                               查看tpcds模式的信息
+
+ALTER SCHEMA tpcds RENAME TO tpcds1;      重命名tpcds为tpcds1
+
+SHOW SEARCH_PATH;                         查看当前搜索路径
+DROP SCHEMA tpcds1 CASCADE;               删除模式
+
+
+****重点注意：
+           1、数据库拥有者如果是普通用户（在该用户下创建的数据库），需要用普通用户身份进入到数据库中，
+        此时zhf1用户无法创建数据库对象，需要先创建schema，建议创建和用户名一样的schema名字，才能创建数据库对象，
+		创建好后，\d查看，就能看到zhf1这个schema下有了表t4
+		\dn 也可以查询到属于用户zhf1的schema名字为 zhf1
+        例如： create schema zhf1 AUTHORIZATION zhf1;
+		       create table t4(id int);
+         
+        2、数据库拥有者如果是管理员（omm用户），此时omm用户创建的数据库对象，默认的schema均为public，
+	 当前数据库下，如果切换到zhf1用户，此时该用户无法创建数据库对象，需要使用omm用户为zhf1用户创建schema为zhf1		 
+
+        3、管理员用户omm，可以在任何数据库中创建schema为public的数据库对象，其他用户不能创建schema为public的数据库对象。 
+        
+		4、用户登录到系统，连接到一个数据库后，是通过该数据库的search_path来寻找schema的搜索顺序，
+		可以通过命令SHOW search_path；具体的顺序，也可以通过SET search_path TO 'schema_name'来修改顺序。
+        
+		5、在管理员创建一个具体数据库后，应该为所有可以连接到该数据库的用户分别创建一个与用户名相同的模式，
+   然后将search_path设置为"$user"，这样，任何当某个用户连接上来后，会默认将查找或者定义的对象都定位到与之同名的模式中。
+   对于一个应用程序分很多相对独立的模块，每个模块有相对独立的数据结构，
+   可以采用每个模块一个数据库用户及与其名字相同的schema来组织数据库
+
+                                    
+									
+									表空间
+CREATE TABLESPACE tspc1 RELATIVE LOCATION 'tablespace/tablespace_lxs1';管理员用户下创建一个表空间
+
+CREATE TABLESPACE tspc2 OWNER zhf1 RELATIVE LOCATION 'tablespace/tablespace_lxs2'; 管理用户下创建一个表空间属于zhf1用户
+
+create table lxs_data(id int, name char(30)) tablespace tspc1;   在表空间tspc1中创建表为lxs_data（不建议这样做）
+
+select * from pg_tables where tablename = 'lxs_data';   使用视图pg_tables查看表lxs_data的信息
+
+ALTER TABLESPACE tspc1 RENAME TO tspc1_lxs_data;        重命名表空间tspc1 为 tspc1_lxs_data 
+
+ALTER TABLESPACE tspc2 OWNER TO zhf2;                   修改表空间的用户为zhf2
+
+DROP TABLESPACE tspc2;                                  删除表空间
+
+
+                                    分区表
+		range分区
+		less than形式
+	create table store
+    (lxs1 int,lxs2 CHAR(2))
+     partition by range (lxs1)
+    (partition store_p1 values less than (10),
+     partition store_p2 values less than (20),
+     partition store_p3 values less than (30),
+     partition store_p4 values less than (40),
+     partition store_p5 values less than (50));
+	 
+	 insert into store values (5, 'l');
+	 insert into store values (11, 'l');
+	 insert into store values (21, 'l');
+	 insert into store values (33, 'l');
+	 insert into store values (44, 'l');
+	 
+	 select * from store partition(store_p1);    查询分区数据
+	  alter table store rename partition store_p2 to store_lxs_data_p2;  重命名分区表中的某个分区
+	  alter table store drop partition store_p5;  删除分区
+	  alter table store add partition store_lxs_data_p6 values less than (100); 增加分区
+	 
+	    start end形式
+	 CREATE TABLE graderecord
+	 (number INTEGER,name CHAR(20),class CHAR(20),grade INTEGER)
+     PARTITION BY RANGE(grade)
+     (PARTITION pass START(60) END(90),PARTITION excellent START(90) END(MAXVALUE));
+	 
+	insert into graderecord values('210101','Alan','21.01',92);
+    insert into graderecord values('210102','Ben','21.01',62);
+    insert into graderecord values('210103','Brain','21.01',26);
+    insert into graderecord values('210204','Carl','21.02',77);
+    insert into graderecord values('210205','David','21.02',47);
+    insert into graderecord values('210206','Eric','21.02',97);
+    insert into graderecord values('210307','Frank','21.03',90);
+    insert into graderecord values('210308','Gavin','21.03',100);
+    insert into graderecord values('210309','Henry','21.03',67);
+    insert into graderecord values('210410','Jack','21.04',75);
+    insert into graderecord values('210311','Jerry','21.04',60);
+	 
+	 SELECT * FROM graderecord PARTITION (pass_0);
+	 SELECT * FROM graderecord PARTITION (pass_1); 
+	 “PARTITION pass START(60) END(90),”是第一个分区定义，且该定义有START值，则范围
+     （MINVALUE, 60）将自动作为第一个实际分区，其名称为“pass_0”。
+      而该定义语义描述的“60<= grade<90”分区的名称为“pass_1”。
+	  
+	  
+	  list分区
+	CREATE TABLE graderecord
+   (number INTEGER,name CHAR(20),class CHAR(20),grade INTEGER)
+   PARTITION BY LIST(class)
+   (PARTITION class_01 VALUES ('21.01'),PARTITION class_02 VALUES ('21.02'),
+   PARTITION class_03 VALUES ('21.03'),PARTITION class_04 VALUES ('21.04'));	  
+	
+   insert into graderecord values('210102','Ben','21.01',62);
+   insert into graderecord values('210103','Brain','21.01',26);
+   insert into graderecord values('210204','Carl','21.02',77);
+   insert into graderecord values('210205','David','21.02',47);
+   insert into graderecord values('210206','Eric','21.02',97);
+   insert into graderecord values('210307','Frank','21.03',90);
+   insert into graderecord values('210308','Gavin','21.03',100);
+   insert into graderecord values('210309','Henry','21.03',67);
+   insert into graderecord values('210410','Jack','21.04',75);
+   insert into graderecord values('210311','Jerry','21.04',60);	
+	  
+	  
+	hash分区
+	create table hash_partition_table (col1 int,col2 int)
+    partition by hash(col1)
+    (partition p1,partition p2);
+	INSERT INTO hash_partition_table VALUES(1, 1);
+	INSERT INTO hash_partition_table VALUES(2, 2);  
+	INSERT INTO hash_partition_table VALUES(3, 3);
+	INSERT INTO hash_partition_table VALUES(4, 4);
+
+
+                                                        锁
+	– ACCESS EXCLUSIVE
+    这个模式保证其所有者（事务）是可以访问该表的唯一事务。也是缺省锁模式。
+    – ACCESS SHARE
+     只读取表而不修改的锁模式。
+	
+	示例：
+	--启动进程。
+    START TRANSACTION;
+    LOCK TABLE graderecord IN ACCESS EXCLUSIVE MODE;
+    DELETE FROM graderecord WHERE name ='Alan';
+    COMMIT；
+	
+	                                                       索  引
+	索引可快速访问数据库表中的特定信息，提升查询速度。
+
+    索引可以用来提高数据库查询性能，但是不恰当的使用索引将导致数据库性能下降。   
+	---也就是说合理创建索引才会提升查询性能，不恰当的使用反而会引发负面影响。
+	
+	建议仅在匹配如下某条原则时创建索引：
+
+     经常执行查询的字段。
+     在连接条件上创建索引，对于存在多字段连接的查询，建议在这些字段上建立组合索引。
+	 例如，select * from t1 join t2 on t1.a=t2.a and t1.b=t2.b，可以在t1表上的a，b字段上建立组合索引。
+     where子句的过滤条件字段上（尤其是范围条件）。
+     在经常出现在order by、group by和distinct后的字段。
+	 
+	  CREATE TABLE products
+ (lxs_data_SHIP_MODE_SK INTEGER NOT NULL,
+ lxs_data_SHIP_MODE_ID CHAR(16) NOT NULL,
+ lxs_data_TYPE CHAR(30),
+ lxs_data_CODE CHAR(10),
+ lxs_data_CARRIER CHAR(20),
+ lxs_data_CONTRACT CHAR(20));
+ 
+    CREATE UNIQUE INDEX lxs_data_SHIP_MODE_SK_index1 ON products(lxs_data_SHIP_MODE_SK);        创建唯一索引
+	CREATE INDEX lxs_data_SHIP_MODE_SK_index2 ON products USING btree(lxs_data_SHIP_MODE_SK);   创建b-tree索引2
+	CREATE INDEX lxs_data_SHIP_MODE_SK_index3 ON products(SUBSTR(lxs_data_SHIP_MODE_SK,1 ,4));  创建表达式索引3
+	
+	ALTER INDEX lxs_data_ship_mode_sk_index1 UNUSABLE;          使索引1失效
+	
+	CREATE TABLESPACE lxs_data_index RELATIVE LOCATION 'tablespacelxs/lxs_data_index01';    创建索引表空间，存放索引
+	注意索引表空间的owner必须是创建索引的用户
+	alter INDEX lxs_data_SHIP_MODE_SK_index2 set tablespace lxs_data_index;                 修改索引2的表空间为索引表空间lxs_data_index
+	注意索引表空间如果未指定，系统默认将索引放置都pg_default表空间
+	ALTER INDEX lxs_data_SHIP_MODE_SK_index3 RENAME TO lxs_data_index3;            重命名索引3
+	
+	reindex table  products                                                        重建某表的索引
+	drop index  lxs_data_SHIP_MODE_SK_index1;
+	drop index  lxs_data_SHIP_MODE_SK_index2;
+	drop index  lxs_data_index3;                                                   删除索引
+	
+	                                                          
+															  
+															  分区表索引
+	
+	openGauss 分区表索引分为LOCAL索引与GLOBAL索引，LOCAL索引与某个具体分区绑定，而GLOBAL索引则对应整个分区表。
+	
+	LOCAL            指定创建的分区索引为LOCAL索引。
+    GLOBAL           指定创建的分区索引为GLOBAL索引，当不指定LOCAL、GLOBAL关键字时，默认创建GLOBAL索引。
+	
+	
+	CREATE INDEX store_p1_index1 ON store(lxs1);                       创建分区索引1，不指定分区索引的类型
+	
+	CREATE INDEX store_p2_index2 ON store(lxs1) LOCAL 
+	(PARTITION store_p1_lxs1_index1 ,PARTITION store_p2_lxs1_index2,
+	PARTITION store_p3_lxs1_index3 ,PARTITION store_p4_lxs1_index4 ,
+	PARTITION store_p5_lxs1_index5 ,PARTITION store_p6_lxs1_index6 ) TABLESPACE lxs_data_index;         
+	                                                       创建分区表索引2 ，并存储到索引表空间中，指定分区索引的类型
+	注意：local索引和global索引不能作用于分区表的同一个列上
+	
+	
+	                                                       视图
+	
+	视图与基本表不同，是一个虚拟的表。数据库中仅存放视图的定义，而不存放视图对应的数据，这些数据仍存放在原来的基本表中。
+	若基本表中的数据发生变化，从视图中查询出的数据也随之改变。
+	从这个意义上讲，视图就像一个窗口，透过它可以看到数据库中用户感兴趣的数据及变化。
+	
+	CREATE VIEW PG_DATABASE_view as select * from PG_DATABASE;   创建系统表PG_DATABASE的视图
+	ALTER VIEW PG_DATABASE_view RENAME TO PG_DATABASE_view_v2;   重命名视图
+	alter view PG_DATABASE_view_v2 owner to zhf1;                修改视图的拥有者
+	 DROP VIEW pg_database_view_v2;                              删除视图
+	 
+	 
+	                                                      数据类型
+														  
+复合类型、基本类型、shell类型和枚举类型。
+	
+	CREATE TYPE lxs_data_type AS (type1 int, type2 text);  创建复合类型
+	CREATE TABLE lxs1_table(a int, b lxs_data_type);       创建一个表，字段类型为复合类型
+	CREATE TABLE lxs2_table(a int, b lxs_data_type);       创建一个表，字段类型为复合类型
+	INSERT INTO lxs1_table values(1,(1,'data'));
+	INSERT INTO lxs2_table select * from lxs1_table;
+	SELECT (b).type2 FROM lxs1_table;                      查询复合类型字段的某个数值
+	ALTER TYPE lxs_data_type RENAME TO lxs_data_type2;     重命名复合类型的名称
+	ALTER TYPE lxs_data_type2 ADD ATTRIBUTE type3 int;     为复合类型增加属性
+	ALTER TYPE lxs_data_type2 drop ATTRIBUTE type1;        删除复合类型中的某个属性
+	
+	CREATE TYPE lxs_data_type3 AS ENUM('create', 'modify', 'closed');               创建枚举类型
+	ALTER TYPE lxs_data_type3 ADD VALUE IF NOT EXISTS 'xxsadc' BEFORE 'closed';    新增一个枚举值
+	ALTER TYPE lxs_data_type3 RENAME VALUE 'create' TO 'begincreate';              重命名一个枚举值
+	create table lxs_data_type3_t3 (a int, b lxs_data_type3);                      创建一个表，字段类型为枚举类型
+	INSERT INTO lxs_data_type3_t3 values(2,'begincreate');
+	INSERT INTO lxs_data_type3_t3 values(3,'closed');
+	INSERT INTO lxs_data_type3_t3 values(4,'modify');
+	
+	
+	drop type lxs_data_type3;                                                      删除类型
+	
+单张表的数据导入和数据导出
+	CREATE TABLE data_t3( product_id INTEGER,product_name VARCHAR2(60),category VARCHAR2(60));   创建表3
+    CREATE TABLE data_t4( product_id INTEGER,product_name VARCHAR2(60),category VARCHAR2(60));   创建表4
+	  给量表插入数据
+	INSERT INTO data_t3 VALUES(1, 'olympus camera', 'electrncs'),(2, 'lamaze', 'toys'),(3, 'harry potter', 'toys'),(4, 'wait interface', 'books');
+    INSERT INTO data_t4 VALUES(5, 'vivitar 35mm', 'electrncs'),(6, 'olympus ', 'electrncs'),(7, 'play gym', 'toys'),(8, 'lamaze', 'toys');
+	  合并两张表
+	MERGE INTO data_t3 t3 USING data_t4 t4 ON (t3.product_id = t4.product_id ) WHEN MATCHED THEN
+    UPDATE SET t3.product_name = t4.product_name, t3.category = t4.category WHEN NOT MATCHED THEN
+    INSERT VALUES (t4.product_id, t4.product_name, t4.category) ;
+	
+	\copy data_t3 to '/home/omm/data_t3.dat';  将表3的数据输出到文件 同：create table data_t5 as select * from data_t3 where 1=2;
+	
+	
+	CREATE TABLE data_t5 (LIKE data_t3);       创建表5，将文件中的数据导入表5 同：create table data_t5 as select * from data_t3 where 1=2
+	\copy data_t5 from '/home/omm/data_t3.dat';
+	
+	
+	
+	                                    使用gs_dump工具以文本格式导出数据库的全量数据
+									
+									
+	gs_dump是GaussDB用于备份数据库相关信息的逻辑备份工具。
+	它可以对正在运行的数据库进行完整的一致备份，支持将数据库中的数据定义和数据导出（转储）成物理文件，并使用导入工具进行恢复，
+	同时还支持对数据库的状态信息及syslog进行导出。
+	
+	三大功能：
+1.导出格式可以是一个文本（可加密）或目录格式
+2.用户可通过gs_dump连接到指定数据库，对数据库进行状态信息查询，并将查询结果显示出来
+3.用户可通过导出命令对服务器端的syslog日志进行导出，并将收集到的日志文件保存在目录logpath中，便于服务器运行异常时对其进行故障分析
+
+
+	特点：
+1.gs_dump运行时对数据库的更新操作不会被导出。
+2.gs_dump不会阻塞其他会话对导出数据库的查询或修改，但是会阻塞那些需要独占锁的操作，比如ALTER TABLE。
+3.导出文本中包含许多用于重建该数据库的SQL语句，使用gsql工具执行这些SQL语句可以将数据库恢复到导出时的状态。
+文本格式具有较好的灵活性，可以用于在其他硬件体系的机器或其他SQL数据库产品上重建该数据库。
+4.gs_dump支持纯文本格式的AES加密导出。
+5.支持并行导出/导入数据，提高大数据导出/导入效率。gs_dump通过创建子进程（Linux）进行并行的导出，
+而且每个进程/线程会占用一个会话连接数。
+
+
+
+CREATE TABLE products( c_customer_sk integer,c_customer_id char(5),c_first_name char(6),c_last_name char(8));  建一个新表并插入数据
+INSERT INTO products VALUES(6885, 1, 'Joes', 'Hunter'),(4321, 2, 'Lily','Carer'),(9527, 3, 'James', 'Cook'),(9500, 4, 'Lu2', 'Baecsr'),
+(9500, 4, 'Lus', 'Baksc'),(9500, 4, 'Ludw', 'Baer'),(9500, 4, 'Lucys', 'Baer'),(9500, 4, 'Luds', 'Bar'),(9500, 4, 'Luds', 'Bsker'),
+(9500, 4, 'Lucy', 'Bcke'),(9500, 4, 'Lucy', 'Bsker'),(9500, 4, 'Luy','Bcker'),(9500, 4, 'Lu','Bacer'),(9500, 4, 'Lucscy', 'Bar'),(9500, 4, 'Lucy', 'Bar');
+
+
+一、导出dbtt1数据库的全量数据：
+gs_dump -U omm -W zhf@4933807  dbtt1 -p 15400 -f /home/omm/backup_database_dbtt1.sql  -F p      
+退出数据库，在操作系统命令提示符下继续操作，用户为omm，
+
+二、导出dbtt1数据库的数据,不包含定义：
+gs_dump -U omm -W zhf@4933807  dbtt1 -p 15400 -f /home/omm/backup_database_dbtt1_zhf1.sql  -a -F p
+
+
+三、导出dbtt1数据库zhf1这个schema的定义：
+gs_dump -U omm -W zhf@4933807  dbtt1 -p 15400 -f /home/omm/backup_database_dbtt1_zhf1.sql  -n zhf1 -s -F p
+   
+   
+A、常用参数说明：
+-f, --file=FILENAME	输出文件名，并可为其指定已存在的路径。
+-F, --format=d|p	导出数据的格式。
+p，表示导出数据为文本格式。
+d，表示导出数据为目录格式。默认值：p
+-P, --logdir=LOGDIR	可选参数，指定gs_dump日志的存放位置。
+当数据库系统管理员对此目录有写权限时，日志记录到此目录下。
+当数据库系统管理员对此目录无写权限时，日志会记录到$GAUSSHOME/bin目录。
+-v, --verbose	指定冗余模式。这样将令gs_dump输出详细的对象评注以及转储文件的启停时间和进度信息到标准错误上。
+-Z, --compress=0-9	指定导出文件的压缩级别。
+--lock-wait-timeout=TIMEOUT	指定能获取一个表锁的超时时间。超时则转储会失败，并且会修改本次会话中statement_timeout的值为指定的TIMEOUT的值
+--dbstate	导出指定数据库的状态信息。
+--syslog	导出服务器syslog日志，并将收集到的syslog日志保存在logpath指定的目录下。若未指定logpath 则保存在当前目录下。
+--logpath=LOGDIR	可选参数，指定导出的syslog日志的存放位置，与--syslog共同使用。
+-?, --help	显示帮助信息然后退出。
+
+
+B、控制输出内容和格式的参数：
+--dbname=DBNAME	指定将要转储的数据库名。
+-a, --data-only	只转储数据（包括表数据，大对象，序列值），不转储模式（数据定义）。
+-b, --blobs	在转储中包含大对象。除非指定了--schema，--table，--schema-only开关，否则这是默认行为。因此-b开关仅用于在选择性转储的时候添加大对象。
+-c, --clean	在创建数据库之前输出清理（删除）该数据库对象的命令。
+-C, --create	转储中使用此选项，转储的目的文件中包括创建数据库和连接此数据库的命令。
+-s, --schema-only	只导出对象定义（模式），不导出数据。
+-n, --schema=SCHEMA	只转储匹配schema的模式内容，包括模式本身以及其中包含的对象。如果忽略，所有目标数据库中的非系统模式都会被转储出来。
+可以使用多个-n选项指定多个模式。同样，schema参数将按照gsql的\dn命令被解释为匹配模式，因此可以使用通配符匹配多个模式。
+在使用通配符的时候，最好用引号进行界定，以防止shell将通配符进行扩展。
+注意：如果指定了 -n，gs_dump将不会转储那些模式所依赖的其他数据库对象。因此，无法保证转储出来的内容一定能够在另一个干净的数据库中恢复成功。
+
+                                                           匿名块
+	匿名块（Anonymous Block）是存储过程的字块之一，没有名称。一般用于不频繁执
+行的脚本或不重复进行的活动。
+    CREATE TABLE table1(id1 INT, id2 INT, id3 INT);
+	BEGIN
+    insert into table1 values(1,2,3);
+    END;
+    /
+	                                                     存储过程
+	--创建表格
+	CREATE TABLE graderecord
+(number INTEGER,name CHAR(20),class CHAR(20),grade INTEGER);
+    --定义存储过程
+    CREATE PROCEDURE insert_data (param1 INT = 0, param2 CHAR(20),param3
+CHAR(20),param4 INT = 0 )
+IS
+BEGIN
+INSERT INTO graderecord VALUES(param1,param2,param3,param4);
+END;
+/
+    --调用存储过程
+  CALL insert_data(param1:=210101,param2:='Alan',param3:='21.01',param4:=92);
+   --删除存储过程
+   DROP PROCEDURE insert_data;													   
+	
+                                                        函数
+
+创建带有入参和出参的函数1，调用函数时使用按参数值传递和命名标记法传参
+CREATE FUNCTION func_sum_sql(num1 integer, num2 integer) RETURN integer AS
+BEGIN
+  RETURN sum(num1*num2);
+END;
+/
+
+调用函数时使用按参数值传递和命名标记法传参，语句如下：
+CALL func_sum_sql(1, 3);
+CALL func_sum_sql(num1 => 3,num2 => 3);
+
+创建返回类型为record的函数2
+CREATE OR REPLACE FUNCTION func_record_sql2(i int, out result_1 bigint, out result_2 bigint) returns SETOF RECORD as $$
+begin
+result_1 = i + 5;
+result_2 = i * 5;
+return next;
+end;
+$$language plpgsql;
+
+call func_record_sql2(1, 0, 0);
+
+重命名函数2
+ ALTER FUNCTION func_record_sql2(INTEGER, INTEGER) RENAME TO func_record_sql2_new;
+
+删除函数
+DROP FUNCTION func_sum_sql;
+
+官方文档：
+https://opengauss.org/zh/docs/2.1.0/docs/Developerguide/CREATE-FUNCTION.html
+https://opengauss.org/zh/docs/2.1.0/docs/Developerguide/CALL.html
+
+
+
+                                                   触发器
+												   
+	 当前仅支持在普通行存表上创建触发器，不支持在列存表、临时表、unlogged表等类型表上创建触发器。
+   如果为同一事件定义了多个相同类型的触发器，则按触发器的名称字母顺序触发它们。
+  触发器常用于多表间数据关联同步场景，对SQL执行性能影响较大，不建议在大数据量同步及对性能要求高的场景中使用。
+  
+ 源表： CREATE TABLE tb_src(id1 INT, id2 INT, id3 INT);
+ 触发表：CREATE TABLE tb_des(id1 INT, id2 INT, id3 INT);
+  
+创建触发器函数
+CREATE OR REPLACE FUNCTION insert_func() RETURNS TRIGGER AS $$  
+BEGIN
+INSERT INTO tb_des VALUES(NEW.id1, NEW.id2, NEW.id3);
+RETURN NEW;
+END
+$$ LANGUAGE PLPGSQL;
+
+在源表上创建insert触发器
+ CREATE TRIGGER insert_trigger 
+BEFORE INSERT ON tb_src for each row
+EXECUTE PROCEDURE insert_func();
+
+测试触发器的语句：
+INSERT INTO tb_src VALUES(100,200,300);
+
+ALTER TABLE tb_src DISABLE TRIGGER insert_trigger;                    使触发器失效
+ALTER TRIGGER insert_trigger ON tb_src RENAME TO insert_trigger_new;  重命名触发器
+DROP TRIGGER insert_trigger_new ON tb_src;                            删除触发器
+
+                                                       ANALYZE | ANALYSE
+													   
+													   
+用于收集与数据库中普通表内容相关的统计信息，统计结果存储在系统表PG_STATISTIC下。执行计划生成器会使用这些统计数据，以确定最有效的执行计划。
+
+如果没有指定参数，ANALYZE会分析当前数据库中的每个表和分区表。同时也可以通过指定table_name、column和partition_name参数把分析限定在特定的表、列或分区表中。
+
+ANALYZE|ANALYSE VERIFY用于检测数据库中普通表（行存表、列存表）的数据文件是否损坏。
+
+
+                                                        全文检索 功能
+	两种数据类型用于支持全文检索。tsvector类型表示为文本搜索优化的文件格式，tsquery类型表示文本查询.
+	openGauss的全文检索基于匹配算子@@，当一个tsvector(document)匹配到一个tsquery(query)时，则返回true。
+其中，tsvector(document)和tsquery(query)两种数据类型可以任意排序。
+
+创建表且至少有两个字段的类型为 text类型，在创建索引前进行全文检索
+CREATE TABLE TXT(id int, body text, title text, last_mod_date date);
+
+INSERT INTO TXT VALUES(1, 'China, officially the People''s Republic of China(PRC), located in Asia, is the world''s most populous state.', 'China', '2010-1-1');
+
+INSERT INTO TXT VALUES(2, 'America is a rock band, formed in England in 1970 by multi-instrumentalists Dewey Bunnell, Dan Peek, and Gerry Beckley.', 'America', '2010-1-1');
+
+INSERT INTO TXT VALUES(3, 'England is a country that is part of the United Kingdom. It shares land borders with Scotland to the north and Wales to the west.', 'England','2010-1-1
+
+ 检索
+ SELECT id, body, title FROM TXT WHERE to_tsvector(body) @@ to_tsquery('China');
+ SELECT id, body, title FROM TXT WHERE to_tsvector(body) @@ to_tsquery('America');
+ 
+ 
+                                        批处理模式
+	以下场景建议使用批处理：
+● 如果您重复运行查询（例如，每天或每周），将其设为脚本可以让您避免每次进
+行重复输入。
+● 您可以通过复制和编辑脚本文件从现有的相似查询生成新查询。
+● 对于多行语句或多语句序列，如果中间出现错误，不必重新键入所有内，只需编
+辑脚本以更正错误，然后再次执行它。
+● 您可以将脚本分发给其他人，以便他们也可以运行这些语句。
+● 某些情况不允许交互式使用时，您必须使用批处理模式。
+ 
+ gsql -d dbname -p port -f filename
+ 
+ 举例：gsql -d postgres -p 21013 -f /home/user/sql.txt
+                                         
+										 
+										 物化视图
+	物化视图是相对普通视图而言的。普通视图是虚拟表，而物化视图实际上就是存储
+SQL执行语句的结果，可以直接使用数据而不用重复执行查询语句，从而提升性能。
+    
+	● 全量物化视图：仅支持对已创建的物化视图进行全量更新，而不支持进行增量更
+新。创建全量物化视图语法和CREATE TABLE AS语法类似。
+    --准备数据。
+    CREATE TABLE t1(c1 int, c2 int);
+    INSERT INTO t1 VALUES(1, 1);
+    INSERT INTO t1 VALUES(2, 2);
+	
+	--创建全量物化视图。
+    CREATE MATERIALIZED VIEW mv AS select count(*) from t1;
+    CREATE MATERIALIZED VIEW
+	--查询物化视图结果。
+ SELECT * FROM mv;
+count
+-------
+2
+(1 row)
+--向物化视图的基表中插入数据。
+INSERT INTO t1 VALUES(3, 3);
+
+--对全量物化视图做全量刷新。
+ REFRESH MATERIALIZED VIEW mv;
+
+--查询物化视图结果。
+openGauss=# SELECT * FROM mv;
+count
+-------
+3
+(1 row)
+--删除物化视图。
+openGauss=# DROP MATERIALIZED VIEW mv;
+DROP MATERIALIZED VIEW
+	
+	● 增量物化视图：可以对物化视图增量刷新，需要用户手动执行语句完成对物化视
+图在一段时间内的增量数据刷新。与全量创建物化视图的不同在于目前增量物化
+视图所支持场景较小。目前物化视图创建语句仅支持基表扫描语句或者UNION
+ALL语句。
+
+   --准备数据。
+ CREATE TABLE t1(c1 int, c2 int);
+ INSERT INTO t1 VALUES(1, 1);
+ INSERT INTO t1 VALUES(2, 2);
+----创建增量物化视图。
+openGauss=# CREATE INCREMENTAL MATERIALIZED VIEW mv AS SELECT * FROM t1;
+---插入数据。
+ INSERT INTO t1 VALUES(3, 3); 
+--—增量刷新物化视图 
+ REFRESH INCREMENTAL MATERIALIZED VIEW mv;
+--查询物化视图结果。
+openGauss=# SELECT * FROM mv;
+c1 | c2
+----+----
+1 | 1
+2 | 2
+3 | 3
+(3 rows)
+
+                                          子查询
+	以下是子查询必须遵守的几个规则：
+● 子查询必须用括号括起来。
+● 子查询在SELECT子句中只能有一个列，除非在主查询中有多列，与子查询的所选
+列进行比较。
+● ORDER BY不能用在子查询中，虽然主查询可以使用ORDER BY。可以在子查询中
+使用GROUP BY，功能与ORDER BY相同。
+● 子查询返回多于一行，只能与多值运算符一起使用，如IN运算符。
+● BETWEEN运算符不能与子查询一起使用，但是，BETWEEN可在子查询内部使
+用。
+
+

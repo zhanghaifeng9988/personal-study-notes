@@ -1,0 +1,77 @@
+第一种
+
+# cd /u01/app/oracle/product/11.2.0/client_1/deinstall/
+
+# ./deinstall
+
+# rm -rf /u01/app/oracle
+
+# rm -rf /etc/oratab
+
+# rm -rf /etc/oraInst.loc
+
+第二种
+
+1. 运行 $ORACLE_HOME/bin/localconfig delete
+
+2. rm -rf $ORACLE_BASE/*
+
+3. rm -f /etc/oraInst.loc /etc/oratab
+
+4. rm -rf /etc/oracle
+
+5. rm -f /etc/inittab.cssd
+
+6. rm -f /usr/local/bin/coraenv /usr/local/bin/dbhome /usr/local/bin/oraenv
+
+7. rm –rf /opt/ORCLfmap
+
+第三种
+
+1.删除$ORACLE_BASE/product/oraInventory目录；
+
+2.删除$ORACLE_BASE/product目录；
+
+3.删除/etc/oratab文件；
+
+4.删除/tmp/目录下与"ora"关键字相关的文件；
+
+5.删除/opt/目录下与Oracle相关的内容；
+
+6./usr/local/bin/下的几个文件可以暂不删除。注意在下次安装Oracle运行root.sh脚本提示覆盖文件时选择"y";
+
+7.重新启动操作系统，完成卸载。
+
+第四种
+
+Use DBCA to remove the databases.
+
+Use OUI to remove the installation
+
+Physically remove all the instation from your $ORACLE_HOME and later $ORACLE_HOME itself.
+
+You may want to edit oratab and remove the entries too.
+
+http://yibingmei.blog.51cto.com/764708/772821
+
+http://www.blogjava.net/qileilove/archive/2014/06/16/414792.html
+
+Linux下卸载Oracle 11g
+
+第一种方法: 使用oracle自带的runInstaller 卸载 [oracle@VM_0_14_centos deinstall]$ cd $ORACLE_HOME [oracle@VM_0_14 ...
+
+Linux下安装Supervisor的多种方法
+
+一.安装 1.方法一: pip install  supervisor #!/bin/bash wget http://pypi.python.org/packages/source/s/setupt ...
+
+Linux下卸载oracle需要删除的文件
+
+卸载oracle需要删除的文件 rm -rf /data1/oracle/app  #oracle安装目录在/data1/oracle中 rm -rf /usr/local/bin/dbhome rm ...
+
+linux下卸载Oracle
+
+1.卸载数据库软件--10g[oracle]# cd /u01/app/oracle/product/10.2.0/db_1/oui/bin[oracle]# ./runInstaller -igno ...
+
+linux下安装Oracle时交换空间不足的解决方法
+
+摘:linux下安装Oracle时交换空间不足的解决方法 linux上安装Oracle时交换空间不足的解决办法 增加交换空间有两种方法: 严格的说,在系统安装完后只有一种方法可以增加swap,那就是本 ...

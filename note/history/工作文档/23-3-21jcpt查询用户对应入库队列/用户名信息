@@ -1,0 +1,16 @@
+
+SGPM.
+SGPM_OUT.
+EVDEC.
+EPMGIS.
+KBSD.
+SXGXH.
+AMBER.
+WF_AMBER.
+OWF_MGR.
+
+
+
+ cat zhf.txt | awk -F '.' '{print $1}'|sort |uniq
+ 
+  grep -i "SGPM." rep*.prm > zhf.txt

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="vue.js"></script>
+</head>
+<body>
+  <div id="Application">
+    <com name="组件名">--测试--</com>
+  </div>
+  <script>
+    const App = Vue.createApp({})
+    const com = {
+      //setup用于定义组件的状态、数据、方法等逻辑。返回一个对象，包含data、methods、props、template等属性。
+      //setup方法会在组件创建之前被执行，即对应在组件的生命周期方法
+      //beforeCreate() 方法调用前被执行。
+      //props是组件使用时被设置的外部参数，用于外部属性值的传递
+      //context是组件的上下文对象，包括attrs、slots、emit等。
+      setup(props, context) {
+        let data = Vue.ref('setup的数据')
+        Vue.onMounted(() => {//组件创建时执行
+          alert('setup内定义的mounted--组件创建时执行')
+        })
+        alert(`${props.name}--组件创建之前执行`)
+        alert(`${context.attrs}--组件创建之前执行`)
+        alert(`${context.slots}--组件创建之前执行`)
+        alert(`${context.emit}--组件创建之前执行`)
+        return {data}
+      },
+      props: {
+        name: String
+      },
+      //这个mounted方法在组件挂载时被调用。
+      mounted() {
+        alert('组件内定义的mounted--组件挂载时执行')
+      },
+      template: `<div>{{data}}<slot></slot></div>`
+    }
+    App.component("com",com) //注册组件
+    App.mount("#Application") //挂载组件
+  </script>
+</body>
+</html>

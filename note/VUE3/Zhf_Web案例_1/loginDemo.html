@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>loginDemo</title>
+    <script src='https://unpkg.com/vue@3'></script>
+</head>
+<body>
+    <div style="text-align: center;" id="Application">
+        <h1>{{title}}</h1>
+        <!-- v-if 为true则渲染元素，false则不渲染就是不可以见 v-model绑定数据 -->
+        <div v-if="noLogin">账号：<input v-model="username" type="text"/></div>
+        <div v-if="noLogin">密码：<input v-model="password" type="password"/></div>
+        <!-- v-on:click 绑定点击事件，调用login方法 -->
+        <div v-on:click="click" style="border-radius: 30px; width: 100px; margin: 20px auto; 
+        color: white; background-color: blue;" >{{buttonTitle}}</div>
+    </div>
+    <script>
+        const App = {
+            data () {
+                return {
+                    title: '欢迎您！未登录',
+                    noLogin: true,
+                    username: '',
+                    password: '',
+                    buttonTitle: '登录'
+                }
+                },
+            methods: {
+                click () {
+                    if (this.noLogin) {
+                        this.login()
+                        } else {
+                            this.logout()
+                        }
+                        },
+            // 登录方法
+            login () {
+                //判断账号和密码是否为空
+                if (this.username.length > 0 && this.password.length > 0) {
+                    alert(`userName:${this.username}, password:${this.password}` )
+                    this.title = `欢迎您：${this.username}`
+                    this.buttonTitle = '退出'
+                    this.username = ''
+                    this.password = ''
+                    this.noLogin = false
+                } else {
+                    alert('账号或密码不能为空！')   
+                }
+            },
+            // 退出方法
+            logout () {
+                this.noLogin = true
+                this.buttonTitle = '登录'
+                this.title = '欢迎您！未登录'
+            }
+        }    
+    }
+    // 创建Vue实例
+    const app = Vue.createApp(App)
+    // 挂载到div#Application元素上
+    app.mount('#Application')
+    </script>
+</body>
+</html>

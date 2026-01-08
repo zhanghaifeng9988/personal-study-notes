@@ -1,0 +1,50 @@
+SCAN(Single Client Access Name)是Oracle从11g R2开始推出的，
+客户端可以通过SCAN特性负载均衡地连接到RAC数据库
+show parameter listener         查看服务端的local_listener和remote_listener参数
+!lsnrctl status                 本地监听状态查看（sqlplus中查看）
+[grid@pos2 ~]$ lsnrctl status listener          本地监听查看 
+[grid@pos2 ~]$ lsnrctl status listener_scan1     scan监听查看 
+show parameter local_listener    本地监听指向的是vip地址
+   
+   SCAN监听器的注册是由REMOTE_LISTENER参数控制的，任何实例都会向所有的SCAN监听器注册：
+show parameter remote_listener    remote_listener指向的是scan监听名
+srvctl start listener   -n node1         rac中，grid用户下启动节点1的监听
+srvctl status listener         本地监听状态查看    
+srvctl start listener          启动所有监听
+srvctl status scan_listener    查看scan listener的运行节点
+
+srvctl config scan             查看 SCAN 的配置信息  scan ip 状态
+srvctl config scan_listener    查看SCAN监听器配置信息
+srvctl status scan             查看 SCAN VIP 节点分配状态   
+srvctl status scan_listener     查看SCAN Listener的运行节点                                               
+srvctl stop scan_listener      停止scan监听
+srvctl stop listener -n node1  停止节点1的监听
+
+srvctl config nodeapps -a      查看rac中vip的名字,ip,网卡信息
+srvctl config vip -n rac1      查看指定节点的vip配置信息
+
+srvctl config database         查看集群中的数据库信息
+
+/u01/app/oracle/diag/tnslsnr/tim1/listener/alert 本地监听器动态注册日志的路径
+
+
+1个监听可以包括多个服务
+安装有grid的oracle的监听，listener在grid用户的$ORACLE_HOME/network/admin 目录中，
+oracle 用户不需要管理listener，只需要按需配置管理tnsnames
+
+https://www.cnblogs.com/lcword/p/8242202.html                      rac监听解读
+http://blog.chinaunix.net/uid-17069315-id-5692975.html           最专业的监听解读
+
+rac中，每个节点上都运行一个本地监听器，这个监听器负责监听本地的vip。
+
+rac中，会有3个节点上运行scan监听器。
+
+rac中，scanvip和scan监听器成对出现。
+
+endpoints_listener.ora 这个文件包含本地监听器的配置，主机ip和vip
+
+
+srvctl modify listener -l LISTENER -p "TCP:<new-listener-port>"  修改本地监听的端口
+srvctl modify scan_listener -p <new-scan-port>   修改scan监听的端口
+
+

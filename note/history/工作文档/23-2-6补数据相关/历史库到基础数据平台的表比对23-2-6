@@ -1,0 +1,730 @@
+   
+   数据比对前，需要梳理受影响的通道信息，附件中是我初步建立的表格模板，比对主要使用主键和主键+限制条件的方法，
+   例如：主键+年月，主键+单位的方法，表格中sheet名称修改为ogg通道名称，表格暂建3列，具体见附件，
+   部分数据表没有主键，需要在ogg通道配置中找到指定字段
+   
+   
+   grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH" ./rep*.prm|sort -t':' -k1,1 -u 
+   
+./rep30.prm:--MAP SGPM.S_95598_WKST,TARGET CACHER01.S_95598_WKST,COLMAP(
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep30.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./rep31.prm:MAP SGPM.S_PRJ_INFO,TARGET CACHER01.S_PRJ_INFO,COLMAP(
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep31.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./rep32.prm:MAP SGPM.S_95598_WKST,TARGET CACHER01.S_95598_WKST,COLMAP(
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep32.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./rep33.prm:MAP SGPM.D_WH,TARGET CACHER01.D_WH,COLMAP(
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep33.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./repsa.prm:MAP SGPM.ARC_A_RCVBL_FLOW,TARGET CACHER01.ARC_A_RCVBL_FLOW,COLMAP (
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  repsa.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./repsb.prm:MAP SGPM_OUT.ARC_E_CONS_ACCU_PQ,TARGET CACHER01.ARC_E_CONS_ACCU_PQ,COLMAP (
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  repsb.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./rep_yxa1.prm:MAP WF_AMBER.INDYWF_ABORT,TARGET CACHER01.INDYWF_ABORT,COLMAP
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxa1.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./rep_yxa2.prm:--MAP WF_AMBER.INDYWF_INSTANCES_CUR, TARGET FDPSHARE.P_PROC_INSTANCE,
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxa2.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./rep_yxd1.prm:MAP SGPM.ARC_A_ACCT_ENTRY,TARGET CACHER01.ARC_A_ACCT_ENTRY,COLMAP (
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxd1.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./repyxd22.prm:MAP SGPM.R_COLL_OBJ, TARGET FDPMASTER.R_COLL_OBJ,
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  repyxd22.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./rep_yxd2.prm:MAP SGPM.ARC_S_BATCH_CUST_APP, TARGET FDPSHARE.ARC_S_BATCH_CUST_APP,
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxd2.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./rep_yxd3.prm:MAP SGPM.R_DATA, TARGET FDPSHARE.R_DATA,
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxd3.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./rep_yxd4.prm:MAP SGPM.E_MP_PARA_SNAP, TARGET FDPSHARE.E_MP_PARA_SNAP,
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxd4.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./rep_yxd5.prm:MAP SGPM.C_CONS, TARGET FDPMASTER.C_CONS,
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxd5.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./rep_yxd6.prm:MAP SGPM.S_APP, TARGET FDPSHARE.S_APP,
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxd6.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./rep_yxd9.prm:MAP SGPM.D_MULTFUNC_DETECT, TARGET FDPSHARE.D_MULTFUNC_DETECT,
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxd9.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./rep_yxda.prm:MAP SGPM.ARC_S_APP_ELEC_ADDR, TARGET FDPSHARE.ARC_S_APP_ELEC_ADDR,
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxda.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./repyxf10.prm:MAP SGPM.A_RCVBL_ENTRY, TARGET FDPSHARE.A_RCVBL_ENTRY,
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  repyxf10.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./repyxf11.prm:MAP SGPM.A_PAYABLE_ENTRY,TARGET CACHER01.A_PAYABLE_ENTRY,COLMAP (
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  repyxf11.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./rep_yxf1.prm:--MAP SGPM.ARC_A_RCVBL_FLOW,TARGET CACHER01.ARC_A_RCVBL_FLOW,COLMAP (
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxf1.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./rep_yxf2.prm:--MAP SGPM.ARC_E_MP_PARA_SNAP, TARGET FDPSHARE.ARC_E_MP_PARA_SNAP,
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxf2.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./rep_yxf3.prm:MAP SGPM.ARC_E_PL_AMT, TARGET FDPSHARE.ARC_E_PL_AMT,
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxf3.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./rep_yxf4.prm:MAP SGPM.A_RCVBL_FLOW, TARGET FDPSHARE.A_RCVBL_FLOW,
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxf4.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./rep_yxf5.prm:MAP SGPM.A_RCVED_PL_FLOW, TARGET FDPSHARE.A_RCVED_PL_FLOW,
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxf5.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./rep_yxf6.prm:MAP SGPM_OUT.C_UTILITY_METER,TARGET CACHER01.C_UTILITY_METER,COLMAP (
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxf6.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed 's/filter.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./rep_yxf8.prm:MAP SGPM.A_PAY_FLOW, TARGET FDPSHARE.A_PAY_FLOW
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxf8.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/map //g'|sed 's/TARGET//g'
+./rep_yxf9.prm:MAP SGPM.P_SMS_SEND,TARGET CACHER01.P_SMS_SEND,COLMAP (
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxf9.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/TARGET//g'
+./rep_yxfa.prm:MAP SGPM.ARC_E_CONS_PRC_AMT, TARGET FDPSHARE.ARC_E_CONS_PRC_AMT,
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxfa.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/TARGET//g'
+./rep_yxfb.prm:MAP SGPM.ARC_E_CONS_SNAP, TARGET FDPSHARE.ARC_E_CONS_SNAP,
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxfb.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/TARGET//g'
+./rep_yxfc.prm:MAP SGPM.ARC_E_CONSPRC_TACTIC_SNAP, TARGET FDPSHARE.ARC_E_CONSPRC_TACTIC_SNAP,
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxfc.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/TARGET//g'
+./rep_yxfd.prm:--MAP SGPM.ARC_E_CONS_SNAP,TARGET CACHER01.ARC_E_CONS_SNAP,COLMAP (
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxfd.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/TARGET//g'
+./rep_yxfe.prm:MAP SGPM.ARC_E_MP_PARA_SNAP, TARGET FDPSHARE.ARC_E_MP_PARA_SNAP,
+./rep_yxff.prm:MAP SGPM.P_TAB_SGPMS ,TARGET FDPSHARE.P_TAB_SGPMS,COLMAP (
+  grep -i -E "MAP WF_AMBER|MAP owf_mgr|MAP SGPM|MAP EVDEC|MAP SGPM_OUT|MAP AMBER|MAP KBSD|MAP SXGXH"  rep_yxff.prm |sed 's/,/ /g'|sed 's/COLMAP.*//g'|sed '/\--MAP /d'|sed 's/MAP //g'|sed 's/TARGET//g'
+./rep_yxwg.prm:MAP SGPM.S_REGION_OUTAGE,TARGET CACHER01.S_REGION_OUTAGE,COLMAP(
+
+
+   查询约束
+   select CONSTRAINT_TYPE from dba_constraints where table_name='ARC_S_EL_PLAN_DET' and owner='SGPM';
+   select CONSTRAINT_TYPE from dba_constraints where table_name='ARC_E_CONSPRC_TACTIC_SNAP' and owner='SGPM';
+   
+                                                      查找主键
+													  
+ --rep_yxff 进程
+select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner in ('SGPM','SGPM_OUT','KBSD' ) and col.table_name in ('P_TAB_SGPMS', 'A_PURP_POWER_BUY', 'A_PURP_POWERBUY_EXTEND', 'P_COLU_SGPMS', 'P_COLU_EXT_SGPMS', 'S_SERVICE_APP_HANDLE', 'ARC_C_CUST_AGREEMENT', 
+'S_SRV_REQ', 'RCA_CONS_CURINFO', 'ARC_S_MEAS_BOX_SCHEME', 'C_INNIT_COMM', 'S_INNIT_COMM', 'S_POTENTIAL_REPORT', 'C_POTENTIAL_PRJ', 'S_ENERGY_EQUIP', 'C_POTENTIAL_EQUIP', 'C_ELE_SUB_CONS_DSRE', 'S_ELE_SUB_CONS_DSRE', 
+'S_ELE_SUB_APP', 'S_ELE_SUB_PQ', 'C_ELE_SUB_PQ', 'S_MANA_EVAL', 'C_TRADE_EQUIP_RELA', 'C_TRADE_RELA', 'C_EQU_ASSET', 'S_SELECTION_APP', 'C_SELECTION_RESULT', 'S_SELECTION_PLAN', 'S_ELE_SUB_ATTACH', 'S_ELE_SUB_PRJ', 
+'S_PRELIMINARY_SCHEME', 'S_IMPLEMENTATION_PLAN', 'S_BENEF_EVAL', 'C_BENEF_EVAL', 'C_ELE_SUB_EQUIP', 'S_ELE_SUB_EQUIP', 'S_PRJ_SUPP_INFO', 'S_EQUIP_RPLT_RELA', 'C_OPER_EVAL_RELE', 'C_PRJ_PLAN_SPEED_INFO', 'S_PRJ_PLAN_SPEED_INFO',
+ 'C_MANA_EVAL', 'C_RESERVE_PRJ', 'A_AMT_CODE', 'A_AMT_CODE_FILE', 'P_K_VALUE', 'C_REFORM_INFO', 'S_REFORM_LINE_APP', 'S_REFORM_INFO', 'C_INVESTOR_INFO', 'P_PRT_GROUPTRADE_SX_A', 'R_ZPQ_LIST', 'S_SURVEY', 'S_CONS_BASE_INFO',
+ 'S_TRAN_INFO', 'S_ENERGY_CONSUM', 'S_EQU_ASSET', 'S_VISIT_INFO', 'S_PRO_RECOM', 'S_PLANE_BERTH', 'S_VESSEL_BERTH', 'S_EQU_PIC', 'S_THANSPORT_INFO', 'C_CONS_BASE_INFO', 'C_PLANE_BERTH', 'C_VESSEL_BERTH', 'C_ENERGY_CONSUM', 
+ 'C_EQU_ASSET', 'C_VISIT_INFO', 'C_SURVEY_INDEX', 'A_BANKSLIPS_INFO', 'S_PRE_APP_CHAR_STA_INFO', 'S_PRE_APP_INVESTOR_INFO', 'C_CHAR_STA_INFO', 'A_RECALL_AUD_INFO', 'C_MP_CHARGER_RELA', 'C_INVESTOR_INFO', 'S_CHARGER_SCHEME', 
+ 'S_APP_CHAR_STA_INFO', 'S_APP_INVESTOR_INFO', 'S_APP_MP_CHARGER_RELA', 'A_RECALL_AUD_DET_INFO', 'A_INTEGRAL', 'A_INTEGRAL_DET', 'C_SEC_RELA', 'S_SURVEY_ADJUST_LOAD_CONS', 'S_SURVEY_ADJUST_LOAD_DEV', 'S_SURVEY_SETTLE_ACCT', 
+ 'S_SURVEY_AGRE_ACCT_EXP', 'S_SURVEY_PHOTO', 'S_SURVEY_VAT', 'S_SURVEY_PRC_TACTIC', 'S_SURVEY_FC_GP', 'S_SURVEY_INVESTOR', 'S_SURVEY_FC_GG', 'S_SURVEY_PRC', 'S_SURVEY_GC_PLANT', 'S_SURVEY_PS', 'S_SURVEY_METER', 'S_SURVEY_RELAY', 
+ 'S_SURVEY_CONTACT', 'S_SURVEY_MP', 'S_SURVEY_MEAS_BOX', 'S_SURVEY_CERT', 'S_SURVEY_FC_ACC', 'S_SURVEY_BANK_ACCT', 'S_SURVEY_PRO', 'S_SURVEY_KEYWORD', 'S_SURVEY_NEWBUSI_LABEL', 'S_SURVEY_CONS_INFO', 'C_RELA_ACCT', 
+ 'C_ADJUST_LOAD_CONS', 'C_ADJUST_LOAD_DEV', 'C_SURVEY_PHOTO', 'FC_GG_EXT', 'C_LV_TRIP', 'C_SETTLE_ACCT', 'C_AGRE_ACCT_EXP', 'C_PS_EXT', 'C_RELAY', 'FC_GC_PLANT_EXT', 'C_CONTACT_EXT', 'S_SURVEY_TASK_PRO', 
+ 'S_MARKET_SURVEY_PLAN_DET', 'S_MARKET_SURVEY_TASK', 'S_MARKET_SURVEY_PLAN', 'S_MARKET_SURVEY_PLAN_LOG', 'P_USER_BIND_RELA', 'S_SURVEY_TMNL', 'C_ARCHIVE_ABNO_INFO', 'C_ARCHIVE_ABNO_INFO_DET', 'S_SURVEY_IT', 'S_SURVEY_LV_TRIP', 
+ 'S_SURVEY_CHARGER', 'S_SURVEY_RELA_ACCT', 'S_SURVEY_OTHER_ABNOR', 'S_SURVEY_GC_TYPE', 'S_SURVEY_GC_DEV', 'S_SURVEY_SP', 'S_SURVEY_TRAN_DEV', 'A_CASHCHK_FLOW_EXT', 'ARC_C_CONTAINER_DEV', 'P_MID_PAYSTAT', 'P_MID_RCVEDSTAT',
+ 'P_MID_BUSIRCVED_STAT', 'P_MID_PREPAYSTAT', 'P_MID_RCVEDCOMP', 'A_CONSVAT_PRINT', 'A_CONS_EXTEND', 'A_RCVBL_FLOW_ARREARS', 'C_ELEC_EQUIP', 'PDCA_CASHCHK_TRANSIT_SX', 'P_PD_MID_PRCPC', 'P_PRT_CHKQD_MONTH_SX', 'S_ADDR_CODE',
+ 'S_CUST_ATTR', 'S_MANAGE_AVGLIMIT', 'S_SCORE_RULE', 'E_CONS_ACCU_KWH_AMT', 'ARC_E_CONS_ACCU_PL_AMT', 'ARC_E_CONS_ACCU_KWH_AMT', 'E_DEFECT_DETAIL', 'ARC_E_DEFECT_DETAIL', 'A_PREPAY_SHIFT', 'C_MP_OUT', 'S_APP_OUT', 
+ 'C_CONS_PRC_EXT', 'C_METER_EXT', 'ARC_S_APP_OUT', 'C_CONS_PRC_HT', 'ZX_CONS_RESULT', 'E_DEFECT_DETAIL', 'ARC_E_DEFECT_DETAIL', 'P_PRTSX_CA');
+
+    --拆分成两部分执行，条件字符数量超过3000个
+col    owner for a25
+col    table_name for a35
+col    column_name for a30 
+set line 200 pages 999 long 20000
+ select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner in ('SGPM','SGPM_OUT','KBSD' ) and col.table_name in ('P_TAB_SGPMS', 'A_PURP_POWER_BUY', 'A_PURP_POWERBUY_EXTEND', 'P_COLU_SGPMS', 'P_COLU_EXT_SGPMS', 'S_SERVICE_APP_HANDLE', 'ARC_C_CUST_AGREEMENT', 
+'S_SRV_REQ', 'RCA_CONS_CURINFO', 'ARC_S_MEAS_BOX_SCHEME', 'C_INNIT_COMM', 'S_INNIT_COMM', 'S_POTENTIAL_REPORT', 'C_POTENTIAL_PRJ', 'S_ENERGY_EQUIP', 'C_POTENTIAL_EQUIP', 'C_ELE_SUB_CONS_DSRE', 'S_ELE_SUB_CONS_DSRE', 
+'S_ELE_SUB_APP', 'S_ELE_SUB_PQ', 'C_ELE_SUB_PQ', 'S_MANA_EVAL', 'C_TRADE_EQUIP_RELA', 'C_TRADE_RELA', 'C_EQU_ASSET', 'S_SELECTION_APP', 'C_SELECTION_RESULT', 'S_SELECTION_PLAN', 'S_ELE_SUB_ATTACH', 'S_ELE_SUB_PRJ', 
+'S_PRELIMINARY_SCHEME', 'S_IMPLEMENTATION_PLAN', 'S_BENEF_EVAL', 'C_BENEF_EVAL', 'C_ELE_SUB_EQUIP', 'S_ELE_SUB_EQUIP', 'S_PRJ_SUPP_INFO', 'S_EQUIP_RPLT_RELA', 'C_OPER_EVAL_RELE', 'C_PRJ_PLAN_SPEED_INFO', 'S_PRJ_PLAN_SPEED_INFO',
+ 'C_MANA_EVAL', 'C_RESERVE_PRJ', 'A_AMT_CODE', 'A_AMT_CODE_FILE', 'P_K_VALUE', 'C_REFORM_INFO', 'S_REFORM_LINE_APP', 'S_REFORM_INFO', 'C_INVESTOR_INFO', 'P_PRT_GROUPTRADE_SX_A', 'R_ZPQ_LIST', 'S_SURVEY', 'S_CONS_BASE_INFO',
+ 'S_TRAN_INFO', 'S_ENERGY_CONSUM', 'S_EQU_ASSET', 'S_VISIT_INFO', 'S_PRO_RECOM', 'S_PLANE_BERTH', 'S_VESSEL_BERTH', 'S_EQU_PIC', 'S_THANSPORT_INFO', 'C_CONS_BASE_INFO', 'C_PLANE_BERTH', 'C_VESSEL_BERTH', 'C_ENERGY_CONSUM', 
+ 'C_EQU_ASSET', 'C_VISIT_INFO', 'C_SURVEY_INDEX', 'A_BANKSLIPS_INFO', 'S_PRE_APP_CHAR_STA_INFO', 'S_PRE_APP_INVESTOR_INFO', 'C_CHAR_STA_INFO', 'A_RECALL_AUD_INFO', 'C_MP_CHARGER_RELA', 'C_INVESTOR_INFO', 'S_CHARGER_SCHEME', 
+ 'S_APP_CHAR_STA_INFO', 'S_APP_INVESTOR_INFO', 'S_APP_MP_CHARGER_RELA', 'A_RECALL_AUD_DET_INFO', 'A_INTEGRAL', 'A_INTEGRAL_DET');  
+   
+select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner in ('SGPM','SGPM_OUT','KBSD' ) and col.table_name in('C_SEC_RELA', 'S_SURVEY_ADJUST_LOAD_CONS', 'S_SURVEY_ADJUST_LOAD_DEV', 'S_SURVEY_SETTLE_ACCT', 
+ 'S_SURVEY_AGRE_ACCT_EXP', 'S_SURVEY_PHOTO', 'S_SURVEY_VAT', 'S_SURVEY_PRC_TACTIC', 'S_SURVEY_FC_GP', 'S_SURVEY_INVESTOR', 'S_SURVEY_FC_GG', 'S_SURVEY_PRC', 'S_SURVEY_GC_PLANT', 'S_SURVEY_PS', 'S_SURVEY_METER', 'S_SURVEY_RELAY', 
+ 'S_SURVEY_CONTACT', 'S_SURVEY_MP', 'S_SURVEY_MEAS_BOX', 'S_SURVEY_CERT', 'S_SURVEY_FC_ACC', 'S_SURVEY_BANK_ACCT', 'S_SURVEY_PRO', 'S_SURVEY_KEYWORD', 'S_SURVEY_NEWBUSI_LABEL', 'S_SURVEY_CONS_INFO', 'C_RELA_ACCT', 
+ 'C_ADJUST_LOAD_CONS', 'C_ADJUST_LOAD_DEV', 'C_SURVEY_PHOTO', 'FC_GG_EXT', 'C_LV_TRIP', 'C_SETTLE_ACCT', 'C_AGRE_ACCT_EXP', 'C_PS_EXT', 'C_RELAY', 'FC_GC_PLANT_EXT', 'C_CONTACT_EXT', 'S_SURVEY_TASK_PRO', 
+ 'S_MARKET_SURVEY_PLAN_DET', 'S_MARKET_SURVEY_TASK', 'S_MARKET_SURVEY_PLAN', 'S_MARKET_SURVEY_PLAN_LOG', 'P_USER_BIND_RELA', 'S_SURVEY_TMNL', 'C_ARCHIVE_ABNO_INFO', 'C_ARCHIVE_ABNO_INFO_DET', 'S_SURVEY_IT', 'S_SURVEY_LV_TRIP', 
+ 'S_SURVEY_CHARGER', 'S_SURVEY_RELA_ACCT', 'S_SURVEY_OTHER_ABNOR', 'S_SURVEY_GC_TYPE', 'S_SURVEY_GC_DEV', 'S_SURVEY_SP', 'S_SURVEY_TRAN_DEV', 'A_CASHCHK_FLOW_EXT', 'ARC_C_CONTAINER_DEV', 'P_MID_PAYSTAT', 'P_MID_RCVEDSTAT',
+ 'P_MID_BUSIRCVED_STAT', 'P_MID_PREPAYSTAT', 'P_MID_RCVEDCOMP', 'A_CONSVAT_PRINT', 'A_CONS_EXTEND', 'A_RCVBL_FLOW_ARREARS', 'C_ELEC_EQUIP', 'PDCA_CASHCHK_TRANSIT_SX', 'P_PD_MID_PRCPC', 'P_PRT_CHKQD_MONTH_SX', 'S_ADDR_CODE',
+ 'S_CUST_ATTR', 'S_MANAGE_AVGLIMIT', 'S_SCORE_RULE', 'E_CONS_ACCU_KWH_AMT', 'ARC_E_CONS_ACCU_PL_AMT', 'ARC_E_CONS_ACCU_KWH_AMT', 'E_DEFECT_DETAIL', 'ARC_E_DEFECT_DETAIL', 'A_PREPAY_SHIFT', 'C_MP_OUT', 'S_APP_OUT', 
+ 'C_CONS_PRC_EXT', 'C_METER_EXT', 'ARC_S_APP_OUT', 'C_CONS_PRC_HT', 'ZX_CONS_RESULT', 'E_DEFECT_DETAIL', 'ARC_E_DEFECT_DETAIL', 'P_PRTSX_CA');   
+   
+   
+   --rep_yxfd  进程
+   select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner ='SGPM' and col.table_name in ('ARC_E_SYS_AMT','S_APP_CALC','S_SERVICE_CONTACT','D_COMM_MODULE');
+   
+   --rep_yxfc  进程
+   select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner ='SGPM' and col.table_name in ('ARC_E_CONSPRC_TACTIC_SNAP');
+  
+   --rep_yxfb  进程  
+   select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner ='SGPM' and col.table_name in ('ARC_E_CONS_SNAP');
+   
+   --rep_yxfa  进程
+   select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner ='SGPM' and col.table_name in ('ARC_E_CONS_PRC_AMT');
+  
+   --rep_yxf9  进程
+   SGPM.P_SMS_SEND
+SGPM.A_CONS_SUB
+    select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner ='SGPM' and col.table_name in ('P_SMS_SEND','A_CONS_SUB');
+
+   --目标端基础数据平台查询
+select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner ='CACHER01' and col.table_name in ('A_CONS_SUB');
+   
+   --rep_yxf8  进程
+   select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM','SGPM_OUT') and col.table_name in ('A_PAY_FLOW','S_RISK_INFO','S_RISK_INSP',
+'S_RISK_INSP_DET','ARC_S_RISK_INFO','ARC_S_RISK_INSP','ARC_S_RISK_INSP_DET','A_WECHAT_CONS');
+  
+  --rep_yxf6  进程
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM') and col.table_name in ('S_OUTAGE_APPROVE','S_REGION_OUTAGE_SCOPE_COLL','S_REGION_OUTAGE_AREA_COLL',
+'C_CONS_TRADE_CONTR','C_TRADE_CODE_TEMP','S_OUTAGE_COLL','D_METER','ARC_S_CONTAINER_DEV_SCHEME','S_WKS_DEAL','ARC_S_APPINFO');
+
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM_OUT') and col.table_name in ('C_UTILITY_METER','C_UTILITY_CONS','R_UTILITY_COLL_OBJ',
+'S_OUTAGE_COLL_EXT','S_REGION_OUTAGE_EXT','S_BUSI_RELA','A_POSINFO_TRAN','A_CMP_ORDER','S_WKS_DEAL');
+
+ select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('WF_AMBER','AMBER') and col.table_name in ('INDY_USE_LOG','INDYSP_TASK_USER_CUR');
+
+
+
+   --rep_yxf5  进程
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM_OUT','SGPM') and col.table_name in ('A_RCVED_PL_FLOW','A_RCVED_FLOW',
+'ARC_S_PSP_CSIGN','ARC_S_PSP_CSIGN_DET','ARC_S_PSP_MEET','ARC_S_PSP_MEETDETAIL','ARC_S_EL_PLAN','ARC_S_EL_PLAN_DET',
+'C_CONS_TRADE_CONTR','C_TRADE_CODE_TEMP','FC_GC_OUT'); 
+ 
+
+   --rep_yxf4  进程
+   select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM') and col.table_name in ('A_RCVBL_FLOW','A_RCVBL_PL_FLOW',
+'S_BREAKER_SCHEM'); 
+
+   --rep_yxf3  进程
+   select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM') and col.table_name in ('ARC_E_PL_AMT','ARC_A_RCVBL_FLOW',
+'ARC_E_KWH_AMT','ARC_E_CONSPRC_SNAP'); 
+
+  --repyxf11 进程
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM') and col.table_name in ('A_PAYABLE_ENTRY'); 
+
+
+  --rep_yxf1 进程
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM','SGPM_OUT') and col.table_name in ('A_CASH_ENTRY','A_INV','A_PAY_FLOW','A_PC_TRAN','A_PC_TRAN_CHK',
+'A_PREPAY_FLOW','A_RCVBL_ENTRY','A_RCVBL_PL_FLOW','A_RCVED_FLOW','A_RCVED_PL_FLOW','A_TRANSIT_DET','C_METER','D_METER_ERR',
+'E_CALC_LOG','S_CUST_CREDIT','S_CUST_GROUP_OBJ','ARC_A_RCVBL_PL_FLOW','R_AR_DATA','ARC_E_GC_CONS_SNAP_RELA','ARC_E_GC_SNAP',
+'ARC_FS_GC','ARC_S_IR_READ','ARC_S_IT_SCHEME','ARC_S_METER_SCHEME','ARC_S_MI_RELA_SCHEME','ARC_S_MP_APP','ARC_S_MP_METER_RELA_SCHM',
+'ARC_S_MP_SCHEME','ARC_S_MP_USE_SCHEME','ARC_S_SND_CIRCUIT_SCHEME','ARC_S_VL_DEV_SCHEME','A_CONS_AVERAGE','A_RCA_CTRL_DET',
+'A_RCA_DIRE_TACTIC','A_RCA_EXCP_LIST','A_RCA_PREPAY_PD','A_RCA_TACTIC_DET','A_RCA_TACTIC_EXT','A_RCA_TACTIC_RECORD',
+'A_RCA_TACTIC_TASK','C_BF_BILL_PARA','C_BF_BILL_RELA','C_BF_CONSPRC','C_BF_CONSPRC_TACTIC','C_BF_METER_READ','C_CHARGER',
+'C_DIR_CONTRACT','C_DIR_PL_PRC','C_DIR_PRC_DET','C_ELECTRICIAN','C_ELEC_ADDR_DET','C_HARMONIC_TECH','C_RCA_CONS_REMIND',
+'C_RUN_CONTAINER_DEV','C_TRAN_CHG','C_VOLT_MONITOR','D_AGE_STAT','D_BOX_BARCODE','D_DIST_SAMPLING_DET','D_EXCHG_TASK',
+'D_METER_RUN_BATCH_SAMPLING','D_METER_RUN_SAMPLING_DET','D_METER_RUN_SAMPLING_PLAN','D_METER_RUN_SAMPLING_RST','E_DIR_DIV_PQ',
+'E_DIR_TRA_PQ','E_RS_SYS_AMT','E_RS_TAX_AMT','E_SYS_AMT','E_SYS_PRC','E_TAX_AMT','FC_ACC_INFO','FC_B_TRAN','FC_CP','FC_GC_DEV',
+'FC_GC_TYPE_CODE','FC_PROINFO','FC_PROINFO_GC_RELA','FC_PRO_TYPE','FS_ACC_INFO','FS_A_INV_PRINT_FLOW','FS_B_TRAN','FS_CP_SCHEME',
+'FS_GC_TYPE_CODE','FS_PAIED_GRA_AMT','FS_PAY_FACT','FS_PAY_GRA_AMT','FS_PAY_INFO','FS_PLANT','FS_PROINFO','FS_PROINFO_GC_RELA',
+'FS_PRO_TYPE','R_CP_DESIGN_SCHEME','R_CP_FAULT','R_CP_SURVEY','R_CP_TS_PARA','R_HARMONIC_PARA','R_LIMIT_PARA','R_PATROL',
+'R_PATROL_PLAN','R_SIM_CHARGE','R_SITE_FAULT_RMV','R_TMNL_APP','R_TMNL_DEBUG','R_TMNL_INST_SCHEME','R_TMNL_IR_TASK','R_TMNL_MAINT',
+'R_TMNL_MAINT_PLAN','S_APPINFO','S_APP_RCA_CONS','S_CHARGER_SCHEME','S_CONTAINER_DEV_SCHEME','S_EL_PLAN','S_EL_PLAN_DET',
+'S_KNWLG_ATTACH','S_KNWLG_BASE','S_KNWLG_BASE_CAT','S_KNWLG_BASE_CAT_S_KNWLG_BASE','S_KNWLG_BASE_CHG','S_KNWLG_COLL',
+'S_KNWLG_COLL_ATTACH','S_MEAS_BOX_SCHEME','S_PSP_BID','S_PSP_COMPLETE','S_PSP_CSIGN','S_PSP_CSIGN_DET','S_PSP_CSIGN_DOC',
+'S_PSP_DESIGN_CAPITAL','S_PSP_INSYS','S_PSP_MEET','S_PSP_MEETDETAIL','S_PSP_NEWDEV','S_PSP_POINT','S_PSP_PREDICT','S_PSP_PROTECT',
+'S_PSP_STARTPLAN','S_PS_SYS_SCHEME','S_REJECT_INFO','BATCH_NO','MONTH_PUR_PQ','PAID_RESULT','D_METER');
+
+  --repyxf10 进程
+   select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM') and col.table_name in ('A_RCVBL_ENTRY');
+  --rep_yxda  进程
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM') and col.table_name in ('ARC_S_APP_ELEC_ADDR');
+
+select CONSTRAINT_TYPE from dba_constraints where table_name='ARC_S_APP_ELEC_ADDR' and owner='SGPM';
+
+   --rep_yxd9  进程 
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM') and col.table_name in ('D_MULTFUNC_DETECT','D_METER_DETECT','D_METER_DETECT_CONC'); 
+  
+  --rep_yxd6 进程
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM') and col.table_name in ('S_APP','ARC_S_APP'); 
+
+  --rep_yxd5 进程
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM') and col.table_name in ('C_CONS'); 
+
+  --rep_yxd4 进程
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM') and col.table_name in ('E_MP_PARA_SNAP'); 
+  
+  --rep_yxd3 进程
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM') and col.table_name in ('R_DATA'); 
+  
+  --rep_yxd2  进程
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM','SGPM_OUT','EVDEC') and col.table_name in ('ARC_S_BATCH_CUST_APP','ARC_A_ACCT_ENTRY','ARC_A_PAY_FLOW',
+'ARC_A_RCVED_FLOW','ARC_A_RCVED_PL_FLOW','ARC_E_BASE_AMT','ARC_E_BILL_RELA_SNAP','ARC_E_LINE_SNAP','ARC_E_PF_AMT','ARC_E_TRAN_CHG_SNAP',
+'ARC_E_TRAN_SNAP','ARC_R_PLAN','ARC_S_ACCEPT_DET','ARC_S_APP_ACCT','ARC_S_APP_ACCT_F','ARC_S_APP_ARC','ARC_S_APP_BANK_ACCT',
+'ARC_S_APP_BANK_ACCT_F','ARC_S_APP_CERT','ARC_S_APP_CONTACT','ARC_S_APP_CONTACT_F','ARC_S_APP_CUST_ADDR','ARC_S_APP_DATA',
+'ARC_S_APP_DATA_F','ARC_S_APP_ELEC_ADDR_F','ARC_S_APP_F','ARC_S_APP_NATURAL_INFO','ARC_S_APP_NATURAL_INFO_F','ARC_S_APP_PAYMENT_RELA',
+'ARC_S_APP_PAYMENT_RELA_F','ARC_S_APP_REPLY','ARC_S_APP_TRAN_DEV','ARC_S_APP_TRAN_DEV_F','ARC_S_APP_VAT','ARC_S_APP_VAT_F',
+'ARC_S_BATCH_CUST_DIST','ARC_S_BILL_RELA_SCHEME','ARC_S_BUSI_AMT_RCVBL','ARC_S_BUSI_AMT_RCVED','ARC_S_CONSPRC_SCHEME',
+'ARC_S_CONSPRC_SCHEME_DET','ARC_S_DESIGN_EXAMINE','ARC_S_ELEC_DEV_SCHEME','ARC_S_ELEC_DEV_SCHEME_F','ARC_S_INVESTIGATE',
+'ARC_S_IRREAD_F','ARC_S_METER_RELA_F','ARC_S_METER_SCHEME_F','ARC_S_MID_CHECK','ARC_S_MP_SCHEME_F','ARC_S_POWERON',
+'ARC_S_PRC_TACTIC_SCHEME','ARC_S_PRC_TACTIC_SCHEME_DET','ARC_S_PRJ_ACCEPT','ARC_S_PSP_BUDGET','ARC_S_PSP_CHARGE',
+'ARC_S_PSP_CONSTRUCT','ARC_S_PSP_DESIGN','ARC_S_PSP_DESIGN_VERI','ARC_S_PSP_DEV_SUPPLY','ARC_S_PSP_FA','ARC_S_PSP_SUPERVISON',
+'ARC_S_PS_CHG_SCHEME','ARC_S_PS_CHG_SCHEME_DET','ARC_S_PS_SCHEME_DRAWING','ARC_S_SCHEME_DRAWING_DET','ARC_S_SP_SCHEME',
+'ARC_S_SP_SCHEME_DET','ARC_S_SURVEY_DET','ARC_S_TMP_NOMETER_SCHEME','ARC_S_TMP_NOMETER_SCHEME_DET','A_ACCT','A_ACCT_BAL',
+'A_ACCT_CLOSE_LOG','A_CAPITAL','A_CHG_ENTRY','A_CHG_STAT','A_CR_FLOW','A_CR_PLAN','A_CR_RELA','A_CR_SECT','A_CR_SECT_ADJ',
+'A_CURINV','A_DEPOSIT_UNBAL','A_GP_PLAN','A_INDAA_CHK','A_INDAA_CHKFILE','A_INNER_RCVPAY','A_OTHER_RCVPAY_ENTRY','A_PAY_CFG',
+'A_PC_TRAN_UNBAL','A_PENALTY_RET','A_REPAY_PLAN');
+  
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM','SGPM_OUT','EVDEC') and col.table_name in ('A_UNCHK_CASH','C_BILL_RELA','C_BREAKER','C_CHK_CYC_RULE',
+'C_CONS_CERT_RELA','C_CONS_PRC_TACTIC','C_CONTACT','C_HV_MOTOR','C_PAYMENT_RELA','C_RCA_CONS','C_SP','C_SPARE_GENERATOR',
+'C_SPECIAL_CONS_PARA','C_SPECIAL_CONS_TYPE','D_ABILITY_VERI_RSLT','D_ARRIVE','D_ARRIVE_DET','D_BATCH_SAMPLING','D_BID_RSLT',
+'D_CERT_DELIVERY','D_CHK_DATA','D_CHK_RSLT_ANAL','D_COLFLAG_IO_DET','D_CONS_CONSIGN_REG','D_CORRECT_MEAS','D_DETECT_PLAN',
+'D_DETECT_PLAN_DET','D_DIST_APP','D_DIST_PLAN_DET','D_DIST_RSLT','D_DMD_PLAN','D_ELIMINATE_PROD_CAT','D_G_PLAN_DET','D_INV_LEDGER',
+'D_INV_METER_DET','D_IO_TASK','D_IT_DETECT','D_IT_ORDER','D_IT_SITECHK_ERR','D_LAB_ASSESS_ORG','D_LEGAL_ORG_VERI',
+'D_MATERIAL_DMD_WKST','D_MD_VOLT_TEST','D_MEASTD_ASSESS','D_MEASTD_ASSESS_APP','D_MEASTD_ASSESS_RSLT','D_MEAS_CUBICLE',
+'D_MEAS_DOC_BORROW','D_MEAS_DOC_LOOKUP','D_MEAS_STD_CHK','D_MEAS_TECH_TMPL','D_MEAS_VEHICLE','D_METER_ALLOC','D_METER_ORDER',
+'D_METER_SITECHK_READING','D_MIDCHK_PLAN_DET','D_OPEN_CHK','D_ORG_EXAMINE_APP','D_ORG_EXAMINE_RSLT','D_PHASEANGLE_CHK_RECORD',
+'D_PROD_BATCH','D_PROGRAMMER_IO','D_PROGRAMMER_REC','D_PROGRAMMER_SOFTWARE','D_REFDEV_CFG_REQ','D_REFORM','D_REFORM_ACCEPT',
+'D_REFORM_PLAN','D_REGISTER_DIGIT_WALK','D_ROTATION_SAMPLING_PLAN','D_SEAL','D_SEAL_FLAG','D_SEAL_IO','D_STDACCT_CHG_APP',
+'D_STDDEV_MAINT','D_STDDEV_MAINT_LIST','D_STD_AUX_EQUIP','D_UNCERT_VERI_PLAN','D_VL_DEV','D_VL_DEV_READ','E_ADD_PL_PRC',
+'E_AMT_ERR_STAT','E_BASE_AMT','E_BASE_PRC','E_BILL_PARA_VER','E_CAT_PRC_DET','E_GC_CONS_SNAP_RELA','E_LINE_SNAP','E_PL_PRC',
+'E_POLICY_ADJ_DET','E_POLICY_ADJ_WKST','E_PRC_POLICY_PARA','E_PRC_SCOPE','E_RCVBL_RPT','E_RS_BASE_AMT');
+  
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM','SGPM_OUT','EVDEC') and col.table_name in ('E_RS_KWH_AMT','E_RS_PRC_AMT','E_RS_SORT_RELA','E_TRAN_SNAP',
+'FS_GC','FS_GC_CERT','FS_GC_DEV_SCHEME','G_CHKUNIT_PQ','G_CHKUNIT_REF_IDX','G_LINE_PQ','G_LLR_CMPL','G_PQ_ADJ','G_TG_G_STAT',
+'G_TG_PQ','M_AF_RPT','M_CLEAR_SELFSUPPLY','M_EE_ANNUAL_EEI','M_GENERATOR','M_LOAD_FLUC_AF','M_LOCALPLANT_AF','M_MD_ANAL_RPT',
+'M_MI_IDX','M_MONQUA_SPQ_PLAN','M_OPSCHEME','M_OPSCHEME_ADJ_APP','M_OP_CONS_IMPL_STAT','M_OP_DAILY_RPT','M_OP_IMPL','M_PM_SURVEY_DET',
+'M_POWER_CUTOFF','M_PP_ANAL','M_SORT_CHG_APP','M_SPAREPLANT_AF','M_SPQ_AF','M_SPQ_PLAN_ADVICE','M_STOP_SPAREPLANT','M_SUPL_DMD_AF',
+'M_SUPPLY_DMD_SITUATION','M_TEMP_LOAD_FORE','M_WEATHER','O_CHK_SUBJECT','O_IMPROVE_REMINDER','P_HOLIDAY','R_ATTR_MAINT',
+'R_BUSI_STOP_CTRL','R_CHK_EXTRA','R_COLL_DATA','R_COLL_TASK','R_CR_CTRL','R_CTRL_EXEC','R_DATA_PROCESS','R_ENTITY_MAINT',
+'R_ERR','R_EXCP_DATA','R_EXCP_HANDLE_WKST','R_EXCP_HANLE','R_FACTOR_VER','R_GROUP','R_MAINT_APP','R_MANAGE_LOG','R_MID_TABLE',
+'R_OPER_ACTIVITY','R_PEAK_LIMIT_DET','R_PEAK_TRANSFER_DET','R_PLAN_DAY','R_PREPAY_CTRL','R_SECT','S_ADD_SHUNT_EXEC','S_APP_BANK_ACCT',
+'S_APP_CERT_F','S_APP_CUST_ADDR','S_APP_ELEC_ADDR','S_APP_ELEC_ADDR_F','S_APP_F','S_APP_NATURAL_INFO_F','S_APP_PAYMENT_RELA_F',
+'S_APP_PROC','S_APP_TMPL','S_APP_TRAN_DEV','S_APP_TRAN_DEV_F','S_ARCHIVE','S_BILL_NOTICE','S_BILL_PARA_TMPL','S_BILL_SCHEME_TMPL',
+'S_BRANCH','S_BRANCH_MAINTAIN','S_BUSI_AMT_RCVBL','S_BUSI_PARTNER_EVAL','S_BUSI_TMPL','S_CFG_EVAL_RELA','S_CFG_EVARULE',
+'S_CHANEL_PARA','S_CHANNEL_MAINTAIN','S_CHANNEL_REPORT','S_CHANNEL_REWARD_RULE','S_CHARGE_CONFIRM','S_CM_CHG','S_CM_RELEASE',
+'S_CONSPRC_SCHEME_DET','S_CONS_PRC_TMPL','S_CONTRACT_MP','S_CONTRACT_SP','S_CR_EVAL_LOG','S_CR_EVAL_RULE','S_CUST_GROUP_MODEL_COND',
+'S_CYC_TEST_PLAN','S_DESIGN_VERI','S_DESIGN_VERI_DEPT','S_DISCREDIT_CUST','S_DISCREDIT_CUST_NOMI','S_DRAWING','S_ELEC_DEV_SCHEME_F',
+'S_EVAL_TASK','S_EXCP_SITECHK_RSLT','S_FRST_TEST','S_IR_READ_TMPL','S_IT_ACURACY_EVALRULE','S_IT_CFG_EVALRULE','S_IT_SCHEME_DET',
+'S_IT_SCHEME_TMPL','S_MD_CFG_EVALRULE','S_MD_REFORM_SCHEME','S_MD_SORT_ADJ_APP','S_MEAS_EXCP_HANDLE','S_MEAS_FAULT','S_METER_SCHEME',
+'S_METER_SCHEME_TMPL','S_MP_APP','S_MP_METER_RELA_SCHM','S_MP_SCHEME_F','S_MP_SCHEME_TMPL','S_MP_USE_SCHEME','S_MP_USE_SCHEME_F',
+'S_OUTAGE','S_PAIDSRV_AGREEMENT','S_PAIDSRV_APP','S_PAIDSRV_HANDLE','S_POWER_ACCI','S_POWER_RECO','S_POWER_STEAL_CASE',
+'S_POWER_VIOLATE_STEAL','S_PRC_TACTIC_SCHEME_DET','S_PRC_TACTIC_TMPL','S_PSP_CONSTRUCT','S_PSP_DESIGN_VERI','S_PSP_QUALITY_MONITOR',
+'S_PSP_SUPERVISON','S_PS_CHG_SCHEME','S_PS_CHG_SCHEME_DET','S_PS_CHG_TMPL','S_PS_SCHEME','S_PS_SCHEME_DET','S_PS_TMPL',
+'S_REFORM_PLAN_DET','S_REFORM_SITECHK_DET','S_RISK_ALARM','S_RISK_PREVENT_MEAS','S_ROTATE_PLAN');
+  
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM','SGPM_OUT','EVDEC') and col.table_name in ('S_RQ_EVALRULE','S_RQ_EVAL_ITEM','S_SAFETY_BUG','S_SATIS_EVAL_FACTOR','S_SATI_SURVEY','S_SATI_SURVEY_ANSWER','S_SATI_SURVEY_RSLT',
+'S_SCHEME_DRAWING_DET','S_SMS_SHUNT_EXEC','S_SND_CIRCUIT_SCHEME','S_SRV_TACTIC_SET','S_STAT_RSLT','S_SURVEY_INFO','S_TERMINAL_INSPECT',
+'S_TERMINAL_INSPECT_PLAN','S_TERMINAL_MAINTAIN','S_TMP_NOMETER_SCHEME_DET','S_TRAFFIC_BAL_SCHEME','S_TRAFFIC_SHUNT_ASSESS',
+'S_TRAFFIC_SHUNT_EXEC','S_TRAFFIC_SHUNT_PRIO','S_UNQLF_DEV','S_UNQLF_ITEM','S_VIPCARD_GRANT','S_WL_STD_FACTOR','I_ACCOUNT_ITEM',
+'I_BATTERY','I_BATTERY_BOX','I_BATTERY_CHECK','I_BATTERY_CHG_BOX','I_BATTERY_FRA','I_BATTERY_TRAN_BOX','I_BIDS','I_CHARGE_ENGINE',
+'I_CHARGE_MEAS','I_CHARGE_POST','I_CONSTRUCTION','I_CONSTRUCTION_DESIGN','I_CONTRACT','I_DESIGN_SCHEME','I_DESIGN_VERIFY',
+'I_DEVICE_INST','I_DEVICE_OTHERS','I_DEVICE_RECEIVE','I_FINAL_ACCOUNTING','I_MATERIAL_DET','I_MATERIAL_DMD','I_MILESTONE',
+'I_MILESTONE_DETAIL','I_NOTE','I_PRJ_DOC','I_PRJ_SETTLE','I_PROJECT','I_PROJECT_VERIFY','I_RESEARCH_SCHEME','I_ROB','I_STOCKER',
+'I_SUBS','I_TRANSFORMER','I_VEHICLE','ARC_S_APP_CERT_F','ARC_S_APP_CUST_ADDR_F','ARC_S_BILL_RELA_SCHEME_F','ARC_S_IT_SCHEME_DET',
+'ARC_S_MI_RELA_SCHEME_F','ARC_S_MP_USE_SCHEME_F','ARC_S_PRJ_INSPECT','ARC_S_PSP_QUALITY_MONITOR','ARC_S_PS_SCHEME',
+'ARC_S_PS_SCHEME_DET','A_ACCT_AGE_STAT','A_ACCT_ENTRY','A_CHKFILE','A_CHK_DATE','A_CR_TACTIC','A_GP_AGREEMENT','A_INV_IO',
+'A_INV_MANAGE','A_LOGIN','A_PAYABLE_STAT','A_PAYMODE_AGREEMENT','A_PENALTY_CFG_RULE','A_POWER_BUY','A_RCVBL_RISK_ADJ','A_REFUND',
+'A_TERMIAL_LOG','A_TOPUP','A_TRANSIT','C_ARRESTER','C_BANK_ACCT','C_CONS_CONTACT_RELA','C_CONTAINER_DEV','C_CUST_ADDR',
+'C_CUST_AGREEMENT','C_CUST_RELA','C_ELEC_ADDR','C_EQUIP_RUN','C_IT_RUN','C_METER_MP_RELA','C_METER_READ_TYPE','C_MP','C_MP_SECT',
+'C_PS','C_RELAY_PROTECT_DEV','C_RPC_EQUIP','C_SND_CIRCUIT','D_CERT','D_COLFLAG_USE_LOG','D_CONS_CONSIGN','D_DETECT_ASSIGN');
+  
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM','SGPM_OUT','EVDEC') and col.table_name in ('D_DIST_APP_DET','D_DIST_TASK','D_HOLDER_DEV_RELA','D_INV_IT_DET',
+'D_INV_OTHER_DET','D_INV_OTHER_STAT','D_IT_DETECT_ERR','D_IT_RATIO','D_LAB_VERI','D_MEAS_BOX','D_MEAS_ENV','D_MEAS_EQUIP',
+'D_MEAS_INNER_VERI','D_MEAS_SYS_FILE','D_METER_SITECHK','D_OTHERDEV_ORDER_DET','D_OTHER_DEV','D_PROGRAMMER','D_PURCHASE_PLAN',
+'D_ROTATION_SAMPLING_DET','D_SITECHK_FAULT_RECORD','D_STDDEV','D_STD_DETECT_RSLT','D_SUPPLIER_PROD','D_TEMP_CTRL_DEV','D_TMNL_TEST',
+'D_TVSNDSC_VOLT_DETECT','E_CAT_PRC','E_PRC_POLICY_EFFECT','FC_CONS_CERT_RELA','FC_CONS_GC_RELA','FC_GC','FC_GC_ADDR',
+'FC_GC_AGREEMENT_RELA','FC_GC_CONTACT_RELA','FC_GN','FC_GP','FC_PLANT','FS_CONS_GC_RELA','FS_GC_SCHEME','G_LINE','G_LINE_RELA',
+'G_LINE_TG_RELA','G_LL_COMP','G_SUBS','G_SUBS_LINE_RELA','G_TG','G_TRAN','M_ANNUAL_EEI','M_EEM_','M_EEP_STAT_BYTRADE','M_EE_MANAGE_',
+'M_KEYTRADE_PROD','M_KEYUSER','M_MACROECONOMIC','M_MDP_CMPL_STAT','M_MI_SORT_STD','M_MS_AF','M_PM_SURVEY_PLAN','M_PM_SURVEY_STAT',
+'M_POTENTIAL_CUST','M_SORT_CHG_APP_DET','M_SUPPLY_DMD_STAT','M_WKST_IDX_RELA','O_CHK_TASK','O_DEPT','O_ORG','O_STAFF','P_APPROVE',
+'R_COLL_QUALITY','R_COLL_TASK_DET','R_CP','R_CP_COMM_PARA','R_CP_CONS_RELA','R_CP_CTRL_PARA','R_CP_MP_RELA','R_CP_SWITCH_PARA',
+'R_FACTOR_STD','R_LC_LIMIT_DET','R_LC_LIMIT_SCHEME','R_LC_SWITCH_TURNS','R_PEAK_TRANSFER_SCHEME','R_PLAN','R_POWER_DATA','R_TASK_EXEC',
+'R_TMNL_RUN','S_ACCEPT_DET_REC','S_ACCEPT_ITEM','S_ACTIVESRV_TACTIC','S_ACTIVESRV_TACTIC_EXEC','S_ALARM_LIMIT','S_APP_ACCT_F',
+'S_APP_ARC','S_APP_BANK_ACCT_F','S_APP_CONTACT_F','S_APP_CUST_ADDR_F','S_APP_DATA','S_APP_DATA_F','S_APP_NATURAL_INFO',
+'S_APP_PAYMENT_RELA','S_APP_REPLY','S_APP_VAT','S_APP_VAT_F','S_BILL_RELA_SCHEME','S_BILL_RELA_SCHEME_F','S_BUSITRIG_SURVEY_SCHEME',
+'S_BUSI_AMT_RCVED','S_BUSI_AMT_STD','S_BUSI_PARTNER_CONTACT','S_CHANNEL','S_CHANNEL_DEBUG','S_CHANNEL_EVALUATE','S_CHANNEL_RULE',
+'S_CHK_PLAN','S_CM','S_CM_NOTICE','S_CONTRACT_APP','S_CONTRACT_BILL','S_CONTRACT_PS_MODE','S_COOP','S_CR_EVAL_RPT','S_CR_GRADE_STD',
+'S_CUST_GROUP','S_CUST_GROUP_MODEL','S_CUST_IMPORTANT_DATE','S_CUST_RISK','S_CUST_VALUE','S_DESIGN_EXAMINE','S_DESIGN_VERI_DET',
+'S_DESIGN_VERI_NOTICE','S_DESIGN_VERI_RSLT','S_DEV_IR','S_DISCREDIT_CUST_ISSUE','S_EVAL_FACTOR_DEF','S_EVAL_OBJ_ATTR','S_EXCP_INITDIAG',
+'S_FAULT_ERR_RPT','S_FAULT_ERR_VERI','S_GROUP_DEF_ADJ','S_HR_IMPORTANT_CUST','S_IMPORTANT_CUST','S_IMPROVE','S_INVESTIGATE',
+'S_IRREAD_F','S_IT_SCHEME','S_IT_SNDLOAD_EVALRULE','S_MAINPOWER_CHK','S_MD_REFORM_TASK','S_METER_RELA_F','S_MI_RELA_SCHEME',
+'S_MI_RELA_SCHEME_F','S_PAIDSRV_FEE_SCHEME','S_PAIDSRV_SCHEME','S_POWERON','S_PREVENTIVE_TEST','S_PRJ_ACCEPT','S_PRJ_INSPECT',
+'S_PROTOCOL_ACCACH','S_PSP_BUDGET','S_SITECHK_CYC','S_SP_SCHEME','S_TERMINAL','S_VIP_CUST','C_CONS','C_CONTAINER_DEV','C_METER_MP_RELA',
+'C_MP','G_TRAN','ARC_S_DEV_IR','A_PRCTAX_AMT','A_INV_RELA','A_INV_METADATA','A_INV_METADATA_DET','A_INV_RSLT_FLOW','A_TAX_ORG');
+  
+  
+  
+  
+  --repyxd22 进程
+ select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM') and col.table_name in ( 'R_COLL_OBJ');
+  
+   --rep33 进程
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM') and col.table_name in ( 'D_WH');
+  
+  --rep32 进程
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM') and col.table_name in ( 'S_95598_WKST');
+  
+  --rep31 进程
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM') and col.table_name in ( 'S_PRJ_INFO');
+  
+   --rep30 进程
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM') and col.table_name in ( 'S_IR_READ','S_FAULT_ERR_INFO','C_MONTH_METER_READ');
+  
+  --repsb 进程
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner IN ('SGPM_OUT') and col.table_name in ( 'ARC_E_CONS_ACCU_PQ');
+  
+  --repsa 进程
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner='SGPM' and col.table_name in ( 'ARC_A_RCVBL_FLOW','ARC_E_BASE_AMT','ARC_E_CONS_PRC_AMT','ARC_E_CONS_SNAP',
+'ARC_E_CONSPRC_SNAP','ARC_E_CONSPRC_TACTIC_SNAP','ARC_E_KWH_AMT'
+,'ARC_E_MP_PARA_SNAP','ARC_E_MP_PQ','ARC_E_PF_AMT','ARC_E_TRAN_SNAP','ARC_R_PLAN','ARC_R_DATA','A_RCVBL_FLOW','ARC_E_PL_AMT');
+  
+  --rep_yxa1 进程
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner in ('AMBER','OWF_MGR','WF_AMBER','SGPM_OUT','SGPM') 
+and col.table_name in ('INDYWF_ABORT','INDYWF_BACK','INDYWF_INSTANCES_CUR','INDYWF_SUSPEND','INDYWF_WORKLIST_COM',
+'INDYWF_WORKLIST_CUR','INDYWF_WORKLIST_HIS','WF_ACTIVITIES','WF_ACTIVITIES_TL','WF_ACTIVITY_ATTRIBUTES','INDY_USER',
+'C_METER_READ','D_ARRIVE_METER_PARA','D_COLFLAG','D_COLFLAG_IO','D_CYC_STATUS_RULE','D_DIST_PLAN','D_IT_DMD_PLAN',
+'D_MEASTD_REFORM','D_MEAS_MANAGE_ASSESS','D_METER_DMD_PLAN','D_REGISTER_INIT','D_SAMPLING_SCHEME',
+'D_SAMPLING_TEST_SCHEME','D_STATUS_CHG','D_STDEQUIP','D_STD_DETECT_TASK','D_STD_ESTABLISH_INFO','D_SUPPLIER_PROD_EVAL',
+'D_TESTING_EQUIP','D_UNCERT_VERI_RSLT','D_VL_DEV_DETECT','E_CONSPRC_SNAP','E_CONS_PRC_AMT','E_EXCP_LIST','E_GC_SNAP',
+'E_KWH_AMT','E_PF_STD','E_PL_ITEM','E_PRC_POLICY','E_RS_PF_AMT','E_RS_PL_AMT','FS_GN_SCHEME','G_ACCU_G_LL_STAT',
+'G_CHKUNIT','G_CHKUNIT_COMP','G_IO_MP','G_LL_STAT','G_LL_STAT_BYVOLT','G_LL_STAT_LOG','M_ECI_FLUC_CUST',
+'M_KEYUSER_ECI_STAT','M_MARKET_DEV_PLAN','M_MDP_IMPL_PLAN','M_MI_SRC','M_MS_PLAN','M_OP_IDX_SCHEME','M_PLANT_RUN',
+'M_PP_ADVICE','M_PS_AF','M_SAMPLING_CUST','M_SPQ_CMPL','O_CHK_RSLT','O_SEAT_TRAFFIC','R_COND_MAINT','R_CP_GROUP_DET',
+'R_PEAK_LIMIT_SCHEME','R_READ_MACHINE','R_SECT_GRID_RELA','S_ACCEPT_DET','S_BATCH_CUST_APP','S_BATCH_CUST_DIST',
+'S_BUSI_AMT_SORT','S_CFG_QR_FORMULA','S_CHANNEL_REWARD','S_CHANNEL_STOPPAGE','S_CM_REF','S_CONSPRC_SCHEME','S_CONS_INFO',
+'S_CONTRACT_ATTACH','S_CR_EVAL_COND_RULE','S_CUSTRISK_PREVENT_MEAS','S_ELEC_DEV_SCHEME','S_EXCP_HANDLE_OPINION',
+'S_FAULT_ERR_HANDLE','S_ID_VALIDATE','S_INSPECT_RSLT','S_MAINTAIN_APP','S_MD_REFORM','S_MD_RQ_EVAL',
+'S_METER_ACCURACY_EVALRULE','S_METER_SCHEME_F','S_MID_CHECK','S_MP_CFG_EVAL','S_MP_SCHEME','S_MS_METER_EVALRULE',
+'S_PARTNER','S_PRC_TACTIC_SCHEME','S_PRJ_ACCEPT_APP','S_PRJ_ACCEPT_DET','S_PROTOCOL','S_PSP_CHARGE','S_PSP_DESIGN',
+'S_PSP_DEV_SUPPLY','S_PSP_FA','S_REFORM_PLAN','S_REFORM_SITECHK','S_RISK_PREVENT_RANGE','S_RMV_DEV_CHK','S_RPC_PF',
+'E_CONS_ACCU_PQ','R_TMNL_IR','A_ACCT_BAL_STAT','A_ACCT_CFG','A_ACCT_DAILY_BAL','A_ACCT_TRAN','A_ACCT_VER','A_BAD_DEBT',
+'A_BAL_ADJ','A_BANK','A_BUSI_RPT','A_CASHCHK_FLOW','A_CASH_BAL_STAT','A_DEPOSIT_ENTRY','A_DEPOSIT_STATEMENT',
+'A_INDAA_TOPUP','A_INV_PRINT_FLOW','A_INV_VER');
+  
+   select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner in ('AMBER','OWF_MGR','WF_AMBER','SGPM_OUT','SGPM') 
+and col.table_name in ('A_OTHERINCOME_ENTRY','A_PENALTY_SUSPEND','A_RCVBL_STAT','A_SUMMARY_VOUCHER',
+'A_SUMMARY_VOUCHER_DET','A_VOUCHER','A_VOUCHER_TMPL','C_ACCT','C_CERT','C_CHK_CYC_DICT','C_CONS_AGREEMENT_RELA',
+'C_CONS_PRC','C_CUST','C_MP_IT_RELA','C_MP_USE','C_RUN_OTHER_DEV','C_SPARE_POWER','C_VAT','C_VL_DEV',
+'DE_SAMPLING_TEST_DTL','D_ABILITY_VERI_NOTICE','D_ARRIVE_IT_PARA','D_ARRIVE_OTHERDEV_PARA','D_CHK_PLAN_DET',
+'D_DETECT_DEV','D_DETECT_RSLT','D_DETECT_STEP','D_ELIMINATE_DEV_LOG','D_EVAL_RSLT','D_EXCHG','D_FMR_EQUIP',
+'D_G_PLAN','D_INTUITIVE_TEST','D_INV_IT_STAT','D_INV_METER_STAT','D_IT','D_IT_SITECHK','D_LC_EQUIP','D_MEAS_STD_TYPE',
+'D_METER_DIGIT_WALK','D_MIDCHK_PLAN','D_ORDER_CONTRACT','D_ORG_CERT','D_OTHERDEV_DMD_PLAN','D_PROGRAMMER_SCHEME',
+'D_SAMPLE','D_SAMPLING','D_SEAL_IO_DET','D_SEAL_IR','D_SNDSC_LOAD_DETECT','D_STDDEV_FAULT','D_STOCK_ACCEPT_DET',
+'D_SUPERVISION_NOTICE','D_SUPPLIER_TECH_AGREEMENT','D_TERMINAL','D_VERI_CHK_PLAN','D_WORK_DET','E_BILL_RELA_SNAP',
+'E_CONSPRC_TACTIC_SNAP','E_CONS_SNAP','E_MP_PQ','E_PF_AMT','E_PL_AMT','E_RS_LOG','E_RS_PQ','E_TL_STD','E_TL_STD_TABLE',
+'E_TRAN_CHG_SNAP','FC_BUSINESS','FS_GC_ADDR','FS_GC_CONTACT','FS_GC_DATA','FS_GC_TRAN_DEV','FS_GP_SCHEME',
+'FS_GP_SCHEME_DRAWING','G_G_LL_STAT','G_TG_LL_DET','M_AF','M_AF_RPT_RELA','M_AF_RPT_TMPL','M_BN_SOLUTION','M_CUST_EEP',
+'M_CUST_EEP_IMPL','M_CUST_TRACK','M_CUST_VISIT','M_DISPATCH_LOAD','M_EEM','M_EEM_CUST_RECOM','M_EEM_CUST_RELA_RECOM',
+'M_EEM_RECOM','M_EEM_SAT_STAT','M_EEM_SC_RELA_RECOM','M_EEP_STAT_BYMEAS','M_EE_DATA','M_GENERATOR_RUN','M_GRID_EXCHG',
+'M_KEYUSER_ECI_PP','M_KEYUSER_ECI_PP_DET','M_LIVE_WORK','M_LOAD_AF','M_MAINPROD_ECI_PP','M_MAINPROD_ECI_PP_DET',
+'M_MAJORCUST_DMD_AF','M_MAJORTRADE_DEV_AF','M_MARKET_DEV_DET','M_MARKET_DEV_STAT','M_MDP_CMPL_DET','M_MDP_CMPL_EVAL',
+'M_MDP_TRACK','M_MI_COLL_WKST','M_MS_CMPL','M_MS_PLAN_ADVICE','M_OPSCHEME_SUMMARY','M_OP_ALARM','M_OP_CUST',
+'M_OP_CUST_GROUP','M_OP_HEC_STAT','M_OP_IDX','M_OP_IMPL_SCHEME','M_OP_IMPL_STAT','M_OTHER_MI','M_PC_AF','M_PLANT',
+'M_PLANT_INFO','M_PLANT_PERSON','M_PM_SURVEY');
+  
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner in ('AMBER','OWF_MGR','WF_AMBER','SGPM_OUT','SGPM') 
+and col.table_name in ('M_POTENTIAL_AREA','M_POTENTIAL_TRADE','M_POWER_DMD','M_RESIDENT_DMD_AF','M_SMALL_HTPOWER',
+'M_SPQ_PLAN','M_ZW','O_CTI_TRAFFIC','R_COLL_REQ','R_EXCP_ALARM','S_APP_ACCT','S_APP_CERT','S_APP_CONTACT',
+'S_CHK_PLAN_DET','S_CM_ATTACH','S_PS_SCHEME_DRAWING','S_RISK_PREVENT_SCHEME','S_ROTATE_CYC','S_RQ_EVAL_RELA',
+'S_SATIS_ANALRPT','S_SATIS_EVAL_RSLT','S_SATI_SURVEY_QUESTION','S_SATI_SURVEY_SCHEME','S_SATI_SURVEY_SUBJECT',
+'S_SCORE_ACCU_RULE','S_SHUNT_EXEC','S_SITEPLAN','S_SITE_SURVEY','S_SND_CIRCUIT_EVALRULE','S_SP_SCHEME_DET',
+'S_SRV_CHANNEL','S_SRV_OBJ_DIST','S_SRV_TACTIC','S_SRV__PLAN','S_SUBSCIBE_SEND','S_SUBSCIBE_SEND_RSLT',
+'S_SUPPLIER_INFO','S_SURVEY_DET','S_SURVEY_RSLT','S_TMP_NOMETER_SCHEME','S_TRAFFIC_BAL_EVAL','S_TRAFFIC_BAL_TACTIC',
+'S_TRAFFIC_SHUNT_APP','S_TRAFFIC_SHUNT_RSLT','S_TRAFFIC_SHUNT_TACTIC','S_VERIFIER_REF','S_VERI_ITEM','S_VL_DEV_SCHEME',
+'S_WIRING_MODE_EVALRULE','S_WL_FACTOR_STD_VALUE','S_WL_STAT','O_PA_ERR','O_PA_RELEASE_MON',
+'INDY_USER_ACTION','indy_user_grantaction','G_TRAN_DVC_RELA','P_LOGIN_LOG','P_PRIV','P_ROLE','P_ROLE_PRIV_RELA',
+'P_USER_ROLE_RELA','D_WH_AREA','S_PARK','S_MT_CONSTRAIN','S_INTERVAL_CONSTRAIN','S_LINE_CONSTRAIN','S_TG_CONSTRAIN',
+'S_INTERACT_TMPL','S_REMINDER_INFO','S_REMINDER_ACT','S_APP_PRJ_DEL','S_PRJ_PACKAGE','S_PRJ_SUB_PACKAGE','S_PRJ_STOCK',
+'S_PRJ_ERP_ESTAB','S_PRJ_DESIGN','S_PRJ_GOODS','S_PRJ_CONSTR','S_PSP_PRJ_PROCESS','S_ERGE_ACT','S_ERGE_ACT_RELA',
+'S_SYN_ORG_RELA','S_PROCESS_QUERY_DET','S_ACTIVE_PUSH_DET','S_EVAL_RESULT','S_EVAL_RESULT_DET','S_EL_PLAN_ACCESSORY',
+'O_AREA_ORG_RELA','C_BF_PLANT','E_PLANT_SNAP','PMS_POWERON_RETURN','CMS_POWERON_APP_RETURN','R_MONTH_TGPQ','FC_GG_INFO',
+'FS_GG_SCHEME','FC_BOILER_INFO','FS_BOILER_SCHEME','FC_TURB_INFO','FS_TURB_SCHEME','FC_GENERATOR_INFO',
+'FS_GENERATOR_SCHEME','PAY_TRAN_RESULT','P_YD_TQYBT','P_INTERFACE_LOG','INDY_AUDITOR_OPER','INDY_MENU',
+'INDY_AUDITOR_CATEGORY','INDY_AUDITOR_EXECSQL','INDY_AUDITOR_NATIVESQL','INDY_AUDITOR_TYPE','INDY_CACHE_MESSAGE',
+'INDY_CONFIG','INDY_CRYPT_KEYSTORE','INDY_SAFECONFIG','SP_MONITOR_AS_CACHE','SP_MONITOR_AS','SP_MONITOR_AS_JVM',
+'SP_MONITOR_AS_JVM','SP_MONITOR_AS_ONLINE','SP_MONITOR_CONFIG','SP_MONITOR_DB','SP_MONITOR_ITEM','SP_MONITOR_OS',
+'SP_QUERY_CONT_CONFIG','SP_QUERY_CONT_DEF','SP_QUERY_DEF','SP_QUERY_PARA_DEF','P_INTERFACE_LOG','E_PRC_TJ');
+  
+  
+   --rep_yxa2 进程
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner in ('AMBER','WF_AMBER','SGPM_OUT','SGPM') 
+and col.table_name in ('INDYWF_ABORT','INDYWF_BACK','INDY_USER','C_METER_READ','D_ARRIVE_METER_PARA','D_COLFLAG',
+'D_COLFLAG_IO','D_CYC_STATUS_RULE','D_DIST_PLAN','D_IT_DMD_PLAN','D_MEASTD_REFORM','D_MEAS_MANAGE_ASSESS',
+'D_METER_DMD_PLAN','D_REGISTER_INIT','D_SAMPLING_SCHEME','D_SAMPLING_TEST_SCHEME','D_STATUS_CHG','D_STDEQUIP',
+'D_STD_DETECT_TASK','D_STD_ESTABLISH_INFO','D_SUPPLIER_PROD_EVAL','D_TESTING_EQUIP','D_UNCERT_VERI_RSLT',
+'D_VL_DEV_DETECT','E_CONSPRC_SNAP','E_CONS_PRC_AMT','E_EXCP_LIST','E_GC_SNAP','E_KWH_AMT','E_PF_STD',
+'E_PL_ITEM','E_PRC_POLICY','E_RS_PF_AMT','E_RS_PL_AMT','FS_GN_SCHEME','G_ACCU_G_LL_STAT','G_CHKUNIT',
+'G_CHKUNIT_COMP','G_IO_MP','G_LL_STAT','G_LL_STAT_BYVOLT','G_LL_STAT_LOG','M_ECI_FLUC_CUST','M_KEYUSER_ECI_STAT',
+'M_MARKET_DEV_PLAN','M_MDP_IMPL_PLAN','M_MI_SRC','M_MS_PLAN','M_OP_IDX_SCHEME','M_PLANT_RUN','M_PP_ADVICE','M_PS_AF',
+'M_SAMPLING_CUST','M_SPQ_CMPL','O_CHK_RSLT','O_SEAT_TRAFFIC','R_COND_MAINT','R_CP_GROUP_DET','R_PEAK_LIMIT_SCHEME',
+'R_READ_MACHINE','R_SECT_GRID_RELA','S_ACCEPT_DET','S_BATCH_CUST_APP','S_BATCH_CUST_DIST','S_BUSI_AMT_SORT',
+'S_CFG_QR_FORMULA','S_CHANNEL_REWARD','S_CHANNEL_STOPPAGE','S_CM_REF','S_CONSPRC_SCHEME','S_CONS_INFO',
+'S_CONTRACT_ATTACH','S_CR_EVAL_COND_RULE','S_CUSTRISK_PREVENT_MEAS','S_ELEC_DEV_SCHEME','S_EXCP_HANDLE_OPINION',
+'S_FAULT_ERR_HANDLE','S_INSPECT_RSLT','S_IR_READ','S_MAINTAIN_APP','S_MD_REFORM','S_MD_RQ_EVAL',
+'S_METER_ACCURACY_EVALRULE','S_METER_SCHEME_F','S_MID_CHECK','S_MP_CFG_EVAL','S_MP_SCHEME','S_MS_METER_EVALRULE',
+'S_PARTNER','S_PRC_TACTIC_SCHEME','S_PRJ_ACCEPT_APP','S_PRJ_ACCEPT_DET','S_PROTOCOL','S_PSP_CHARGE','S_PSP_DESIGN',
+'S_PSP_DEV_SUPPLY','S_PSP_FA','S_REFORM_PLAN','S_REFORM_SITECHK','S_RISK_PREVENT_RANGE','S_RMV_DEV_CHK','S_RPC_PF',
+'ARC_E_CONS_ACCU_PQ','E_CONS_ACCU_PQ','R_TMNL_IR','A_ACCT_BAL_STAT','A_ACCT_CFG','A_ACCT_DAILY_BAL','A_ACCT_TRAN',
+'A_ACCT_VER','A_BAD_DEBT','A_BAL_ADJ','A_BANK','A_BUSI_RPT','A_CASHCHK_FLOW','A_CASH_BAL_STAT','A_DEPOSIT_ENTRY',
+'A_DEPOSIT_STATEMENT','A_INDAA_TOPUP','A_INV_PRINT_FLOW','A_INV_VER','A_OTHERINCOME_ENTRY','A_PENALTY_SUSPEND','A_RCVBL_STAT',
+'A_SUMMARY_VOUCHER','A_SUMMARY_VOUCHER_DET','A_VOUCHER','A_VOUCHER_TMPL','C_ACCT','C_CERT','C_CHK_CYC_DICT','C_CONS_AGREEMENT_RELA',
+'C_CONS_PRC','C_CUST','C_MP_IT_RELA','C_MP_USE','C_RUN_OTHER_DEV','C_SPARE_POWER','C_VAT','C_VL_DEV','DE_SAMPLING_TEST_DTL',
+'D_ABILITY_VERI_NOTICE','D_ARRIVE_IT_PARA');
+  
+   select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner in ('AMBER','WF_AMBER','SGPM_OUT','SGPM') 
+and col.table_name in ('D_ARRIVE_OTHERDEV_PARA','D_CHK_PLAN_DET','D_DETECT_DEV','D_DETECT_RSLT','D_DETECT_STEP','D_ELIMINATE_DEV_LOG',
+'D_EVAL_RSLT','D_EXCHG','D_FMR_EQUIP','D_G_PLAN','D_INTUITIVE_TEST','D_INV_IT_STAT','D_INV_METER_STAT','D_IT','D_IT_SITECHK','D_LC_EQUIP',
+'D_MEAS_STD_TYPE','D_METER_DIGIT_WALK','D_MIDCHK_PLAN','D_ORDER_CONTRACT','D_ORG_CERT','D_OTHERDEV_DMD_PLAN','D_PROGRAMMER_SCHEME','D_SAMPLE',
+'D_SAMPLING','D_SEAL_IO_DET','D_SEAL_IR','D_SNDSC_LOAD_DETECT','D_STDDEV_FAULT','D_STOCK_ACCEPT_DET','D_SUPERVISION_NOTICE',
+'D_SUPPLIER_TECH_AGREEMENT','D_TERMINAL','D_VERI_CHK_PLAN','D_WORK_DET','E_BILL_RELA_SNAP','E_CONSPRC_TACTIC_SNAP','E_CONS_SNAP','E_MP_PQ',
+'E_PF_AMT','E_PL_AMT','E_RS_LOG','E_RS_PQ','E_TL_STD','E_TL_STD_TABLE','E_TRAN_CHG_SNAP','FC_BUSINESS','FS_GC_ADDR','FS_GC_CONTACT',
+'FS_GC_DATA','FS_GC_TRAN_DEV','FS_GP_SCHEME','FS_GP_SCHEME_DRAWING','G_G_LL_STAT','G_TG_LL_DET','M_AF','M_AF_RPT_RELA','M_AF_RPT_TMPL',
+'M_BN_SOLUTION','M_CUST_EEP','M_CUST_EEP_IMPL','M_CUST_TRACK','M_CUST_VISIT','M_DISPATCH_LOAD','M_EEM','M_EEM_CUST_RECOM',
+'M_EEM_CUST_RELA_RECOM','M_EEM_RECOM','M_EEM_SAT_STAT','M_EEM_SC_RELA_RECOM','M_EEP_STAT_BYMEAS','M_EE_DATA','M_GENERATOR_RUN',
+'M_GRID_EXCHG','M_KEYUSER_ECI_PP','M_KEYUSER_ECI_PP_DET','M_LIVE_WORK','M_LOAD_AF','M_MAINPROD_ECI_PP','M_MAINPROD_ECI_PP_DET',
+'M_MAJORCUST_DMD_AF','M_MAJORTRADE_DEV_AF','M_MARKET_DEV_DET','M_MARKET_DEV_STAT','M_MDP_CMPL_DET','M_MDP_CMPL_EVAL','M_MDP_TRACK',
+'M_MI_COLL_WKST','M_MS_CMPL','M_MS_PLAN_ADVICE','M_OPSCHEME_SUMMARY','M_OP_ALARM','M_OP_CUST','M_OP_CUST_GROUP','M_OP_HEC_STAT','M_OP_IDX',
+'M_OP_IMPL_SCHEME','M_OP_IMPL_STAT','M_OTHER_MI','M_PC_AF','M_PLANT','M_PLANT_INFO','M_PLANT_PERSON','M_PM_SURVEY','M_POTENTIAL_AREA',
+'M_POTENTIAL_TRADE','M_POWER_DMD','M_RESIDENT_DMD_AF','M_SMALL_HTPOWER','M_SPQ_PLAN','M_ZW','O_CTI_TRAFFIC');
+  
+  
+  
+   select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner in ('AMBER','WF_AMBER','SGPM_OUT','SGPM') 
+and col.table_name in ('R_COLL_REQ','R_EXCP_ALARM','S_APP_ACCT','S_APP_CERT','S_APP_CONTACT','S_CHK_PLAN_DET','S_CM_ATTACH',
+'S_PS_SCHEME_DRAWING','S_RISK_PREVENT_SCHEME','S_ROTATE_CYC','S_RQ_EVAL_RELA','S_SATIS_ANALRPT','S_SATIS_EVAL_RSLT','S_SATI_SURVEY_QUESTION',
+'S_SATI_SURVEY_SCHEME','S_SATI_SURVEY_SUBJECT','S_SCORE_ACCU_RULE','S_SHUNT_EXEC','S_SITEPLAN','S_SITE_SURVEY','S_SND_CIRCUIT_EVALRULE',
+'S_SP_SCHEME_DET','S_SRV_CHANNEL','S_SRV_OBJ_DIST','S_SRV_TACTIC','S_SRV__PLAN','S_SUBSCIBE_SEND','S_SUBSCIBE_SEND_RSLT','S_SUPPLIER_INFO',
+'S_SURVEY_DET','S_SURVEY_RSLT','S_TMP_NOMETER_SCHEME','S_TRAFFIC_BAL_EVAL','S_TRAFFIC_BAL_TACTIC','S_TRAFFIC_SHUNT_APP','S_TRAFFIC_SHUNT_RSLT',
+'S_TRAFFIC_SHUNT_TACTIC','S_VERIFIER_REF','S_VERI_ITEM','S_VL_DEV_SCHEME','S_WIRING_MODE_EVALRULE','S_WL_FACTOR_STD_VALUE','S_WL_STAT',
+'G_TRAN_DVC_RELA','P_LOGIN_LOG','P_PRIV','P_ROLE','P_ROLE_PRIV_RELA','P_USER_ROLE_RELA','S_PRJ_INFO','S_PARK','S_MT_CONSTRAIN',
+'S_INTERVAL_CONSTRAIN','S_LINE_CONSTRAIN','S_TG_CONSTRAIN','S_INTERACT_TMPL','S_REMINDER_INFO','S_REMINDER_ACT','S_APP_PRJ_DEL',
+'S_PRJ_PACKAGE','S_PRJ_SUB_PACKAGE','S_PRJ_STOCK','S_PRJ_ERP_ESTAB','S_PRJ_DESIGN','S_PRJ_GOODS','S_PRJ_CONSTR','S_PSP_PRJ_PROCESS',
+'S_ERGE_ACT','S_ERGE_ACT_RELA','S_SYN_ORG_RELA','S_PROCESS_QUERY_DET','S_ACTIVE_PUSH_DET','S_EVAL_RESULT','S_EVAL_RESULT_DET',
+'S_EL_PLAN_ACCESSORY','O_AREA_ORG_RELA','C_BF_PLANT','C_MONTH_METER_READ','E_PLANT_SNAP','FC_BOILER_INFO','FC_GENERATOR_INFO','FC_GG_INFO',
+'FC_TURB_INFO','FS_BOILER_SCHEME','FS_GENERATOR_SCHEME','FS_GG_SCHEME','FS_TURB_SCHEME','PAY_TRAN_RESULT','R_MONTH_TGPQ','S_FAULT_ERR_INFO',
+'T_PMS_POWEROFF_EQUIP_LIST','T_PMS_POWEROFF_USER_LIST','CMS_POWERON_APP_RETURN','PMS_POWERON_RETURN','P_YD_TQYBT','S_REGION_OUTAGE');
+  
+   --rep_yxd1 进程
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner in ('EVDEC','OWF_MGR','SGPM') 
+and col.table_name in ('ARC_A_ACCT_ENTRY','ARC_A_PAY_FLOW','ARC_A_RCVED_FLOW','ARC_A_RCVED_PL_FLOW','ARC_E_BILL_RELA_SNAP','ARC_E_LINE_SNAP',
+'ARC_E_TRAN_CHG_SNAP','ARC_S_ACCEPT_DET','ARC_S_APP','ARC_S_APP_ACCT','ARC_S_APP_ACCT_F','ARC_S_APP_ARC','ARC_S_APP_BANK_ACCT',
+'ARC_S_APP_BANK_ACCT_F','ARC_S_APP_CERT','ARC_S_APP_CONTACT','ARC_S_APP_CONTACT_F','ARC_S_APP_CUST_ADDR','ARC_S_APP_DATA','ARC_S_APP_DATA_F',
+'ARC_S_APP_ELEC_ADDR','ARC_S_APP_ELEC_ADDR_F','ARC_S_APP_F','ARC_S_APP_NATURAL_INFO','ARC_S_APP_NATURAL_INFO_F','ARC_S_APP_PAYMENT_RELA',
+'ARC_S_APP_PAYMENT_RELA_F','ARC_S_APP_REPLY','ARC_S_APP_TRAN_DEV','ARC_S_APP_TRAN_DEV_F','ARC_S_APP_VAT','ARC_S_APP_VAT_F',
+'ARC_S_BATCH_CUST_DIST','ARC_S_BILL_RELA_SCHEME','ARC_S_BUSI_AMT_RCVBL','ARC_S_BUSI_AMT_RCVED','ARC_S_CONSPRC_SCHEME',
+'ARC_S_CONSPRC_SCHEME_DET','ARC_S_DESIGN_EXAMINE','ARC_S_ELEC_DEV_SCHEME','ARC_S_ELEC_DEV_SCHEME_F','ARC_S_INVESTIGATE','ARC_S_IRREAD_F',
+'ARC_S_METER_RELA_F','ARC_S_METER_SCHEME_F','ARC_S_MID_CHECK','ARC_S_MP_SCHEME_F','ARC_S_POWERON','ARC_S_PRC_TACTIC_SCHEME',
+'ARC_S_PRC_TACTIC_SCHEME_DET','ARC_S_PRJ_ACCEPT','ARC_S_PSP_BUDGET','ARC_S_PSP_CHARGE','ARC_S_PSP_CONSTRUCT','ARC_S_PSP_DESIGN',
+'ARC_S_PSP_DESIGN_VERI','ARC_S_PSP_DEV_SUPPLY','ARC_S_PSP_FA','ARC_S_PSP_SUPERVISON','ARC_S_PS_CHG_SCHEME','ARC_S_PS_CHG_SCHEME_DET',
+'ARC_S_PS_SCHEME_DRAWING','ARC_S_SCHEME_DRAWING_DET','ARC_S_SP_SCHEME','ARC_S_SP_SCHEME_DET','ARC_S_SURVEY_DET','ARC_S_TMP_NOMETER_SCHEME',
+'ARC_S_TMP_NOMETER_SCHEME_DET','A_ACCT','A_ACCT_CLOSE_LOG','A_CAPITAL','A_CHG_ENTRY','A_CHG_STAT','A_CR_FLOW','A_CR_PLAN','A_CR_RELA',
+'A_CR_SECT','A_CR_SECT_ADJ','A_DEPOSIT_UNBAL','A_GP_PLAN','A_INDAA_CHK','A_INDAA_CHKFILE','A_INNER_RCVPAY','A_OTHER_RCVPAY_ENTRY','A_PAY_CFG',
+'A_PC_TRAN_UNBAL','A_PENALTY_RET','A_REPAY_PLAN','A_UNCHK_CASH','C_BILL_RELA','C_BREAKER','C_CHK_CYC_RULE','C_CONS','C_CONS_CERT_RELA',
+'C_CONS_PRC_TACTIC','C_CONTACT','C_HV_MOTOR','C_PAYMENT_RELA','C_RCA_CONS','C_SP','C_SPARE_GENERATOR','C_SPECIAL_CONS_PARA',
+'C_SPECIAL_CONS_TYPE','D_ABILITY_VERI_RSLT','D_ARRIVE','D_ARRIVE_DET','D_BATCH_SAMPLING');
+
+   select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner in ('EVDEC','OWF_MGR','SGPM') 
+and col.table_name in ('D_BID_RSLT','D_CERT_DELIVERY','D_CHK_DATA','D_CHK_RSLT_ANAL','D_COLFLAG_IO_DET','D_CONS_CONSIGN_REG',
+'D_CORRECT_MEAS','D_DETECT_PLAN','D_DETECT_PLAN_DET','D_DIST_APP','D_DIST_PLAN_DET','D_DIST_RSLT','D_DMD_PLAN','D_ELIMINATE_PROD_CAT',
+'D_G_PLAN_DET','D_INV_LEDGER','D_INV_METER_DET','D_IO_TASK','D_IT_DETECT','D_IT_ORDER','D_IT_SITECHK_ERR','D_LAB_ASSESS_ORG',
+'D_LEGAL_ORG_VERI','D_MATERIAL_DMD_WKST','D_MD_VOLT_TEST','D_MEASTD_ASSESS','D_MEASTD_ASSESS_APP','D_MEASTD_ASSESS_RSLT','D_MEAS_CUBICLE',
+'D_MEAS_DOC_BORROW','D_MEAS_DOC_LOOKUP','D_MEAS_STD_CHK','D_MEAS_TECH_TMPL','D_MEAS_VEHICLE','D_METER_ALLOC','D_METER_DETECT','D_METER_ORDER',
+'D_METER_SITECHK_READING','D_MIDCHK_PLAN_DET','D_OPEN_CHK','D_ORG_EXAMINE_APP','D_ORG_EXAMINE_RSLT','D_PHASEANGLE_CHK_RECORD','D_PROD_BATCH',
+'D_PROGRAMMER_IO','D_PROGRAMMER_REC','D_PROGRAMMER_SOFTWARE','D_REFDEV_CFG_REQ','D_REFORM','D_REFORM_ACCEPT','D_REFORM_PLAN',
+'D_REGISTER_DIGIT_WALK','D_ROTATION_SAMPLING_PLAN','D_SEAL','D_SEAL_FLAG','D_SEAL_IO','D_STDACCT_CHG_APP','D_STDDEV_MAINT',
+'D_STDDEV_MAINT_LIST','D_STD_AUX_EQUIP','D_UNCERT_VERI_PLAN','D_VL_DEV','D_VL_DEV_READ','E_ADD_PL_PRC','E_AMT_ERR_STAT','E_BASE_AMT',
+'E_BASE_PRC','E_BILL_PARA_VER','E_CAT_PRC_DET','E_GC_CONS_SNAP_RELA','E_LINE_SNAP','E_PL_PRC','E_POLICY_ADJ_DET','E_POLICY_ADJ_WKST',
+'E_PRC_POLICY_PARA','E_PRC_SCOPE','E_RCVBL_RPT','E_RS_BASE_AMT','E_RS_KWH_AMT','E_RS_PRC_AMT','E_RS_SORT_RELA','E_TRAN_SNAP','FS_GC',
+'FS_GC_CERT','FS_GC_DEV_SCHEME','G_CHKUNIT_PQ','G_CHKUNIT_REF_IDX','G_LINE_PQ','G_LLR_CMPL','G_PQ_ADJ','G_TG_G_STAT','G_TG_PQ','M_AF_RPT',
+'M_CLEAR_SELFSUPPLY','M_EE_ANNUAL_EEI','M_GENERATOR','M_LOAD_FLUC_AF','M_LOCALPLANT_AF','M_MD_ANAL_RPT','M_MI_IDX','M_MONQUA_SPQ_PLAN',
+'M_OPSCHEME','M_OPSCHEME_ADJ_APP','M_OP_CONS_IMPL_STAT','M_OP_DAILY_RPT','M_OP_IMPL','M_PM_SURVEY_DET','M_POWER_CUTOFF','M_PP_ANAL',
+'M_SORT_CHG_APP','M_SPAREPLANT_AF','M_SPQ_AF','M_SPQ_PLAN_ADVICE','M_STOP_SPAREPLANT','M_SUPL_DMD_AF','M_SUPPLY_DMD_SITUATION',
+'M_TEMP_LOAD_FORE','M_WEATHER','O_CHK_SUBJECT','O_IMPROVE_REMINDER');
+
+   select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner in ('EVDEC','OWF_MGR','SGPM') 
+and col.table_name in ('P_HOLIDAY','R_ATTR_MAINT','R_BUSI_STOP_CTRL','R_CHK_EXTRA','R_COLL_DATA','R_COLL_TASK','R_CR_CTRL','R_CTRL_EXEC',
+'R_DATA','R_DATA_PROCESS','R_ENTITY_MAINT','R_ERR','R_EXCP_DATA','R_EXCP_HANDLE_WKST','R_EXCP_HANLE','R_FACTOR_VER','R_GROUP','R_MAINT_APP',
+'R_MANAGE_LOG','R_MID_TABLE','R_OPER_ACTIVITY','R_PEAK_LIMIT_DET','R_PEAK_TRANSFER_DET','R_PLAN_DAY','R_PREPAY_CTRL','R_SECT',
+'S_ADD_SHUNT_EXEC','S_APP','S_APP_BANK_ACCT','S_APP_CERT_F','S_APP_CUST_ADDR','S_APP_ELEC_ADDR','S_APP_ELEC_ADDR_F','S_APP_F',
+'S_APP_NATURAL_INFO_F','S_APP_PAYMENT_RELA_F','S_APP_PROC','S_APP_TMPL','S_APP_TRAN_DEV','S_APP_TRAN_DEV_F','S_ARCHIVE','S_BILL_NOTICE',
+'S_BILL_PARA_TMPL','S_BILL_SCHEME_TMPL','S_BRANCH','S_BRANCH_MAINTAIN','S_BUSI_AMT_RCVBL','S_BUSI_PARTNER_EVAL','S_BUSI_TMPL',
+'S_CFG_EVAL_RELA','S_CFG_EVARULE','S_CHANEL_PARA','S_CHANNEL_MAINTAIN','S_CHANNEL_REPORT','S_CHANNEL_REWARD_RULE','S_CHARGE_CONFIRM',
+'S_CM_CHG','S_CM_RELEASE','S_CONSPRC_SCHEME_DET','S_CONS_PRC_TMPL','S_CONTRACT_MP','S_CONTRACT_SP','S_CR_EVAL_LOG','S_CR_EVAL_RULE',
+'S_CUST_GROUP_MODEL_COND','S_CYC_TEST_PLAN','S_DESIGN_VERI','S_DESIGN_VERI_DEPT','S_DISCREDIT_CUST','S_DISCREDIT_CUST_NOMI','S_DRAWING',
+'S_ELEC_DEV_SCHEME_F','S_EVAL_TASK','S_EXCP_SITECHK_RSLT','S_FRST_TEST','S_IR_READ_TMPL','S_IT_ACURACY_EVALRULE','S_IT_CFG_EVALRULE',
+'S_IT_SCHEME_DET','S_IT_SCHEME_TMPL','S_MD_CFG_EVALRULE','S_MD_REFORM_SCHEME','S_MD_SORT_ADJ_APP','S_MEAS_EXCP_HANDLE','S_MEAS_FAULT',
+'S_METER_SCHEME','S_METER_SCHEME_TMPL','S_MP_APP','S_MP_METER_RELA_SCHM','S_MP_SCHEME_F','S_MP_SCHEME_TMPL','S_MP_USE_SCHEME',
+'S_MP_USE_SCHEME_F','S_OUTAGE','S_PAIDSRV_AGREEMENT','S_PAIDSRV_APP','S_PAIDSRV_HANDLE','S_POWER_ACCI','S_POWER_RECO','S_POWER_STEAL_CASE',
+'S_POWER_VIOLATE_STEAL','S_PRC_TACTIC_SCHEME_DET','S_PRC_TACTIC_TMPL','S_PSP_CONSTRUCT','S_PSP_DESIGN_VERI','S_PSP_QUALITY_MONITOR',
+'S_PSP_SUPERVISON','S_PS_CHG_SCHEME','S_PS_CHG_SCHEME_DET','S_PS_CHG_TMPL','S_PS_SCHEME','S_PS_SCHEME_DET','S_PS_TMPL','S_PWD_VALIDATE',
+'S_REFORM_PLAN_DET','S_REFORM_SITECHK_DET','S_RISK_ALARM','S_RISK_PREVENT_MEAS','S_ROTATE_PLAN','S_RQ_EVALRULE','S_RQ_EVAL_ITEM',
+'S_SAFETY_BUG','S_SATIS_EVAL_FACTOR','S_SATI_SURVEY','S_SATI_SURVEY_ANSWER','S_SATI_SURVEY_RSLT','S_SCHEME_DRAWING_DET','S_SMS_SHUNT_EXEC',
+'S_SND_CIRCUIT_SCHEME','S_SRV_TACTIC_SET','S_STAT_RSLT');
+  
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner in ('EVDEC','OWF_MGR','SGPM') 
+and col.table_name in ('S_SUBSCIBE_CONT','S_SURVEY_INFO','S_TERMINAL_INSPECT','S_TERMINAL_INSPECT_PLAN','S_TERMINAL_MAINTAIN',
+'S_TMP_NOMETER_SCHEME_DET','S_TRAFFIC_BAL_SCHEME','S_TRAFFIC_SHUNT_ASSESS','S_TRAFFIC_SHUNT_EXEC','S_TRAFFIC_SHUNT_PRIO','S_UNQLF_DEV',
+'S_UNQLF_ITEM','S_VIPCARD_GRANT','S_WL_STD_FACTOR','A_CURINV','A_ACCT_BAL','WF_ACTIVITY_TRANSITIONS','WF_PROCESS_ACTIVITIES',
+'ARC_S_APP_CERT_F','ARC_S_APP_CUST_ADDR_F','ARC_S_BATCH_CUST_APP','ARC_S_BILL_RELA_SCHEME_F','ARC_S_IT_SCHEME_DET','ARC_S_MI_RELA_SCHEME_F',
+'ARC_S_MP_USE_SCHEME_F','ARC_S_PRJ_INSPECT','ARC_S_PSP_QUALITY_MONITOR','ARC_S_PS_SCHEME','ARC_S_PS_SCHEME_DET','A_ACCT_AGE_STAT',
+'A_ACCT_ENTRY','A_CHKFILE','A_CHK_DATE','A_CR_TACTIC','A_GP_AGREEMENT','A_INV_IO','A_INV_MANAGE','A_LOGIN','A_PAYABLE_STAT',
+'A_PAYMODE_AGREEMENT','A_PENALTY_CFG_RULE','A_POWER_BUY','A_RCVBL_RISK_ADJ','A_REFUND','A_TERMIAL_LOG','A_TOPUP','A_TRANSIT','C_ARRESTER',
+'C_BANK_ACCT','C_CONS_CONTACT_RELA','C_CONTAINER_DEV','C_CUST_ADDR','C_CUST_AGREEMENT','C_CUST_RELA','C_ELEC_ADDR','C_EQUIP_RUN','C_IT_RUN',
+'C_METER_MP_RELA','C_METER_READ_TYPE','C_MP','C_MP_SECT','C_PS','C_RELAY_PROTECT_DEV','C_RPC_EQUIP','C_SND_CIRCUIT','D_CERT',
+'D_COLFLAG_USE_LOG','D_CONS_CONSIGN','D_DETECT_ASSIGN','D_DIST_APP_DET','D_DIST_TASK','D_HOLDER_DEV_RELA','D_INV_IT_DET','D_INV_OTHER_DET',
+'D_INV_OTHER_STAT','D_IT_DETECT_ERR','D_IT_RATIO','D_LAB_VERI','D_MEAS_BOX','D_MEAS_ENV','D_MEAS_EQUIP','D_MEAS_INNER_VERI','D_MEAS_SYS_FILE',
+'D_METER_DETECT_CONC','D_METER_SITECHK','D_MULTFUNC_DETECT','D_OTHERDEV_ORDER_DET','D_OTHER_DEV','D_PROGRAMMER','D_PURCHASE_PLAN',
+'D_ROTATION_SAMPLING_DET','D_SITECHK_FAULT_RECORD','D_STDDEV','D_STD_DETECT_RSLT','D_SUPPLIER_PROD','D_TEMP_CTRL_DEV','D_TMNL_TEST',
+'D_TVSNDSC_VOLT_DETECT','E_CAT_PRC','E_MP_PARA_SNAP','E_PRC_POLICY_EFFECT','FC_CONS_CERT_RELA','FC_CONS_GC_RELA','FC_GC','FC_GC_ADDR',
+'FC_GC_AGREEMENT_RELA','FC_GC_CONTACT_RELA','FC_GN','FC_GP','FC_PLANT','FS_CONS_GC_RELA','FS_GC_SCHEME','G_LINE','G_LINE_RELA','G_LINE_TG_RELA',
+'G_LL_COMP','G_SUBS','G_SUBS_LINE_RELA','G_TG','G_TRAN','M_ANNUAL_EEI','M_EEM_');
+  
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner in ('EVDEC','OWF_MGR','SGPM') 
+and col.table_name in ('M_EEP_STAT_BYTRADE','M_EE_MANAGE_','M_KEYTRADE_PROD','M_KEYUSER','M_MACROECONOMIC','M_MDP_CMPL_STAT','M_MI_SORT_STD',
+'M_MS_AF','M_PM_SURVEY_PLAN','M_PM_SURVEY_STAT','M_POTENTIAL_CUST','M_SORT_CHG_APP_DET','M_SUPPLY_DMD_STAT','M_WKST_IDX_RELA','O_CHK_TASK',
+'O_DEPT','O_ORG','O_STAFF','P_APPROVE','P_CODE','P_CODE_SORT','R_COLL_OBJ','R_COLL_QUALITY','R_COLL_TASK_DET','R_CP','R_CP_COMM_PARA',
+'R_CP_CONS_RELA','R_CP_CTRL_PARA','R_CP_MP_RELA','R_CP_SWITCH_PARA','R_FACTOR_STD','R_LC_LIMIT_DET','R_LC_LIMIT_SCHEME','R_LC_SWITCH_TURNS',
+'R_PEAK_TRANSFER_SCHEME','R_PLAN','R_POWER_DATA','R_TASK_EXEC','R_TMNL_RUN','S_ACCEPT_DET_REC','S_ACCEPT_ITEM','S_ACTIVESRV_TACTIC',
+'S_ACTIVESRV_TACTIC_EXEC','S_ALARM_LIMIT','S_APP_ACCT_F','S_APP_ARC','S_APP_BANK_ACCT_F','S_APP_CONTACT_F','S_APP_CUST_ADDR_F','S_APP_DATA',
+'S_APP_DATA_F','S_APP_NATURAL_INFO','S_APP_PAYMENT_RELA','S_APP_REPLY','S_APP_VAT','S_APP_VAT_F','S_BILL_RELA_SCHEME','S_BILL_RELA_SCHEME_F',
+'S_BUSITRIG_SURVEY_SCHEME','S_BUSI_AMT_RCVED','S_BUSI_AMT_STD','S_BUSI_PARTNER_CONTACT','S_CHANNEL','S_CHANNEL_DEBUG','S_CHANNEL_EVALUATE',
+'S_CHANNEL_RULE','S_CHK_PLAN','S_CM','S_CM_NOTICE','S_CONTRACT_APP','S_CONTRACT_BILL','S_CONTRACT_PS_MODE','S_COOP','S_CR_EVAL_RPT',
+'S_CR_GRADE_STD','S_CUST_GROUP','S_CUST_GROUP_MODEL','S_CUST_IMPORTANT_DATE','S_CUST_RISK','S_CUST_VALUE','S_DESIGN_EXAMINE',
+'S_DESIGN_VERI_DET','S_DESIGN_VERI_NOTICE','S_DESIGN_VERI_RSLT','S_DEV_IR','S_DISCREDIT_CUST_ISSUE','S_EVAL_FACTOR_DEF','S_EVAL_OBJ_ATTR',
+'S_EXCP_INITDIAG','S_FAULT_ERR_RPT','S_FAULT_ERR_VERI','S_GROUP_DEF_ADJ','S_HR_IMPORTANT_CUST','S_IMPORTANT_CUST','S_IMPROVE','S_INVESTIGATE',
+'S_IRREAD_F','S_IT_SCHEME','S_IT_SNDLOAD_EVALRULE','S_MAINPOWER_CHK','S_MD_REFORM_TASK','S_METER_RELA_F','S_MI_RELA_SCHEME',
+'S_MI_RELA_SCHEME_F','S_PAIDSRV_FEE_SCHEME','S_PAIDSRV_SCHEME','S_POWERON','S_PREVENTIVE_TEST','S_PRJ_ACCEPT','S_PRJ_INSPECT',
+'S_PROTOCOL_ACCACH','S_PSP_BUDGET','S_SITECHK_CYC','S_SP_SCHEME','S_TERMINAL','S_VIP_CUST','S_WKST_EXT_ATTR','I_ACCOUNT_ITEM','I_BATTERY',
+'I_BATTERY_BOX','I_BATTERY_CHECK','I_BATTERY_CHG_BOX','I_BATTERY_FRA','I_BATTERY_TRAN_BOX','I_BIDS','I_CHARGE_ENGINE','I_CHARGE_MEAS',
+'I_CHARGE_POST','I_CONSTRUCTION','I_CONSTRUCTION_DESIGN','I_CONTRACT','I_DESIGN_SCHEME','I_DESIGN_VERIFY','I_DEVICE_INST','I_DEVICE_OTHERS',
+'I_DEVICE_RECEIVE','I_FINAL_ACCOUNTING','I_MATERIAL_DET','I_MATERIAL_DMD','I_MILESTONE','I_MILESTONE_DETAIL','I_NOTE','I_PRJ_DOC',
+'I_PRJ_SETTLE','I_PROJECT','I_PROJECT_VERIFY','I_RESEARCH_SCHEME','I_ROB','I_STOCKER','I_SUBS','I_TRANSFORMER','I_VEHICLE');
+  
+  
+  
+  
+  
+  --rep_yxf2
+  
+  select col.owner,col.table_name,col.column_name from dba_constraints con,dba_cons_columns col 
+where con.constraint_name=col.constraint_name and con.constraint_type='P'
+and col.owner in ('SGPM_OUT','SGPM') 
+and col.table_name in ('ARC_E_MP_PQ','ARC_R_DATA','A_CASH_ENTRY','A_PAYABLE_ENTRY','C_METER','D_METER_ERR','E_CALC_LOG','S_CUST_CREDIT',
+'S_CUST_GROUP_OBJ','ARC_A_RCVBL_PL_FLOW','R_AR_DATA','ARC_E_GC_CONS_SNAP_RELA','ARC_E_GC_SNAP','ARC_FS_GC','ARC_S_IR_READ','ARC_S_IT_SCHEME',
+'ARC_S_MI_RELA_SCHEME','ARC_S_MP_APP','ARC_S_MP_METER_RELA_SCHM','ARC_S_MP_SCHEME','ARC_S_MP_USE_SCHEME','ARC_S_SND_CIRCUIT_SCHEME',
+'ARC_S_VL_DEV_SCHEME','A_CONS_AVERAGE','A_RCA_CTRL_DET','A_RCA_DIRE_TACTIC','A_RCA_EXCP_LIST','A_RCA_PREPAY_PD','A_RCA_TACTIC_DET',
+'A_RCA_TACTIC_EXT','A_RCA_TACTIC_RECORD','A_RCA_TACTIC_TASK','C_BF_BILL_PARA','C_BF_BILL_RELA','C_BF_CONSPRC','C_BF_CONSPRC_TACTIC',
+'C_BF_METER_READ','C_CHARGER','C_DIR_CONTRACT','C_DIR_PL_PRC','C_DIR_PRC_DET','C_ELECTRICIAN','C_ELEC_ADDR_DET','C_HARMONIC_TECH',
+'C_RCA_CONS_REMIND','C_RUN_CONTAINER_DEV','C_TRAN_CHG','C_VOLT_MONITOR','D_AGE_STAT','D_BOX_BARCODE','D_DIST_SAMPLING_DET','D_EXCHG_TASK',
+'D_METER_RUN_BATCH_SAMPLING','D_METER_RUN_SAMPLING_DET','D_METER_RUN_SAMPLING_PLAN','D_METER_RUN_SAMPLING_RST','E_DIR_DIV_PQ','E_DIR_TRA_PQ',
+'E_RS_SYS_AMT','E_RS_TAX_AMT','E_SYS_AMT','E_SYS_PRC','E_TAX_AMT','FC_ACC_INFO','FC_B_TRAN','FC_CP','FC_GC_DEV','FC_GC_TYPE_CODE',
+'FC_PROINFO','C_METER','C_RUN_CONTAINER_DEV','A_PC_TRAN_CHK','ARC_S_METER_SCHEME','A_PC_TRAN','A_PREPAY_FLOW','A_INV','FC_PROINFO_GC_RELA',
+'FC_PRO_TYPE','FS_ACC_INFO','FS_A_INV_PRINT_FLOW','FS_B_TRAN','FS_CP_SCHEME','FS_GC_TYPE_CODE','FS_PAIED_GRA_AMT','FS_PAY_FACT',
+'FS_PAY_GRA_AMT','FS_PAY_INFO','FS_PLANT','FS_PROINFO','FS_PROINFO_GC_RELA','FS_PRO_TYPE','R_CP_DESIGN_SCHEME','R_CP_FAULT','R_CP_SURVEY',
+'R_CP_TS_PARA','R_HARMONIC_PARA','R_LIMIT_PARA','R_PATROL','R_PATROL_PLAN','R_SIM_CHARGE','R_SITE_FAULT_RMV','R_TMNL_APP','R_TMNL_DEBUG',
+'R_TMNL_INST_SCHEME','R_TMNL_IR_TASK','R_TMNL_MAINT','R_TMNL_MAINT_PLAN','S_APPINFO','S_APP_RCA_CONS','S_CHARGER_SCHEME',
+'S_CONTAINER_DEV_SCHEME','S_EL_PLAN','S_EL_PLAN_DET','S_KNWLG_ATTACH','S_KNWLG_BASE','S_KNWLG_BASE_CAT','S_KNWLG_BASE_CAT_S_KNWLG_BASE',
+'S_KNWLG_BASE_CHG','S_KNWLG_COLL','S_KNWLG_COLL_ATTACH','S_MEAS_BOX_SCHEME','S_PSP_BID','S_PSP_COMPLETE','S_PSP_CSIGN','S_PSP_CSIGN_DET',
+'S_PSP_CSIGN_DOC','S_PSP_DESIGN_CAPITAL','S_PSP_INSYS','S_PSP_MEET','S_PSP_MEETDETAIL','S_PSP_NEWDEV','S_PSP_POINT','S_PSP_PREDICT',
+'S_PSP_PROTECT','S_PSP_STARTPLAN','S_PS_SYS_SCHEME','S_REJECT_INFO','BATCH_NO','MONTH_PUR_PQ','PAID_RESULT','A_TRANSIT_DET',
+'C_CONS_NEWBUSI_LABEL','C_REFORM_DET','S_APP_NEWBUSI_LABEL','E_PRC_RELA');
+  
+  
+
+  1 先从excel中把表中的源端数据列黏贴到word；
+   2 替换到. 为空格，将文本转成以空格区分的表格；
+   3 将表格放到excel中帅选用户名；
+   4 将第二列粘贴回word，转换成文字
+   5 每一行头尾增加单引号 ^p   行尾：'^p 行头：^p'
+   5 每一行尾添加逗号；^p   ,^p
+   6 将空格替换为无；
+   7 将回车替换为空格：^p    
+   
+   excel查找两列中相同的内容，然后插入指定内容
+   vlookup(lookup_value,table_array,col_index_num,[range_lookup])
+   lookup_value  要查找的值                           数值、引用或文本字符串
+   table_array   要查找的区域                          数据表区域
+   col_index_num  返回数据在查找区域的第几列          正整数
+   range_lookup  近似匹配/精确匹配                    false（0，空格或不填（但是要有','占位）/true（1或不填（无逗号占位））
+   
+   vlookup(a2,e2:f175,2,0)
+   
+   
+      --查找区域不变
+   vlookup(a2,$e$2:$f$773,2,0)
+      
+
+      --查找到相同的，返回y，查找不到相同的，返回n   
+	  单列比较
+   IF(ISERROR(VLOOKUP(B1,$A$2:$A$2051,1,0)),"N","Y")  B1为要查找的值，$A$2:$A$2051，查找范围，
+   1代表显示找到的内容，0表示精确匹配，外层嵌套判断语句，如果找到显示y，找不到显示N
+	
+
+	
+	  多列比较
+   IF(ISERROR(VLOOKUP(D2&E2,$K$2:$K$34&$L$2:$L$34,1,0)),"N","Y")
+   必须用ctrl+shift+enter结束
+   
+   
+   
+

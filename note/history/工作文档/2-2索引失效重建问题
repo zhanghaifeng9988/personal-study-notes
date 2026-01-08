@@ -1,0 +1,91 @@
+
+
+
+select owner,index_name,status from dba_indexes 
+where STATUS='invalid' and owner in('CACHER01' ,'FDPSHARE');
+--  普通索引无失效项
+select distinct index_name,status,tablespace_name from dba_ind_subpartitions where index_owner='FDPSHARE'
+and status='UNUSABLE';
+--  子分区索引失效项
+set line 200 pagesize 200 long 2000
+col index_name for a30
+col status  for a10
+col tablespace_name for a30
+select distinct index_name,status,tablespace_name from dba_ind_partitions where index_owner='FDPSHARE'
+and status='UNUSABLE';
+--  分区索引失效项
+
+set line 200 pagesize 200 long 2000
+col index_name for a30
+col status  for a10
+col tablespace_name for a30
+select distinct index_name,status,tablespace_name from dba_ind_subpartitions where index_owner='FDPSHARE'
+and status='UNUSABLE';
+-- 子分区索引失效项
+
+select distinct index_name,status,tablespace_name from dba_ind_partitions where index_owner='CACHER07'
+and status='UNUSABLE';
+
+
+select 'alter index '||t.INDEX_OWNER||'.'||t.INDEX_NAME||' rebuild subpartition '|| t.SUBPARTITION_NAME ||' parallel 8 nologging ;',STATUS 
+from dba_ind_subpartitions t 
+where INDEX_OWNER='CACHER07' and index_name in ('IDX_E_MP_FACTOR_CURVE','IDX_E_MP_DAY_READ') 
+and STATUS='UNUSABLE'
+
+--索引大小查询
+col owner for a20
+col SEGMENT_NAME for a30
+col SEGMENT_TYPE for a15
+
+select  OWNER,SEGMENT_NAME,SEGMENT_TYPE,sum(BYTES)/1024/1024/1024 
+from dba_segments
+where segment_name in ('PK_E_MP_DAY_READ') and owner='FDPSHARE' 
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE order by sum(BYTES);
+
+
+col INDEX_NAME for a30
+col degree for a5
+col status for a10
+col tablespace_name for a30
+col table_name for a30
+select index_name,degree,status,tablespace_name ,table_name
+from dba_indexes 
+where owner='FDPSHARE' and  index_name in ('IX_E_MP_CUR_CURVE_ID','IX_E_MP_MON_ENERGY_ID','IX_E_MP_CUR_CURVE_ID',
+'IX_E_MP_CUR_CURVE_ID');
+--查询索引所属的表空间和表名
+
+FDPSHARE.A_CASH_ENTRY
+CACHER07.E_MP_CUR_CURVE
+
+col index_name for a30
+col degree for a5
+col tablespace_name for a30
+col table_name for a20
+set lin 200 pages 999
+select index_name,degree,status,tablespace_name ,table_name
+from dba_indexes 
+where owner='FDPMASTER' and table_name='C_CONS';
+
+
+
+
+
+
+alter index CACHER07.IDX_E_MP_FACTOR_CURVE rebuild subpartition SYS_SUBP26442 parallel 8 nologging ;
+alter index CACHER07.IDX_E_MP_FACTOR_CURVE rebuild subpartition SYS_SUBP26441 parallel 8 nologging ;
+alter index CACHER07.IDX_E_MP_FACTOR_CURVE rebuild subpartition SYS_SUBP26443 parallel 8 nologging ;
+alter index CACHER07.IDX_E_MP_FACTOR_CURVE rebuild subpartition SYS_SUBP26444 parallel 8 nologging ;
+alter index CACHER07.IDX_E_MP_FACTOR_CURVE rebuild subpartition SYS_SUBP9088 parallel 8 nologging ;
+alter index CACHER07.IDX_E_MP_FACTOR_CURVE rebuild subpartition SYS_SUBP26413 parallel 8 nologging ;
+alter index CACHER07.IDX_E_MP_FACTOR_CURVE rebuild subpartition SYS_SUBP26415 parallel 8 nologging ;
+alter index CACHER07.IDX_E_MP_FACTOR_CURVE rebuild subpartition SYS_SUBP26414 parallel 8 nologging ;
+alter index CACHER07.IDX_E_MP_FACTOR_CURVE rebuild subpartition SYS_SUBP26416 parallel 8 nologging ;
+alter index CACHER07.IDX_E_MP_FACTOR_CURVE rebuild subpartition SYS_SUBP26417 parallel 8 nologging ;
+alter index CACHER07.IDX_E_MP_FACTOR_CURVE rebuild subpartition SYS_SUBP26418 parallel 8 nologging ;
+alter index CACHER07.IDX_E_MP_FACTOR_CURVE rebuild subpartition SYS_SUBP26439 parallel 8 nologging ;
+alter index CACHER07.IDX_E_MP_FACTOR_CURVE rebuild subpartition SYS_SUBP26440 parallel 8 nologging ;
+alter index CACHER07.IDX_E_MP_DAY_READ rebuild subpartition SYS_SUBP26445 parallel 8 nologging ;
+alter index CACHER07.IDX_E_MP_DAY_READ rebuild subpartition SYS_SUBP26450 parallel 8 nologging ;
+alter index CACHER07.IDX_E_MP_DAY_READ rebuild subpartition SYS_SUBP26455 parallel 8 nologging ;
+alter index CACHER07.IDX_E_MP_DAY_READ rebuild subpartition SYS_SUBP26456 parallel 8 nologging ;
+alter index CACHER07.IDX_E_MP_DAY_READ rebuild subpartition SYS_SUBP8480 parallel 8 nologging ;

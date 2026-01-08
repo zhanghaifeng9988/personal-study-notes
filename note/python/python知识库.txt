@@ -1,0 +1,190 @@
+
+
+#Python所有的错误都是从BaseException类派生的，常见的错误类型和继承关系看这里：
+https://docs.python.org/3/library/exceptions.html#exception-hierarchy
+
+通过多重继承，一个子类就可以同时获得多个父类的所有功能。
+
+import  os
+
+# 查看当前目录的绝对路径:
+>>> os.path.abspath('.')
+'/Users/michael'
+
+# 在某个目录下创建一个新目录，首先把新目录的完整路径表示出来:
+>>> os.path.join('C:\\Users\\Administrator\\Desktop\\python相关\\python源文件', 'testdir')
+'C:\\Users\\Administrator\\Desktop\\python相关\\python源文件\\testdir'
+>>> os.path.join('/Users/michael', 'testdir')
+'/Users/michael/testdir'
+
+# 然后创建一个目录:
+>>>       
+
+# 删掉一个目录:
+>>> os.rmdir('/Users/michael/testdir')
+
+#拆分一个文件的路径
+>>> os.path.split('/Users/michael/testdir/file.txt')
+('/Users/michael/testdir', 'file.txt')
+
+# 对文件重命名:
+>>> os.rename('test.txt', 'test.py')
+
+# 删掉文件:
+>>> os.remove('test.py')
+
+#要列出所有的.py文件
+[x for x in os.listdir('.') if os.path.isfile(x) and os.path.splitext(x)[1]=='.py']
+
+#列出当前目录下的所有目录
+[x for x in os.listdir('.') if os.path.isdir(x)]
+
+
+            序列化
+#pickle
+			
+序列化之后，就可以把序列化后的内容写入磁盘，或者通过网络传输到别的机器上。
+>>> import pickle
+>>> d = dict(name='Bob', age=20, score=88)
+>>> pickle.dumps(d)
+b'\x80\x04\x95$\x00\x00\x00\x00\x00\x00\x00}\x94(\x8c
+\x04name\x94\x8c\x03Bob\x94\x8c\x03age\x94K\x14\x8c\x05score\x94KXu.'
+>>> f = open('dump.txt', 'wb')
+>>> pickle.dump(d, f)
+>>> f.close()
+
+           反序列化
+从序列化的对象重新读到内存里称之为反序列化，即unpickling。
+>>> f = open('dump.txt', 'rb')
+>>> d = pickle.load(f)
+>>> f.close()
+>>> d
+{'age': 20, 'score': 88, 'name': 'Bob'}
+Pickle的问题和所有其他编程语言特有的序列化问题一样，就是它只能用于Python，
+并且可能不同版本的Python彼此都不兼容，因此，只能用Pickle保存那些不重要的数据，不能成功地反序列化也没关系。
+
+           
+		   序列化
+#JSON
+>>> import json
+>>> d = dict(name='Bob', age=20, score=88)
+>>> json_str=json.dumps(d)
+>>> json.dumps(d)
+'{"name": "bob", "age": 20, "score": 88}'
+>>> f = open('dump.txt', 'w')
+>>> json.dump(json_str,f)
+>>> f.close()
+#写入文件的另一种写法，可以自动关闭文件
+>>> with open('dump.txt', 'w') as f:
+         json.dump(json_str,f)
+     	
+		 
+      		 反序列化  （经测试，'w'参数会清除文件中的内容，'r'参数不会
+			              反序列化，不要使用w参数，会导致读取文件报错）
+with open('dump.txt', 'r') as f:
+         json.loads(json_str)
+		#也可以写作 
+         json_str=json.load(f)
+
+#对实例的序列化和反序列化
+
+  #序列化
+class Student(object):
+     def __init__(self,name,age,score):
+          self.name=name
+          self.age=age
+          self.score=score
+
+s=Student('zhf',40,88)
+
+def student2dict(s):
+     return{
+          'name':s.name,
+          'age':s.age,
+          'score':s.score
+     }
+
+print(json.dumps(s,default=student2dict))
+
+
+  #反序列化
+  
+def dict2student(d):
+    return Student(d['name'], d['age'], d['score'])
+	
+print(json.loads(json_str, object_hook=dict2student))
+
+
+
+###进程和线程
+
+举例：word是进程，打印、修改等等功能就是线程
+
+
+总结一下就是，多任务的实现有3种方式：
+
+多进程模式：多个进程，每个进程包含一个线程
+多线程模式：1个进程包含多个线程
+多进程+多线程模式：多个进程，每个进程包含多个线程
+
+
+在多线程环境下，每个线程都有自己的数据。一个线程使用自己的局部变量比使用全局变量好，
+因为局部变量只有线程自己能看见，不会影响其他线程，而全局变量的修改必须加锁。
+
+
+是否采用多任务的第二个考虑是任务的类型。我们可以把任务分为计算密集型和IO密集型。
+  要最高效地利用CPU，计算密集型任务同时进行的数量应当等于CPU的核心数。
+  
+IO密集型任务执行期间，99%的时间都花在IO上，花在CPU上的时间很少，因此，
+用运行速度极快的C语言替换用Python这样运行速度极低的脚本语言，
+完全无法提升运行效率。对于IO密集型任务，
+最合适的语言就是开发效率最高（代码量最少）的语言，脚本语言是首选，C语言最差。
+
+
+如果充分利用操作系统提供的异步IO支持，就可以用单进程单线程模型来执行多任务，
+这种全新的模型称为事件驱动模型
+
+
+###分布式进程详细讲解
+https://blog.csdn.net/u011318077/article/details/88094583
+
+
+
+
+                             python虚拟环境
+							 
+Python的虚拟环境是一个隔离的Python运行环境，它允许开发者为每个项目安装特定的库和版本，
+避免不同项目之间的库版本冲突。虚拟环境与系统全局Python环境独立，可以避免对全局环境的污染。
+通过使用虚拟环境，开发者可以为每个项目分别部署所需的第三方包，并确保这些包之间的兼容性。
+创建和管理虚拟环境的模块是venv，它是Python 3.3及更高版本中内置的。
+要创建虚拟环境，只需在命令行中运行python -m venv <虚拟环境名称>即可。
+
+我的环境应该是anaconda，在win10环境
+操作使用的是git的bash，命令如下：
+
+#创建python虚拟环境（执行该命令，虚拟环境的相关文件和目录会创建在当前目录中，注意选择目录）
+ 
+ --创建虚拟环境
+ python -m venv ll_env
+ 
+ --执行脚本，进入虚拟环境
+$ pwd  到这个目录中
+/c/Users/Administrator/Desktop/python相关/python源文件/ll_env/Scripts
+$ source ./activate
+(ll_env)
+    --(ll_env)表示：环境处于活动状态
+    --在ll_env中安装的包，仅在该环境处于活动状态时可用
+
+ --退出虚拟环境
+ $ deactivate
+ 
+ --安装django
+ pip  install Django
+ 
+    --注意：Django仅在(ll_env)虚拟环境活动的状态下才可用
+	
+ --创建learning_log项目
+ $ django-admin  startproject learning_log 
+(ll_env)
+
+ 

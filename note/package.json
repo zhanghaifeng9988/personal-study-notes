@@ -1,0 +1,36 @@
+{
+  "name": "hello-node",
+  "version": "1.0.0",
+  "description": "study frontend develop",
+  "main": "index.js",
+  "scripts": {
+    "dev:cjs": "node src/cjs/index.cjs",
+    "dev:esm": "node src/esm/index.mjs",
+    "dev:ts": "ts-node  src/ts/index.ts",
+    "build": "tsc src/ts/index.ts --skipLibCheck --outDir dist",
+    "compile": "babel src/babel --out-dir compiled",
+    "serve": "node server/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "D:/Program Files/Notepad++/note/hello-node"
+  },
+  "author": "zhanghaifeng",
+  "license": "ISC",
+  "dependencies": {
+    "md5": "^2.3.0",
+    "vue": "^3.5.12",
+    "vue-router": "^4.4.5",
+    "vuex": "^4.1.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.25.7",
+    "@babel/core": "^7.25.8",
+    "@babel/preset-env": "^7.25.8",
+    "@types/md5": "^2.3.5",
+    "@vue/test-utils": "^2.4.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
+    "vue-loader": "^17.4.2"
+  }
+}

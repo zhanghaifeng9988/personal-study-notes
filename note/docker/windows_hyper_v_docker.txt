@@ -1,0 +1,556 @@
+
+
+
+Docker 并非是一个通用的容器工具，它依赖于已存在并运行的 Linux 内核环境。
+但是某些时候我们没有Linux环境怎么破？为了解决这个问题我们可以用VM虚拟机上安装Linux系统进行处理。
+然而对于我们的WIN10系统自带Hyper-V虚拟机，简直不要太爽。
+我们可以直接开启Hyper-V服务，并安装docker desktop即可。
+
+
+
+Docker Desktop
+docker desktop是基于windows的Hyper-V服务和WSL2内核在windows上创建一个子系统(linux),从而实现其在windows上运行docker。
+Docker Desktop 官方下载地址： https://docs.docker.com/desktop/install/windows-install/
+
+Hyper-V
+Hyper-V 是微软开发的虚拟机，类似于 VMWare 或 VirtualBox，仅适用于 Windows 10。
+这是 Docker Desktop for Windows 所使用的虚拟机。
+Hyper-V不是Windows 10 Home edition的一部分。它仅在专业版、企业版和教育版中提供。
+此外，Hyper-V不支持32位Windows 10，
+***注意：：这个虚拟机一旦启用，QEMU、VirtualBox 或 VMWare Workstation 15 及以下版本将无法使用。
+
+--检查你的电脑是否支持Hyper-V
+1、打开命令提示符。键入Systeminfo.exe，然后按Enter键。
+
+2、导航到Hyper-v要求部分，了解Hyper-v所需的所有功能是否已打开。
+
+
+--开启 Hyper-V
+同时按下键盘上的【Win+R】
+输入命令:appwiz.cpl
+打开程序和功能
+启用或关闭Windows功能
+选中Hyper-V
+
+
+
+  --hyper-v  命令行启动
+  请右键开始菜单并以管理员身份运行 PowerShell，执行以下命令：
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+
+注意：执行这个命令将安装并配置 Hyper-V 相关的组件，这可能需要一些时间，
+并且在安装过程中可能需要重启系统。
+
+  --hyper-v  命令行关闭
+  请右键开始菜单并以管理员身份运行 PowerShell，执行以下命令：
+Disable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V
+
+
+--docker下载地址  for windows
+
+
+--Install Docker Desktop on Windows 地址
+ https://docs.docker.com/desktop/install/windows-install/
+ 
+ 
+                                        
+										
+										WSL的使用
+										
+--WSL (Windows Subsystem for Linux)  https://blog.csdn.net/weixin_45027467/article/details/106862520
+用途：WSL 主要用于在 Windows 系统上运行 Linux 命令行工具、应用程序和开发环境。它允许开发者使用 Linux 工具和命令行，而无需离开 Windows。
+
+虚拟化：WSL 不是一个完整的虚拟化解决方案，它在 Windows 上提供了一个兼容层，允许直接运行 Linux 二进制可执行文件。WSL 2 (Windows Subsystem for Linux 2) 引入了一个轻量级的虚拟机，提供了完整的 Linux 内核，但仍然主要用于命令行和开发工作。
+
+性能：WSL 旨在提供快速、高效的用户体验，特别是对于文件系统操作和轻量级应用程序。
+WSL 2 提供了更好的性能，尤其是在需要完整 Linux 系统调用的场景中。
+
+兼容性：WSL 支持大多数 Linux 发行版和工具，使其成为开发者在 Windows 上进行 Linux 开发的理想选择。
+
+WSL 2 是适用于 Linux 的 Windows 子系统体系结构的一个新版本，它支持适用于 Linux 的 Windows 子系统在 Windows 上运行 ELF64 Linux 二进制文件。 它的主要目标是提高文件系统性能，以及添加完全的系统调用兼容性。
+
+这一新的体系结构改变了这些 Linux 二进制文件与Windows 和计算机硬件进行交互的方式，但仍然提供与 WSL 1（当前广泛可用的版本）中相同的用户体验。
+
+单个 Linux 分发版可以在 WSL 1 或 WSL 2 体系结构中运行。 每个分发版可随时升级或降级，并且你可以并行运行 WSL 1 和 WSL 2 分发版。 WSL 2 使用全新的体系结构，该体系结构受益于运行真正的 Linux 内核。
+
+																			
+--WSL安装
+  安装的操作系统最低要求为Windows10版本2004或者window11；
+  
+--启用WSL2
+  打开 PowerShell 或命令提示符，以管理员身份运行：
+  dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+  ***注意：上面这个命令未经验证，建议还是进“启用和关闭windows功能中”进行设置，参考以下网址：
+  https://blog.csdn.net/weixin_42672685/article/details/135921216
+  https://blog.csdn.net/weixin_38979465/article/details/131750084
+  注意：需要hyper v也启用才可以
+
+
+
+
+--安装centos 
+
+  WSL官方中并没有CentOS的发行版,在此采取github文件导入的方式进行CentOS系统安装。
+  https://github.com/mishamosher/CentOS-WSL  下载centos的地址
+  
+
+
+  
+--版本设置
+  设置WSL默认版本
+ wsl --set-default-version
+  将默认版本设置为2
+ wsl --set-default-version 2
+  
+
+
+--查看已安装的Linux发行版信息
+    wsl -l -v
+
+--运行CentOS7
+在powershell或cdm输入wsl指令进入Linux系统
+    
+	wsl 
+
+
+--检查wsl是否已经启动
+$isWslRunning = Get-Service LxssManager | Where-Object { $_.Status -eq "Running" }
+if ($isWslRunning) {
+    Write-Host "WSL is running."
+} else {
+    Write-Host "WSL is not running."
+}
+
+
+--启动WSL，并加载默认的Linux发行版
+   wsl
+	
+--关闭WSL
+
+wsl --shutdown
+
+   
+--升级wsl
+wsl.exe --update
+正在安装: 适用于 Linux 的 Windows 子系统
+已安装 适用于 Linux 的 Windows 子系统。
+
+
+
+--卸载当前wsl中的centos
+查询版本信息
+wsl --list --verbose
+卸载注销
+wsl --unregister CentOS7
+
+                            更新yum
+yum -y update
+
+                           
+						  -- systemctl报错处理  -- 
+--报错内容：
+[root@MS-CEVXSRKPSHOI etc]# systemctl status networks
+Failed to get D-Bus connection: Operation not permitted
+
+--原因：
+目前不明
+
+--处理办法：
+
+1. 确保 WSL 版本为 0.67.6 或更高版本。   2. 添加 /etc/wsl.conf 配置文件，设置systemd为true。
+
+我们先执行命令: wsl --version,如果版本不满足，则升级wsl
+
+2、给CentOS添加wsl.conf配置文件(设置systemd为启用)，可通过下面命令来完成：
+
+echo -e "[boot]\nsystemd=true" | sudo tee -a /etc/wsl.conf
+
+1、备份systemctl文件
+mv /usr/bin/systemctl /usr/bin/systemctl.old
+2、获取新文件
+curl https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/master/files/docker/systemctl.py > /usr/bin/systemctl
+
+如果下载不成功,可以直接下载并复制systemctl.py的代码到 /usr/bin/systemctl 文件中即可,
+
+3、chmod +x /usr/bin/systemctl
+
+                            --为centos配置ssh--
+--查看ssh状态
+service sshd status
+
+Redirecting to /bin/systemctl status sshd.service
+sshd.service - OpenSSH server daemon
+    Loaded: loaded (/usr/lib/systemd/system/sshd.service, enabled)
+    Active: failed (failed)
+
+ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key
+ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
+ssh-keygen -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key
+ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key
+
+yum install sshd
+yum install openssh-server
+systemctl start sshd
+
+   
+						  wsl2的网络（涉及到固定IP的信息不看，目前136.31，稳定）
+						  
+1、有一张网卡叫vEthernet (WSL)，默认分配了 192.168.192.1
+
+
+2、虚拟机centos启用dhcp，获得ip：192.168.200.163
+
+
+
+3、虚拟机可以ping通宿主机的ip和vEthernet (WSL)的ip
+   可以直接ping通互联网
+
+WSL2 采用 Hyper-V 的 Internal Virtual Switch，这个虚拟交换机本身是可以设置静态 IP 地址的，
+但是 WSL2 却自作聪明，在每次全新启动的时候将网络配置恢复成 DHCP，
+这就导致WSL2每次全新启动后的IP都不固定，如果需要一个固定的IP，需要做一些设置。	
+
+
+--修改虚拟机为固定IP  
+
+
+（做到第三步，先不做了，在windows中关闭vEthernet (Default Switch)这个网络设备）
+                            手动关闭wsl的centos，重启宿主机，自动分配的ip不变，172.18.136.31
+							先这样吧，后续要改
+							再说，以下文档暂时不动，写了一半，用于操作的指导网址已经收藏。
+                        https://www.cnblogs.com/yuque/p/16283730.html
+
+ 
+1、进入WSL2，使用命令查看：cat /etc/resolv.conf
+
+# This file was automatically generated by WSL. To stop automatic generation of this file, add the following entry to /etc/wsl.conf:
+# [network]
+# generateResolvConf = false
+nameserver 172.18.128.1
+
+如上所示，我们可以看到，配置文件注释说明得很清楚：这个文件为WSL自动生成；
+如果不想生成这个文件，需要添加配置文件。
+
+2、因此，我们按注释的意思，使用命令新建配置文件：
+  vim /etc/wsl.conf ；
+  配置文件内容为：
+[network]
+generateResolvConf = false
+
+3、由于原来的/etc/resolv.conf是一个软链接（链接到/mnt/wsl/resolv.conf）；
+不管是真实文件还是软链接，我们都需要删除它，为后面脚本进行自定义DNS做准备
+ 
+ rm /etc/resolv.conf
+至此，WSL2固定IP的前置设置完成
+
+4、创建批处理文件设置静态IP
+完成前面的设置后，我们需要在windows创建一个 set_static_ip.bat 批处理脚本进行IP设置，脚本内容如下：
+
+@echo off
+rem 以管理员身份运行
+%1 mshta vbscript:CreateObject("Shell.Application").ShellExecute("cmd.exe","/c %~s0 ::","","runas",1)(window.close)&&exit
+
+rem 需要设置的子系统名称
+set linux=CentOS7
+rem 设置网段
+set localnet=192.168.86
+rem 设置子系统的ip
+set ip=%localnet%.2
+
+wsl -d %linux% -u root ip addr del $(ip addr show eth0 ^| grep 'inet\b' ^| awk '{print $2}' ^| head -n 1) dev eth0
+wsl -d %linux% -u root ip addr add %ip%/24 broadcast %localnet%.255 dev eth0
+wsl -d %linux% -u root ip route add 0.0.0.0/0 via %localnet%.1 dev eth0
+wsl -d CentOS7 -u root echo "nameserver %localnet%.1" ^> /etc/resolv.conf
+
+powershell -c "Get-NetAdapter -IncludeHidden -Name 'vEthernet (WSL)' | Get-NetIPAddress | Remove-NetIPAddress -Confirm:$False; New-NetIPAddress -IPAddress  %localnet%.1 -PrefixLength 24 -InterfaceAlias 'vEthernet (WSL)'; Get-NetNat | ? Name -Eq WSLNat | Remove-NetNat -Confirm:$False; New-NetNat -Name WSLNat -InternalIPInterfaceAddressPrefix %localnet%.0/24"
+exit
+
+这是已经定义的网卡情况，地址不生效
+DEVICE="eth0"
+BOOTPROTO="static"
+ONBOOT="yes"
+TYPE="Ethernet"
+USERCTL="yes"
+PEERDNS="yes"
+IPV6INIT="no"
+PERSISTENT_DHCLIENT="1"
+IPADDR=192.168.192.168
+NETMASK=255.255.255.0
+GATEWAY=192.168.192.1
+
+
+--关闭和重启网卡
+ip link set dev eth0 down
+ip link set dev eth0 up
+
+*********************************注意，以上IP地址修改的内容只做到第三步，其他未经验证，不可以指导操作**********
+
+                   
+
+				   --docker不能启动的解决办法--
+						 
+/usr/lib/systemd/system 这个目录中
+修改docker.service文件
+
+[Service]
+Type=notify
+# the default is not to use systemd for cgroups because the delegate issues still
+# exists and systemd currently does not support the cgroup feature set required
+# for containers run by docker
+#注释掉的内容  ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+ExecReload=/bin/kill -s HUP $MAINPID
+TimeoutStartSec=0
+RestartSec=2
+Restart=always
+ExecStart=/usr/bin/dockerd   #增加的内容
+
+                      --备份--
+					  
+--关闭系统
+PS C:\Users\Administrator> wsl --shutdown
+
+--查看虚拟机名字
+wsl -l -v  
+
+
+--导出命令(备份)
+wsl --export CentOS7  D:\ProgramData\CentOS7\2204_wsl2centos7.tar 
+
+
+
+                     --恢复--
+--需要先注销掉原有的信息
+wsl --unregister CentOS7
+--导入命令（恢复）					 
+wsl --import  CentOS7  D:\ProgramData\CentOS7\  D:\ProgramData\CentOS7\2204_wsl2centos7.tar
+
+
+
+--检查更新									 
+PS C:\Users\Administrator> wsl --update
+正在检查更新。
+已安装最新版本的适用于 Linux 的 Windows 子系统。
+
+--启动虚拟机
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart	
+
+--启动hyper v
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+
+
+
+
+                  --CUDA-- 该部分内容有问题，不能作为参考
+				  
+--给windows安装nVidia GPU驱动
+https://www.nvidia.com/Download/index.aspx
+选择显卡对应的信息，驱动类型最好选择Game Ready版本而不是studio版本
+
+安装驱动
+--在WSL2中安装CUDA ，以下网址注意选择centos
+
+https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&Distribution=CentOS&target_version=7&target_type=rpm_network
+
+
+   --Base Installer部分
+进行这一项yum -y install cuda-toolkit-12-4，会报错
+
+解决（未经验证）：
+yum install epel-release 
+yum install mesa-libGL.i686
+
+
+然后重新执行：yum -y install cuda-toolkit-12-4
+
+--设置环境变量
+export PATH=$PATH:/usr/local/cuda/bin:/soft/
+
+--验证
+[root@MS-CEVXSRKPSHOI bin]# nvcc --version
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2024 NVIDIA Corporation
+Built on Thu_Mar_28_02:18:24_PDT_2024
+Cuda compilation tools, release 12.4, V12.4.131
+Build cuda_12.4.r12.4/compiler.34097967_0
+
+   --Driver Installer
+   
+--nvidia驱动存在的目录   
+/usr/lib/wsl/lib
+
+
+
+
+                                     --小插曲--
+--centos8 镜像下载地址
+https://github.com/mishamosher/CentOS-WSL?tab=readme-ov-file
+
+                                    --systemctl 不可用
+echo -e "[boot]\nsystemd=true" | sudo tee -a /etc/wsl.conf
+
+关闭centos8，重新开启centos8
+
+
+
+                                     --wsl2配置  ubuntu--
+									 
+--ubutu下载地址
+http://jump.bdimg.com/safecheck/index?url=rN3wPs8te/rTq+a8Lbj5Zm7XLknhXoUwF9xVFQXr9y0+wbj616rLo1Kf3e5NOZrWPJkIR6KldcsRMijU04BOJwifk9jM5J+LwovZZFqqRJYcfVMreZWVs3GyqzCHBh1ZjDzt6OBjc6Wp/LHHvi17sDRxU17r5hqHl0iEkJ7c4Vu6eNXNRRxxJhi6jDdKnmSfOtTUEiFP9PVO0wxW5fVdNZfYhc2r0ea+8+iIBQW4BVt2Pah4egTNMg==
+
+完成Ubuntu下载后会得到一个“Ubuntu2004-220404.appxbundle”文件，将其后缀直接修改为”zip“后,
+解压到当前文件夹下，得到几个版本的Ubuntu安装包；
+选择自己电脑版本对应的安装包，再次修改其后缀为zip；
+将该文件直接解压到想要存放虚拟机文件的路径；
+右键管理员运行ubuntu.exe，安装
+输入管理员名字和密码，不能输入root用户名；
+
+
+--进行更新
+sudo apt-get upgrade
+sudo apt-get update  //更新软件包列表
+
+
+--配置systemctl可用
+echo -e "[boot]\nsystemd=true" | sudo tee -a /etc/wsl.conf
+
+关闭ubuntu，重新开启ubuntu
+
+
+
+--配置ssh
+  --发现ssh不可用
+
+zhf@MS-CEVXSRKPSHOI:/mnt/c/Users/Administrator$ service sshd status
+● ssh.service - OpenBSD Secure Shell server
+     Loaded: loaded (/lib/systemd/system/ssh.service; enabled; vendor preset: enabled)
+     Active: failed (Result: exit-code) since Tue 2024-04-16 12:38:07 CST; 1min 5s ago
+       Docs: man:sshd(8)
+             man:sshd_config(5)
+    Process: 900 ExecStartPre=/usr/sbin/sshd -t (code=exited, status=1/FAILURE)
+
+--参考：https://blog.csdn.net/qq_37580586/article/details/132581983	
+  --重装ssh服务
+ sudo apt remove openssh-server
+ 
+ sudo apt install openssh-server   
+  --修改ssh配置信息
+  sudo vim /etc/ssh/sshd_config //看上面的链接
+  --重启ssh服务
+  sudo service ssh restart
+  --检查状态
+  systemctl status sshd
+  ******注意查看端口，我这里是2222
+  可以在宿主机cmd中测试，命令：ssh zhf@172.18.136.31  -p 2222
+  
+  
+
+  
+
+	
+	
+
+
+
+
+
+
+                                 --CUDA--  注意：*****目前针对centos7，和ubuntu*****
+--windows系统安装GPU驱动
+https://www.nvidia.com/Download/index.aspx
+选择显卡对应的信息，驱动类型最好选择Game Ready版本而不是studio版本
+
+***注意：（WSL2下的linux系统并不需要安装驱动，
+windows宿主机安装完成后，在/usr/lib/wsl/lib目录中就可以看到nvidia-smi程序）
+								 
+此步骤要保证windows宿主机的驱动安装完好！！！
+
+在cmd中验证，执行信息如下：
+C:\Users\Administrator>nvidia-smi
+Tue Apr 16 10:17:48 2024
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 552.12                 Driver Version: 552.12         CUDA Version: 12.4     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                     TCC/WDDM  | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce MX570         WDDM  |   00000000:02:00.0 Off |                  N/A |
+| N/A   59C    P0              7W /   30W |       0MiB /   2048MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+
+
+--上一步骤中，一些特别需要注意的点和相关信息
+
+根据nvidia官方文档，wsl2中：https://docs.nvidia.com/cuda/archive/12.1.1/wsl-user-guide/index.html#known-limitations-for-linux-cuda-applications
+
+  --Linux CUDA 应用程序的已知限制
+局限性：不支持 Maxwell GPU。
+影响：WSL 2 并未正式支持 Maxwell GPU，但它可能仍然可以工作。推荐 Pascal 及更高版本的 GPU。
+
+我的wsl2环境的windows宿主机是maxwell的gpu，我选择继续测试。
+
+  --尚不支持的功能
+局限性：NVML (nvidia-smi) 尚不支持所有查询。
+影响：GPU 利用率、活动计算进程是一些尚不支持的查询。不支持可修改的状态功能（ECC、计算模式、持久模式）。
+
+  --根据以上信息判断和查验，发现wsl2中的ubunt、ucentos7和8，都无法查询到GPU的一些相信信息，且会报“段失败问题”
+如下：
+[root@MS-CEVXSRKPSHOI lib]# nvidia-smi
+Tue Apr 16 11:03:18 2024
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 550.73.01              Driver Version: 552.12         CUDA Version: 12.4     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+Segmentation fault (core dumped)  
+
+  我选择继续测试。
+  
+--给centos7 ，安装cuda
+https://developer.nvidia.com/cuda/wsl       //总体页面入口，可以下载驱动，可以跳转到下面的指南
+
+https://docs.nvidia.com/cuda/wsl-user-guide/index.html    //WSL2中的cuda使用指南
+
+ 一旦系统上安装了 Windows NVIDIA GPU 驱动程序，CUDA 就可以在 WSL 2 中使用。
+ 安装在 Windows 主机上的 CUDA 驱动程序将在 WSL 2 中存根libcuda.so，
+ 因此用户不得在 WSL 2 中安装任何 NVIDIA GPU Linux 驱动程序。
+ 
+ 因为默认的 CUDA Toolkit 附带了一个驱动程序，并且很容易用默认安装覆盖 WSL 2 NVIDIA 驱动程序。
+ 我们建议开发人员使用单独的 CUDA Toolkit for WSL 2 (Ubuntu)，
+ 可从CUDA Toolkit Downloads获取页以避免这种覆盖。
+ 
+ *******我查了wsl2中centos7下，该文件的路径，/usr/lib/wsl/lib，与驱动目录相同的。******
+
+https://developer.nvidia.com/cuda-11-8-0-download-archive  //CUDA Toolkit for WSL 2 (Ubuntu)下载页面
+
+选择合适的选项，会出来对应的执行脚本和命令，逐一执行；
+执行完毕就可以测试了
+安装目录：/usr/local/cuda
+ bin目录下执行：./nvcc --version
+配置环境变量：
+touch /etc/profile.d/cuda.sh
+echo 'export PATH=/usr/local/cuda/bin/:$PATH' | sudo tee -a /etc/profile.d/cuda.sh
+echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64/:/usr/lib/wsl/lib/:$LD_LIBRARY_PATH' | sudo tee -a /etc/profile.d/cuda.sh
+
+
+
+
+
+
+
+https://www.cnblogs.com/wllwqdeai/p/15772568.html
+https://developer.nvidia.com/cuda-11-8-0-download-archive?target_os=Linux&target_arch=x86_64&Distribution=CentOS&target_version=7
+https://docs.nvidia.com/cuda/wsl-user-guide/index.html
+
+https://zhuanlan.zhihu.com/p/657852556
+https://zhuanlan.zhihu.com/p/657852556

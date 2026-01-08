@@ -1,0 +1,33 @@
+
+#TypeError: __str__ returned non-string (type set)
+
+解释：__str__方法只能返回字符串类型的数据，不能返回dict和set类型
+
+举例：
+ #错误的写法：
+  def __str__(self):
+        return {
+            'Student object (name:%s)' % str(self.__name),
+            'Student object (age:%s)' % str(self.__age),
+            'Student object (score:%s)' % str(self.__score)
+            }
+
+ #正确的写法：
+def __str__(self):
+        return 'Student object (name:%s, age:%s, score:%s)' % (str(self.__name), str(self.__age), str(self.__score)) 
+ 
+ #以下为，采用正确的写法，Student类初始化数据值后的显示 
+>>> bart=Student('Bart Simpson',19,88)
+>>> bart
+Student object (name:Bart Simpson, age:19, score:88)
+>>> print(bart)
+Student object (name:Bart Simpson, age:19, score:88)
+
+ #查看实例对象的字典属性
+>>> print(bart.__dict__)
+{'_Student__name': 'Bart Simpson', '_Student__age': 19, '_Student__score': 88}
+
+
+#常见的错误类型和继承关系看这里：
+
+https://docs.python.org/3/library/exceptions.html#exception-hierarchy

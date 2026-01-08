@@ -1,0 +1,9 @@
+
+
+
+--查询用户状态
+
+col username for a20 
+col account_status for a20
+SQL> select username,account_status,LOCK_DATE,EXPIRY_DATE from dba_users;
+

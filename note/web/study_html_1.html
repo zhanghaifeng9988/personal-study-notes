@@ -1,0 +1,45 @@
+<!DOCTYPE html> <!-- 定义文档类型为HTML
+<html> <!-- HTML文档的根元素 -->
+
+<head> <!-- 文档头部, 包含元数据 -->
+    <meta charset="utf-8"> <!-- 设置字符编码为UTF-8 -->
+    <title>first webpage</title> <!-- 文档标题,显示在浏览器的最上面打开的页面标签中 -->
+    <!-- <link rel="stylesheet" type="text/css" href="StaticPage\Demo1\css\styles.css"> 链接外部样式表 -->
+    <style>
+        /* 定义样式，‘内部样式表’方式 */
+        body { background-color: lightblue; /* 设置背景颜色 */}
+        h1 { color: navy;/* 设置标题颜色 */}
+        hr { border: 1px solid red;/* 设置水平线颜色和高度 */}
+        p { font-size: 11pt; margin-left: 15px;}
+        a:link { color: green;} /* 设置超链接的颜色 */
+        a:visited { color: yellow;}         /* 设置超链接被访问后的颜色 */
+        a:hover { color: black;} /* 设置鼠标悬停时的颜色 */
+        a:active { color: blue;} /* 设置超链接的颜色 */
+        #para1 {text-align:center;color:red;} /* 设置文本居中和颜色,对应id为para1的元素 */
+        .center {text-align:center;} /* 设置类名为center的元素的文本居中 */
+    </style>
+</head>
+
+<body> <!-- 文档主体, 显示在网页上 -->
+    <h1>this is my first headline</h1> <!-- 主标题 -->
+    <script>
+        document.write("Hello World!");
+    </script>
+    <ul> <!-- 无序列表 -->
+        <li>第一项</li> <!-- 列表项1 -->
+        <li>第二项</li> <!-- 列表项2 -->
+        <li>第三项</li> <!-- 列表项3 -->
+        <li>第四项</li> <!-- 列表项4 -->
+    </ul>
+    <hr>
+    <p>你可以看到这个段落是
+        被设定的 CSS 渲染的。</p>
+    <p><a href="https://www.runoob.com" target="_blank">这是一个链接</a></p>
+    <h2>this is my second headline</h2>
+    <p id="para1">Hello World!</p>
+    <h3>this is my third headline</h3>
+    <p class="center">标题居中</p>
+    <p class="center">段落居中</p> 
+</body>
+
+</html> 

@@ -1,0 +1,127 @@
+
+
+
+
+oracle 19c rac+adg  目标端是单实例非rac
+
+基本知识：
+DG（Data Guard）
+
+DG（Data Guard，数据卫士）不是一个备份恢复的工具，然而，DG却拥有备份的功能，
+在物理DG下它可以和主库一模一样，但是它存在的目的并不仅仅是为了备份恢复数据，
+应该说它的存在是为了确保企业数据的高可用性，数据保护以及灾难恢复。
+DBA可以通过将一些操作（例如查询报表）转移到备库执行的方式来减小主库的压力，
+构建高可用的企业数据库应用环境。
+
+在DG环境中，至少有两个数据库，一个处于OPEN状态对外提供服务，
+这个数据库叫作主库（Primary Database）。第二个处于恢复状态，叫作备库（Standby Database）。
+在通常情况下，主库对外提供服务，用户在主库上进行操作，操作被记录在联机日志和归档日志中，
+这些日志通过网络传递给备库，然后在备库上被应用，从而实现主库和备库的数据同步。
+
+Oracle对这一过程进一步地优化设计，使得日志的传递、恢复工作更加自动化、智能化，
+并且提供一系列参数和命令简化了DBA工作。如果软硬件升级，那么可以把备库切换为主库继续对外服务，
+这样既减少了服务停止时间，并且数据不会丢失。如果异常原因导致主库不可用，
+那么也可以把备库强制切换为主库继续对外服务，这时数据损失都和配置的数据保护级别有关系。
+所以，Primary和Standby只是一个角色概念，并不固定在某个数据库中。
+
+物理复制：将主库的redo log传递到备库后，备库对redo log日志进行recovery，来和主库保持一致。
+（主库和备库必须是相同的环境，备库一般处于只读状态）。（物理的备库和主库的数据库名和DBID都是同样的。）
+
+逻辑复制：将主库的redo log传递到备库后，再利用logminer 的工具，从redo log中解析出sql语句，
+在备库执行，保证和主库同步。（主库和备库可以是不同的环境，备库可以处于读写状态）
+逻辑备库可以看作是一个单独的库，数据库名和DBID和主库都不一样。
+
+逻辑DG实际场景中可以被OGG替代，OGG功能更加强大。
+工作机制基本一样，都是读取redo或者归档，解析成sql在目标端执行。
+
+adg
+
+Oracle 11g之前，物理备库（physical Standby）在应用redo的时候，是不可以打开的，只可以mount。
+从11g开始，在应用redo的时候，物理备库可以处于read-only模式，这就称为Active Data Guard 。
+通过Active Data Guard，可以在物理备库进行查询或者导出数据，从而减少对主库的访问和压力。
+
+Active Data Guard适用于一些只读性的应用，比如，有的应用程序只是查询数据，
+进行一些报表业务，不会产生redo数据，这些应用可以转移到备库上，避免对主库资源的争用。
+
+区别：
+1、dg指的是Data Guard数据卫士，拥有备份的功能，能够确保数据的高可用性和数据保护，
+adg是“Active Data Guard”，可以查询或导出数据，适用于只读性的应用；
+2、dg读写不能并行，adg的读写可以并行。
+
+变更数据捕获(Change Data Capture，CDC)
+
+
+rac与备库环境：
+
+                      primary                   standby
+DB version           19.3.0.0.0               19.3.0.0.0
+host IP name         192.168.3.88  tim1       192.168.3.66 19c-adg
+                     192.168.3.99  tim2  
+scan ip              192.168.3.89 
+
+DB_NAME              prod                    prod
+DB_UNIQUE_NAME       prod                    prodstd
+instance_name        prod1  prod2            std
+archivelog           +DATA/prod/arch         /u01/arch
+DB storage           ASM                     filesystem
+ASM for DB files     +DATA/PROD/DATAFILE     /u01/app/oracle/oradata/std/datafile
+ASM for redo files   +DATA/PROD/ONLINELOG    /u01/app/oracle/oradata/std/onlinelog
+ASM for temp files   +DATA/PROD/TEMPFILE     /u01/app/oracle/oradata/std/TEMPFILE
+oracle_home  /u01/app/oracle/product/19.3.0/db_1    /u01/app/oracle/pruduct/19.3.0/db1/
+OS   CentOS Linux release 7.7.1908 (Core)  CentOS Linux release 7.7.1908 (Core)
+
+字符集查询结果：select * from nls_database_parameters;
+NLS_NCHAR_CHARACTERSET
+AL16UTF16
+
+NLS_CHARACTERSET
+AL32UTF8
+
+
+
+
+一.主库（rac）和备库（单机）环境
+
+1、[root@rac1 ~] srvctl stop database -d  prod 首先关闭数据库
+
+2、[root@rac1 ~] crsctl stat res -t 查看CRS状态 重点查看实例是否已经offline shutdown
+
+3、[root@rac1 ~]# srvctl start database -d prod  -o mount  将数据库启动到mount状态
+
+4、[root@rac1 ~]# crsctl stat res -t  查看CRS状态  查看rac的所有实例是否已经 online mounted
+
+5、若没有启动归档模式，需要执行 SQL>alter database archivelog; 让数据库日志模式改为归档模式
+
+6、SQL> alter database open;
+SQL> alter database force logging;
+打开数据库，设定数据库为Force Logging模式后,数据库将会记录除临时表空间或临时回滚段外所有的操作,
+而忽略类似NOLOGGING之类的指定参数。 
+
+7、修改主库DATAGUARD环境参数
+
+alter system set LOG_ARCHIVE_CONFIG=‘DG_CONFIG=(prod,std)’ scope=both sid=’’;
+// 设置列出主备库上的DB_UNIQUE_NAME 参数。默认情况下，定义该参数保证数据库能够发送或接收redo log。
+alter system set log_archive_dest_1=‘LOCATION=+arch VALID_FOR=(ALL_LOGFILES,ALL_ROLES) DB_UNIQUE_NAME=taiyuan’ 
+scope=spfile;
+alter system set LOG_ARCHIVE_DEST_2=‘SERVICE=std LGWR ASYNC VALID_FOR=(ONLINE_LOGFILES,PRIMARY_ROLE) 
+DB_UNIQUE_NAME=beijing_std’ scope=both sid=’’;
+alter system set fal_client=‘prod’ scope=both sid=’’;
+alter system set FAL_SERVER=‘std’ scope=both sid=’’;
+alter system set standby_file_management=AUTO scope=both sid=’’;
+alter system set DB_FILE_NAME_CONVERT=’/oracle/app/oracle/oradata/std/datafile’,’+DATA/orcl/datafile’,
+’/oracle/app/oracle/oradata/std/tempfile’,’+DATA/orcl/tempfile’ scope=spfile sid=’’;
+alter system set LOG_FILE_NAME_CONVERT=’/oracle/app/oracle/oradata/std/onlinelog’,’+DATA/orcl/onlinelog’ 
+scope=spfile sid=’’;
+alter system set log_archive_format=’%t_%s_%r.arc’ scope=spfile sid=’’;
+alter system set remote_login_passwordfile=‘EXCLUSIVE’ scope=spfile;
+alter system set PARALLEL_EXECUTION_MESSAGE_SIZE=8192 scope=spfile;
+
+
+
+
+
+
+
+修改参数后重启生效，然后生成备库参数文件
+SQL> create pfile=’/tmp/initstd.ora’ from spfile;
+

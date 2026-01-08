@@ -1,0 +1,1016 @@
+
+
+--检查DmAPService.service服务是否开启
+systemctl status DmAPService.service
+
+--检查DmAPService.service服务是否可用
+systemctl list-unit-files DmAPService.service
+
+--创建数据库实例 需要使用dmdba账户(数据库安装完成以后的操作）
+进入数据库安装目录（/dm8）的bin目录下执行命令 dmint是创建数据库实例的工具
+可使用./dminit help命令查询详细的参数信息
+ ./dminit path=/dm8/data page_size=16 EXTENT_SIZE=32 DB_NAME=DAMENG INSTANCE_NAME=DMSVR01 SYSDBA_PWD=Dameng123 UNICODE_FLAG=1
+出现success则表示创建成功 
+
+
+   --此时如果没有进行下一步数据库实例注册服务，可以直接删除数据库实例文件
+     我第一次创建的时候不注意，使用了root用户，需要使用root用户删除两个地方
+     /dm8/data/DAMENG  该目录下所有文件删除
+     chown -R dmdba:dinstall data 修改目录用户和属组
+     cd /dm8/log    rm dm_DMSVR01_202308.log 进入log目录，删除日志
+ 
+--为数据库实例注册服务（root用户执行）
+进入数据库安装目录的script/root目录下执行命令（/dm8/script/root）
+dm_service_installer用于创建达梦数据库 需要使用su命令切换到root用户执行 
+
+ ./dm_service_installer.sh -t dmserver -dm_ini /dm8/data/DAMENG/dm.ini -p DM01SERVER
+ 
+   --DM01SERVER  这是服务名后缀，初步判断如果不加这个参数，下面命令中服务名就由实例名来代替
+ 
+--启动数据库服务
+同样需要使用root用户进行启动 没有报错则启动成功（root用户执行）
+systemctl start DmServiceDM01SERVER.service   --DM01SERVER为注册的服务名，没有服务名的用实例名下同
+ps -ef|grep dm   检查服务是否启动
+ 
+  --使用达梦给的脚本进行启动
+  [dmdba@DMDBnode1 ~]$ cd /dm8/bin
+[dmdba@DMDBnode1 bin]$ ./DmServiceDM01SERVER start
+Starting DmServiceDM01SERVER:                              [ OK ]
+
+
+--配置数据库开机自启
+systemctl enable DmServiceDM01SERVER.service     --设置服务开机自启 --DM01SERVER为注册的服务名
+
+--查看服务启动状态
+systemctl status DmServiceDM01SERVER     --DM01SERVER为注册的服务名，没有服务名的用实例名        
+
+
+  --通过脚本查看实例运行状态
+[dmdba@DMDBnode1 bin]$ pwd
+/dm8/bin
+[dmdba@DMDBnode1 bin]$ ./DmServiceDMSERVER status
+DmServiceDMSERVER (pid 74157) is running.
+[dmdba@DMDBnode1 bin]$ ./DmServiceDM01SERVER status
+DmServiceDM01SERVER (pid 1119) is running.
+  
+  --通过dmserver.sh服务管理工具查看实例运行状态（图形化界面）：
+[dmdba@DMDBnode1 ~]$ cd /dm8
+[dmdba@DMDBnode1 dm8]$ cd tool/
+[dmdba@DMDBnode1 tool]$ ll dmservice.sh 
+-rwxr-xr-x 1 dmdba dinstall 752  8月  2 23:19 dmservice.sh
+[dmdba@DMDBnode1 tool]$ ./dmservice.sh
+
+  --使用 manager 图形工具进行图形化的数据库管理
+[dmdba@DMDBnode1 ~]$ which manager
+/dm8/tool/manager
+[dmdba@DMDBnode1 ~]$ /dm8/tool/manager
+
+
+
+--停止数据库服务
+systemctl stop  DmServiceDM01SERVER  --该方法不可行
+
+  --进入数据库，进行关闭停止操作
+SQL> SHUTDOWN NORMAL; --此方法可以 
+
+  --使用达梦给的脚本进行关闭停止
+[dmdba@DMDBnode1 bin]$ pwd
+/dm8/bin
+[dmdba@DMDBnode1 bin]$ ./DmServiceDM01SERVER stop
+Stopping DmServiceDM01SERVER:                              [ OK ]
+[dmdba@DMDBnode1 bin]$ ./DmServiceDMSERVER stop
+Stopping DmServiceDMSERVER:                                [ OK ]
+                                                           
+
+   
+--删除数据库实例，进入/dm8/script/root目录下，切换root用户（应该是停库以后才能删除？初步判断）
+./dm_service_uninstaller.sh -n DmDMSERVER5252=[实例服务名]
+
+删除上面创建的数据库实例：  ./dm_service_uninstaller.sh -n DmDMSERVER5252=DMSVR01
+同时删除实例的文件  /dm8/data/DAMENG  该目录下所有文件删除
+
+
+
+
+                                   dameng数据库常用操作
+								   
+--disql的界面显示格式调整语句：
+set linesize 999 pagesize 999 long 20000
+--disql中，当前连接登录用户信息显示的配置
+编辑  /dm8/bin/disql_conf/glogin.sql ，添加以下内容
+set linesize 150
+set pagesize 100
+set long 20000
+set sqlprompt '_user@ _CONNECT_IDENTIFIER>'
+
+
+
+
+--dmdba环境变量配置：
+
+vi .bash_profile
+增加：export PATH=$PATH:$DM_HOME/bin:$DM_HOME/tool 
+记得执行：source .bash_profile
+
+--管理员账号和密码：
+账号：sysdba
+密码：Dameng123  （数据库实例创建时候配置的密码）
+
+
+
+
+--登录方式1（如果存在单机多实例，可以更改要登录的库的端口和对应的用户信息）：
+[dmdba@DMDBnode1 bin]$disql sysdba/Dameng123@localhost:5236
+
+--登录方式2：使用service name连接,单机多实例的情况，就继续添加对应的信息
+修改  /etc/dm_srv.conf
+添加服务名：zhfdm1=(192.168.3.111:5236)
+            zhfdm2=(192.168.3.111:5238)
+			
+[dmdba@DMDBnode1 root]$ disql sysdba/Dameng123@zhfdm1
+
+服务器[192.168.3.111:5236]:处于普通打开状态
+登录使用时间 : 1.973(ms)
+disql V8
+SQL> exit
+[dmdba@DMDBnode1 root]$ disql sysdba/Dameng123@zhfdm2
+
+服务器[192.168.3.111:5238]:处于普通打开状态
+登录使用时间 : 2.260(ms)
+disql V8
+SQL> exit  退出
+
+                                      用户、角色和权限相关
+	
+	VTI角色具有系统动态视图查询权限，
+	SOI角色具有系统表（SYS开头的表）的查询权限。
+	
+--创建用户的密码规则
+SELECT * FROM V$PARAMETER WHERE NAME='PWD_POLICY' ;
+
+--创建用户
+create user zhf identified by Zhf_4933807 default tablespace tbs1;
+
+--修改用户密码
+alter user zhf indentified by Zhf_4933807;
+
+--修改用户的默认表空间
+alter user zhf default tablespace tbs2;
+--删除用户
+drop user zhf cascade; --删除用户所拥有的数据库对象
+
+--切换用户 
+conn  zhf/Zhf_4933807
+
+--授予用户基本权限
+grant resource to zhf;
+此时该用户拥有RESOURCE和PUBLIC两个角色
+个人理解是一个用户基本的权限，因为没有其他权限和角色被授予
+此时的该用户只能是被用来做基本的一些无风险的数据库操作的用户
+比如：连接数据库
+
+--授予用户对表空间的无限使用权限
+grant  unlimited tablespace to  zhf;
+
+--查询角色所拥有的权限 系统级权限
+select grantee, privilege from dba_sys_privs where dba_sys_privs.grantee='SOI';
+
+--查询用户被授予的表级权限
+select * from dba_tab_privs where grantee='ZHF';
+
+--查询当前用户的缺省表空间
+select username,default_tablespace from dba_users where username='ZHF';
+
+--查询用户被授予的角色
+select *  from dba_role_privs where   GRANTEE='ZHF';
+
+--查询拥有DBA权限的用户
+select * from dba_role_privs where granted_role='DBA';  
+
+
+--查看当前数据库中所有用户的被授权内容
+ 
+ select dbms_metadata.get_granted_ddl('ROLE_GRANT',username) from dba_users where account_status='OPEN';
+
+ 
+--数据库状态查询(实例名、数据库版本等）
+ select status$ from v$instance; 
+--数据库基本信息查询,dbname信息等
+select * from v$database;  
+Roles$：角色，也是用数字表示。0：普通；1：主库；2：备库
+status: 1：启动；2：启动，redo 完成；3：MOUNT；4：打开；5：挂起；6：关闭
+
+
+--数据库模式查询
+
+--查询数据库大小写是否敏感
+ SELECT CASE_SENSITIVE();
+1为敏感，0为不敏感
+select sf_get_unicode_flag(); select unicode();        查看字符集  0 表示 GB18030，1 表示 UTF-8，2 表示 EUC-KR
+--数据文件相关
+  
+  --查看数据文件、控制文件、日志文件、TEMP
+    select GROUP_ID , PATH , ID , STATUS$ from v$datafile;
+
+  --查看redo
+    select path,rlog_size/1024/1024 from v$rlogfile;
+  --查看控制文件
+    select para_name,para_value from v$dm_ini where para_name='CTL_PATH';
+    select para_name,para_value from v$dm_ini where para_name='CTL_BAK_PATH';
+    select para_name,para_value from v$dm_ini where para_name='CTL_BAK_NUM';
+	
+--表空间相关
+    
+	--创建表空间
+  create tablespace tbs1 datafile '/dm8/data/DAMENG02/tbs101.dbf' size 50,'/dm8/data/DAMENG2/tbs102.dbf' size 50;
+  create tablespace tbs1 datafile '/dm8/data/DAMENG02/tbs101.dbf' size 64;
+	--表空间中数据文件的查询
+	select file_name from dba_data_files where file_name like '%tbs%' and tablespace_name='TBS1';
+
+	--给表空间添加数据文件
+	alter tablespace tbs1_new add datafile '/opt/dm8/data/DAMENG/tbs103.dbf' size 50;
+    
+	--扩展数据文件大小
+   alter tablespace TBS1_NEW resize datafile '/opt/dm8/data/DAMENG/tbs101.dbf' to 128;  
+
+    --指定数据文件的扩展
+   alter tablespace tbs1_new datafile '/opt/dm8/data/DAMENG/tbs101.dbf' autoextend on
+next 10 maxsize 200;
+    --修改数据文件的路径
+    alter tablespace tbs1_new offline; 先让表空间下线
+	alter tablespace tbs1_new rename datafile '/opt/dm8/data/DAMENG/tbs101.dbf' to '/opt/
+dm8/data/tbs01.dbf';  修改数据文件的路径
+    alter tablespace tbs1_new online; 让表空间上线
+	
+   --查看表空间
+         select * from v$tablespace;
+		 
+   --查询表空间与数据文件对应关系
+SELECT ts.NAME, df.PATH FROM V$TABLESPACE AS ts, V$DATAFILE AS df WHERE ts.ID= df.GROUP_ID;
+select tablespace_name,file_name from dba_data_files;	
+
+   --roll表空间（同undo表空间）
+     --查询大小
+	  select tablespace_name,file_name,bytes/1024/1024 M from dba_data_files where tablespace_name='ROLL';
+	 --增加roll表空间大小 方法1：修改数据文件大小
+	 alter tablespace ROLL resize datafile 'ROLL.DBF' to 150;
+	 --增加roll表空间大小 方法2：增加ROLL文件
+	 alter tablespace ROLL add datafile '/dm8/data/DAMENG/ROLL01.DBF' size 64;
+   
+   --临时表空间
+     --查询临时表空间在配置文件中的配置（路径，数据文件大小，及空间上限）
+	 select para_name,para_value from v$dm_ini where para_name like '%TEMP%' ;
+     --查询数据文件大小
+	 select tablespace_name,file_name,bytes/1024/1024 M from dba_data_files where tablespace_name='TEMP';
+	 --对表空间容量继续扩容，方法1：
+  
+
+
+
+
+
+每个用户有一个默认的同名的模式，访问自己模式下的表、视图等，不需要加模式名，访问其他模式下的对象需要加上模式名。
+查询当前用户模式下的表，无需加对象名
+
+select table_name from user_tables;   查询当前用户下的所有表
+
+
+SELECT OWNER,CONSTRAINT_NAME,CONSTRAINT_TYPE,TABLE_NAME FROM user_CONSTRAINTS   查询约束
+
+SELECT OWNER,INDEX_NAME,TABLE_NAME,STATUS FROM user_INDEXES                       查询索引
+
+达梦支持的索引：
+
+聚集索引：每一个普通表有且只有一个聚集索引；
+唯一索引：索引数据根据索引键唯一；
+函数索引：包含函数/表达式的预先计算的值；
+位图索引：对低基数的列创建位图索引；
+位图连接索引：针对两个或者多个表连接的位图索引，主要用于数据仓库中；
+全文索引：在表的文本列上而建的索引。
+
+全文索引：
+create context index CONTEXT_ADDR_ADDR
+on ADDRESS(ADDRESS1)
+lexer CHINESE_FP_LEXER sync transaction;
+验证全文索引查询
+SELECT * FROM ADDRESS WHERE CONTAINS(ADDRESS1,‘号’);
+
+select sf_get_case_sensitive_flag()  查询数据库是否大小写敏感 0为不敏感，1为敏感
+大小写敏感：模式名，对象名，表名，字段名大小写会自动区分，不用单独加双引号表示小写，查询添加中不区分大小写字符
+查询结果也不区分大小写
+
+对于查询条件中是区分大小写字符的，查询结果也是区分大小写字符的。
+大小写不敏感：表名，字段名，默认小写会转为大写，除非双引号括起来表示小写，
+
+Oracle：
+
+默认是大小写不敏感(是在没有使用双引号"的前提下)，
+表名、字段名等不区分大小写，小写字母会自动转换为大写字母； 
+需要用小写字母时需要使用双引号，或借助函數upper()和lower()；
+
+DAMENG:
+默认大小写敏感，此定义等同于oracle的大小写不敏感
+
+大小写不敏感：数据库解析引擎原封不动的发送而来的SQL语句中涉及的对象标示符（即：禁用自动转大大写），
+不管是大写还是小写都认为是一个对象。
+
+
+PostgreSQL：
+
+默认是大小写不敏感，表名、字段名等不区分大小写，大写字母会自动转换为小写字母； 需要用大写字母时需要使用双引号，或借助函數upper()和lower()；
+
+SQLServer：
+
+默认是大小写不敏感； 可以通过修改排序规则改变： 右击数据库--->属性----->选项---->排序规则： Chinese_PRC_CS_AS 区分大小写、 Chinese_PRC_CI_AS 不区分大小写。
+
+MySQL：
+
+__在Linux下数据库名、表名、列名、别名大小写规则是这样的： __
+
+1、数据库名与表名是严格区分大小写的；
+
+2、表的别名是严格区分大小写的；
+
+3、列名与列的别名在所有的情况下均是忽略大小写的；
+
+4、变量名也是严格区分大小写的；
+
+
+--查询指定用户的占用存储空间大小
+SELECT USER_USED_SPACE('ZHF') * PARA_VALUE / 1024 / 1024 "USER_USED_SPACE(MB)"
+  FROM V$DM_INI
+ WHERE PARA_NAME LIKE 'GLOBAL_PAGE_SIZE';
+
+
+                                     redo相关
+									 
+--redo日志组查看
+select rlog_size from v$rlogfile;
+select path,rlog_size/1024/1024 from v$rlogfile;
+
+--添加新的redo文件，大小M
+alter database add logfile '/opt/dm8/data/DAMENG/DAMENG03.log' size 128;
+
+--修改redo日志的大小：
+alter database resize logfile '/opt/dm8/data/DAMENG/DAMENG03.log' to 256;
+
+
+
+                                     归档相关
+--开启归档
+
+  --查看当前归档模式
+     select arch_mode from v$database;
+行号     arch_mode
+---------- ---------
+1          N
+N表示归档未开启
+  
+   --启动到mount状态
+   alter database mount;
+   --查看数据库状态
+   select status$ from v$database;
+     3为mount  4为open
+   --添加存放归档的目录
+   alter database add archivelog 'dest= /dm8/arch,type=local,file_size=1024,space_limit=2048';
+   alter database archivelog;
+   alter database open;
+   select status$ from v$database;
+   select arch_mode from v$database;
+
+参数说明： ARCH_TYPE：
+归档类型，有以下几种： 本地归档 LOCAL（一台主库最多配 8 个） 远程实时归档 REALTIME（一台主库
+最多配 8 个） 远程异步归档 ASYNC（一台主库最多配 8 个） 即时归档 TIMELY（一个主库最多配 8 个）
+远程归档 REMOTE（一个主库最多配 8 个）
+ARCH_DEST： 归档路径
+ARCH_FILE_SIZE：单个归档文件大小，单位 MB，取值范围（64~2048），默认为 1024MB，即 1G
+ARCH_SPACE_LIMIT：归档文件空间限制，单位 MB，取值范围（1024~4294967294），0 表示无空间限制  
+  
+  --查看归档日志路径,大小，和存储空间
+  select arch_name,arch_type,arch_dest,arch_file_size,arch_space_limit from v$dm_arch_ini;
+
+  select name from v$archived_log;
+  --检查归档线程
+  select DISTINCT name, thread_desc from v$threads;
+                                    
+--关闭归档
+  alter database mount;
+  
+  alter database noarchivelog;
+  
+  --可以选择删除归档文件和目录
+    ALTER DATABASE DELETE ARCHIVELOG 'dest= /home/dmdba/arc';
+	
+  
+--通过归档切换功能，备份与还原可以将这些已经写入
+联机日志文件，但还没有写入归档日志文件的REDO日志，写入到归档日志文件中。
+   alter database archivelog current;
+   
+--日志切换命令
+  alter system switch logfile
+  
+
+                                     内存情况的一些查询
+
+--查询内存池使用情况
+select name,TOTAL_SIZE,DATA_SIZE,FILE_NAME from v$mem_pool;
+ 
+--Memory_pool 表示共享内存大小 
+select para_name,para_value from v$dm_ini where para_name='MEMORY_POOL';
+
+--查询共享内存每次可扩容的量
+select para_name,para_value from v$dm_ini where para_name='MEMORY_EXTENT_SIZE';
+
+--查询共享内存最大可扩容的量（限制共享内存可以使用多少系统内存）
+select para_name,para_value from v$dm_ini where para_name='MEMORY_TARGET';
+
+0 表示的是不限制
+
+
+
+  --数据缓冲区配置大小
+Select para_name,para_value from v$dm_ini where para_name='BUFFER';
+    --数据缓冲区四种类型的查询
+    select distinct name from v$bufferpool;
+
+    --查询内存池BUFFERPOOL的页数、读取页数和命中率信息
+    SELECT NAME,N_PAGES,N_LOGIC_READS,RAT_HIT FROM V$BUFFERPOOL;
+
+    --查出当前数据库的缓冲区使用情况
+    select name,page_size*n_pages/1024/1024 total_size,page_size*free/1024/1024 free_size
+    from v$bufferpool;
+
+  --sql缓冲区大小
+Select para_name,para_value from v$dm_ini where para_name='CACHE_POOL_SIZE'; 
+
+
+  --日志缓冲区大小
+    select para_name,para_value from v$dm_ini where para_name like 'RLOG_BUF_SIZE'; 
+   
+    select para_name,para_value from v$dm_ini where para_name like 'RLOG%';
+	   Rlog_buf_size 日志缓冲区的大小 单位 page
+       RLOG_POOL_SIZE 最大日志缓冲区的大小，单位 M
+	   
+  --字典缓冲区大小
+     select para_name,para_value from v$dm_ini where para_name like 'DICT_BUF_SIZE';
+    --显示字典缓存中的字典对象信息。
+	select * from V$DICT_CACHE_ITEM;
+	--显示字典缓存区空间使用情况:
+	select * from V$DICT_CACHE;
+	
+  --SQL缓冲区大小
+     select para_name,para_value from v$dm_ini where para_name like 'CACHE_POOL_SIZE';
+	 
+	 --历史sql查询
+	   select sql_id,TOP_SQL_TEXT from v$sql_history;
+	   select sql_id,sql_text from v$sqltext;
+  --SSD缓冲区大小
+      select para_name,para_value from v$dm_ini where para_name like 'SSD_BUF_SIZE';
+	  
+        
+--运行时内存池
+  --排序区大小
+  select para_name,para_value from v$dm_ini where para_name like
+'SORT_BUF_SIZE';
+  
+  --哈希区大小
+	select para_name,para_value from v$dm_ini where para_name like
+'HJ_BUF_SIZE'; 
+
+
+--后台进程查询
+select * from v$process;
+
+
+
+                                   备份和恢复
+								   
+
+--dmrman登录方式1								   
+[dmdba@DMDBnode1 bin]$ pwd
+/dm8/bin
+[dmdba@DMDBnode1 bin]$ ll dmrman
+-r-xr-xr-x 1 dmdba dinstall 26049  8月  2 23:19 dmrman
+[dmdba@DMDBnode1 bin]$ ./dmrman
+dmrman V8
+RMAN>
+
+--dmrman登录方式2（已经添加了环境变量PATH的对应路径）
+[dmdba@DMDBnode1 ~]$ dmrman
+dmrman V8
+RMAN>
+
+--dmrman查看当前的环境
+RMAN> configure
+
+--dmrman查看帮助
+RMAN> help
+
+
+--dmrman执行备份示例
+show backupset '/dm8/data/DAMENG/bak/DB_DAMENG_FULL_2023_08_07_09_42_50'
+单引号为备份集的路径
+--dmrman的常用命令
+
+
+
+--利用disql，查询备份信息
+select device_type,backup_path,type,range# from v$backupset;
+
+
+select backup_path,page_size,extent_size from v$backupset_dbinfo;
+
+
+
+                                       备份和恢复的图形工具
+manager工具（联机备份工具）
+console工具（控制台工具）--需要关闭数据库
+
+
+call sp_file_sys_check()
+
+
+                                         用户和模式
+--查询数据库中所包含的schema信息
+select distinct object_name TABLE_SCHEMA from all_objects where object_type='SCH';
+										 
+										 
+										 
+
+
+                                        逻辑导入导出
+
+查看参数:dexp help     dimp help
+
+--查询某个表空间中的所有段信息
+select OWNER,SEGMENT_NAME,SEGMENT_TYPE,sum(BYTES)/1024 K from dba_segments
+where TABLESPACE_NAME='TBS1'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE order by owner,sum(BYTES);
+
+
+
+
+--源库导出,导出所有的对象
+dexp sysdba/Dameng123 file=20230806full_%U.dmp log=20230806full.log directory=/dm8/dmexp  full=y
+
+--按模式导入：
+dimp sysdba/Dameng123@localhost:5237 file=20230806full_01.dmp log=20130806imp.log
+directory=/dm8/dmimp schemas=SYSDBA,PERSON,DMHR
+
+
+--全库导入：/dm8/dmimp 这个目录中已经拷贝进去了导出的所有dmp文件
+dimp sysdba/Dameng123@localhost:5237 file=20230806full_01.dmp log=20130806imp.log directory=/dm8/dmimp full=y
+
+
+--四种级别的导出导入
+FULL、OWNER、SCHEMAS、TABLES
+
+只要遵循一个原则就是用何种方式导出的就需要用何种方式导入。
+
+table_exists_action={skip,append,truncate,replace}
+SKIP：跳过此表。
+APPEND：直接向现有表中导入数据
+TRUNCATE：先删除现有表中的数据，再向表中导入数据 REPLACE：先删除现有表，再导数据
+
+  --设置full=Y，如果目标端没有对应的表空间，则全部存储在MAIN表空间
+full=Y
+
+  --设置 OWNER=test，导出用户 test 所拥有的对象全部导出。
+owner=test1,test2,test3
+
+  --
+schemas=schem1,schem2
+tables=tb1,tb2,tb3
+
+
+
+                                      job
+	
+	为了不须要每次都输入set serveroutput on 可以在Oracle安装文件夹下查下glogin.sql文件。
+并在文件里添加set serveroutput on就可以。
+
+
+
+
+create view v_emp as select * from employees 
+where hre_date>=to_date('1992-12-31','yyyy-mm-dd') 
+and 
+hre_date<=to_date('2003-01-01','yyyy-mm-dd'); 
+
+
+
+
+                                      测试数据
+
+第二套试卷
+DEPT表
+insert into dmtest.dept (DEPT_ID,DEPT_NAME,LOCATION_ADDR)
+values (10, 'ACCOUNTING', 'NEW YORK');
+
+insert into dmtest.dept (DEPT_ID,DEPT_NAME,LOCATION_ADDR)
+values (20, 'RESEARCH', 'DALLAS');
+
+insert into dmtest.dept (DEPT_ID,DEPT_NAME,LOCATION_ADDR)
+values (30, 'SALES', 'CHICAGO');
+
+insert into dmtest.dept (DEPT_ID,DEPT_NAME,LOCATION_ADDR)
+values (40, 'OPERATIONS', 'BOSTON');
+
+emp表
+insert into dmtest.emp (EMP_ID,EMP_NAME,EMAIL,PHONE_NUM,HIRE_DATE,JOB_ID,MANAGER_ID,SALARY,DEPT_ID)
+values (7369, 'SMITH1','541099040@qq.com','13111111111', to_date('1980-12-17','yyyy-mm-dd'),01, 10,800,20);
+insert into dmtest.emp (EMP_ID,EMP_NAME,EMAIL,PHONE_NUM,HIRE_DATE,JOB_ID,MANAGER_ID,SALARY,DEPT_ID)
+values (7370, 'SMITH2','541099041@qq.com','13111111112', to_date('1981-12-17','yyyy-mm-dd'),02, 11,900,10);
+insert into dmtest.emp (EMP_ID,EMP_NAME,EMAIL,PHONE_NUM,HIRE_DATE,JOB_ID,MANAGER_ID,SALARY,DEPT_ID)
+values (7371, 'SMITH3','541099042@qq.com','13111111113', to_date('1991-12-17','yyyy-mm-dd'),03, 12,700,30);
+insert into dmtest.emp (EMP_ID,EMP_NAME,EMAIL,PHONE_NUM,HIRE_DATE,JOB_ID,MANAGER_ID,SALARY,DEPT_ID)
+values (7372, 'SMITH3','541099042@qq.com','13111111114', to_date('1999-12-17','yyyy-mm-dd'),04, 13,600,40);
+
+
+
+create view  VIEW_HIREDATE as select * from emp where hire_date>=to_date('2006-01-01','yyyy-mm-dd') and hire_date<=to_date('2009-01-01','yyyy-mm-dd');
+create view  VIEW_SALARY as select dept_id from emp group by dept_id  having avg(SALARY)>12000;
+
+
+create index IND_EMP_NAME ON emp(emp_name) storage(on "DMTBS");
+
+
+
+                                       索引
+									   
+--聚集索引
+  创建聚集索引  当建表语句未指定聚集索引键时，DM8 的默认聚集索引键是 ROWID。
+  create table emp (emp_id number cluster primary key,ename varchar2(10) );
+  create cluster index emp_name_idx on emp(ename);
+  
+  查询索引是在哪一列上：
+   select a.table_name,a.INDEX_NAME,a.COLUMN_NAME,b.index_type from user_ind_columns  a   
+   join user_indexes b on a.table_name=b.table_name  where a.table_name='T1';
+
+
+--唯一索引
+  CREATE UNIQUE INDEX dept_unique_index ON dept (dname) STORAGE (ON users);
+  
+  
+--基于函数的索引
+  CREATE INDEX IDX ON EXAMPLE_TAB(COLUMN_A + COLUMN_B);
+  
+  
+--创建位图索引
+   位图索引主要针对含有大量相同值的列而创建。
+   CREATE BITMAP INDEX S1 ON PURCHASING.VENDOR (VENDORID);
+   
+--重建索引
+   当删除表的大量数据后，若不再对表执行插入操作，索引所处的段可能
+占用了大量并不使用的簇，从而浪费了存储空间。
+  格式： SP_REBUILD_INDEX(SCHEMA_NAME varchar(256), INDEX_ID int);
+  举例：call SP_REBUILD_INDEX('SYSDBA',33555537);
+  
+--删除索引
+DROP INDEX emp_ename;
+
+--查询分区索引
+select index_name,degree,status,tablespace_name 
+from user_indexes 
+where table_owner='DMTEST' and table_name='SALES';
+
+select index_name,PARTITION_NAME from user_ind_partitions;
+
+
+                                         表空间相关
+--约束某张表对表空间使用的大小
+   CREATE TABLE TEST (SNO INT, MYINFO VARCHAR) DISKSPACE LIMIT 500;
+   ALTER TABLE TEST MODIFY DISKSPACE LIMIT 50;
+   
+--查看模式对象的空间使用
+
+   --查看用户占用的表空间
+   SELECT USER_USED_SPACE('TEST');
+   
+   --查看为表分配的空间
+   SELECT TABLE_USED_SPACE('TEST', 'T1');
+   
+--查看表空间使用情况：
+   select tablespace_name,bytes/1024/1024 total_size,user_bytes/1024/1024 free_size from dba_data_files;
+   
+--查看当前 undo_retention 的时间 秒
+select name,value from v$parameter where name like 'UNDO%';
+
+--修改undo_retention 的时间
+   [dmdba@enmoedu1 DAMENG]$ cat dm.ini | grep UNDO_RETENTION
+UNDO_RETENTION = 240.000
+
+  静态参数，需要重启实例
+  登陆数据库验证：
+select name,value from v$parameter where name like 'UNDO%';
+
+
+                                         
+										 分区表
+										 
+在 DM 分区表中，主表本身不存储数据，所有数据只存储在子表中，从而实现不同分区的完全独立性。
+那么不同分区可以存储于相同表空间，也可以位于不同的表空间中
+
+括范围、哈希和列表三种方式
+
+分区列类型必须是数值型、字符型或日期型，不支持 BLOB、CLOB、IMAGE、TEXT、
+LONGVARCHAR、BIT、BINARY、VARBINARY、LONGVARBINARY、BFILE、时间间隔
+类型、虚拟列和用户自定义类型为分区列；
+
+范围分区和哈希分区的分区键可以多个，最多不超过 16 列；LIST 分区的分区键必须唯一；
+
+CREATE TABLE callinfo(
+caller CHAR(15),
+callee CHAR(15),
+time DATETIME,
+duration INT
+)
+PARTITION BY RANGE(time)(
+PARTITION p1 VALUES LESS THAN ('2020-04-01'),
+PARTITION p2 VALUES LESS THAN ('2020-07-01'),
+PARTITION p3 VALUES LESS THAN ('2020-10-01'),
+PARTITION p4 VALUES EQU OR LESS THAN ('2020-12-31'));
+
+
+查看表是否为分区表属性：
+select table_name,partitioned from dba_tables where table_name='CALLINFO';
+
+查看表的分区类型：
+select table_name,partitioning_type,partition_count from dba_part_tables where
+table_name='CALLINFO';
+
+查看表每个分区的最大值：
+select table_name,partition_name,HIGH_VALUE from dba_tab_partitions;
+
+查看分区信息：
+select table_name,partition_name,HIGH_VALUE,tablespace_name from dba_tab_partitions where
+table_name='CALLINFO3';
+
+--查看分区表
+select OWNER,TABLE_NAME,PARTITIONING_TYPE,SUBPARTITIONING_TYPE,PARTITION_COUNT 
+from dba_part_tables 
+where OWNER='CACHER01' and TABLE_NAME='P_MID_RCVEDCOMP';
+
+--查看分区表详细信息
+select * from dba_tab_partitions 
+where TABLE_OWNER='CACHER01' and TABLE_NAME='P_MID_RCVEDCOMP' order by 1;
+
+--查看子分区
+select * from dba_tab_subpartitions 
+where TABLE_OWNER='CACHER01' and TABLE_NAME='P_MID_RCVEDCOMP' and subpartition_name= 'P201512_SX14402'
+
+
+1）增加分区：建立水平分区表后，可根据实际需要新增一个分区；
+增加分区必须在最后一个分区范围值的后面添加，要想在表的开始范围
+或中间增加分区，应使用 SPLIT PARTITION 语句。
+
+2）删除分区：建立水平分区表后，可根据实际需要删除一个分区；
+只能对范围分区和 LIST 分区进行删除分区，哈希分区不支持删除分区。
+3）合并分区：将相邻的两个范围分区合并为一个分区。 合并分区通过指定两个分区名
+进行，将相邻的两个分区的数据进行合并，构建新的大分区。只能在范围分区上进行合并分
+区；
+仅范围分区表支持合并分区，
+
+4）拆分分区：将某一个范围分区拆分为相邻的两个分区。 拆分分区时指定的常量表达
+式值必须是原范围分区的有效范围值。只能在范围分区上进行拆分分区；
+
+
+--含有maxvalue分区的拆分
+
+ALTER TABLE SALES SPLIT
+PARTITION PART_MAX AT('2015-01-01') INTO (PARTITION PART_3, PARTITION PART_MAX);
+
+5）交换分区：将分区数据跟普通表数据交换功能，普通表必须跟分区表同构（拥有相
+同的列和索引）。不支持含有加密列的分区表交换分区。
+   
+insert into sales  values(10001,13,to_date('2015-05-01','YYYY-MM-DD'),5733,'武汉');
+insert into sales  values(10002,14,to_date('2016-05-01','YYYY-MM-DD'),5723,'北汉');
+
+
+                                  分区索引
+创建索引时若未指
+定 GLOBAL 关键字则建立的索引是局部索引，即每一个表分区都有一个索引分区，并且只
+索引该分区上的数据。如果指定了 GLOBAL 关键字则建立的索引是全局索引，即每个表分
+区的数据都被索引在同一个 B 树中。
+
+如果是多级分区表，在创建唯一索引时，索引列必须为主分区和子分区的分区列。
+
+--查看分区索引信息
+select index_name,PARTITION_NAME from user_ind_partitions where index_name like '%SALES%';
+
+ select index_name,PARTITION_NAME from user_ind_partitions;
+
+
+                                    全文索引
+一个全文索引只作用于表的一个文本列，不允许为组合列和计算列；
+create context index CONTEXT_ADDRESS
+on DMTEST.ADDRESS(ADDRESS1)
+lexer CHINESE_FP_LEXER sync transaction;
+
+   验证全文索引查询
+select * from address where contains(ADDRESS1,'taiyuan');
+
+									
+
+                                 物化视图
+物化视图是从一个或几个基表导出的表，同视图相比，它存储了导出表的真实数据，占用空间。
+
+实现数据同步。提高查询效率。
+
+create materialized view mv1 as select * from test;
+
+手动刷新：
+refresh materialized view mv1;
+
+创建基于 commit 刷新的视图：
+SQL> create materialized view mv refresh on commit as select * from test1;
+
+
+创建物化视图：30s 刷新一次
+CREATE MATERIALIZED VIEW MV_VENDOR_EXCELLENT
+REFRESH WITH ROWID START WITH SYSDATE NEXT SYSDATE + 1/2880 AS
+SELECT VENDORID, ACCOUNTNO, NAME, ACTIVEFLAG, CREDIT
+FROM VENDOR
+WHERE CREDIT = 1;
+
+--物化视图日志
+物化视图的快速刷新依赖于基表上的物化视图日志，物化视图日志记录了基表的变化信息。
+
+
+
+                                    
+									数据移动
+--dmfldr
+
+dmfldr（DM Fast Loader）是 DM 提供的快速数据装载命令行工具。
+用户通过使用 dmfldr 工
+具能够把按照一定格式排序的文本数据以简单、快速、高效的方式载入到 DM 数据库中，或
+把 DM 数据库中的数据按照一定格式写入文本文件。
+
+数据文件路径的优先选择顺序为先控制文件,后参数选项。
+
+当 dmfldr 工作在导出模式即 MODE 为 OUT 时，将表中的 lob 大字段数据，导出到数据文件
+中 。
+111|'taiyuan' 'shanxi' 222
+333|'tianjin' 'beijing' 444
+555|'shanghai' 'chengdu' 666
+
+
+  --配置控制文件  文件名.ctl
+LOAD DATA
+INFILE '/opt/address.txt'
+INTO TABLE address
+FIELDS '|'
+(
+ADDRESSID ,
+ADDRESS1 TERMINATED BY ' ',
+CITY TERMINATED BY ' ',
+POSTCODE
+)
+
+
+
+   --进行数据载入
+dmfldr userid=SYSDBA/DM01SYSDBA@localhost:5236  control=\'/dm8/fladdress.ctl\'
+
+   --进行数据导出
+
+
+
+
+
+                                      外部表
+									  
+外部表，是指不存在于数据库中的表。通过向达梦提供描述外部的元数据，
+可以把一个操作系统文件当成一个只读的数据库表，就这些数据存储在一个普通数据库表中一样来进行访问。
+外部表的数据存储在操作系统中，是操作系统文件，建立外部表的时候，不会产生段，页簇等存储结构，
+只有与表相关的定义放在数据字典中。在数据库中不能对外部表的内容进行修改，不能对外部表建立主键，
+索引，外键。不需要将外部表的数据载入到数据库中来，通过sql解码器来访问外部表。
+外部基表是只读的，不存在表锁，不允许任何针对外部表的增删改数据操作，不允许 TRUNCATE
+外部表操作；
+
+举例：
+
+emp.txt
+
+--ID,SEX,NAME,EMAIL,TEL
+1,male,haifeng,12345@qq.com,1234567890
+2,male,haifeng,12345@qq.com,1234567890
+3,male,haifeng,12345@qq.com,1234567890
+4,male,haifeng,12345@qq.com,1234567890
+5,male,haifeng,12345@qq.com,1234567890
+
+CREATE OR REPLACE DIRECTORY "EXTDIR" AS '/dm8/data/DM01/emp.txt';
+
+create external table DMTEST.EMP(ID int , SEX CHAR(10), NAME CHAR(20), 
+ EMAIL CHAR(50),TEL CHAR(15)) 
+from datafile DEFAULT DIRECTORY EXTDIR LOCATION ('emp.txt')  parms( fields delimited by '|');
+
+create external table DMTEST.EMP(ID int , SEX CHAR(10), NAME CHAR(50),EMAIL CHAR(50),TEL CHAR(50)) 
+from datafile '/opt/emp.txt'  parms(fields delimited by '|' );
+
+--创建控制文件
+ vi  /dm8/emp.ctl
+LOAD DATA
+INFILE '/opt/emp.txt'
+INTO TABLE DMTEST.EMP
+FIELDS '|'
+(
+ID,
+SEX,
+NAME,
+EMAIL,
+TEL
+)
+
+create external table DMTEST.EMP(ID int , SEX VARCHAR(10), NAME VARCHAR(20),
+ EMAIL VARCHAR(50),TEL VARCHAR(15))
+from  '/dm8/emp.ctl';                                 
+								 
+								         审计
+--打开审计功能 sysauditor用户
+   select para_name,para_value,para_type from v$dm_ini where para_name='ENABLE_AUDIT';
+   
+   0 表示关闭审计。
+   1 表示打开审计
+   2 表示普通+实时审计
+   
+   sp_set_enable_audit(1);
+   
+--语句级审计
+   SP_AUDIT_STMT(TYPE VARCHAR(30), USERNAME VARCHAR (128), WHENEVER VARCHAR (20))
+
+
+--审计 sysdba 的删除表操作
+conn sysauditor/dameng123
+sp_audit_stmt('TABLE','SYSDBA','ALL');
+
+sp_audit_stmt('TABLE','DMTEST','ALL');
+
+
+
+
+--对象审计 DML审计
+SP_AUDIT_OBJECT (
+TYPE VARCHAR(30), USERNAME VARCHAR (128), SCHNAME VARCHAR (128), 
+TVNAME VARCHAR (128), COLNAME VARCHAR (128), WHENEVER VARCHAR (20)
+)
+
+举例：
+sp_audit_object('insert','DMTEST','DMTEST','SALES','ALL');
+sp_audit_object('delete','DMTEST','DMTEST','SALES','ALL');
+sp_audit_object('update','DMTEST','DMTEST','SALES','ALL');
+
+
+--查看审计结果
+$ cd /opt/dm8/data/DAMENG
+$ ll AUDI*
+此处可以查看文件，打开是乱码，需要图形化界面
+
+analyzer可视化界面中配置查看审计日志
+
+
+
+                      物化视图(图形界面操作物化视图日志）
+					  
+
+--快速更新的物化视图	
+物化视图的快速刷新依赖于基表上的物化视图日志
+CREATE MATERIALIZED VIEW LOG ON VENDOR WITH
+ROWID(ACCOUNTNO,NAME,ACTIVEFLAG,CREDIT) PURGE START WITH SYSDATE + 5
+REPEAT INTERVAL '1' DAY;
+CREATE MATERIALIZED VIEW MV_VENDOR_EXCELLENT1
+REFRESH FAST WITH ROWID START WITH SYSDATE NEXT SYSDATE + 1 AS
+SELECT VENDORID, ACCOUNTNO, NAME, ACTIVEFLAG, CREDIT,ROWID AS X
+FROM VENDOR
+WHERE CREDIT = 1;
+				  
+create materialized view dmtest.mv1 refresh fast on commit as select * from dmtest.sales;
+
+
+--创建自动更新的物化视图
+ create materialized view log on dmtest.t1;
+ create materialized view dmtest.mv2 refresh complete on commit  as select * from dmtest.sales;
+ 
+ 
+ --创建手动更新的物化视图
+  create materialized view dmtest.mv1 as select * from dmtest.sales;
+  
+  refresh materialized view dmtest.mv1;
+  
+  
+                           序列(图形界面操作）
+举例：
+创建循环序列SEQ1,初始值1，每次递增2，最大值99999
+
+
+
+                        备份
+--删除15天前的备份
+CALL SP_DB_BAKSET_REMOVE_BATCH('DISK', NOW()-15)
+
+--检查作业的运行情况
+图形化查看
+
+
+                      

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="vue.js"> </script>
+    <style>
+      .demo {
+        width:100px;
+        height:100px;
+        background-color:red;
+        transition-property:width,height,background-color;
+         transition-duration:2s; /*持续时间 */
+        transition-timing-function:linear;  /* 默认值,表示匀速运动 */
+        transition-delay:2s; /*延时时间 */
+      }
+      .demo-ani {
+         width:200px;
+         height:200px;
+         background-color:blue;
+         transition: width 2s,height 2s,background-color 2s;
+      }
+    </style>
+</head>
+<body>
+  <div id="Application">
+    <div :class="cls" @click="run">当前的样式类别是：{{ cls }}</div>
+  </div>
+  <script>
+    const App = Vue.createApp({
+      data() {
+        return {
+          cls: "demo"
+        }
+      },
+      methods:{
+        run(){
+          if (this.cls == "demo"){
+            this.cls = "demo-ani"
+          }
+          else {
+            this.cls = "demo"
+          }
+        }
+      }
+    })
+    App.mount('#Application')
+  </script>
+</body>
+</html>

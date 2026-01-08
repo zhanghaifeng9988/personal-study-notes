@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="vue.js"></script>
+</head>
+<body>
+  <div id="Application">
+    <!-- 组件的外部属性赋值，可以传递到组件 -->
+    <haifeng-alert title="按钮1"></haifeng-alert>
+    <haifeng-alert title="按钮2"></haifeng-alert>
+  </div>
+  <script>
+    const App = Vue.createApp({}) // 创建一个Vue应用实例
+    const alertComponent = {//定义组件
+      data() {
+        return {
+          msg:'警告框提示',
+          count:0
+        }
+      },
+      methods: {
+        click(){
+        alert(this.msg + this.count++)
+        }
+      },
+      props:['title'], // 定义组件的外部属性
+      template:'<div><button @click="click">{{title}}</button></div>'
+    }
+  App.component('haifeng-alert',alertComponent) // 注册组件
+  App.mount('#Application') // 挂载组件到页面上
+  </script>
+</body>
+</html>

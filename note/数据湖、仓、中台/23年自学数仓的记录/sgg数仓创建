@@ -1,0 +1,855 @@
+--业务数据：比如用户在电商网站中登录、下单、支付等过程中产生的数据就是业务数据。
+业务数据通常存储在MySQL、Oracle等数据库中。
+
+--用户行为数据：
+用户在使用产品过程中，与客户端产品交互过程中产生的数据，
+比如页面浏览、点击、停留、评论、点赞、收藏等。用户行为数据通常存储在日志文件中。
+  
+  --埋点日志数据：个人认为是mongodb的存储格式
+  公共字段、业务字段
+  示例：
+  1540934156385|{
+    "ap": "gmall", 
+    "cm": {
+        "uid": "1234", 
+        "vc": "2", 
+        "vn": "1.0", 
+        "la": "EN", 
+        "sr": "", 
+        "os": "7.1.1", 
+        "ar": "CN", 
+        "md": "BBB100-1", 
+        "ba": "blackberry", 
+        "sv": "V2.2.1", 
+        "g": "abc@gmail.com", 
+        "hw": "1620x1080", 
+        "t": "1506047606608", 
+        "nw": "WIFI", 
+        "ln": 0
+    }, 
+        "et": [
+            {
+                "ett": "1506047605364",  //客户端事件产生时间
+                "en": "display",  //事件名称
+                "kv": {  //事件结果，以key-value形式自行定义
+                    "goodsid": "236",
+                    "action": "1",
+                    "extend1": "1",
+                    "place": "2",
+                    "category": "75"
+                }
+            },{
+		        "ett": "1552352626835",
+		        "en": "active_background",
+		        "kv": {
+			         "active_source": "1"
+		        }
+	        }
+        ]
+    }
+}
+
+
+
+--电商流程
+用户前台浏览商品时的商品详情的管理
+用户商品加入购物车进行支付时用户个人中心&支付服务的管理
+支付完成后订单后台服务的管理
+
+--同步表的分类
+
+   --需要先将数据导入到hdfs环境中，再加载到ODS层中
+  
+ --全量同步的表：每日全量，适用于数据量不大，且每天既会有新数据插入，也会有就数据修改的表 (13张表）
+ 编码字典表  base_dic；品牌表 base_trademark ；活动表 activity_info ；活动参与商品表  activity_sku；
+ 加购表  cart_info；商品收藏表 favor_info ；优惠券表  coupon_info
+ 商品三级分类  base_category3；商品二级分类  base_category2；商品一级分类  base_category1；
+ 优惠规则表  activity_rule；SKU商品表   sku_info；SPU商品表  spu_info
+select语句使用的条件：where 1=1
+    
+ --每日增量表：每日增量，适用于表数据量大，且每天只会有新数据插入的表（6张表）
+  退单表 order_redund_info；订单状态表 order_status_log ；支付流水表  payment_info；
+  订单详情表  order_detail；活动与订单关联表  activity_order；商品评论表  comment_info 
+select语句使用的条件：where date_format(create_time,'%Y-%m-%d')='$do_date'"
+	
+ --新增及变化：适用于表数据量大，既会有新增，又会有变化（3张表）
+    订单表 order_info ; 用户表  user_info  ;优惠劵领用表 coupon_use
+select语句使用的条件：where (date_format(create_time,'%Y-%m-%d')='$do_date' 
+                        or date_format(operate_time,'%Y-%m-%d')='$do_date')"
+ 
+ --特殊策略：1）客观世界维度 2）日期维度 3）地区维度 ,不必遵循上述同步策略（2张表）
+    省份表 base_province;地区表  base_region
+	
+如果脚本使用参数first，载入了除activity_sku这个表之外的23张表
+如果脚本使用参数all，载入了除activity_sku，base_province，base_region 之外的21张表
+
+
+
+
+ODS层：原始数据层，存放原始数据，直接加载原始日志、数据，数据保持原貌，不做任何处理；
+DWD（detail）层：对ODS层数据进行清洗（去空值，脏数据，超过极限范围的数据）、维度退化、脱敏；
+DWS（service）层：以DWD层为基础，按天进行轻度汇总；
+DWT（topic）层：以DWS层为基础，按主题进行汇总；
+ADS（application data store）层：为各种统计报表提供数据。
+
+ODS层命名为ods_表名
+DWD层命名为dwd_dim/fact_表名
+DWS层命名为dws_表名  
+DWT层命名为dwt_购物车
+ADS层命名为ads_表名
+临时表命名为xxx_tmp
+用户行为表，以log为后缀。
+
+--完全依赖：通过AB得出C，但是AB其中任意一个无法单独得出C，那么C完全依赖于AB;
+
+--部分依赖：通过AB得出C，AB其中任意一个都能单独得出C，那么C部分依赖于AB；
+        
+--传递依赖：通过A得到B，通过B得到C，但是C得不到A，那么C传递依赖于A；
+
+第一范式核心原则：属性不可切割；“5台电脑”  不可以是一个列值
+第二范式核心原则：不能存在“部分依赖”  一张表不能同时存在多个可做主键的列
+第三范式核心原则：不能存在传递函数依赖
+
+--关系模型
+   严格遵守三范式，用在OLTP库中
+
+--维度模型
+   主要应用于OLAP系统中，通常以某一个事实表为中心进行表的组织，主要面向业务，
+  特征是可能存在数据的冗余，但是能方便的得到数据。
+   把相关各种表整理成两种：事实表和维度表两种。
+
+
+--在维度建模的基础上又分为三种模型：星型模型、雪花模型、星座模型。
+     星型模型的维度表只有一层，雪花模型的维度表有多层，共同点是：事实表只有一个
+	 星座模型模型：基于多个事实表
+  倾向使用维度更少的星型模型。
+
+--维度表：一般是对事实的描述信息。每一张维表对应现实世界中的一个对象或者概念。    
+例如：用户、商品、日期、地区等。
+维表的范围很宽（具有多个属性、列比较多）
+跟事实表相比，行数相对较小：通常< 10万条
+内容相对固定：编码表
+
+--事实表：事实表中的每行数据代表一个业务事件（下单、支付、退款、评价等）。“事实”这个术语表示的是
+  业务事件的度量值（可统计次数、个数、件数、金额等），例如，订单事件中的下单金额。
+  每一个事实表的行包括：具有可加性的数值型的度量值、与维表相连接的外键、通常具有两个和两个以上的外键、外键之间表示维表之间多对多的关系。
+
+事实表的特征：
+非常的大
+内容相对的窄：列数较少
+  经常发生变化，每天会新增加很多。
+
+
+
+--DWD层
+  DWD层需构建维度模型，一般采用星型模型，呈现的状态一般为星座模型。
+维度建模一般按照以下四个步骤：
+选择业务过程→声明粒度→确认维度→确认事实
+
+  （1）选择业务过程
+在业务系统中，挑选我们感兴趣的业务线，比如下单业务，支付业务，退款业务，物流业务，一条业务线对应一张事实表。
+如果是中小公司，尽量把所有业务过程都选择。
+如果是大公司（1000多张表），选择和需求相关的业务线。
+  
+  （2）声明粒度
+数据粒度指数据仓库的数据中保存数据的细化程度或综合程度的级别。
+声明粒度意味着精确定义事实表中的一行数据表示什么，应该尽可能选择最小粒度，以此来应对各种各样的需求。
+ 典型的粒度声明如下：
+  订单当中的每个商品项作为下单事实表中的一行，粒度为每次。
+  每周的订单次数作为一行，粒度为每周。
+  每月的订单次数作为一行，粒度为每月。
+  如果在DWD层粒度就是每周或者每月，那么后续就没有办法统计细粒度的指标了。所以建议采用最小粒度。
+  
+  （3）确定维度
+  维度的主要作用是描述业务是事实，主要表示的是“谁，何处，何时”等信息。
+确定维度的原则是：后续需求中是否要分析相关维度的指标。
+例如，需要统计，什么时间下的订单多，哪个地区下的订单多，哪个用户下的订单多。
+需要确定的维度就包括：时间维度、地区维度、用户维度。
+维度表：需要根据维度建模中的星型模型原则进行维度退化。
+
+  （4）确定事实
+  此处的“事实”一词，指的是业务中的度量值（次数、个数、件数、金额，可以进行累加），例如订单金额、下单次数等。
+在DWD层，以业务过程为建模驱动，基于每个具体业务过程的特点，构建最细粒度的明细层事实表。
+事实表可做适当的宽表化处理。
+事实表和维度表的关联比较灵活，但是为了应对更复杂的业务需求，可以将能关联上的表尽量关联上。
+如何判断是否能够关联上呢？在业务表关系图中，只要两张表能通过中间表能够关联上，就说明能关联上。
+
+  *****DWD层是以业务过程为驱动*****
+*****DWS层、DWT层和ADS层都是以需求为驱动，和维度建模已经没有关系了*******
+*****DWS和DWT都是建宽表，按照主题去建表。主题相当于观察问题的角度。对应着维度表。*****
+
+
+--DWS（当天的状态统计）
+   每天聚合统计，DWS层统计各个主题对象的当天行为，服务于DWT层的主题宽表。
+DWS层宽表包括：每日设备行为、每日会员行为、每日商品行为、每日活动统计、每日地区统计。
+
+   需要建哪些表：以维度为基准，去关联对应多个事实表;
+   站在维度的角度去看事实表，看事实表的度量值。
+   宽表里面的字段：是站在不同维度的角度去看事实表，重点关注事实表聚合后的度量值。
+
+--DWT层（一段时间的状态统计）
+    DWT层统计各个主题对象的累积行为。
+   
+（1）需要建哪些表：和DWS层一样。以维度为基准，去关联对应多个事实表
+（2）宽表里面的字段：我们站在维度表的角度去看事实表，重点关注事实表度量值的累积值、
+       事实表行为的首次和末次时间。
+
+   例如，订单事实表的度量值是下单次数、下单金额。订单事实表的行为是下单。
+   我们站在用户维度表的角度去看订单事实表，重点关注订单事实表至今的累积下单次数、
+   累积下单金额和某时间段内的累积次数、累积金额，以及关注下单行为的首次时间和末次时间。
+  
+  
+--ADS层
+	对各大主题指标分别进行分析。
+
+
+                                       
+									   ***数仓搭建***
+									   
+1）保持数据原貌不做任何修改，起到备份数据的作用。
+2）数据采用LZO压缩，减少磁盘存储空间。100G数据可以压缩到10G以内。
+3）创建分区表，防止后续的全表扫描，在企业开发中大量使用分区表。
+4）创建外部表。在企业开发中，除了自己用的临时表，创建内部表外，绝大多数场景都是创建外部表。
+
+创建gmall数据库
+create database gmall;
+use gmall;
+
+
+
+                                               创建ODS层的表
+
+--埋点日志相关
+     --创建start_log表
+CREATE EXTERNAL TABLE ods_start_log (`line` string) 
+PARTITIONED BY (`dt` string) 
+STORED AS 
+INPUTFORMAT 'com.hadoop.mapred.DeprecatedLzoTextInputFormat' 
+OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat' 
+LOCATION '/warehouse/gmall/ods/ods_start_log';
+			
+导入数据：
+load data inpath '/origin_data/gmall/log/topic_start/2022-08-22' into 
+table gmall.ods_start_log partition(dt='2022-08-22');
+
+创建索引：
+hadoop jar /opt/module/hadoop-3.2.1/share/hadoop/common/hadoop-lzo-0.4.20.jar com.hadoop.compression.lzo.DistributedLzoIndexer /warehouse/gmall/ods/ods_start_log/dt=2022-08-22
+
+   --创建ODS层的表
+    event_log表
+drop table if exists ods_event_log;
+CREATE EXTERNAL TABLE ods_event_log(`line` string)
+PARTITIONED BY (`dt` string)
+STORED AS
+  INPUTFORMAT 'com.hadoop.mapred.DeprecatedLzoTextInputFormat'
+  OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+LOCATION '/warehouse/gmall/ods/ods_event_log';
+
+   --导入数据：
+load data inpath '/origin_data/gmall/log/topic_event/2022-08-22' into 
+table gmall.ods_event_log partition(dt='2022-08-22');
+
+   --创建索引：
+hadoop jar /opt/module/hadoop-3.2.1/share/hadoop/common/hadoop-lzo-0.4.20.jar com.hadoop.compression.lzo.DistributedLzoIndexer /warehouse/gmall/ods/ods_event_log/dt=2022-08-22
+
+
+
+--业务数据相关
+
+   --创建23张表，全量表、增量表、新增和变化表 共三类型的表都在建表语句增加分区信息，以时间进行分区
+
+举例：
+drop table if exists ods_base_dic;
+create external table ods_base_dic(
+    `dic_code` string COMMENT '编号',
+    `dic_name` string  COMMENT '编码名称',
+    `parent_code` string  COMMENT '父编码',
+    `create_time` string  COMMENT '创建日期',
+    `operate_time` string  COMMENT '操作日期'
+) COMMENT '编码字典表'
+PARTITIONED BY (`dt` string)
+row format delimited fields terminated by '\t'
+STORED AS
+  INPUTFORMAT 'com.hadoop.mapred.DeprecatedLzoTextInputFormat'
+  OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+location '/warehouse/gmall/ods/ods_base_dic/';
+
+
+---创建完成后，对ODS层的业务数据进行加载
+   
+   需要编写脚本，将之前载入HDFS的数据，装载到hive里面
+
+  举例：
+#!/bin/bash
+
+APP=gmall
+hive=/opt/module/hive/bin/hive
+
+# 如果是输入的日期按照取输入日期；如果没输入日期取当前时间的前一天
+if [ -n "$2" ] ;then
+    do_date=$2
+else 
+    do_date=`date -d "-1 day" +%F`
+fi
+
+sql1=" 
+load data inpath '/origin_data/$APP/db/order_info/$do_date' OVERWRITE into table ${APP}.ods_order_info partition(dt='$do_date');
+
+load data inpath '/origin_data/$APP/db/order_detail/$do_date' OVERWRITE into table ${APP}.ods_order_detail partition(dt='$do_date');
+
+...
+...
+..."  #21张表
+
+sql2=" 
+load data inpath '/origin_data/$APP/db/base_province/$do_date' OVERWRITE into table ${APP}.ods_base_province;
+
+load data inpath '/origin_data/$APP/db/base_region/$do_date' OVERWRITE into table ${APP}.ods_base_region;
+"  #那两张frist以后，就不用再次装载的表
+
+case $1 in
+"first"){
+    $hive -e "$sql1"
+    $hive -e "$sql2"
+};;
+"all"){
+    $hive -e "$sql1"
+};;
+esac
+
+
+                                                     创建DWD层的表
+
+1）对用户行为数据解析
+2）对核心数据进行判空过滤。
+3）对业务数据采用维度模型重新建模。
+
+
+--用户行为启动表数据解析 ods_start_log  =>  dwd_start_log
+	 
+	 --创建启动表
+	 hive (gmall)> 
+drop table if exists dwd_start_log;
+CREATE EXTERNAL TABLE dwd_start_log(
+`mid_id` string,
+`user_id` string, 
+`version_code` string, 
+`version_name` string, 
+`lang` string, 
+`source` string, 
+`os` string, 
+`area` string, 
+`model` string,
+`brand` string, 
+`sdk_version` string, 
+`gmail` string, 
+`height_width` string,  
+`app_time` string,
+`network` string, 
+`lng` string, 
+`lat` string, 
+`entry` string, 
+`open_ad_type` string, 
+`action` string, 
+`loading_time` string, 
+`detail` string, 
+`extend1` string
+)
+PARTITIONED BY (dt string)
+stored as parquet
+location '/warehouse/gmall/dwd/dwd_start_log/'
+TBLPROPERTIES('parquet.compression'='lzo'); 
+	
+说明：数据采用parquet存储方式，是可以支持切片的，不需要再对数据创建索引。
+
+     
+	 --向启动表导入数据
+	 
+hive (gmall)> 
+insert overwrite table dwd_start_log
+PARTITION (dt='2022-08-22')
+select 
+    get_json_object(line,'$.mid') mid_id,
+    get_json_object(line,'$.uid') user_id,
+    get_json_object(line,'$.vc') version_code,
+    get_json_object(line,'$.vn') version_name,
+    get_json_object(line,'$.l') lang,
+    get_json_object(line,'$.sr') source,
+    get_json_object(line,'$.os') os,
+    get_json_object(line,'$.ar') area,
+    get_json_object(line,'$.md') model,
+    get_json_object(line,'$.ba') brand,
+    get_json_object(line,'$.sv') sdk_version,
+    get_json_object(line,'$.g') gmail,
+    get_json_object(line,'$.hw') height_width,
+    get_json_object(line,'$.t') app_time,
+    get_json_object(line,'$.nw') network,
+    get_json_object(line,'$.ln') lng,
+    get_json_object(line,'$.la') lat,
+    get_json_object(line,'$.entry') entry,
+    get_json_object(line,'$.open_ad_type') open_ad_type,
+    get_json_object(line,'$.action') action,
+    get_json_object(line,'$.loading_time') loading_time,
+    get_json_object(line,'$.detail') detail,
+    get_json_object(line,'$.extend1') extend1
+from ods_start_log 
+where dt='2022-08-22';
+
+ 
+     --创建脚本，自动导入数据
+
+
+--用户行为事件表数据解析（其他看不懂）
+   
+   --创建事件日志基础明细表
+   hive (gmall)> 
+drop table if exists dwd_base_event_log;
+CREATE EXTERNAL TABLE dwd_base_event_log(
+`mid_id` string,
+`user_id` string, 
+`version_code` string, 
+`version_name` string, 
+`lang` string, 
+`source` string, 
+`os` string, 
+`area` string, 
+`model` string,
+`brand` string, 
+`sdk_version` string, 
+`gmail` string, 
+`height_width` string, 
+`app_time` string, 
+`network` string, 
+`lng` string, 
+`lat` string, 
+`event_name` string, 
+`event_json` string, 
+`server_time` string)
+PARTITIONED BY (`dt` string)
+stored as parquet
+location '/warehouse/gmall/dwd/dwd_base_event_log/'
+TBLPROPERTIES('parquet.compression'='lzo');
+
+
+
+--业务数据相关
+
+8个事实表：
+           order_info;订单事实表
+           order_detail；活动与订单关联表  
+		   payment_info;支付事实表
+		   cart_info;加购事实表
+		   favor_info；收藏事实表
+		   coupon_use;优惠券领用事实表
+		   comment_info;评价事实表
+		   order_redund_info;退款事实表
+
+14个维度表（ods层原始表，需要退化成7个维度表）：
+           	base_dic；   编码字典维度表
+            date_info;     时间维度表
+            base_region;     地区维度表
+            base_province;   地区维度表
+            sku_info；          商品维度表   
+            base_trademark	    商品维度表
+            spu_info            商品维度表
+            base_category1；    商品维度表
+            base_category2；    商品维度表
+            base_category3；	商品维度表		
+		    coupon_info            优惠券维度表
+			activity_info              活动维度表
+			activity_rule；            活动维度表
+		    user_info                     用户维度表
+		   
+
+	
+举例：
+--1）建表语句
+hive (gmall)> 
+DROP TABLE IF EXISTS `dwd_dim_sku_info`;
+CREATE EXTERNAL TABLE `dwd_dim_sku_info` (
+    `id` string COMMENT '商品id',
+    `spu_id` string COMMENT 'spuid',
+    `price` double COMMENT '商品价格',
+    `sku_name` string COMMENT '商品名称',
+    `sku_desc` string COMMENT '商品描述',
+    `weight` double COMMENT '重量',
+    `tm_id` string COMMENT '品牌id',
+    `tm_name` string COMMENT '品牌名称',
+    `category3_id` string COMMENT '三级分类id',
+    `category2_id` string COMMENT '二级分类id',
+    `category1_id` string COMMENT '一级分类id',
+    `category3_name` string COMMENT '三级分类名称',
+    `category2_name` string COMMENT '二级分类名称',
+    `category1_name` string COMMENT '一级分类名称',
+    `spu_name` string COMMENT 'spu名称',
+    `create_time` string COMMENT '创建时间'
+) 
+COMMENT '商品维度表'
+PARTITIONED BY (`dt` string) --表示以时间分区
+stored as parquet
+location '/warehouse/gmall/dwd/dwd_dim_sku_info/'
+tblproperties ("parquet.compression"="lzo");
+
+--2）数据装载
+hive (gmall)> 
+insert overwrite table dwd_dim_sku_info partition(dt='2020-03-10')
+select  
+    sku.id,
+    sku.spu_id,
+    sku.price,
+    sku.sku_name,
+    sku.sku_desc,
+    sku.weight,
+    sku.tm_id,
+    ob.tm_name,
+    sku.category3_id,
+    c2.id category2_id,
+    c1.id category1_id,
+    c3.name category3_name,
+    c2.name category2_name,
+    c1.name category1_name,
+    spu.spu_name,
+    sku.create_time
+from
+(
+    select * from ods_sku_info where dt='2020-03-10'
+)sku
+join
+(
+    select * from ods_base_trademark where dt='2020-03-10'
+)ob on sku.tm_id=ob.tm_id
+join
+(
+    select * from ods_spu_info where dt='2020-03-10'
+)spu on spu.id = sku.spu_id
+join 
+(
+    select * from ods_base_category3 where dt='2020-03-10'
+)c3 on sku.category3_id=c3.id
+join  [-0[;p'
+(
+    select * from ods_base_category2 where dt='2020-03-10'
+)c2 on c3.category2_id=c2.id 
+join 
+(
+    select * from ods_base_category1 where dt='2020-03-10'
+)c1 on c2.category1_id=c1.id;
+
+3）查询加载结果
+hive (gmall)> select * from dwd_dim_sku_info where dt='2020-03-10';
+
+
+                  
+
+第一张退化的维度表 "商品维度表"（全量表） ：dwd_dim_sku_info  
+      数据包含ods层的原表有：ods_sku_info，ods_base_trademark，ods_spu_info
+	                ods_base_category3，ods_base_category2，ods_base_category1
+
+第二张退化的维度表“优惠券信息表”（全量表）：dwd_dim_coupon_info
+      数据包含ODS层的原表有：ods_coupon_info  （该表只有一张，其实没有退化）
+	  
+第三张退化的维度表“活动维度表”（全量表）：dwd_dim_activity_info
+      数据包含ODS层的原表有：ods_activity_info，ods_activity_rule
+		
+第四张退化的维度表“地区维度表（特殊）”：dwd_dim_base_province
+      数据包含ODS层的原表有：ods_activity_info，ods_activity_rule
+	  
+第五张维度表“时间维度表（特殊）（预留）”： dwd_dim_date_info
+      数据包含1个在hdfs环境中，手动新建的 date_info.txt 文件，
+	  
+第六张维度表“用户表（拉链表）”：dwd_dim_user_info_his
+      数据ODS层的原表有：ods_user_info
+
+
+
+   拉链表：记录每条信息的声明周期，一旦一条记录的生命周期结束，就重新开始一条新的记录，
+并把当前日期放入生效日期。如果当前信息至今有效，在生效结束日期种填入一个极大值（如9999-99-99）
+   适用于：数据会发生变化，但是大部分是不变的，
+   比如：用户信息会发生变化，但是每天变化的比例不高。如果数据量有一定规模，按照每日全量的方式保存效率低。
+
+
+   事务型快照：每天导入新增
+   周期型快照：导入数据全量
+
+
+第一张事实表 “订单明细事实表”（事务型快照事实表）:dwd_fact_order_detail
+      数据包含ODS层的原表有：ods_order_detail,ods_order_info
+
+第二张事实表“支付事实表（事务型快照事实表)” :dwd_fact_payment_info
+      数据包含ODS层的原表有：ods_payment_info,ods_order_info
+
+第三张事实表“退款事实表（事务型快照事实表)”：dwd_fact_order_refund_info
+      数据包含ODS层的原表有：ods_order_refund_info
+	  
+第四张事实表“评价事实表（事务型快照事实表)”：dwd_fact_comment_info
+      数据包含ODS层的原表有：ods_comment_info
+
+第五张事实表“加购事实表（周期型快照事实表，每日快照)”：dwd_fact_cart_info
+      数据包含ODS层的原表有：ods_cart_info
+
+第六张事实表“收藏事实表（周期型快照事实表，每日快照)”：dwd_fact_favor_info
+      数据包含ODS层的原表有：ods_favor_info
+	  
+第七张事实表“优惠劵领用事实表（累积型快照事实表)”：dwd_fact_coupon_use
+      数据包含ODS层的原表有：ods_coupon_use
+	  
+第八张事实表“加购事实表（周期型快照事实表，每日快照)”：dwd_fact_order_info
+      数据包含ODS层的原表有：ods_order_info，ods_order_status_log，ods_activity_order
+	  
+
+
+  --导入数据脚本
+  
+
+
+
+
+                                      
+									                      DWS层
+
+--用户行为埋点日志数据
+									  
+   --定义一些也位于术语，用来描述用户的各种情况，
+
+比如：连续n周活跃用户：连续n周，每周至少启动一次。，近期流失用户：连续n（2<= n <= 4）周没有启动应用的用户。
+      新增用户：
+	  沉默用户：用户仅在安装当天（次日）启动一次，后续时间无再启动行为。该指标可以反映新增用户质量和用户与APP的匹配程度。
+	  
+   --创建dws层的用户行为表
+   创建dws_uv_detail_daycount表，数据来自于：dwd_start_log
+   
+   --利用hive的collect_set函数，nvl函数，日期处理函数等，对术语中包含的定义，
+   在dwd层中的表进行select，并将结果写入dws层中的表
+   
+   
+--业务数据
+
+    --DWS层的宽表字段，是站在不同维度的视角去看事实表。重点关注事实表的度量值（'加入购物车次数'、'加入购物车金额'、
+'下单次数'、'下单金额'等等）。
+	
+	--每日会员行为：'用户 id'
+	                '登录次数'
+	                '加入购物车次数'
+	                '加入购物车金额'
+	                '下单次数'
+	                '下单金额'
+	                '支付次数'
+	                '支付金额'
+	  建表：dws_user_action_daycount;
+	  数据来自：dwd_start_log，dwd_fact_cart_info，dwd_fact_order_info，dwd_fact_payment_info
+	  
+	--每日商品行为：'sku_id'
+                    '被下单件数'
+                    '被下单金额'
+                    '被支付次数'
+                    '被支付件数'
+                    '被支付金额'
+                    '被退款次数'
+                    '被退款件数'
+                    '被退款金额'
+                    '被加入购物车次数'
+                    '被加入购物车件数'
+                    '被收藏次数'
+                    '好评数'
+                    '中评数'
+                    '差评数'
+                    '默认评价数'
+					
+      建表：dws_sku_action_daycount
+	  数据来自：dwd_fact_order_detail，dwd_fact_order_refund_info，dwd_fact_cart_info，dwd_fact_favor_info，dwd_fact_comment_info
+	  
+	 --每日优惠券统计（预留）：'优惠券ID'
+                               '购物券名称'
+                               '购物券类型 1 现金券 2 折扣券 3 满减券 4 满件打折券'
+                               '满额数'
+                               '满件数'
+                               '活动编号'
+                               '减金额'
+                               '折扣'
+                               '创建时间'
+                               '范围类型 1、商品 2、品类 3、品牌'
+                               '商品id'
+                               '品牌id'
+                               '品类id'
+                               '最多领用次数'
+                               '领用次数'
+                               '使用(下单)次数'
+                               '使用(支付)次数'
+	  建表：dws_coupon_use_daycount
+	  数据来自：dwd_fact_coupon_use，dwd_dim_coupon_info
+
+	  --每日活动统计（预留）： '活动名称',
+                               '活动类型',
+                              ‘开始时间',
+                              ’结束时间',
+                              ‘创建时间',
+                              ’下单次数',
+                              '支付次数'
+       
+	   建表：dws_activity_info_daycount
+	   数据来自：dwd_fact_order_info，dwd_dim_activity_info
+	  
+	  
+	  -- 每日购买行为： '用户 id',
+                        '商品 id',
+                        '用户性别',
+                        '用户年龄',
+                        '用户等级',
+                        '商品价格',
+                        '商品名称',
+                        '品牌id',
+                        '商品三级品类id',
+                        '商品二级品类id',
+                        '商品一级品类id',
+                        '商品三级品类名称',
+                        '商品二级品类名称',
+                        '商品一级品类名称',
+                        ’商品 spu',
+                        ‘购买个数',
+                        '当日下单单数'
+						'当日下单金额'
+ 		建表：dws_sale_detail_daycount
+        数据来自：dwd_fact_order_detail，dwd_dim_user_info_his，dwd_dim_sku_info
+
+   --数据导入脚本	
+	每日导入一次，从DWD层导入DWS层
+	
+	
+	                                                     
+														 -DWT层  主题宽表
+	
+
+--设备主题宽表：
+   	`mid_id` string COMMENT '设备唯一标识',
+`user_id` string COMMENT '用户标识',
+`version_code` string COMMENT '程序版本号',
+`version_name` string COMMENT '程序版本名',
+`lang` string COMMENT '系统语言',
+`source` string COMMENT '渠道号',
+`os` string COMMENT '安卓系统版本',
+`area` string COMMENT '区域',
+`model` string COMMENT '手机型号',
+`brand` string COMMENT '手机品牌',
+`sdk_version` string COMMENT 'sdkVersion',
+`gmail` string COMMENT 'gmail',
+`height_width` string COMMENT '屏幕宽高',
+`app_time` string COMMENT '客户端日志产生时的时间
+`network` string COMMENT '网络模式',
+`lng` string COMMENT '经度',
+`lat` string COMMENT '纬度',
+`login_date_first` string  comment '首次活跃时间
+`login_date_last` string  comment '末次活跃时间'
+`login_day_count` bigint comment '当日活跃次数',
+`login_count` bigint comment '累积活跃天数'
+  
+  建表：dwt_uv_topic
+  数据来自：dws_uv_detail_daycount
+	
+	
+--会员主题宽表：
+     '用户id',
+'首次登录时间',
+'末次登录时间',
+'累积登录天数',
+'最近30日登录天数',
+'首次下单时间',
+'末次下单时间',
+'累积下单次数',
+'累积下单金额',
+'最近30日下单次数',
+'最近30日下单金额',
+'首次支付时间',
+'末次支付时间',
+'累积支付次数',
+'累积支付金额',
+'最近30日支付次数',
+'最近30日支付金额'
+
+建表：dwt_user_topic
+数据来自：dws_user_action_daycount
+
+
+--商品主题宽表：
+'最近30日被下单次数',
+'最近30日被下单件数',
+'最近30日被下单金额',
+'累积被下单次数',
+'累积被下单件数',
+'累积被下单金额',
+'最近30日被支付次数',
+'最近30日被支付件数',
+'最近30日被支付金额',
+'累积被支付次数',
+'累积被支付件数',
+'累积被支付金额',
+'最近三十日退款次数',
+'最近三十日退款件数',
+'最近三十日退款金额',
+'累积退款次数',
+'累积退款件数',
+'累积退款金额',
+'最近30日被加入购物车次数',
+'最近30日被加入购物车件数',
+'累积被加入购物车次数',
+'累积被加入购物车件数',
+'最近30日被收藏次数',
+'累积被收藏次数',
+'最近30日好评数',
+'最近30日中评数',
+'最近30日差评数',
+'最近30日默认评价数',
+'累积好评数',
+'累积中评数',
+'累积差评数',
+'累积默认评价数'
+
+建表：dwt_sku_topic
+数据来自：dws_sku_action_daycount，dwd_dim_sku_info
+
+--优惠卷主题宽表（预留）”：
+'优惠券ID',
+'当日领用次数',
+'当日使用(下单)次数',
+'当日使用(支付)次数',
+'累积领用次数',
+'累积使用(下单)次数',
+'累积使用(支付)次数'
+
+建表：dwt_coupon_topic
+数据来自：dws_coupon_use_daycount  
+
+--活动主题宽表（预留）”：
+'活动id',
+ '活动名称',
+'当日日下单次数',
+'当日支付次数',
+'累积下单次数',
+'累积支付次数'
+
+建表：dwt_activity_topic
+数据来自：dws_activity_info_daycount
+
+--DWT层数据导入
+
+
+                                               
+											   
+											   ADS层 
+	
+--设备主题：
+
+   --创建以下查询结果的表：	
+活跃设备数，需求定义：
+日活：当日活跃的设备数
+周活：当周活跃的设备数
+月活：当月活跃的设备数
+
+每日新增设备；
+沉默用户数；
+本周回流用户数；
+流失用户数；
+留存率；
+最近连续三周活跃用户数；
+最近七天内连续三天活跃用户数；
+
+   --

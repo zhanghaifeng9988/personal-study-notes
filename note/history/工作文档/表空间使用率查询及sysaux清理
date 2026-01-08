@@ -1,0 +1,77 @@
+--使用的自动扩展的表空间，需要使用这个语句查询容量
+建议使用这个，下面的那个有时候会显示不全
+select * from (
+ select a.tablespace_name, round(c.bytes/1024/1024,1) as "Free Size M",a.bytes/1024/1024 as "Size M",
+ round((a.bytes - c.bytes)/1024/1024,1)  as "Used Size M",round(b.bytes/1024/1024 ,1) as "Max Size M",
+ cast(((a.bytes - c.bytes)/a.bytes )*100  as int ) as "Use %",cast(((a.bytes - c.bytes)/b.bytes )*100 as int ) as "Max Used%"
+ from
+ (select tablespace_name ,sum(bytes)  as bytes  from dba_data_files group by tablespace_name ) a,
+ (SELECT TABLESPACE_NAME ,SUM(BYTES) as  bytes  FROM (
+  select tablespace_name ,sum(bytes) as bytes from dba_data_files where autoextensible=upper('no') 
+ group by tablespace_name
+ union all
+ select tablespace_name ,sum(maxbytes) as bytes from dba_data_files where autoextensible=upper('yes')
+ group by tablespace_name ) GROUP BY TABLESPACE_NAME  ) b,
+ (select tablespace_name,sum(bytes) as bytes  from  dba_free_space group by tablespace_name ) c
+ WHERE a.tablespace_name = b.tablespace_name(+)
+    AND b.tablespace_name = c.tablespace_name(+)
+ UNION  ALL  /**  temp tablespace **/
+ select a.tablespace_name, round(c.bytes/1024/1024,1)as "Free Size M",round(a.bytes/1024/1024,1) as "Size M",
+ round((a.bytes - c.bytes)/1024/1024,1)  as "Used Size M" ,round(b.bytes/1024/1024 ,1)  as "Max Size M",
+ cast(((a.bytes - c.bytes)/a.bytes )*100  as int) as  "Use %",cast(((a.bytes - c.bytes)/b.bytes )*100 as int ) as "Max Used%"
+ from
+ (select tablespace_name ,sum(bytes)  as bytes  from dba_temp_files group by tablespace_name ) a,
+ (SELECT TABLESPACE_NAME ,SUM(BYTES) as bytes  FROM (
+  select tablespace_name ,sum(bytes) as bytes from dba_temp_files where autoextensible=upper('no') 
+ group by tablespace_name
+ union all
+ select tablespace_name ,sum(maxbytes) as bytes from dba_temp_files where autoextensible=upper('yes')
+ group by tablespace_name ) GROUP BY TABLESPACE_NAME ) b,
+ (select tablespace_name,sum(free_space) as bytes  from  dba_temp_free_space group by tablespace_name ) c
+ WHERE a.tablespace_name = b.tablespace_name(+)
+    AND b.tablespace_name = c.tablespace_name(+)
+    )  order by 7  desc;
+	
+
+--不自动扩展表空间，使用这个语句查询
+select tablespace_name,
+       round(used_space * 8192 / 1024 / 1024, 2) || ' MB' used_space,
+       round(tablespace_size * 8192 / 1024 / 1024, 2) || ' MB' tablespace_size,
+       round(used_percent, 2) || '%' used_percent
+  from dba_tablespace_usage_metrics;
+  
+--查看使用SYSTEM和SYSAUX表空间的比较大的表
+set lines 200 pages 999 long 20000
+col SEGMENT_NAME for a40
+col PARTITION_NAME for a40
+col TABLESPACE_NAME for a40
+  select segment_name,PARTITION_NAME,total_mb,tablespace_name from 
+(select segment_name,PARTITION_NAME,sum(bytes)/1024/1024 total_mb,tablespace_name  
+from dba_segments  
+where tablespace_name in ('SYSTEM', 'SYSAUX')  
+group by segment_name,tablespace_name,PARTITION_NAME   order by 3 desc)  
+where rownum<=20;
+
+--查看SYSAUX表空间的具体使用情况
+SELECT occupant_name "Item",  space_usage_kbytes / 1048576 "Space Used (GB)",  
+schema_name "Schema",  move_procedure "Move Procedure"  
+FROM v$sysaux_occupants  ORDER BY space_usage_kbytes desc;
+
+
+--AWR保存时间查询
+select * from dba_hist_wr_control;
+
+10g版本默认保留7天，11g版本默认保留8天，19c版本默认保留8天
+
+
+--sysaux清理 清理AWR的基表（sys用户执行）
+select distinct 'truncate table ' || segment_name || ';',  s.bytes/1024/1024 MB  
+from dba_segments s  where s.segment_name like 'WRH$%'  
+and segment_type in ('TABLE PARTITION', 'TABLE')  
+and s.bytes/1024/1024 >100  
+order by s.bytes/1024/1024 desc;
+
+--查询lob字段属于哪个表
+select db.TABLE_NAME,db.INDEX_NAME, db.column_name
+from dba_lobs db
+where SEGMENT_NAME='SYS_LOB0000063889C00006$$' ;

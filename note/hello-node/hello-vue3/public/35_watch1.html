@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src='vue.js'></script>
+</head>
+<body>
+  <div id="Application">
+  </div>
+  <script>
+  const App = Vue.createApp({
+    setup () {
+      let a = Vue.reactive({ //定义响应式数据，对象a
+        data : 0            //数据初始值为0，赋值给对象的属性data
+      })
+      let b = Vue.ref(0)  //定义响应式数据，对象b的value属性接收0数值
+      Vue.watch(()=>{     //进行数据变化的监听
+        return a.data     //监听a对象的data属性变化
+      }, (newVal, oldVal) => {
+        alert(`新值：${newVal},旧值:${oldVal}`) //打印新值和旧值
+      })
+      a.data = 1
+      //可以直接监听ref对象的值变化
+      Vue.watch(b, (newVal, oldVal) => {
+        alert(`新值：${newVal},旧值:${oldVal}`) //打印新值和旧值
+      })
+      b.value = 2
+    }
+  })
+  App.mount('#Application')
+  </script>
+</body>
+</html>

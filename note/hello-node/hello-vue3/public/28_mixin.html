@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src='Vue.js'></script>
+</head>
+<body>
+  <div id='Application'>
+    <my-com1 title="组件1" title1="com1"> </my-com1>
+    <my-com2 title="组件2" title1="com2"> </my-com2>
+    <my-com3 title="组件3" title1="com3"> </my-com3>
+  </div>
+  <script>
+    const App = Vue.createApp({})
+    const mixin = {
+      props:{
+        title1:String
+      },
+    };
+    const com1 = {
+      props:{
+        title:String
+      },
+      mixins:[mixin],
+      template:`
+        <div style='border:red solid 2px'> {{title}} </div>
+        <div style='border:red solid 2px'> {{this.title1}} </div>
+      `
+    };
+    const com2 = {
+      props:{
+        title:String
+      },
+      mixins:[mixin],
+      template:`
+        <div style='border:blue solid 2px'> {{title}} </div>
+        <div style='border:blue solid 2px'> {{this.title1}} </div>
+      `
+    };
+    const com3 = {
+      props:{
+        title:String
+      },
+      mixins:[mixin],
+      template:`
+        <div style='border:green solid 2px'> {{title}} </div>
+        <div style='border:green solid 2px'> {{this.title1}} </div>
+      `
+    };
+    App.component('my-com1',com1)
+    App.component('my-com2',com2)
+    App.component('my-com3',com3)
+    App.mount('#Application')
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,55 @@
+
+1、闪回恢复区简介
+
+闪回恢复区可以集中存储所有与恢复相关的文件。FRA可以使用本地附加的存储、
+Oracle的群集文件系统(Cluster File System,简写为OCFS)
+或Oracle 10g中新的自动存储管理(ASM)特性。
+
+2、闪回恢复区可包含的文件类型
+
+(1) 归档的重做日志
+
+(2) 控制文件
+
+(3) 控制文件自动备份
+
+(4) 闪回日志
+
+(5) 重做日志
+
+(6) RMAN数据文件副本
+
+(7) RMAN备份和其他相关文件
+
+3、闪回恢复区参数设定
+
+FRA在由参数DB_RECOVERY_FILE_DEST定义的特定位置中创建。该位置可以是文件系统或ASM卷。
+DB_RECOVERY_FILE_DEST_SIZE参数用来定义FRA的最大尺寸。
+这是Oracle控制的文件空间限制，而与文件系统中的全部可用空间无关。
+Oracle监视FRA中的可用空间，一旦可用空间减少的不安全程度，Oracle会在警报日志中生成警告，
+同样，当Oracle中FRA中的空闲空间少于10%时，Oracle就会删除处在过时列表中的文件。
+
+在指定DB_RECOVERY_FILE_DEST参数之前指定DB_RECOVERY_FILE_DEST_SIZE参数。
+如果没有这样做，则会产生ORA-32001错误。
+类似在复位DB_RECOVERY_FILE_DEST_SIZE参数之前禁用DB_RECOVERY_FILE_DEST参数。
+保留DB_RECOVERY_FILE_DEST为空将可以禁用FRA。
+
+4、闪回恢复区视图
+
+DBA_OUTSTANDING_ALERT：从FRA中添加或删除文件时事件将会记录在警告日志中。
+可以检查新的DBA视图DBA_OUTSTANDING_ALERT来了解关于FRA一些选著问题的信息。
+空间相关问题产生的时间和警告出现在DBA_OUTSTANDING_ALERT中的时间存在一定程度的延迟。
+
+V$RECOVERY_FILE_DEST：提供在数据库中定义的FRA的概述。
+提供配置的FRA的大小、所使用的空间数量、可以回收多少空间，以及FRA中的文件数量。
+该视图中包含SPACE_RECLAIMABLE列，该列指示有可回收的空间，
+该空间由归档的重做日志或备份集占用，根据已选择的标准，已不再需要这些空间。
+
+V$FLASH_RECOVERY_AREA_USAGE：提供了关于占用FRA空间的文件类型的详细信息，该视图对文件类型进行分组，然后根据每个文件类型所使用的空间百分比、来自于该组的总FRA可回收空间百分比，以及来自于改组的FRA文件数量。
+
+5、闪回恢复区操作说明
+
+手工删除FRA中固定的文件会产生无法预料的结果，
+Oracle不会立刻检测出这些文件是否删除，所以也不会收回相应的空间。
+如果最终手工删除文件，
+则使用RMAN crosscheck结合delete命令来使Oracle更新FRA上的当前控制文件信息。

@@ -1,0 +1,60 @@
+.fs_profile {
+  min-width: 1000px;
+
+  .avatar-uploader {
+    text-align: center;
+    margin: 30px 0;
+
+    .el-upload {
+      border: 1px dashed var(--el-border-color);
+      border-radius: 50%;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: var(--el-transition-duration-fast);
+      margin: 0 auto;
+    }
+
+    .avatar {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+    }
+  }
+
+  .avatar-uploader .el-upload:hover {
+    border-color: var(--el-color-primary);
+  }
+
+  .el-icon.avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+
+    text-align: center;
+  }
+
+  .profile {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 5px;
+    border-top: 1px solid lightgray;
+
+    .profile_label {
+      display: flex;
+      color: gray;
+      align-items: center;
+
+      .profile_label_icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 4px;
+      }
+
+      .profile_label_text {
+        flex: none;
+      }
+    }
+  }
+}

@@ -1,0 +1,535 @@
+
+
+SQL> --查询表的大小
+SQL> col OWNER for a20
+SQL> col SEGMENT_NAME for a30
+SQL> col SEGMENT_TYPE for a30
+SQL> col tablespace_name for a20
+SQL> set lines 200 pages 999 long 20000
+SQL> select  OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name ,sum(BYTES)/1024/1024/1024 
+from dba_segments
+where segment_name='A_RCVED_PL_FLOW' and owner='FDPSHARE'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name order by sum(BYTES);
+
+OWNER                SEGMENT_NAME                   SEGMENT_TYPE                   TABLESPACE_NAME      SUM(BYTES)/1024/1024/1024
+-------------------- ------------------------------ ------------------------------ -------------------- -------------------------
+FDPSHARE             A_RCVED_PL_FLOW                TABLE SUBPARTITION             DATA_RECOVER                        .461914063
+FDPSHARE             A_RCVED_PL_FLOW                TABLE SUBPARTITION             SHAREDATA                             582.3125
+
+SQL> --查看分区表统计信息
+SQL> col OWNER for a20
+SQL> col TABLE_NAME for a30
+SQL> set lines 200 pages 999 long 20000
+SQL> select OWNER,TABLE_NAME,PARTITIONING_TYPE,SUBPARTITIONING_TYPE,PARTITION_COUNT
+from dba_part_tables
+where OWNER='FDPSHARE' and TABLE_NAME='A_RCVED_PL_FLOW'; 
+
+OWNER                TABLE_NAME                     PARTITIONING_TYPE           SUBPARTITIONING_TYPE        PARTITION_COUNT
+-------------------- ------------------------------ --------------------------- --------------------------- ---------------
+FDPSHARE             A_RCVED_PL_FLOW                RANGE                       LIST                                     12
+
+SQL> --查看子分区统计信息
+SQL> col TABLE_OWNER for a20
+SQL> col TABLE_NAME for a30
+SQL> col partition_name for a30
+SQL> set lines 200 pages 999 long 20000
+SQL> select table_owner,table_name,partition_name,subpartition_count from dba_tab_partitions where  table_owner='FDPSHARE'  
+and TABLE_NAME='A_RCVED_PL_FLOW';
+
+TABLE_OWNER          TABLE_NAME                     PARTITION_NAME                 SUBPARTITION_COUNT
+-------------------- ------------------------------ ------------------------------ ------------------
+FDPSHARE             A_RCVED_PL_FLOW                P14401                                        170
+FDPSHARE             A_RCVED_PL_FLOW                P14402                                        170
+FDPSHARE             A_RCVED_PL_FLOW                P14403                                        170
+FDPSHARE             A_RCVED_PL_FLOW                P14404                                        170
+FDPSHARE             A_RCVED_PL_FLOW                P14405                                        170
+FDPSHARE             A_RCVED_PL_FLOW                P14406                                        170
+FDPSHARE             A_RCVED_PL_FLOW                P14407                                        170
+FDPSHARE             A_RCVED_PL_FLOW                P14408                                        170
+FDPSHARE             A_RCVED_PL_FLOW                P14409                                        170
+FDPSHARE             A_RCVED_PL_FLOW                P14410                                        170
+FDPSHARE             A_RCVED_PL_FLOW                P14411                                        170
+FDPSHARE             A_RCVED_PL_FLOW                PMAX                                          170
+
+12 rows selected.
+
+SQL> --查询索引大小(已经在索引表空间了,不需要移动表空间)
+SQL> col INDEX_NAME for a30
+SQL> col DEGREE for a5
+SQL> col tablespace_name for a30
+SQL> col status for a10
+SQL> set lines 200 pages 999 long 20000
+SQL> select index_name,degree,status,tablespace_name 
+from dba_indexes 
+where owner='FDPSHARE' and table_name='A_RCVED_PL_FLOW';
+
+INDEX_NAME                     DEGRE STATUS     TABLESPACE_NAME
+------------------------------ ----- ---------- ------------------------------
+PK_A_RCVED_PL_FLOW_TMP         1     VALID      IDXCACHE
+
+SQL> col OWNER for a20
+SQL> col SEGMENT_NAME for a30
+SQL> col SEGMENT_TYPE for a20
+SQL> set lines 200 pages 999 long 20000
+SQL> select  OWNER,SEGMENT_NAME,SEGMENT_TYPE,sum(BYTES)/1024/1024/1024 
+from dba_segments
+where segment_name in ('PK_A_RCVED_PL_FLOW_TMP') and owner='FDPSHARE'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE order by sum(BYTES);
+
+OWNER                SEGMENT_NAME                   SEGMENT_TYPE         SUM(BYTES)/1024/1024/1024
+-------------------- ------------------------------ -------------------- -------------------------
+FDPSHARE             PK_A_RCVED_PL_FLOW_TMP         INDEX                               164.371338
+
+SQL> --查询小于2021年10月份的数据量
+
+SQL> select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='A_RCVED_PL_FLOW' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='A_RCVED_PL_FLOW' and  partition_name='P14401' 
+and subpartition_name<'P14401_P202110');
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='A_RCVED_PL_FLOW' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='A_RCVED_PL_FLOW' and  partition_name='P14402' 
+and subpartition_name<'P14402_P202110');
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='A_RCVED_PL_FLOW' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='A_RCVED_PL_FLOW' and  partition_name='P14403' 
+and subpartition_name<'P14403_P202110');
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='A_RCVED_PL_FLOW' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='A_RCVED_PL_FLOW' and  partition_name='P14404' 
+and subpartition_name<'P14404_P202110');
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='A_RCVED_PL_FLOW' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='A_RCVED_PL_FLOW' and  partition_name='P14405' 
+and subpartition_name<'P14405_P202110');
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='A_RCVED_PL_FLOW' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='A_RCVED_PL_FLOW' and  partition_name='P14406' 
+and subpartition_name<'P14406_P202110');
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='A_RCVED_PL_FLOW' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='A_RCVED_PL_FLOW' and  partition_name='P14407' 
+and subpartition_name<'P14407_P202110');
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='A_RCVED_PL_FLOW' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='A_RCVED_PL_FLOW' and  partition_name='P14408' 
+and subpartition_name<'P14408_P202110');
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='A_RCVED_PL_FLOW' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='A_RCVED_PL_FLOW' and  partition_name='P14409' 
+and subpartition_name<'P14409_P202110');
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='A_RCVED_PL_FLOW' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='A_RCVED_PL_FLOW' and  partition_name='P14410' 
+and subpartition_name<'P14410_P202110');
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='A_RCVED_PL_FLOW' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='A_RCVED_PL_FLOW' and  partition_name='P14411' 
+and subpartition_name<'P14411_P202110');
+
+select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='A_RCVED_PL_FLOW' and partition_name in 
+(select subpartition_name from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='A_RCVED_PL_FLOW' and  partition_name='PMAX' 
+and subpartition_name<'PMAX_P202110');
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+41.7617188
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+22.8261719
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+42.6806641
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+50.6328125
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+58.53125
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+67.5712891
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+82.7490234
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+51.8935547
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+30.0126953
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+21.0673828
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+36.4648438
+
+SQL> select 41.7617188+22.8261719+42.6806641+50.6328125+58.53125+67.5712891+82.7490234+51.8935547+30.0126953+21.0673828+36.4648438 from dual;
+
+41.7617188+22.8261719+42.6806641+50.6328125+58.53125+67.5712891+82.7490234+51.8935547+30.0126953+21.0673828+36.4648438
+----------------------------------------------------------------------------------------------------------------------
+506.191406
+
+SQL> --转移分区表并压缩表的语句
+SQL> select 'alter table '||table_owner||'.'||table_name||' move subpartition '||subpartition_name||' 
+tablespace HISCMPRS01 nologging parallel 8 compress;',compression,subpartition_name 
+from dba_tab_subpartitions 
+where table_owner='FDPSHARE' and table_name='A_RCVED_PL_FLOW' and subpartition_name<'P14401_P202110';
+
+SQL> alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P200901 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P200902 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P200903 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P200904 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P200905 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P200906 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P200907 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P200908 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P200909 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P200910 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P200911 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P200912 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201001 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201002 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201003 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201004 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201005 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201006 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201007 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201008 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201009 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201010 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201011 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201012 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201101 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201102 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201103 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201104 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201105 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201106 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201108 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201109 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201110 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201111 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201112 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201201 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201202 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201203 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201204 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201205 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201206 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201207 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201208 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201209 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201210 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201211 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201212 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201301 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201302 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201303 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201304 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201305 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201306 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201307 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201308 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201309 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201310 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201311 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201312 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201412 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201501 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201502 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201503 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201505 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201506 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201507 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201508 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201510 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201511 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201512 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201601 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201603 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201604 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201605 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201606 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201608 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201609 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201610 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201611 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201612 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201701 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201702 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201703 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201704 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201705 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201706 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201707 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201708 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201709 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201710 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201712 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201801 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201802 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201803 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201804 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201805 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201806 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201807 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201808 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201809 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201810 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201811 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201812 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201901 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201902 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201903 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201904 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201905 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201906 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201907 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201908 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201909 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201910 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201911 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201912 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P202001 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P202002 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201711 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201607 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P202003 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P202004 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P202005 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P202006 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P202007 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P202008 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P202009 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P202010 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P202011 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P202012 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P202101 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P202102 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201107 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201504 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201509 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P201602 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P202103 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P202104 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P202105 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P202106 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P202107 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P202108 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14401_P202109 tablespace HISCMPRS01 nologging parallel 8 compress;
+
+Table altered.
+
+SQL> select 'alter table '||table_owner||'.'||table_name||' move subpartition '||subpartition_name||' 
+tablespace HISCMPRS01 nologging parallel 8 compress;',compression,subpartition_name 
+from dba_tab_subpartitions 
+where table_owner='FDPSHARE' and table_name='A_RCVED_PL_FLOW' and subpartition_name<'P14402_P202110' and partition_name='P14402';
+
+SQL> alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P200901 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P200902 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P200903 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P200904 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P200905 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P200906 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P200907 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P200908 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P200909 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P200910 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P200911 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P200912 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201001 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201002 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201003 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201004 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201005 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201006 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201007 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201008 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201009 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201010 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201011 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201012 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201101 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201102 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201103 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201104 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201105 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201106 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201107 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201108 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201109 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201110 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201111 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201112 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201201 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201202 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201203 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201204 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201205 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201206 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201207 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201208 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201209 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201210 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201211 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201212 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201301 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201302 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201303 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201304 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201305 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201306 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201307 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201308 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201309 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201310 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201311 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201312 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201412 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201501 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201502 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201503 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201504 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201505 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201506 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201507 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201508 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201509 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201510 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201511 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201512 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201601 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201602 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201603 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201604 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201605 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201606 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201607 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201608 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201609 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201610 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201611 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201612 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201701 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201702 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201703 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201704 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201705 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201706 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201707 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201708 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201709 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201710 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201712 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201801 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201802 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201803 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201804 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201805 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201806 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201807 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201808 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201809 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201810 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201811 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201812 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201901 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201902 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201903 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201904 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201905 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201906 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201907 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201908 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201909 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201910 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201911 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201912 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P202001 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P202002 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P201711 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P202003 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P202004 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P202005 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P202006 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P202007 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P202008 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P202009 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P202010 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P202011 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P202012 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P202101 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P202102 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P202103 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P202104 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P202105 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P202106 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P202107 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P202108 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.A_RCVED_PL_FLOW move subpartition P14402_P202109 tablespace HISCMPRS01 nologging parallel 8 compress;
+
+Table altered.
+
+SQL> --查询失效索引
+SQL> col owner for a20
+SQL> col status for a20
+SQL> col index_name for a30
+SQL> select owner,index_name,status from dba_indexes 
+where STATUS='UNUSABLE' and owner='FDPSHARE' and table_name='A_RCVED_PL_FLOW';
+
+OWNER                INDEX_NAME                     STATUS
+-------------------- ------------------------------ --------------------
+FDPSHARE             PK_A_RCVED_PL_FLOW_TMP         UNUSABLE
+
+SQL> --重建索引
+SQL> alter index FDPSHARE.PK_A_RCVED_PL_FLOW_TMP rebuild parallel 12  nologging;
+
+Index altered.
+
+SQL> --查询表的大小
+SQL> col OWNER for a20
+SQL> col SEGMENT_NAME for a30
+SQL> col SEGMENT_TYPE for a30
+SQL> col tablespace_name for a20
+SQL> set lines 200 pages 999 long 20000
+SQL> select  OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name ,sum(BYTES)/1024/1024/1024 
+from dba_segments
+where segment_name='A_RCVED_PL_FLOW' and owner='FDPSHARE'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name order by sum(BYTES);
+
+OWNER                SEGMENT_NAME                   SEGMENT_TYPE                   TABLESPACE_NAME      SUM(BYTES)/1024/1024/1024
+-------------------- ------------------------------ ------------------------------ -------------------- -------------------------
+FDPSHARE             A_RCVED_PL_FLOW                TABLE SUBPARTITION              HISCMPRS01                       123.12833977

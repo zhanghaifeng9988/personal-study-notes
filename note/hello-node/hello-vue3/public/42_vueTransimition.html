@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src='vue.js'></script>
+    <style>
+      .demo1 {
+        width: 100px;
+        height:100px;
+        background-color: blue;
+      }
+      .ani-enter-from {
+        width:0px;
+        height:0px;
+        background-color: red;
+      }
+      .ani-enter-active {
+        transition:width 3s,height 3s,background-color 3s;
+      }
+      .ani-enter-to {
+        width:100px;
+        height:100px;
+        background-color: blue;
+      }
+
+      .ani-leave-from {
+        width:100px;
+        height:100px;
+        background-color: blue;
+      }
+      .ani-leave-active {
+        transition: width 3s,height 3s,background-color 3s;
+      }
+      .ani-leave-to {
+        width:50px;
+        height:50px;
+        background-color: red;
+      }
+
+    </style>
+</head>
+<body>
+    <div id="Application">
+        <button @click="click">显示/隐藏</button>
+<!-- transition 为VUE的内置组件，包装要展示的过度动画的元素，name属性用来设置要执行的动画名 -->
+        <transition name="ani" >
+          <!-- demo1表示show为ture时展示的样式 -->
+          <div  v-if="show"  class="demo1"></div>
+        </transition>
+    </div>
+    <script>
+      const App = Vue.createApp({
+        data() {
+          return {
+            show:false
+          }
+        },
+        methods:{
+          click(){
+            this.show = !this.show
+          }
+        }
+      })
+      App.mount("#Application")
+    </script>
+</body>
+</html>

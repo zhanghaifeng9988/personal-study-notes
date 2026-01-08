@@ -1,0 +1,198 @@
+数据比对原则
+1、表名中已arc开头的数据表
+   此种数据表按业务规则是存放历史数据的档案表，需使用主键或唯一索引比对历史库和基础数据平台的差异，使用insert语句进行插入
+，插入语句的写法需要参考ogg通道配置，部分数据表主要是目标端数据表是fdpshare或fdpmaster用户的存在转换关系，
+为减少数据比对和插入的数据量，如果数据表中存在单位、年月字段可以使用作为限制条件。
+例如：fdpshare.arc_e_cons_snap
+declare
+ vorg_no varchar2(20);
+ vsql varchar2(2000);
+begin 
+for c in (select * from sgpm.o_org@to_yxsc where p_org_no ='14101' and org_no <> '14413' order by org_no )
+  loop
+    vorg_no := c.org_no||'%';
+/*  delete from arc_e_pl_amt  where ym ='202301' and org_no like vorg_no ; 
+  commit;*/
+  
+insert into FDPSHARE.ARC_E_CONS_SNAP(
+POWERON_DATE ,
+CANCEL_DATE ,
+STATUS_CODE,
+BUSI_REGION_NO,
+TRANSFER_FLAG,
+MR_SECT_NO,
+GP_CODE,
+APP_CODE,
+CALC_ID ,
+YM,
+CONS_ID,
+ORG_NO,
+VERI_RSLT,
+VERI_REMARK,
+CALC_DATE,
+SEND_DATE ,
+CONS_NO,
+CONS_NAME,
+CONS_SORT_CODE,
+ELEC_ADDR,
+ELEC_TYPE_CODE,
+VOLT_CODE,
+HEC_TRADE_CODE,
+CREATE_DATE ,
+TRADE_TYPE_CODE,
+MARKET_PROP_SORT )
+  
+  select 
+POWERON_DATE ,
+CANCEL_DATE ,
+STATUS_CODE,
+BUSI_REGION_NO,
+TRANSFER_FLAG,
+MR_SECT_NO,
+GP_CODE,
+APP_CODE,
+CALC_ID ,
+YM,
+CONS_ID,
+ORG_NO,
+VERI_RSLT,
+VERI_REMARK,
+CALC_DATE,
+SEND_DATE ,
+CONS_NO,
+CONS_NAME,
+CONS_SORT_CODE,
+ELEC_ADDR,
+ELEC_TYPE_CODE,
+VOLT_CODE,
+HEC_TRADE_CODE,
+CREATE_DATE ,
+TRADE_TYPE_CODE,
+MARKET_PROP_SORT  from sgpm.arc_e_cons_snap@to_yxsc  where ym ='202301'  and 
+   CALC_ID in (
+  
+select CALC_ID from sgpm.arc_e_cons_snap@to_yxsc where ym ='202301' and org_no like vorg_no 
+minus
+select CALC_ID from fdpshare.arc_e_cons_snap where ym ='202301' and org_no like vorg_no )
+  and org_no like vorg_no ;
+   commit;
+  end loop;
+end; 
+
+--变量 vorg_no 保存 生产库sgpm.o_org的org_no列的值
+--查询 生产库sgpm.arc_e_cons_snap的CALC_ID的值 用minus方法匹配   基础数据平台fdpshare.arc_e_cons_snap的CALC_ID的值
+条件：ym ='202301' 和 org_no 模糊匹配  变量 vorg_no  生产库和基础数据平台的where条件一样
+--将生产库sgpm.arc_e_cons_snap 的CALC_ID值 匹配  第二步查出来的所有 CALC_ID的值 ，
+还有其他两个条件：ym ='202301' 和 org_no like vorg_no；
+--将生产库sgpm.arc_e_cons_snap的所有匹配的数据查询出来，写入基础数据平台fdpshare.arc_e_cons_snap表
+
+
+
+2、表名不是arc开头的数据表
+ 此类数据表一般是流程中的业务数据，出现的情况应该是基础数据平台的数据量大于历史库，因为2号到3号的数据缺失，导致流程已走完，但是基础数据平台这边没有同步，需要备份差异部分数据，备份完成后删除数据表中多余数据，为防止数据同步问题，操作时可暂时关闭历史库入库通道，操作完成后立即恢复
+例如：E_CONS_SNAP
+--取两张表中都存在的记录数
+select count(1) from (
+select CALC_ID from cacher01.E_CONS_SNAP where ym ='202301'
+intersect
+select CALC_ID from sgpm.E_CONS_SNAP@to_yxhisn where ym ='202301')
+--备份差异数据
+create table cacher01.E_CONS_SNAP_bak230202 as
+select * from cacher01.E_CONS_SNAP where calc_id in (
+select CALC_ID  from (
+select CALC_ID from cacher01.E_CONS_SNAP where ym ='202301'
+intersect
+select CALC_ID from sgpm.E_CONS_SNAP@to_yxhisn where ym ='202301')
+)
+---删除差异数据
+delete from cacher01.E_CONS_SNAP where calc_id in
+（select calc_id from cacher01.E_CONS_SNAP_bak230202）
+3、注意事项，最好每张数据表在操作前，需要先在数据表名前添加arc_已查询是否存在归档表
+
+
+
+
+
+select count(CALC_ID) from (select CALC_ID from SGPM.ARC_E_CONSPRC_TACTIC_SNAP@to_yxsc where ym ='202301'  
+minus
+select CALC_ID from FDPSHARE.ARC_E_CONSPRC_TACTIC_SNAP where ym ='202301');
+
+
+
+
+
+
+
+
+
+
+
+
+minus
+1   1
+2   2 
+3   3
+4   6
+5   7
+
+
+第一列比较第二列，与第一列相同的行，不显示；结果就是4,5
+第二列比较第一列，与第一列不同的行，不显示，结果就是4,5
+
+
+
+从基础数据平台查询生产库的表数据
+ select YM FROM sgpm.arc_e_cons_snap@to_yxsc where rownum<5;
+ 
+ 
+查询数据库已经存在的dblink连接
+set lines 200 pages 999 long 20000
+ select owner,object_name,object_type from dba_objects where object_type='DATABASE LINK';
+ 
+www.cnblogs.com/muhai/p/15527463.html  --ORACLE DBlink的使用方法 
+
+
+
+
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ PRC_TACTIC_SNAP_ID                        NOT NULL NUMBER(16)
+ CALC_ID                                   NOT NULL NUMBER(16)
+ TACTIC_ID                                 NOT NULL NUMBER(16)
+ YM                                                 VARCHAR2(6 CHAR)
+ ORG_NO                                             VARCHAR2(16 CHAR)
+ SP_ID                                              NUMBER(16)
+ TYPE_CODE                                          VARCHAR2(8 CHAR)
+ BA_CALC_MODE                                       VARCHAR2(8 CHAR)
+ DMD_SPEC_VALUE                                     NUMBER(12,4)
+ PF_EVAL_MODE                                       VARCHAR2(8 CHAR)
+ DATA_SRC                                           VARCHAR2(32 CHAR)
+ RELA_APP_NO                                        VARCHAR2(16 CHAR)
+ CHG_DATE                                           DATE
+ RUN_STATUS_CODE                                    VARCHAR2(8 CHAR)
+ MIC_YM                                             VARCHAR2(6 CHAR)
+ RES_CALC_MODE                                      VARCHAR2(8 CHAR)
+ RES_PRO_FARE                                       NUMBER(18,2)
+
+
+  Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ PRC_TACTIC_SNAP_ID                        NOT NULL NUMBER(16)
+ CALC_ID                                            NUMBER(16)
+ TACTIC_ID                                          NUMBER(16)
+ YM                                                 VARCHAR2(6 CHAR)
+ ORG_NO                                             VARCHAR2(16 CHAR)
+ SP_ID                                              NUMBER(16)
+ TYPE_CODE                                          VARCHAR2(8 CHAR)
+ BA_CALC_MODE                                       VARCHAR2(8 CHAR)
+ DMD_SPEC_VALUE                                     NUMBER(12,4)
+ PF_EVAL_MODE                                       VARCHAR2(8 CHAR)
+ DATA_SRC                                           VARCHAR2(32 CHAR)
+ RELA_APP_NO                                        VARCHAR2(16 CHAR)
+ CHG_DATE                                           DATE
+ SOURCE_CHANGE_TIME                                 DATE
+ SOURCE_CHANGE_TIME2                                DATE
+ TARGET_WRITE_TIME                                  DATE
+ TARGET_WRITE_TIME2                                 DATE
+
+

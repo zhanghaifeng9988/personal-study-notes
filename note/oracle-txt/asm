@@ -1,0 +1,131 @@
+ORACLE ASM提供的三种冗余方式 
+
+redundancy---冗余 
+
+三种模式： external、normal、high 
+    外部、正常、高 
+
+一般情况下三种模式需要的磁盘组： 
+external  1块 
+normal    3块 
+high      5块 
+
+1、 外部冗余（external redundancy）： 
+表示Oracle不帮你管理镜像，功能由外部存储系统实现，比如通过RAID技术；有效磁盘空间是所有磁盘设备空间的大小之和。 
+
+2、 默认冗余（normal redundancy）： 
+表示Oracle提供2份镜像来保护数据(镜像数据一次)，有效磁盘空间是所有磁盘设备大小之和的1/2 （使用最多）。 
+
+3、 高度冗余（high redundancy）： 
+表示Oracle提供3份镜像来保护数据(镜像数据两次)，以提高性能和数据的安全，最少需要三块磁盘（三个failure group）； 
+有效磁盘空间是所有磁盘设备大小之和的1/3，虽然冗余级别高了，但是硬件的代价也最高。
+
+asmcmd          登陆asmcmd
+ 
+lsdg  asm磁盘空间查看
+
+oracle登录后查看asm磁盘组的情况
+select GROUP_NUMBER,NAME,STATE,TYPE,TOTAL_MB ,FREE_MB from v$asm_diskgroup;
+
+查找某个数据文件在根目录下
+find --type datafile +DATA/ sysaux.266.1114878561
+
+查看文件的详细信息
+ls -ls
+
+lsdg 查看asm磁盘分组信息  
+
+                              删除asm磁盘组的方法
+
+
+
+
+
+
+                               ASMCMD——卷的管理
+
+卷驱动程序的加载：
+
+# /u01/app/grid/bin/acfsload start
+
+volcreate命令用于创建卷。例如：
+
+ASMCMD> volcreate -G data -s 256M v1
+
+volinfo命令用于查看卷组。例如：
+
+ASMCMD> volinfo -G data v1
+
+volresize命令用于扩展卷组。例如：
+
+ASMCMD> volresize -G data -s 512M v1
+
+voldelete命令用于删除卷组。例如：
+
+ASMCMD> voldelete -G data v1
+
+ 
+
+文件系统的创建：mkfs命令。例如：
+
+$mkfs -t acfs /dev/asm/v1-103
+
+文件系统的mount：mount命令
+
+#mount -t acfs /dev/asm/v1-103 /p1
+
+文件系统的自动mount：
+
+$ acfsutil registry -a /dev/asm/v1-103 /p1
+
+$ acfsutil registry –d /p1
+
+ 
+
+文件系统的扩展：
+
+$ /sbin/acfsutil size 30G /p1
+
+$ /sbin/acfsutil size +10G /p1
+
+文件系统的删除：
+
+acfsutil rmfs /dev/asm/v1-103
+
+文件系统的查看：
+
+acfsutil info fs /p1
+
+
+
+                            ASM的相关视图及语句
+sqlplus / as sysasm中使用
+
+ V$ASM_ALIAS
+
+ V$ASM_CLIENT
+
+ V$ASM_DISK,
+
+V$ASM_DISK_IOSTAT,
+
+V$ASM_DISK_STAT
+
+V$ASM_DISKGROUP
+
+ V$ASM_DISKGROUP_STAT
+
+V$ASM_FILE
+
+V$ASM_TEMPLATE
+
+V$ASM_USER
+
+V$ASM_USERGROUP
+
+ V$ASM_USERGROUP_MEMBER 
+ 
+ select name,total_mb, free_mb from v$asm_diskgroup;  -----查看磁盘组的信息（总大小）
+ select name,total_mb,free_mb from v$asm_disk;  --查看磁盘成员信息分别大小
+
+

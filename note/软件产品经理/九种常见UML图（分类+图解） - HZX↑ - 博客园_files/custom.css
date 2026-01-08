@@ -1,0 +1,23 @@
+/* 引用背景 */
+#topics .postBody blockquote {
+    background: #E7F3FC;
+    border: none;
+    border-left: 5px solid #1FA6E6;
+    margin: 0;
+    padding-left: 10px;
+}
+/* 版权说明 */
+#MySignature{　　
+ border:solid 1px #E5E5E5;
+ padding:10px;
+ background:#E5EEF7 url(https://images.cnblogs.com/cnblogs_com/blogs/740625/galleries/2150387/o_220425023358_warning.png) no-repeat scroll 15px 50%;
+ padding-left:80px;}
+
+#MySignature div{
+  line-height: 20px;
+}
+/*设置图片居左设置*/
+p .md-image:only-child{
+    width: auto;
+    text-align: left;
+}

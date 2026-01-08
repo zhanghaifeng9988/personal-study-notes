@@ -1,0 +1,181 @@
+建议非关联和关联查询，都是可以用联结方式替换，联结方式效率更高。
+
+显示Customers表中每个顾客的订单总数
+
+select ctm.cust_id, ctm.cust_name,ctm.cust_state,count(ord.order_num)
+as count_all from  Customers ctm left  join Orders ord  
+on ctm.cust_id=ord.cust_id group by ctm.cust_id ;
+
+
+
+关联子查询：数据库嵌套查询中内层查询和外层查询不相互独立，内层查询也依赖于外层查询。
+执行顺序：
+先从外层查询中查询出一条记录
+再将查询到的记录放到内层查询中符合条件的记录，再放到外层中查询
+重复以上步骤
+
+SELECT cust_name,
+cust_state,
+(SELECT COUNT(*)
+FROM Orders
+WHERE Orders.cust_id =
+Customers.cust_id) AS orders
+FROM Customers
+ORDER BY cust_name;
+
+
+显示所有产品的价格和供应商名称
+select vend_name,prod_name,prod_price
+from Vendors v inner join Products p
+on v.vend_id=p.vend_id;
+
+返回订购产品RGAN01的顾客列表
+select cust_id,cust_name,cust_contact from Customers where cust_id in 
+(select cust_id from Orders where order_num in 
+(select order_num from OrderItems where prod_id="RGAN01"));
+
+select cust_name,cust_contact from Customers,Orders,OrderItems
+ where OrderItems.prod_id="RGAN01" and
+ OrderItems.order_num=Orders.order_num and
+ Orders.cust_id=Customers.cust_id;
+ 
+组合查询：
+主要有两种情况需要使用组合查询：
+在一个查询中从不同的表返回结构数据；
+对一个表执行多个查询，按一个查询返回数
+据。
+任何具有多个WHERE
+子句的SELECT语句都可以作为一个组合查询
+
+UNION从查询结果集中自动去除了重复的行
+ 
+ 找出所有3个州的用户，及叫Fun4All的用户（不管他在哪个州）
+ SELECT cust_name, cust_contact, cust_email
+FROM Customers
+WHERE cust_state IN ('IL','IN','MI')
+UNION
+SELECT cust_name, cust_contact, cust_email
+FROM Customers
+WHERE cust_name = 'Fun4All';
+
+另一种写法：
+SELECT cust_name, cust_contact, cust_email
+FROM Customers
+WHERE cust_state IN ('IL','IN','MI')
+OR cust_name = 'Fun4All';
+
+只能使用一条ORDER BY子
+句，它必须位于最后一条SELECT语句之后
+SELECT cust_name, cust_contact, cust_email
+FROM Customers
+WHERE cust_state IN ('IL','IN','MI')
+UNION
+SELECT cust_name, cust_contact, cust_email
+FROM Customers
+WHERE cust_name = 'Fun4All'
+ORDER BY cust_name, cust_contact;
+
+注意：使用UNION ALL，DBMS不取消重复的行。
+
+
+以下链接是关于SQL优化的资料：
+https://mp.weixin.qq.com/s/ylfIvEgq1FsYhnMdFJsspw
+
+1——————insert into 语法
+insert into 表名 （'字段值','字段值');
+  虽然这种语法很简单，但并不安全，应该尽量
+避免使用。
+  上面的SQL语句高度依赖于表中列的定
+义次序，还依赖于其容易获得的次序信息。即使可
+以得到这种次序信息，也不能保证各列在下一次表
+结构变动后保持完全相同的次序。因此，编写依赖
+于特定列次序的SQL语句是很不安全的，这样做迟
+早会出问题。
+  
+更安全的方法是：编写INSERT语句的更安全（不过更烦琐）的方
+法如下：
+INSERT INTO Customers(cust_id,
+cust_name,
+cust_address,
+cust_city,
+cust_state,
+cust_zip,
+cust_country,
+cust_contact,
+cust_email)
+VALUES('1000000006',
+'Toy Land',
+'123 Any Street',
+'New York',
+'NY',
+'11111',
+'USA',
+NULL,
+NULL);
+
+插入检索出的数据：
+insert into 表名（字段名，字段名） select 字段名，字段名 from 表名;
+
+2——————从一个表复制到另一个表：
+
+将数据复制到一个新表；
+CREATE TABLE CustCopy AS
+SELECT * FROM Customers;
+
+3-----
+update 表名 set 操作内容 where 条件;
+
+
+
+delete from 表名 where 条件;
+
+
+各个DBMS系统获取系统日期的函数：
+获得系统日期
+DBMS       函数/变量
+Access      NOW()
+DB2       CURRENT_DATE
+MySQL     CURRENT_DATE()
+Oracle       SYSDATE
+PG        CURRENT_DATE
+SQL_Server   GETDATE()
+SQLite     date('now')
+
+视图是虚拟的表。
+
+视图的作用：
+1、重用SQL语句。
+2、简化复杂的SQL操作。在编写查询后，可以方便地重用它而不必知道其基本查询细节。
+3、使用表的一部分而不是整个表。
+4、保护数据。可以授予用户访问表的特定部分的权限，而不是整个表的访问权限。
+5、更改数据格式和表示。视图可返回与底层表的表示和格式不同的数据。
+
+警告：性能问题
+因为视图不包含数据，所以每次使用视图时，
+都必须处理查询执行时需要的所有检索。如果
+你用多个联结和过滤创建了复杂的视图或者嵌
+套了视图，性能可能会下降得很厉害。因此，
+在部署使用了大量视图的应用前，应该进行测
+试。
+
+CREATE VIEW
+例：CREATE VIEW CustomerEMailList AS
+SELECT cust_id, cust_name, cust_email
+FROM Customers
+WHERE cust_email IS NOT NULL;
+
+DROP VIEW viewname
+
+普通视图和物化视图的区别：
+
+  1、普通视图是不存储任何数据的，他只有定义，在查询中是转换为对应的定义SQL去查询，
+  2、物化视图是将数据转换为一个表，实际存储着数据，这样查询数据，就不用关联一大堆表，如果表很大的话，
+会在临时表空间内做大量的操作。
+  
+   物化视图，用于OLAP系统中，当然部分OLTP系统的小部分功能未了提高性能会借鉴一点点，
+ 因为表关联的开销很大，所以在开发中很多人就想把这个代价交给定期转存来完成，
+ ORACLE当然也提供了这个功能，就是将视图（或者一个大SQL）的信息转换为物理数据存储，然后提供不同的策略：定时刷还是及时刷、增量刷还是全局刷等等可以根据实际情况进行选择，总之你差的是表，不是视图。
+
+存储过程:
+就是为以后使用而保存的一条或多条SQL语句。可将其
+视为批文件，虽然它们的作用不仅限于批处理。

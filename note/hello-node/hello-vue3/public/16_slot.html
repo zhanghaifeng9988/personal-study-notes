@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="vue.js"></script>
+</head>
+<body>
+  <div id="Application">
+    外部的文本内容，使用slot在组件中插入
+    <my-container>123</my-container>
+  </div>
+  <script>
+    const App = Vue.createApp({})
+    const containerComponent = {
+      template: `<div style="border-style:solid;border-color:red;border-width:10px">
+        <slot></slot>
+        </div>`
+    }
+    App.component('my-container', containerComponent)
+    App.mount('#Application')
+  </script>
+</body>
+</html>

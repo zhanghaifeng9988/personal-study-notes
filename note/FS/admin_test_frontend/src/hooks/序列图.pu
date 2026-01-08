@@ -1,0 +1,43 @@
+@startuml
+actor User as 用户
+participant Router as 路由
+participant "useHandleRouter" as 路由处理器
+participant "useAppStore" as 应用状态管理
+participant "filterRoute" as 路由过滤工具
+
+User -> 路由: 发起路由跳转
+activate 路由
+路由 -> 路由处理器: beforeEach(to, _from, next)
+activate 路由处理器
+路由处理器 -> 路由处理器: 检查是否在白名单(writeLists)
+alt to.name 在白名单
+    路由处理器 -> 路由: next()
+    deactivate 路由处理器
+    deactivate 路由
+    User --> 路由: 跳转成功
+else
+    路由处理器 -> 应用状态管理: 获取 appStore
+    activate 应用状态管理
+    应用状态管理 -> 应用状态管理: 检查 menuList 是否有数据
+    alt menuList 不为空
+        路由处理器 -> 路由: next()
+        deactivate 路由处理器
+        deactivate 路由
+        User --> 路由: 跳转成功
+    else
+        应用状态管理 -> 应用状态管理: 调用 getInfo() 获取菜单路由
+        activate 应用状态管理
+        应用状态管理 --> 路由处理器: 返回 menuList
+        deactivate 应用状态管理
+        路由处理器 -> 路由过滤工具: filterRoute(menuList)
+        activate 路由过滤工具
+        路由过滤工具 --> 路由处理器: 返回符合格式的 routers
+        deactivate 路由过滤工具
+        路由处理器 -> 路由: addRoute('Index', route) [循环添加路由]
+        路由处理器 -> 路由: next({...to, replace: true})
+        deactivate 路由处理器
+        deactivate 路由
+        User --> 路由: 跳转成功
+    end
+end
+@enduml

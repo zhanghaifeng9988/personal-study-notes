@@ -1,0 +1,419 @@
+1、创建centos7.6虚机，内存2g，硬盘30g，配置vbox的管理网络192.168.1.1；
+计划3台虚机,name:hadoop102 IP：192.168.1.102 
+            name:hadoop103 ip: 192.168.1.103
+			name:hadoop104 ip: 192.168.1.104
+2、安装linux并配置基本的网络和用户名
+   修改网络地址，并配置可访问外网（见虚机访问外网）
+   配置ect/hosts
+   
+   删除随机的jdk和mysql：
+      rpm -qa |grep jdk    yum -y remove *java*
+	  rpm -qa |grep -i mysql 
+	  rpm -e  mysql包名
+	  yum remove mysql mysql包名
+   安装zip、wget和rsynck
+   
+   修改yum （参照hadoop2文件中的重装yum）
+   
+   其中rsynck：yum -y install rsync，参照https://blog.csdn.net/weixin_47746630/article/details/109125689
+
+3、安装JDK1.8
+  将包解压到该目录下：/usr/local/
+4、配置etc/profile文件（配置环境变量）
+
+   JAVA_HOME=/usr/local/jdk1.8.0_271
+PATH=$PATH:$JAVA_HOME/bin
+export JAVA_HOME PATH
+
+配置完成后 source etc/profile使变量生效；
+java -version  查看java版本及配置是否生效
+
+5、配置grid用户属组为root，并建立/opt/hdp 目录用于hadoop所有程序的存放
+useradd  -g root   grid      //创建用户
+chmod 775 opt   //root用户执行
+mkdir module 
+mkdir software
+6、查看防火墙并关闭防火墙
+systemctl status firewalld.service
+systemctl stop firewalld.service
+systemctl disable firewalld.service
+
+7、关闭selinux
+vi /etc/selinux/config
+SELINUX=disabled
+
+sestatus -v
+
+8、克隆2台主机，并修改ip地址和主机名
+
+9、配置ssh免密码：
+ 三台机器上执行
+# 进入grid用户的主目录
+cd ～
+# 生成密钥对
+ssh-keygen -t rsa（一直按回车键就好了）
+  
+  在master Hadoop102的主机执行 grid 用户（建议root用户也做一下，方便同步,注意执行命令的时候，用户名要换root）
+# 进入.ssh
+cd ～/.ssh/
+# 把本机的公钥追加到自身的～/.ssh/authorized_keys文件里
+ssh-copy-id 192.168.1.102
+# 将authorized_keys文件复制到第二台主机
+scp /home/grid/.ssh/authorized_keys 192.168.1.103:/home/grid/.ssh/ 
+
+scp /root/.ssh/authorized_keys 192.168.1.103:/root/.ssh/ 
+  在hadoop103的主机上执行，grid用户
+  cd ～/.ssh/
+ssh-copy-id 192.168.1.103
+scp /home/grid/.ssh/authorized_keys 192.168.1.104:/home/grid/.ssh/
+
+scp /root/.ssh/authorized_keys 192.168.1.104:/root/.ssh/
+   在Hadoop104的主机上执行，grid用户
+cd ～/.ssh/
+ssh-copy-id 192.168.1.104
+# 此时authorized_keys文件中已经包含所有三台主机的公钥，将它复制到每台主机
+scp /home/grid/.ssh/authorized_keys 192.168.1.102:/home/grid/.ssh/
+scp /home/grid/.ssh/authorized_keys 192.168.1.103:/home/grid/.ssh/
+scp /home/grid/.ssh/authorized_keys 192.168.1.104:/home/grid/.ssh/
+
+scp /root/.ssh/authorized_keys 192.168.1.102:/root/.ssh/
+scp /root/.ssh/authorized_keys 192.168.1.103:/root/.ssh/
+scp /root/.ssh/authorized_keys 192.168.1.104:/root/.ssh/
+ 
+ ssh hadoop102   ssh hadoop103  ssh hadoop104     每台主机都去登录一下另外两台机器
+
+从此处接书籍：尚硅谷---数据仓库项目实战  的42页处，继续往下（不同之处要在此处体现）
+相同指出不再赘述
+1、查看ntp，我的centos实际环境没有安装，需要安装，否则看书
+这是安装命令   yum install ntp  注意：三台全部安装
+配置ntp服务参考P42
+2、在master主机（即hadoop100）上配置集群分发脚本
+参考p44
+3、安装hadoop
+  a、上传安装包；
+  b、解压后，第一时间修改/etc/profile:增加hadoop的家目录和path中的两个路径，
+  修改后，source执行文件，使环境变量生效（因为path不能全局同步，所以注意，grid用户下的.bash_profile 添加source /etc/profile）
+  JAVA_HOME=/usr/local/jdk1.8.0_271
+PATH=$PATH:$JAVA_HOME/bin:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+HADOOP_HOME=/opt/module/hadoop-3.2.1
+export JAVA_HOME
+export PATH
+export HADOOP_HOME
+
+   hadoop version使用该命令测试是否设置正确。
+4、复制hadoop
+执行集群分发脚本下sync.sh
+  报错：Linux /bin/bash^M: bad interpreter: No such file or directory
+  解决办法：打开脚本，执行 :set ff=unix 设置文件为unix，然后执行:wq，保存退出
+然后利用xsync进行远程复制，将已经安装的hadoop程序目录全部复制到另外的两台机器上去
+  xsync  /opt/module/hadoop-3.2.1
+  注意(需要在root下执行）：xsync /etc/profile 并在各个主机下执行 source /etc/profile
+  
+5、配置100主机的文件 
+配置目录：/opt/module/hadoop-3.2.1/etc/hadoop
+具体配置方法P48
+需要配置的文件 core-site.xml  hadoop-env.sh   hdfs-site.xml yarn-env.sh 
+               yarn-site.xml   mapred-env.sh  mapred-site.xml
+			   
+    ******注意此处配置mapred-site.xml文件时，要增加如下内容（原因未知）：
+	<property>
+        <name>mapreduce.application.classpath</name>
+        <value>
+            ${HADOOP_HOME}/etc/hadoop,
+            ${HADOOP_HOME}/share/hadoop/common/*,
+            ${HADOOP_HOME}/share/hadoop/common/lib/*,
+            ${HADOOP_HOME}/share/hadoop/hdfs/*,
+            ${HADOOP_HOME}/share/hadoop/hdfs/lib/*,
+            ${HADOOP_HOME}/share/hadoop/mapreduce/*,
+            ${HADOOP_HOME}/share/hadoop/mapreduce/lib/*,
+            ${HADOOP_HOME}/share/hadoop/yarn/*,
+            ${HADOOP_HOME}/share/hadoop/yarn/lib/*
+        </value>
+</property>
+
+
+hadoop namenode  程序端口：9000    web端口：9870
+hadoop secondary 程序端口：50090   
+       YARN                        web端口：8088   
+ historyserver   程序端口：10020   web端口：19888（ mapred-site.xml中配置）
+ 
+   ***特别注意：hadoop 3.2.1集群和2.7 版本部署的区别（本次使用3.2.1版本安装，教程2.7）
+   
+    不同之处：1、修改works 文件，不是slaves文件
+	          2、namenode默认端口号从50070变为9870（应该是web登录的端口）
+
+6、配置完成后，分发配置到其他节点
+./xsync.sh  /opt/module/hadoop-3.2.1/etc/hadoop/
+7、创建数据目录
+  三个节点的/opt/module/hadoop-3.2.1/目录下，创建data/tmp目录
+  mkdir -p  /opt/module/hadoop-3.2.1/data/tmp
+8、格式化namenode    命令： hadoop namenode -format
+报错2
+HUTDOWN_MSG: Shutting down NameNode at master/192.168.56.101
+且namenode一直无法启动
+
+解决办法1:
+如果是这种情况就去看虚拟机的hostname的名称 是否和 虚拟机的vi /etc/hosts中的ip是否配的一致，
+如果没有的话，就修改下名称或者ip
+然后重启网络 namenode的配置文件重新hdfs namenode -format即可
+解决办法2：
+多次初始化导致，需要删除/opt/module/hadoop-3.2.1/data/tmp下的文件（注意要停止掉hadoop集群在操作）
+
+9、安装history服务器
+hadoop100上添加配置：vi mapred-site.xml
+</property>
+<!--配置历史服务器 -->
+<property>
+  <name>mapreduce.jobhistory.address</name>
+  <value>server103:10020</value>
+</property>
+<property>
+  <name>mapreduce.jobhistory.webapp.address</name>
+  <value>server103:19888</value>
+</property>
+
+hadoop100上添加配置：vi yarn-site.xml
+<!--日志聚集-->
+  <property>
+    <name>yarn.log-aggregation-enable</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>yarn.log-aggregation.retain-seconds</name>
+    <value>-1</value>
+  </property>
+
+
+
+start-yarn.sh
+start-dfs.sh
+mapred --daemon start historyserver
+mapred --daemon stop historyserver
+
+测试日志语句：
+input中的txt由linux创建上传到hdfs
+   hdfs dfs -mkdir /input
+   touch a.txt(测试的文本文件：
+   zhanghaifeng
+zhanghaifeng
+zhanghaibin
+zhangxuejing
+zhangyihan
+zhangyihan
+zhangyihan
+
+   hdfs dfs -put a.txt /input
+
+
+hadoop jar  /opt/module/hadoop-3.2.1/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.1.jar wordcount /input /output
+
+注意修改：hdfs dfs -chmod 777 /tmp（注意文中所有的操作hadoop的用户都是grid）
+登录到yarn的web页面查看日志
+
+模拟日志生成的代码：下载地址链接：https://pan.baidu.com/s/17RE9B2SSDsHNbSQysOU8hg 
+提取码：rpyk    已经下载到尚硅谷目录，因为这个java开发做的，本人做不了
+   
+创建集群进程查看脚本
+  1、首先在每个节点的grid用户的.bashrc文件中添加两个环境变量的声明
+  export JAVA_HOME=/usr/local/jdk1.8.0_271
+  export PATH=/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/usr/local/jdk1.8.0_271/bin:/bin:/sbin:/usr/local/jdk1.8.0_271/bin:/opt/module/hadoop-3.2.1/bin:/opt/module/hadoop-3.2.1/sbin:/home/grid/.local/bin:/home/grid/bn
+  如果不想逐个修改，本.bashrc可以复制到其他两个节点
+  scp .bashrc hadoop100:/home/grid/
+  2、编写脚本
+  #! /bin/bash
+      for i in hadoop100 hadoop101 hadoop102
+       do
+        echo  -----------$i--------------
+            ssh $i  "$*"
+       done
+
+  问题：安装vim  yum install vim
+  
+安装flume  见：p58页
+配置flume  见：p59页
+安装kafka 和zookeeper 见：p68
+ 
+ kafka相关操作：
+ bin/kafka-topics.sh --zookeeper hadoop102:2181 --list  查看topic列表
+ 创建topic
+ kafka-topics.sh --zookeeper hadoop102:2181,hadoop103:2181,hadoop104:2181  --create --replication-factor 1 --partitions 1 --topic topic_start
+ 删除topic
+ kafka-topics.sh --delete --zookeeper hadoop102:2181,hadoop103:2181,hadoop104:2181 --topic topic_start
+ 生产消息
+ kafka-console-producer.sh \
+--broker-list hadoop102:9092 --topic topic_start
+ 消费消息
+ kafka-console-consumer.sh \
+--bootstrap-server hadoop102:9092 --from-beginning --topic topic_start
+ 查看topic详情
+ kafka-topics.sh --zookeeper hadoop102:2181 \
+--describe --topic topic_start
+
+日志采集的步骤：1、先执行日志采集程序，生成日志文件；（需要采集程序jar包，及配置好日志文件存储目录）
+                2、启动flume1，读取日志文件，并利用拦截器进行日志内容过滤；（需要配置好拦截器的jar包，
+				并放到flume的lib下，在flume1的conf目录下制作从file-flume-kafka的配置文件（分发到所有flume节点），制作flume的启动脚本，
+				建议从日志到kafka的工作由指定节点来完成，与后面的kafka-flume-hdfs的工作节点区分开）
+				3、将过滤后的日志发送给kafka；（kafka的topic对应到flume的配置文件中）
+				4、kafka再将日志数据发送给flume2；（在flume的conf目录下制作从kafka-flume-hdfsde 的配置文件（建议在执行该工作的节点配置，
+				不需要分发给其他flume的节点），制作启动flume的脚本（该脚本只用来启动当前工作的flume节点，用于区别步骤2）
+				5、flume2将日志数据存储到hdfs目录下；
+				
+	报错：INFO hdfs.HDFSCompressedDataStream: Serializer = TEXT, UseRawLocalFileSystem = false
+2022-08-22 17:19:41,720 ERROR hdfs.HDFSEventSink: process failed
+    解决办法：flume的lib下的包：guava-11.0.2.jar
+	opt/module/hadoop-3.2.1/share/hadoop/hdfs/lib/ 下的包：guava-27.0-jre.jar
+	flume的版本低于hadoop的版本，删除flume的这个jar包，复制hadoop的jar包到flume的lib下，重启flume，问题解决
+	
+	
+ 
+ 不能使用mariadb，需要卸载，参考这个链接：https://blog.csdn.net/qq_36205206/article/details/125774056
+ 
+ 还是要继续安装mysql5.6 ，参考这个链接：https://www.cnblogs.com/soabstract/p/6708682.html(注意：方法2可行）
+ 
+ mysql启动       systemctl start  mysqld.service
+ mysql -uroot 登录，默认没有密码
+ use mysql  使用mysql库
+ select user,host,password from user;
+ update user set host='%' where host='localhost';  修改root用户的host值
+ delete from user where user='';  删除空的user
+ delete from user where host='hadoop102'; 删除root用户的其他host，才能使%生效
+ delete from user where  host='127.0.0.1'; 删除root用户的其他host，才能使%生效
+ delete from user where   host='::1';  删除root用户的其他host，才能使%生效
+ 
+ update mysql.user set password=PASSWORD('000000') where User='root';  为root用户添加密码
+ flush privileges; 刷新后退出，重新登录，密码生效
+ mysql -uroot -p000000 
+ 此处执行p94的内容，需要先执行sql脚本，在运行jar
+ 
+ 用sqlyog建立将表都用主外键关系，关联起来。
+ 
+ 安装mysqlHA在103和104上面，作为数仓的元数据存储库，因为元数据很重要，所有做了HA
+ HA 的配置参考p123（但凡有 /etc/my.cnf的配置，则需要重启mysql）
+ 
+ 1、第一步是主从复制模式的搭建
+ 103master的配置 vi /etc/my.cnf
+#开启binlog，最大1个G，过期日期180天
+log-bin=mysql-bin
+max-binlog-size=1G
+expire_logs_days=180
+#binlog日志类型
+binlog_format=row
+#mysql服务器的唯一ID
+server_id=1
+ 
+ 重启mysql
+ show master status; 查看master的状态
+ 
+ 104slavede 配置 vi /etc/my.cnf
+#mysql服务器的唯一ID
+server_id=2
+#开启slave中继日志
+relay_log=mysql-relay
+
+ 104mysql中执行：
+change master to 
+master_host='hadoop103',
+master_user='root',
+master_password='000000',
+master_log_file='mysql-bin.000001',
+master_log_pos=120;
+
+start slave;
+show slave status\G;
+
+  如果：  Slave_IO_Running: Yes
+            Slave_SQL_Running: Yes
+  这两个值是yes，那就说明主从复制模式搭建成功了！！！
+  
+  2、MYSQL双主配置
+  104增加配置 vi /etc/my.cnf
+#开启binlog，最大1个G，过期日期180天
+log-bin=mysql-bin
+max-binlog-size=1G
+expire_logs_days=180
+#binlog日志类型
+binlog_format=row
+
+重启mysql
+  show master status; 查看master的状态
+  
+  103上配置my.cnf
+  #开启slave中继日志
+relay_log=mysql-relay
+
+重启mysql
+  103mysql中执行：
+change master to 
+master_host='hadoop104',
+master_user='root',
+master_password='000000',
+master_log_file='mysql-bin.000001',
+master_log_pos=120;
+
+ start slave;
+ show slave status\G;查看内容参照上面的内容
+ 
+ 配置keepalive  参见p126（书中操作系统是linux6，我的环境是centos7.6，
+ 所以keepalived的启动命令和设置开机自动启动的命令都不一样
+ systemctl start keepalived.service 启动keepalived
+ systemctl enable keepalived.service 开机自动启动keepalived
+
+centos7的mysql，目前来看（2022.8.24），安装完毕后是自动启动的
+ systemctl list-unit-files |grep mysql  这个命令查看centos的启动项
+
+  systemctl status keepalived 查看keepalived的工作状态
+ 
+ keepalived状态报错（我的版本是centos7.6），发现两台服务器重启后，keepalive报错，被停止，无法工作
+ 决定采用另外的办法，让mysql和keepalived程序自动启动，顺序是先keepalived程序，后启动mysql
+ 
+ centos7中的自动启动，如果有顺序要求，需要配置rc.local,方法如下：
+ 第一步：先把自动启动的取消掉
+ systemctl disable keepalived.service
+ systemctl disable mysql.service
+ systemctl disable mysqld.service
+ 第二步：vi /etc/rc.local
+ systemctl start keepalived.service
+  sleep 3
+ systemctl start mysqld.service
+ 第三步：
+ 检查rc-local.service服务是否启动，并且是enable状态
+[root@localhost ~]# systemctl list-unit-files|grep rc.local
+rc-local.service                              static  
+[root@localhost ~]# systemctl enable rc-local.service
+查看一下当前是怎么个状态
+[root@localhost ~]# systemctl status rc-local.service 
+手动启动一下看是否会报错
+[root@localhost ~]# systemctl start rc-local.service
+  
+  将两台主备机的 vi /etc/keepalived/keepalived.conf 的state参数修改掉
+ state backup
+ 
+ 最后手动启动systemctl status keepalived
+ 查看keepalived的工作状态 systemctl status keepalived
+  Active: active (running) since Thu 2022-08-25 16:15:23 CST; 3s ago
+  Process: 2834 ExecStart=/usr/sbin/keepalived $KEEPALIVED_OPTIONS (code=exited, status=0/SUCCESS)
+ 以上两行表示成功。
+ 
+ 此时两台mysql重启启动后，谁先启动谁为master
+ 
+ 
+ 安装hive
+ 初始化hive元数据库报错：
+ Exception in thread "main" java.lang.NoSuchMethodError: com.google.common.base.Preconditions.checkArgument(ZLjava/lang/String;Ljava/lang/Object;)V
+ 解决思路：考虑到此包是guava组件提供，可能是HIVE和HADOOP内置的jar包版本不一致导致，文件包如下：
+hive/lib:guava-19.0.jar
+hadoop/lib:guava-27.0-jre.jar，位置在share/hadoop/common/lib中
+
+将hadoop的guava拷贝到hive的lib中，再rm guava-19.0.jar即可
+
+初始化报错：执行初始化命令  schematool -initSchema -dbType mysql -verbose
+   报错：Failed to get schema version.
+   Caused by: java.net.UnknownHostException: hadoop100: Name or service not known
+ 解决办法：vi /opt/module/hive-3.1.2/conf/hive-site.xml
+   修改jdbc的连接主机地址为192.168.1.100(即元数据mysqlHA的虚拟IP）
+   重新初始化，成功！！！！！
+ 
+ 
+ hiveservices.sh start  启动hive2
+ hiveservices.sh stop   停止hive2
+ hiveservices.sh status  hive2状态查看

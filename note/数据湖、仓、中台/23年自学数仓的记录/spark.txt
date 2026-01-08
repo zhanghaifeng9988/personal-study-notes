@@ -1,0 +1,59 @@
+安装教程：spark的单机、集群等安装方式（没有验证，慎用）
+https://www.modb.pro/db/81229
+
+
+
+spark下载地址：
+https://spark.apache.org/downloads.html
+scala下载地址：
+https://www.scala-lang.org/download/2.13.8.html
+
+针对spark应用的kittle的配置：
+https://blog.csdn.net/wzy0623/article/details/108341342?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522165957605316782246479421%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fblog.%2522%257D&request_id=165957605316782246479421&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~first_rank_ecpm_v1~rank_v31_ecpm-3-108341342-null-null.nonecase&utm_term=kettle&spm=1018.2226.3001.4450
+
+单节点安装步骤如下：
+1、首先在spark的官网下载spark，下载的包按照官网的提示和自己实际的hadoop版本进行下载；
+2、spark需要scala编程语言的环境，在scala官网上，进行安装包下载，安装包的版本选择，需要在spark安装包的下载的官网上进行确认；
+3、安装步骤如下：
+a、rpm -ivh scala报名，安装scala
+b、which scala   找到scala的安装位置；
+c、修改etc/profile，增加$SCALA_HOME $PATH $CLASSPATH 三个环境变量的值
+     source /etc/profile  使环境变量全局生效；
+d、scala -version  验证环境变量设置是否正确；
+e、tar -zxvf spark的保名，使用-C参数，将程序解压到hadoop的home下
+f、修改etc/profile，增加$SPARK_HOME  $PATH $CLASSPATH 三个环境变量的值，注意classpath对应的库文件路径不是lib，有可能是jars，要仔细辨认
+     source /etc/profile  使环境变量全局生效；
+$CLASSPATH	  /home/grid/spark-3.1.3-bin-hadoop3.2/jars
+$PATH         /home/grid/spark-3.1.3-bin-hadoop3.2/bin
+$SPARK_HOME   /home/grid/spark-3.1.3-bin-hadoop3.2
+g、修改spark.env
+cd $SPARK_HOME/conf
+cp spark-env.sh.template spark-env.sh
+vi spark-env.sh 添加如下内容：
+    export SCALA_HOME=/usr/share/scala
+    export JAVA_HOME=/home/jdk1.8.0_271
+    export HADOOP_HOME=/home/grid/hadoop-3.2.1
+    export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+    export SPARK_MASTER_IP=192.168.1.111
+    export SPARK_LOCAL_DIRS=/home/grid/spark-3.1.3-bin-hadoop3.2
+    export SPARK_DRIVER_MEMORY=750M
+	
+
+   !!!注意：spark on yarn配置 ：https://zhuanlan.zhihu.com/p/380099097
+h、修改spark-defaults.conf文件
+cp spark-defaults.conf.template spark-defaults.conf
+vi  spark-defaults.conf
+   细节内容参看链接内容
+
+
+运行：$SPARK_HOME/sbin/start-all.sh
+日志服务启动：$SPARK_HOME/sbin/start-history-server.sh
+starting org.apache.spark.deploy.master.Master, 
+logging to /home/grid/spark-3.1.3-bin-hadoop3.2/logs/spark-grid-org
+.apache.spark.deploy.master.Master-1-server111.out
+localhost: starting org.apache.spark.deploy.worker.Worker, 
+logging to /home/grid/spark-3.1.3-bin-hadoop3.2/logs/spark-grid-org
+.apache.spark.deploy.worker.Worker-1-server111.out
+
+jps命令后出现：worker和master，表示运行成功
+

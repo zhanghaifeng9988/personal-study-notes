@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="vue.js"></script>
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+  <h1 v-if="!show">条件渲染</h1>
+  <p v-else>如果不显示标题就显示段落</p>
+  <div v-if="mark == 100">满分</div>
+  <div v-else-if="mark >= 80 && mark < 100">优秀</div>
+  <div v-else-if="mark >= 60 && mark < 80">良好</div>
+  <div v-else-if="mark >= 40 && mark < 60">及格</div>
+  <div v-else>不及格</div>
+</div>
+
+  <script>
+    const App = {
+      data() {
+        return {
+          show: false,
+          mark: 88
+        }
+      }
+    }
+    Vue.createApp(App).mount('#app')
+  </script>
+</body>
+</html>

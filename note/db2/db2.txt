@@ -1,0 +1,173 @@
+ cat /etc/services | grep DB2_db2i105                                        查看db2数据用用户db2i105
+ db2 list db directory |grep  -i "Database name" |awk -F"=" '{print $2} '    查看当前db2数据库的名字
+ 操作系统的db2用户名：db2i105  密码：db2i105@dsg                             即时linux用户也是db2用户
+  connect to JIKEDB1                   再使用该命令进入数据库                登陆数据库
+ db2 get db cfg for JIKEDB1 | grep LOGARCHMETH                               查看当前数据库归档模式
+ db2 get db cfg                                                              查看字符集
+ select TABNAME from syscat.tables                                           查询数据库中的所有表
+ select SCHEMANAME from syscat.schemata                                      查询所有的模式名
+#useradd -g db2iadm  -G db2sadm zhanghaifeng1                                创建db2用户，注意linux下
+#useradd -g db2iadm  -G db2sadm zhanghaifeng2
+#passwd zhanghaifeng1              db2$135                                   给用户设置密码，注意linux下
+ values current user                                                         当前用户查询
+ List active databases                                                       查询当前连接的数据库
+list tablespaces show detail                                                 表空间查询
+list tables for schema "ZHF"                                                 查询指定模式中的表
+list tables for schema "ZHF2"
+db2 list node directory                                                      编目的节点查看
+db2 list db directory                                                        数据库查看（含编目的服务端数据库别名）
+db2 list tablespaces show detail                                             表空间查看
+LIST TABLESPACE CONTAINERS for 6                                             查看某个表空间的容器
+
+DB2数据库中的表空间(tablespace) 是一个逻辑层，一些数据库对象(比如表、视图和索引)驻留在这里。
+一个数据库可以有多个表空间。在首次创建数据库时，DB2 会自动地创建一组表空间。
+这些表空间是 DB2 在创建数据库 HWLD 时创建的。
+SYSCATSPACE 和 TEMPSPACE1 都是系统表空间，不能删除或重新创建它们。
+SYSCATSPACE 是系统编目表空间，用来存储关于数据库的元信息。
+TEMPSPACE1 在某些数据库操作期间用来存储临时结果。
+USERSPACE1 是默认的用户表空间，用来存储表、视图和索引等用户数据。
+任何具有足够权力的 DB2 用户都可以删除和重新创建 USERSPACE1 或者创建其他用户表空间。
+DB2 的表空间按管理方式分为两种：系统管理空间（System Management Space，SMS）和数据库管理空间（Database Management Space，DMS）。
+按类型分为：规则表空间、大对象表空间、系统临时表空间、用户临时表空间。
+规则表空间中包含用户数据的表。默认用户表空间名为USERSPACE1，索引也存储在规则表空间中，另外系统目录表也放在规则表空间中。默认的系统目录表空间名为SYSCATSPACE。
+
+临时表空间分为系统临时表空间和用户临时表空间。
+
+系统临时表空间用来存储各种数据操作（排序、重组表、创建索引、连接表）中所需的内部临时数据，虽然可以创建任意多个系统临时表空间，但建议用户只使用大多数表所使用的页大小创建一个，默认系统临时表空间名为TEMPSPACE1。
+
+用户临时表空间用来存储已说明全局临时表（已说明全局临时表存储的是应用程序临时数据）。用户临时表空间不是在数据库创建时默认创建的。
+
+SMS每个容器是操作系统的文件空间中的一个目录；DMS每个容器是一个固定的、预分配的文件，或是物理设备。
+
+SMS的管理比较简单，由操作系统自动管理，空间的大小随数据量的变化系统自动调整。
+
+DMS是由数据库管理的，空间大小在创建时确定，空间不够时要手工添加或删除部分数据以释放空间。
+
+大多数情况下，DMS的性能比SMS好。
+
+建立表空间
+CREATE TABLESPACE tbsp1 MANAGED BY DATABASE USING (FILE '/dsg/home/db2i105/db2i105/NODE0000/JIKEDB1/t00000007' 1000)
+CREATE TABLESPACE tbsp2 MANAGED BY DATABASE USING (FILE '/dsg/home/db2i105/db2i105/NODE0000/JIKEDB1/t00000008' 1000)
+CREATE TABLESPACE tbsp3 MANAGED BY DATABASE USING (FILE '/dsg/home/db2i105/db2i105/NODE0000/JIKEDB1/t00000009' 1000)
+CREATE TABLESPACE tbsp4 MANAGED BY DATABASE USING (FILE '/dsg/home/db2i105/db2i105/NODE0000/JIKEDB1/t000000010' 1000)
+                                            
+											存储过程、触发器查询
+查询当前模式名下的存储过程：select PROCNAME,PROCSCHEMA,PROCEDURE_ID,DEFINER,VALID from syscat.procedures where procschema='zhf'
+查询当前模式名下的触发器：SELECT TABNAME,TRIGNAME,TRIGSCHEMA FROM SYSCAT.TRIGGERS WHERE TRIGSCHEMA = 'zhf'
+
+
+select current schema from sysibm.sysdummy1                                  查询当前用户的模式
+set current schema zhf                                                        切换模式
+ set current schema zhf2                                                      切换模式
+SYSCAT.TABLES                             说明数据库中对象的信息，包括 table，view，nickname 和 alias 的一些定义。
+SYSCAT.COLUMNS                            说明了表或视图的每一个列的信息。
+SYSCAT.INDEXES                            说明索引的信息。 
+查询模式下的所有索引：select char(INDSCHEMA,20) SCHEMA,char(INDNAME,20) IDXNAME,char(OWNER,10) OWNER,char(TABSCHEMA,10) TABSCHEMA ,char(TABNAME,20) TABNAME from syscat.indexes where INDSCHEMA='ZHF'
+查询模式下的所有序列名称：select SEQSCHEMA,SEQNAME,INCREMENT,START,MAXVALUE,MINVALUE FROM SYSCAT.SEQUENCES where SEQSCHEMA='ZHF'
+  
+                                               说明分区表信息
+  
+  SYSCAT.DATAPARTITIONS                     
+ DESCRIBE TABLE  schema.tablename                                            查询模式中某张表的表结构
+ describe indexes for table COMM_TYPES                                       查询表中的索引信息
+ select * from sysibm.sysindexes where tbname='表名'                         另一种索引查询方式
+ drop index INX_1                                                            删除索引
+ alter table  "ZHF2"."COMM_TYPES" alter column  "C0" set not null            修改字段属性为not null
+分区表信息查询: 
+ 以表名方式查询  SELECT DATAPARTITIONNAME,TABSCHEMA,TABNAME,DATAPARTITIONID,STATUS,LOWVALUE,HIGHVALUE FROM SYSCAT.datapartitions WHERE TABNAME='ZHF2.EMPLOYEES1'                      
+ 以模式名查询    SELECT DATAPARTITIONNAME,TABSCHEMA,TABNAME,DATAPARTITIONID,STATUS,LOWVALUE,HIGHVALUE FROM SYSCAT.datapartitions WHERE TABSCHEMA='ZHF'                  
+ 以表名方式查询  describe data partitions for table employees1
+
+GRANT BINDADD ON DATABASE TO USER zhanghaifeng1                              授权用户访问数据库权限
+
+GRANT CONNECT ON DATABASE TO USER zhanghaifeng1                              授权用户访问数据库权限
+
+GRANT LOAD ON DATABASE TO USER zhanghaifeng1                                 授权用户访问数据库权限  
+
+GRANT dataaccess ON DATABASE TO USER zhanghaifeng1                           授权用户访问数据库权限  
+
+grant DBADM ON database to user zhanghaifeng1                                授权用户访问数据库的权限：dba权限
+grant DATAACCESS ON database to user zhanghaifeng2                           授权用户方位数据库的权限
+
+
+GRANT USE OF TABLESPACE USERSPACE1  TO USER zhanghaifeng1                    授予用户访问表空间的权限
+
+GRANT USE OF TABLESPACE JIKELARGE  TO USER zhanghaifeng1                     授予用户访问表空间的权限
+GRANT USE OF TABLESPACE JIKE8K  TO USER zhanghaifeng1
+
+create schema  zhf                                                           创建模式
+
+GRANT ALTERIN ON SCHEMA zhf TO USER zhanghaifeng1                            授予用户操作模式的权限    
+GRANT ALTERIN ON SCHEMA zhf TO USER db2i105
+GRANT CREATEIN ON SCHEMA zhf TO USER zhanghaifeng1                           授予用户操作模式的权限
+GRANT CREATEIN ON SCHEMA zhf TO USE db2i105
+GRANT DROPIN ON SCHEMA zhf TO USER zhanghaifeng1                             授予用户操作模式的权限
+GRANT DROPIN ON SCHEMA zhf TO USE db2i105
+
+connect to JIKEDB1 user zhanghaifeng1 using db2$135                          该方式只能用在登陆远程db2数据上，本地不能用这种方式登陆
+connect to JIKEDB1 user zhanghaifeng2 using db2$135                       
+
+select datacapture from syscat.tables  where tabschema ='ZHF' and tabname ='regular1'					   
+
+Alter table zhf.regular2 data capture changes                                打开data capture changes数据捕获属性
+Alter table zhf.t2 data capture changes
+alter table zhf.LONG1 data capture changes
+alter table zhf.PARTITION2 data capture changes
+alter table zhf.TB10 data capture changes
+alter table zhf.TB20 data capture changes
+db2 get db cfg for JIKEDB1 | grep -i log                                     数据库归档查询
+
+数据库归档打开设置
+db2 update db cfg for JIKEDB1 using LOGARCHMETH1 disk:/dsg/home/db2i105/database_log/JIKEDB1/log1/
+db2 update db cfg for JIKEDB1 using LOGARCHMETH2 disk:/dsg/home/db2i105/database_log/JIKEDB1/log2/
+db2 update db cfg for JIKEDB1 using LOGPRIMARY 3                             日志组数量
+db2 update db cfg for JIKEDB1 using LOGSECOND -1                             -1 表示归档空间没有最大限制
+db2 update db cfg for JIKEDB1 using OVERFLOWLOGPATH disk：路径               日志溢出后的存放路径
+
+不加双引号，查询的表名默认大写
+加双引号，大写为大写，小写为小写
+
+
+
+带表空间的分区表
+CREATE TABLE emp_table(emp_no INT) IN tbsp1,tbsp2,tbsp3,tbsp4
+  PARTITION BY RANGE(emp_no)
+    (STARTING 0 ENDING 9,
+    STARTING 10 ENDING 19,
+    STARTING 20 ENDING 29,
+    STARTING 30 ENDING 39)
+普通分区表	
+CREATE TABLE sales(sale_date DATE, customer INT) PARTITION BY RANGE(sale_date) (STARTING '1/1/2000'  ENDING '3/31/2000',STARTING '4/1/2000'  ENDING '6/30/2000',STARTING '7/1/2000'  ENDING '9/30/2000',STARTING '10/1/2000' ENDING '12/31/2004') 
+CREATE TABLE sales(sale_date DATE, customer INT) PARTITION BY RANGE(sale_date) (partition p001 STARTING '1/1/2000'  ENDING '3/31/2000',partition p002 STARTING '4/1/2000'  ENDING '6/30/2000',partition p003 STARTING '7/1/2000'  ENDING '9/30/2000',partition p004 STARTING '10/1/2000' ENDING '12/31/2004') 
+
+
+mysql到db2队列问题
+a、全量同步，源端报连库错误 ，原因为 clear_pwd=0 这个参数设置有问题，需要设置为1，不加密，问题解决
+
+b、增量同步，发现目标端没有增量数据，原因为 yloader中的map配置，源端mysql 的schema 为小写，源端数据库设置为大小写不敏感 ，此处map配置需要将源端的schema改为小写，问题解决；
+c、 增量同步，发现目标端没有增量数据，原因为db2默认表名及字段名都是大写，源端mysql都是小写，需要在yloader中配置map_tname=U
+  map_cname=U，问题解决；
+
+e、增量同步，报读取日志错误，检查binlog日志已经开启，但日志目录没有设定，在源端mdsd.ini中配置log_path=/var/lib/mysql，路径通过ps -ef|grep mysqld 查看datadir的路径获知，问题解决；
+
+查询主键：
+SELECT K.COLNAME AS 主键名 FROM SYSCAT.KEYCOLUES K WHERE TABSCHEMA='SCHEMA' AND TABNAME='TABNAME';
+    查询索引
+SELECT I.INDNAME AS 索引名,I.COLNAMES AS 索引字段 FROM SYSCAT.INDEXS I WHERE TABSCHEMA='SCHEMA' AND TABNAME='TABNAME';
+    查询所有的表
+SELECT T.NAME AS 表英文名,T.REMARKS AS 表中文,T.TYPE AS 表类型 FROM SYSIBM.SYSTABLES T WHERE CREATOR='SCHEMA';
+    查询表字段
+SELECT * FROM SYSCAT.COLUMNS WHERE TABNAME='TABNAME';
+SELECT C.COLNAME AS 字段英文名,C.REMARKS AS 字段中文注释,C.TYPENAME AS 字段类型,C.LENGTH AS 字段长度,C.NULLS AS 是否允许为空  FROM SYSCAT.COLUMNS C  WHERE TABNAME='TABNAME'
+    查询存储过程
+SELECT P.PROCNAME AS 存储过程名,P.SPECIFICNAME AS 存储过程别名 FROM SYSCAT.PROCEDURES P 
+WHERE PROCSCHEMA='SCHEMA_NAME'
+    查询表约束
+SELECT INDSCHEMA,INDNAME AS 约束名,COLNAMES AS 约束字段名,UNIQUERULE AS 约束状态 FROM SYSCAT.INDEXES  WHERE TABSCHEMA='ZHF' AND TABNAME='COMM_TYPES' AND UNIQUERULE IN ('P')
+select * from sysibm.syskeycoluse where tbname='DSG_TEST'
+
+ALTER TABLE "ZHF"."UQFK_1" ALTER column "B" SET NOT NULL  设置某列为非空
+
+
+
+ create table partition_test (id int not null,fname varchar(30),lname varchar(30),hired date not null default '1970-01-01',separated date not null default '9999-12-31',job_code int not null,store_id int not null)partition by range(store_id)(part p0 starting 0 ending 5,part p1 starting 6 ending 11,part p2 starting 12 ending 15,part p3 starting 16 ending 20)

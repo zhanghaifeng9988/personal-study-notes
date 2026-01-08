@@ -1,0 +1,30 @@
+insert into emp1 values(7001,'zhf','engineer',7788,(to_date('2008-01-18','YYYY-MM-DD')),8888,1111,10)
+insert into emp1 values(7002,'ljb','engineer',7788,(to_date('1998-01-18','YYYY-MM-DD')),2222,3333,20)
+insert into emp1 values(7003,'qjb','engineer',7788,(to_date('1997-01-18','YYYY-MM-DD')),7777,4444,30)
+insert into emp1 values(7004,'wcf','engineer',7788,(to_date('1997-01-18','YYYY-MM-DD')),753,951,30)
+insert into emp1 values(7005,'zcj','engineer',7788,(to_date('1997-01-18','YYYY-MM-DD')),741,147,10)
+insert into emp1 values(7006,'wsd','engineer',7788,(to_date('1997-01-18','YYYY-MM-DD')),963,3639,20)
+insert into emp1 values(7007,'hhh','engineer',7788,(to_date('1997-01-18','YYYY-MM-DD')),951,3689,30)
+update c2 set empno=4 where sal=2222
+ delete from c2 where sal=2222
+alter table  emp1 add constraint pk_empno primary key(empno)                                             创建主键约束
+alter table  emp1  add constraint fk_deptno foreign key(deptno) references dept1(deptno)                 创建外键约束
+update list1 set banshichu='yinchuan' where name='wangchaofan';
+ alter table list1 enable row movement;                                         使能行移动
+ create unique index empno_idx on emp1(empno)                                   唯一索引格式(效果等同于主键索引）
+ select * from all_triggers where table_name='EMP1'
+ select trigger_name from all_triggers where table_name='EMP1'                  查看表格是否有触发器
+ select * from user_constraints;
+ 
+ create or replace trigger trig2 after insert or update on emp1                 建立触发器
+begin
+ update dept1 set dname='abc';
+end;
+ select text from all_source where type='TRIGGER' AND name='TRIG1'              查看触发器的内容
+ drop TRIGGER TRIG1
+ ALTER TRIGGER "ZHANGHAIFENG1"."TRIG1" disable|enable;                          关闭和打开触发器
+ 
+ select dbms_metadata.get_ddl('TRIGGER','TRIG1','ZHANGHAIFENG2')||';' txt from dual;
+ select dbms_metadata.get_ddl('TRIGGER','TRIG1','ZHANGHAIFENG1')||';' txt from dual;
+ 
+ select username,default_tablespace from user_users;         查看当前用户的缺省表空间

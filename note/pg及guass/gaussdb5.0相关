@@ -1,0 +1,84 @@
+
+
+https://opengauss.obs.cn-south-1.myhuaweicloud.com/5.0.0/x86/openGauss-5.0.0-CentOS-64bit-all.tar.gz
+
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<ROOT>
+<!-- openGauss整体信息 -->
+  <CLUSTER>
+    <!-- 数据库名称 -->
+    <PARAM name="clusterName" value="opgs_cluster" />
+    <!-- 数据库节点名称(hostname) -->
+    <PARAM name="nodeNames" value="guass_node1,guass_node2"/>
+    <!-- 数据库安装目录-->
+    <PARAM name="gaussdbAppPath" value="/opengauss/db/database/app" />
+    <!-- 日志目录-->
+    <PARAM name="gaussdbLogPath" value="/opengauss/db/database/log/omm" />
+    <!-- 临时文件目录-->
+    <PARAM name="tmpMppdbPath" value="/opengauss/db/database/tmp"/>
+    <!-- 数据库工具目录-->
+    <PARAM name="gaussdbToolPath" value="/opengauss/db/database/om" />
+    <!-- 数据库core文件目录-->
+    <PARAM name="corePath" value="/opengauss/db/database/corefile"/>
+    <!-- 节点IP，与数据库节点名称列表一一对应 -->
+    <PARAM name="backIp1s" value="192.168.3.44,192.168.3.55"/>
+  </CLUSTER>
+  <!-- 每台服务器上的节点部署信息 -->
+  <DEVICELIST>
+    <!-- 节点1上的部署信息 -->
+    <DEVICE sn="guass_node1">
+      <!-- 节点1的主机名称 -->
+      <PARAM name="name" value="guass_node1"/>
+      <!-- 节点1所在的AZ及AZ优先级 -->
+      <PARAM name="azName" value="AZ1"/>
+      <PARAM name="azPriority" value="1"/>
+      <!-- 节点1的IP，如果服务器只有一个网卡可用，将backIP1和sshIP1配置成同一个IP -->
+      <PARAM name="backIp1" value="192.168.3.44"/>
+      <PARAM name="sshIp1" value="192.168.3.44"/>
+      <!-- dn -->
+      <PARAM name="dataNum" value="1"/>
+      <PARAM name="dataPortBase" value="15400"/>
+      <PARAM name="dataNode1" value="/opengauss/db/database/data/dn,guass_node2,/opengauss/db/database/data/dn"/>
+      <PARAM name="dataNode1_syncNum" value="0"/>
+    </DEVICE>
+    <!-- 节点2上的节点部署信息，其中“name”的值配置为主机名称 -->
+    <DEVICE sn="guass_node2">
+      <!-- 节点2的主机名称 -->
+      <PARAM name="name" value="guass_node2"/>
+      <!-- 节点2所在的AZ及AZ优先级 -->
+      <PARAM name="azName" value="AZ1"/>
+      <PARAM name="azPriority" value="1"/>
+      <!-- 节点2的IP，如果服务器只有一个网卡可用，将backIP1和sshIP1配置成同一个IP -->
+      <PARAM name="backIp1" value="192.168.3.55"/>
+      <PARAM name="sshIp1" value="192.168.3.55"/>
+    </DEVICE>
+  </DEVICELIST>
+</ROOT>
+
+
+数据库的操作系统用户：omm
+密码：Gauss_1234
+
+数据库密码：Gauss_1234
+
+
+安装验证，主从状态查看
+
+gs_om -t status --detail
+
+
+集群启动命令：
+gs_om -t start
+
+登录
+gsql -d postgres -p 15400
+
+
+执行计划：
+explain  select  * from t1 where  a>1;
+
+
+
+www.winwin7.com.txt

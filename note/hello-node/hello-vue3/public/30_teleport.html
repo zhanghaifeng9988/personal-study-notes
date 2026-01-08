@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src='Vue.js'></script>
+</head>
+<body>
+  <div id="Application">
+    如果在父组件中增加css的定义，就影响了子组件的样式
+    如果不想因为父组件的css影响子组件的css，可以使用teleport组件，
+    将子组件渲染到父组件的某个位置
+    <div style="position: absolute;width:50px;">
+      <my-alert></my-alert>
+    </div>
+  </div>
+  <script>
+    const App = Vue.createApp({})
+    const myAlertComponent = {
+      //按钮和弹窗的逻辑被聚合到了组件内部的模板属性中
+      template:`
+        <div>
+          <button @click='show = true'>显示弹窗</button>
+        </div>
+        <teleport to='body'>
+        <div v-if='show' style='text-align:center;padding:20px;
+        position:absolute;top:45%;left:30%;width:40%;border:black solid 2px;
+        background:white'>
+          <h3>弹窗</h3>
+          <button @click='show = false'>隐藏弹窗</button>
+        </div>
+      `,
+      data () {
+        return {
+          show: false
+        }
+      }
+    }
+    App.component('my-alert', myAlertComponent)
+    App.mount('#Application')
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",                  // 设置 JavaScript 编译目标
+    "module": "ESNext",                  // 使用 ES 模块
+    "strict": true,                      // 启用所有严格类型检查选项
+    "esModuleInterop": true,             // 启用 ES 模块和 CommonJS 之间的互操作性
+    "skipLibCheck": true,                // 跳过库文件的类型检查
+    "forceConsistentCasingInFileNames": true,    // 强制统一的文件名大小写
+    "experimentalDecorators": true,      // 启用实验性的装饰器
+    "emitDecoratorMetadata": true       // 输出装饰器元数据
+  },
+  "include": ["src/**/*.ts"],            // 包含的文件
+  "exclude": ["node_modules"]            // 排除的文件
+}

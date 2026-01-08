@@ -1,0 +1,58 @@
+
+查看当前会话执行的慢SQ语句：
+
+col SQL_FULLTEXT for a50
+col 平均执行时间 for a10
+col 总执行时间 for a10
+col SQL_ID for a15
+COL OSUSER FOR A10
+col USERNAME for a10
+select 
+       to_char(sa.last_active_time,'hh24:mi:ss') time,
+       se.osuser,
+       se.username,
+       se.sql_id,
+       sa.sql_fulltext,
+       sa.executions "执行次数",
+       round(sa.ELAPSED_TIME / 1000000, 2) || 's' "总执行时间",
+       round(sa.ELAPSED_TIME / 1000000 / sa.executions, 2) || 's' "平均执行时间"
+  from (select s.osuser, s.username, s.sql_id
+          from v$session s
+         where s.username in ('SCOTT') -- 用户名
+           and s.sql_id is not null
+         group by s.osuser, s.username, s.sql_id) se
+  left join v$sqlarea sa
+    on se.sql_id = sa.sql_id
+ where sa.executions > 0
+   and round(sa.ELAPSED_TIME / 1000000 / sa.executions, 2) > 0 -- 平均执行时间大于0
+   and sa.last_active_time > trunc(sysdate); -- 查询当天的数据
+   
+   
+
+col SQL_FULLTEXT for a50
+col 平均执行时间 for a10
+col 总执行时间 for a10
+col SQL_ID for a15
+COL OSUSER FOR A10
+col USERNAME for a10
+select 
+       to_char(sa.last_active_time,'hh24:mi:ss') time,
+       se.osuser,
+       se.username,
+       se.sql_id,
+       sa.sql_fulltext,
+       sa.executions "执行次数",
+       round(sa.ELAPSED_TIME / 1000000, 2) || 's' "总执行时间",
+       round(sa.ELAPSED_TIME / 1000000 / sa.executions, 2) || 's' "平均执行时间"
+  from (select s.osuser, s.username, s.sql_id
+          from v$session s
+         where s.username in ('SCOTT') -- 用户名
+           and s.sql_id is not null
+         group by s.osuser, s.username, s.sql_id) se
+  left join v$sqlarea sa
+    on se.sql_id = sa.sql_id
+ where sa.executions > 0
+   and round(sa.ELAPSED_TIME / 1000000 / sa.executions, 2) > 0  
+   and sa.last_active_time > trunc(sysdate); 
+   
+   

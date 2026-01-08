@@ -1,0 +1,225 @@
+OPENGAUSS安装步骤：主要参考https://www.modb.pro/db/385022
+
+1、root用户下建立  /opt/software/openGauss
+2、chmod 775 /opt    
+gpasswd -a omm root //将用户omm加入到root组
+3、上传opengauss安装包到opt/software/
+4、解压安装包到opt/software/openGauss
+5、在opt/software/openGauss目录中，解压*-om.tar.gz文件
+6、
+关闭防火墙
+systemctl disable firewalld.service
+systemctl stop firewalld.service
+
+关闭SELINUX
+vim etc/selinux/config
+SELINUX=disabled
+
+       第二种方法：--命令行下关闭
+      # setenforce 0
+ 
+ 其他必要的相关操作，请参考官方文档https://www.modb.pro/db/385022中的6-10页
+ 
+7、创建数据库的操作系统用户
+groupadd dbgrp
+useradd omm -g dbgrp -G dbgrp
+passwd omm
+8、配置文件
+在/opt/software/openGauss/script/gspylib/etc/conf/cluster_config_template.xml获取XML文件模板
+拷贝模板文件到/opt/software/openGauss，并修改名字，实例修改为node1的name
+
+cp cluster_config_template.xml   /opt/software/openGauss/zhftest_cluster_config.xml
+
+vi  zhftest_cluster_config.xml
+
+  <?xml version="1.0" encoding="UTF-8"?>
+<ROOT>
+ <!-- 整体信息 -->
+  <CLUSTER>
+ <!-- 数据库名称 -->
+    <PARAM name="clusterName" value="zhf1" />
+ <!-- 数据库节点名称(hostname) -->
+    <PARAM name="nodeNames" value="zhftest"/>
+ <!-- 数据库安装目录-->
+    <PARAM name="gaussdbAppPath" value="/opt/huawei/install/app" />
+ <!-- 日志目录-->
+    <PARAM name="gaussdbLogPath" value="/home/omm/log" />
+ <!-- 临时文件目录-->
+    <PARAM name="tmpMppdbPath" value="/opt/huawei/tmp"/>
+ <!--数据库工具目录-->
+    <PARAM name="gaussdbToolPath" value="/opt/huawei/install/om" />
+ <!--数据库core文件目录-->
+    <PARAM name="corePath" value="/opt/huawei/corefile"/>
+ <!-- 节点IP，与nodeNames一一对应 -->
+    <PARAM name="backIp1s" value="192.168.3.66"/>
+  </CLUSTER>
+<!-- 每台服务器上的节点部署信息 -->
+  <DEVICELIST>
+<!-- node1上的节点部署信息 -->
+    <DEVICE sn="zhftest">
+<!-- node1的hostname -->
+      <PARAM name="name" value="zhftest"/>
+<!-- node1所在的AZ及AZ优先级 -->
+      <PARAM name="azName" value="AZ1"/>
+      <PARAM name="azPriority" value="1"/>
+<!-- node1的IP，如果服务器只有一个网卡可用，将backIP1和sshIP1配置成同一个IP -->
+      <PARAM name="backIp1" value="192.168.3.66"/>
+      <PARAM name="sshIp1" value="192.168.3.66"/>
+<!--DBnode-->
+      <PARAM name="dataNum" value="1"/>
+<!--DBnode端口号-->
+      <PARAM name="dataPortBase" value="15400"/>
+<!--DBnode主节点上数据目录，及备机数据目录-->
+      <PARAM name="dataNode1" value="/opt/huawei/install/data/dn"/>
+      <PARAM name="dataNode1_syncNum" value="0"/>
+    </DEVICE>
+  </DEVICELIST>
+</ROOT>
+
+
+8、python3在centos7.6下安装（python3.8不能与open_guass兼容，此部分内容主要看yum和报错1 gcc的问题解决方式）
+ 查看当前python的版本信息 rpm -qa python
+  按照如下网址的内容安装python 3.8   https://www.cnblogs.com/xzwwen/p/13406929.html
+ 
+ 执行 ./configure --prefix=/usr/local/python3
+报错1：configure: error: in `/usr/local/Python-3.8.0':
+configure: error: no acceptable C compiler found in $PATH
+
+
+解决办法：
+     经过查询后得知是缺少GCC套件，安装gcc套件后解决
+	 先安装zip    yum install zip  
+	 在安装unzip  yum install unzip  此处报错提示没有包
+	 手动安装unzip rpm -ivh unzip-6.0-21.el7.x86_64.rpm   
+	 unzip包的下载地址http://www.rpmfind.net/linux/rpm2html/search.php?query=unzip&submit=Search+...&system=centos&arch=
+	 
+	 https://www.cnblogs.com/wangjie20200529/p/14434764.html
+解压缩安装
+unzip gcc离线安装包.zip
+cd gcc离线安装包
+rpm -ivh *.rpm --nodeps --force
+
+查看gcc版本
+gcc -v
+
+
+
+                                网络yum源的解决方案
+	CentOS7系统下网络yum源配置
+
+检查网络
+
+配置网络yum源，首先检查系统的外网是否能正常访问
+
+ping www.baidu.com
+
+获取repo文件
+
+这里我们以网易的yum源为例，首先我们需要下载网易yum源的repo文件，
+   
+   
+   这里需要注意的是，如果系统是最小化安装没有wget命令的话需要首先安装wget
+    1.在windows下下载rpm包
+       http://mirrors.163.com/centos/7/os/x86_64/Packages/wget-1.14-18.el7_6.1.x86_64.rpm 
+    2、然后用FTP上传到centos7上，然后执行
+       rpm -ivh wget-1.14-18.el7_6.1.x86_64.rpm
+
+继续配置yum
+执行：wget http://mirrors.163.com/.help/CentOS7-Base-163.repo
+            列举几个国内的源地址:
+            阿里云http://mirrors.aliyun.com/repo/Centos-7.repo
+	
+	备份并替换系统repo文件
+	  cd /etc/yum.repos.d/
+   备份原有CentOS-Base.repo文件，
+      mv CentOS-Base.repo CentOS-Base.repo.bak
+   并拷贝新的文件进去		
+      cp /usr/local/CentOS7-Base-163.repo  /etc/yum.repos.d
+ 
+   更新yum源
+     yum clean all
+     yum makecache	  
+
+
+
+
+报错2、zipimport.ZipImportError: can't decompress data; zlib not available
+执行依赖包安装：
+yum install zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel xz xz-devel libffi-devel	 
+
+
+解决掉1、2报错后，重新执行make 和make install 两个命令，具体参考：
+ https://www.cnblogs.com/xzwwen/p/13406929.html
+ 继续继续相关配置
+                                  
+								  
+								  卸载python3.8
+								  
+这样安装的python3只需要一条命令即可卸载：
+
+whereis python3 |xargs rm -frv
+
+删除所有残余文件
+
+再查看现有的python3，发现已经没有python3了
+
+当然，我们在这个版本下创建的一些软连接也可以去手动删除，方便安装新版本的python，已经建立对应的一些软连接，
+
+比如删除我们创建过的软连接：pip3
+
+cd /usr/bin
+
+rm pip3
+
+
+
+
+                                 安装python3.7（也不能适配3.7，需要安装3.6）
+	查看下面链接继续安装（3.7的链接）
+	https://www.cnblogs.com/qq419139624/p/14862629.html
+	
+	
+	
+
+9、初始化用户和数据库目录
+root 用户，/opt/software/openGauss/script目录下执行
+./gs_preinstall  -U omm -G dbgrp -X ../zhftest_cluster_config.xml
+
+报错1：
+Exception: [GAUSS-52200] : Unable to import module: libpython3.6m.so.1.0: 
+cannot open shared object file: No such file or directory.
+
+解决方案：python版本问题，这个在官方手册中也有说明，对于Centos 7.6来说，必须是3.6版本。
+yum install openssl* python3*
+
+
+报错2：
+[GAUSS-50202] : The /opt/huawei/install must be empty. 
+Or user [omm] has write permission to directory /opt/huawei/install. 
+Because it will create symbolic link [/opt/huawei/install/app] to install path 
+[/opt/huawei/install/app_02c14696] in gs_install process with this user.
+
+
+解决方案  /opt 目录下权限所有的权限都是775，或者777
+
+
+
+报错3：
+Error: Failed to set Cgroup.
+[GAUSS-50201] : The libaio.so or libaio.so.* does not exist.
+
+yum install libcgroup
+yum install libaio.so.*
+
+
+10、
+在 omm 用户下执行安装，一步到位。
+su – omm
+gs_install -X /opt/software/openGauss/zhftest_cluster_config.xml
+
+设置数据库密码：zhf@4933807
+
+
+
+安装成功后，可以查看监听15400成功。
+也可以查看安装状态。通过 gs_om 操作数据库状态。

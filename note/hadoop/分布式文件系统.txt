@@ -1,0 +1,5 @@
+nosql数据的一些基础概念资料：
+https://zhuanlan.zhihu.com/p/418286621
+
+分布式文件系统的一些基础概念资料：
+https://www.cnblogs.com/gaoyanbing/p/16021234.html

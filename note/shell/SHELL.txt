@@ -1,0 +1,674 @@
+学习资料链接：
+链接：https://pan.baidu.com/s/18HpeiC33--7MX-EqPjanEw?pwd=45m4 
+提取码：45m4 
+
+rpm -qa bash   bash版本查看
+
+./  sh  命令
+这两种方式产生的shell子进程不会改变父进程的工作目录（注意：子进程无法修改环境变量）
+“” 弱引用 双引号中的变量会被替换成变量对应的值  ''强引用  单引号中的变量不被替换，直接作为值引用
+`  `  执行反单引号之间的命令，引用结果作为字符串；
+$( )与` `（反引号）都是用来作命令替换的。
+局部变量： 需要在变量名前加local  local  var=123
+子进程是不能够export 变量来影响产生自己的父进程的环境的
+source . 命令 不会产生shell 子进程，此时脚本中export 变量会影响父进程的环境。
+unset 命令 从当前shell中删除函数和或者变量 -f 删除指定的函数 -v删除指定的变量
+env 显示环境变量
+set 显示所有本地变量
+SHELL 是解释型语言
+dev/null   dev/zero   伪文件，所有写入他的内容都会永久丢失
+dev/tty               输出到此的信息只会显示在当前工作的终端显示器上。   
+grep 条件 -c 满足条件的行数统计
+which    指令会在环境变量$PATH设置的目录里查找符合条件的文件。
+
+                                   /etc/profile  .bash_profile  .bashrc 的讲解
+
+/etc/profile
+用于设置系统级的环境变量和启动程序，在这个文件下配置会对所有用户生效。
+当用户登录(login)时，文件会被执行，并从/etc/profile.d目录的配置文件中查找shell设置。
+会在用户登录(login)时生效，也可以用于设置环境变理。
+
+~/.bash_profile
+用于”登录shell”的环境加载，这个”登录shell”既可以是”交互式”的，也可以是”非交互式”的
+只对单一用户有效，文件存储位于~/.bash_profile，该文件是一个用户级的设置，可以理解为某一个用户的profile目录下。
+
+登陆过程：
+1. 读取并执行/etc/profile文件；
+2. 读取并执行~/.bash_profile文件；
+- 若文件不存在，则读取并执行~/.bash_login文件；
+- 若文件不存在，则读取并执行~/.profile文件；
+
+~/.bashrc
+用于”交互式非登录shell”的环境加载。
+系统级的位于/etc/bashrc、用户级的位于~/.bashrc，两者分别会对所有用户和当前用户生效。
+通常是bash shell调用另一个bash shell时读取，也就是在shell中再键入bash命令启动一个新shell时就会去读该文件。这样可有效分离登录和子shell所需的环境。
+
+交互式：非交互式：登陆shell和非登陆shell，解释如下：
+https://blog.csdn.net/Doudou_Mylove/article/details/118384597
+
+
+
+例子：echo -e "1\n2\n3\n10\n20\n30"
+-e 若字符串中出现以下字符，则特别加以处理，而不会将它当成一般
+文字输出：
+\a 发出警告声；
+\b 删除前一个字符；
+\c 最后不加上换行符号；
+\f 换行但光标仍旧停留在原来的位置；
+\n 换行且光标移至行首；
+\r 光标移至行首，但不换行；
+\t 插入tab；
+\v 与\f相同；
+\\ 插入\字符；
+\nnn 插入nnn（八进制）所代表的ASCII字符
+
+                            正则表达式的() [] {}有不同的意思。
+() 是为了提取匹配的字符串。表达式中有几个()就有几个相应的匹配字符串。
+
+(\s*)表示连续空格的字符串。
+
+[]是定义匹配的字符范围。比如 [a-zA-Z0-9] 表示相应位置的字符要匹配英文字符和数字。[\s*]表示空格或者*号。
+
+{}一般用来表示匹配的长度，比如 \s{3} 表示匹配三个空格，\s{1,3}表示匹配一到三个空格。
+
+(0-9) 匹配 '0-9′ 本身。 [0-9]* 匹配数字（注意后面有 *，可以为空）[0-9]+ 匹配数字（注意后面有 +，不可以为空）{1-9} 写法错误。
+
+[0-9]{0,9} 表示长度为 0 到 9 的数字字符串。
+
+替换运算符：
+ ${varname:-word}      存在且非null 返回varname 否则返回word
+ ${varname:=word}      存在且非null 返回varname 否则赋值word
+ ${varname:？message}  存在且非null 返回varname 否则打印message
+ ${varname:+word}      存在且非null 返回word    否则返回null
+ 每个冒号都是可选的，如果省略冒号，则表示判断变量是否“存在”
+
+模式匹配运算符：
+${varname#pattern}     匹配变量取值的开头处，则删除匹配的最短部分，返回剩下部分
+${varname##pattern}    匹配变量取值的开头处，则删除匹配的最长部分，返回剩下部分
+${varname%pattern}     匹配变量取值的结尾处，则删除匹配的最短部分，返回剩下部分
+${varname%%pattern}    匹配变量取值的结尾处，则删除匹配的最长部分，返回剩下部分
+匹配模式的最长部分替换为string
+${varname/pattern/string}  只匹配第一部分，被替换为string
+${varname//pattern/string} 匹配所有的部分，被替换为string
+
+  $!    Shell最后运行的后台Process的PID(后台运行的最后一个进程的 进程ID号)
+  
+
+位置变量（系统变量、位置参数）
+$0-$9   0到9
+ ${10}   10及10以上
+ $# 传入参数的个数；
+ $? 输出上条命令的结束值： 0表示命令成功退出  1-125 命令退出失败 表示异常，126 命令找到，但无法执行命令文件，127命令无法找到，
+    >128  命令因收到信号而死亡
+ $0 输出命令的名字
+ $* 输出命令的所有参数
+ 
+环境变量
+  修改环境变量，需要使用export 写入启动文件
+  shell 使用一些启动文件协助创建一个运行环境
+  
+type  命令类型的描述
+${varname} 变量的标准写法
+$varname   变量的简略形式
+[ ]  中括号用来作判断 ，其中的内容头和尾必须加空格，要特别注意，例如[ -n str ] 表示 判断 str是否为非空
+
+wait命令
+用来等待指令的指令,直到其执行完毕后返回终端。该指令常用于shell脚本编程中,
+待指定的指令执行完成后,才会继续执行后面的任务。该指令等待作业时,
+在作业标识号前必须添加百分号"%"。
+
+--数值比较：
+-eq  等于
+-ne 不等于
+-gt 大于 
+-ge 大于等于
+-lt 小于
+-le 小于等于
+
+--字符串比较
+    ==          等于   
+    !=          不等于
+    -n          检查字符串的长度是否大于0  
+    -z          检查字符串的长度是否为0
+
+数组定义：
+数组名=（value0 value1 value2 ....）
+
+let  能够使用let进行整数数学运算赋值
+
+例： a=2
+     let b=a++(赋值后运算）
+echo $b $a
+2 3
+
+bc  ：完成整数及小数运算
+
+①能够在bc中进行互动式的数学运算
+
+②能够在shell中进行非互动式的bc管道运算
+
+③能够在shell中非互动式的输入重定向bc运算
+
+expr 
+  expr (evaluate expressions的缩写)。"表达式求值"。Shell expr是一个功能强大。
+并且比较复杂的命令，它除了可以实现整数计算，还可以结合一些选项对字符串进行处理，
+例如计算字符串长度、字符串比较、字符串匹配、字符串提取等
+1.整数计算：
+
+      expr   整数运算表达式
+	  例：expr 1+1
+	  2
+
+2。字符串操作：
+
+expr length 字符串                    ：获取字符串的长度
+
+expr substr  字符串   start   end     ：截取字符串
+
+expr index   字符串  查找的字符       ：查找字符在字符串中第一次出现的位置，位置从1开始的
+（expr match  字符串    正则表达式）；（expr   字符串 : 正则表达式）
+
+(()) 计算命令
+    (())在运算表达式书写时，彼此之间有无空格都可以，
+	遇到特殊字符时也不需要加“\”，能够使用(())进行整数的数学运算
+    双小括号(())，用于进行数学运算表达式的执行，将数学运算表达式放在((和))之间。
+	可以使用$获取(())表达式命令的结果，这和使用$获得变量值是一样的。
+例：a=$((1+6))
+
+
+time ./calc.sh  脚本运行时间统计
+
+正则表达式就是记录文本规则的代码，也是用来进行文本匹配的工具；
+有两种基本字符匹配：特殊字符和一般字符，
+\b 代表单词的开头和结尾，也就是单词的分界处  元字符的一种
+\d 匹配一位数字（0-9）                       元字符的一种
+-                    匹配它本身
+^a                   ^匹配所有以a开头的行
+a$                   $匹配所有以a结尾的行
+.                    匹配任意字符
+wc -l                统计行数
+*.                   匹配星号字符，星号字符的后一个字符（从左往右数）及星号所在的行
+[]                   方括号表达式，匹配方括号内任意一个字符
+[^]                  如果^符号位于方括号的开始，则表示不匹配方括号中的任意字符
+\                    用于打开或关闭后续字符的特殊含义
+*                    匹配星号前任意一个字符重复任意次
+a.*c                 表示字母a和c中匹配任意长度的字符串，例如：ac，abc ，abbbc，adssdfc 
+？                   匹配0个或1个前置正则表达式
++                    匹配1个或多个前置正则表达式
+ \s                  匹配空白,包括空格、换行、tab缩进等所有的空白
+ \S                  表示匹配 非空白字符
+两者同时出现[\s\S]表示匹配 任何字符
+exit -1              会直接退出shell脚本
+!感叹号             通常代表反逻辑的作用，譬如！=来代表不等于。
+
+区间表达式
+ab\{3\}c              a字母和c字母之间的b字母重现3次，能够匹配abbbc
+ab\{3,\}c             a字母和c字母之间的b字母重现至少3次，能够匹配abbbbc，abbbc 
+ab\{3,5\}c            a字母和c字母之间的b字母重现3~5次，abbbc，abbbbc，abbbbbc
+\<   \>               匹配单词开头和单词结尾  echo 'this is world' | grep "\<world\>"      
+
+seq 就是这么一个小工具，它可以产生一系列数，你可以指定数的递增间隔，
+      也可以指定相邻两个数之间的分割符。
+
+sort                  可对文件内容排序后输出
+    -d       忽略特殊字符
+	-f       忽略大小写差异
+	-u       去除选项中的重复行，只对键值段有效
+	字段排序：
+	-t       定义字段分界符
+	-k       选定排序字段(确定第几个字段选取出来就行对比排序）
+	-n       让sort命令按照整数数字进行比较
+	-r       倒序显示
+	例：sort  -t: -k3 -n
+uniq                  报告或删除文件中重复的行    
+            注意：经测试，直接使用uniq只能删除或报告相邻的连续的重复行
+                      如果删除不连续的重复行需要结合sort 命令 ，例如：sort  fruits1.txt  | uniq  
+					  注意：文件内容会被输出显示，不会作删除保存文件
+    -c      在输出行前面加上每行在输入文件中出现的次数。
+	-d      仅显示重复行
+	-u      仅显示不重复的行
+	
+	uniq和sort -u的区别：1、uniq必须针对完全相同的行进行判断，sort -u可以针对域进行判断
+	                     2、uniq只会处理连续的重复行，对不连续的重复行不会进行处理，sort -u 针对全部行进行处理
+						 
+wc                     统计文本行数、单词数（以空格为分隔符）、字符数			
+    -c      显示字符的个数
+    -w      显示单词的个数
+    -l      显示文件文本行的行数	
+pr                     打印命令 
+    -c      -c5 将文本作为5栏输出
+	-t       不显示标题，不显示整页
+
+head        默认显示文件内容的前10行，-n数字：表示要显示的从头开始的多少行
+
+cut         可以从一个文本文件或者文本流中提取文本列
+    -d       可以接收的字段分隔符
+	-f       规定了cut命令获取的字段列
+	例如：cut -d ':' -f 1,7 /etc/passwd
+
+tr           文本替换
+    例如：tr 'a-z' 'A-Z' <fruits.txt> fruits_new.txt  将fruits文件中的小写全部转换为大写，并生成新的文件
+
+遍历文件：find /tmp -type f -print  | xargs file
+find /tmp -type d -print  
+xargs：它的作用是将参数列表转换成小块分段传递给其他命令，以避免参数列表过长的问题。
+file：linux种类查看文件属性的命令
+
+comm       比较文件内容差异的命令
+        -1   不显示只在第1个文件里出现过的列；
+		-2   不显示只在第2个文件里出现过的列；
+		-3   不显示只在第1个和第2个文件里出现过的列；
+diff       比较文件内容差异的命令
+
+vimdiff    可视化的文件对比结果输出命令
+
+cfdisk     可视化的分区工具
+mkfs       分区格式化命令
+
+
+
+                                                   
+												   sed  流编辑器
+sed--version   查看sed的版本,这是一款流编辑器
+               sed是基于行的，按顺序对每一行执行命令
+			   它不修改任何输入文件
+               养成使用单引号来括起sed命令的习惯，这样可以禁用shell的扩展
+	工作顺序：1、从指定的输入读入一行数据存入被称为模式空间（pattern space）的临时缓冲区
+              2、按照指定的sed编辑命令，处理缓冲区的内容
+              3、把缓冲区的内容送到指定的输出并且将这些内容从模式空间中删除
+              4、回到第一步继续下一次工作			  
+			   sed -e '/^#/d' /etc/rc.local  删除（不显示）#号开头的行   
+               sed -e '1,19d' passwd.bak     删除（不显示）1-19行的内容
+			  sed中使用规则表达式，需要使用两个/（即/  /） 将规则括起来
+                
+				d 删除行命令    p 打印行命令   i 插入行命令  a  在某行某位置追加内容的命令
+				
+	 -n       该参数告诉sed，除非明确要求打印模式空间，否则不这样做。（即使用p打印命令的时候，如果不打印模式空间内容，需要加-n参数）
+	             sed -n -e '/^#/p' /etc/rc.local
+	
+	 \	      反斜杠可以将元字符转换为普通字符 
+	 
+			  若果sed中包含多重判断，则需要[]，看如下示例，表示删除不是#开头的行
+			  
+			  sed -e '/^[^#]/d'  /etc/rc.local
+	
+	[[:sapce:]]  这是一个特殊的关键字，他告诉sed，与TAB键或者是空格键匹配 
+	 
+	 替换命令的格式:  
+	                's/查找的内容/替换的内容/'      -该命令替换操作只能对文本中第一次出现的查找内容有效
+					's/查找的内容/替换的内容/g'     -末尾的g告诉sed执行全局替换 
+	
+	sed试图在行中匹配规则表达式时，他要在运行中查找最长的匹配。——————这个特性非常重要
+	
+	sed -n -e '=;p' passwd.bak      '=;p' 表示：打印行号
+	
+	-e command, --expression=command    允许多台编辑。
+    -h, --help                          打印帮助，并显示bug列表的地址。
+    -n, --quiet, --silent               取消默认输出。
+	-f, --filer=script-file             引导sed脚本文件名。
+    -V, --version                       打印版本和版权信息。
+	                    
+					            元 字 符
+								
+ ^	       行首定位符	 /^my/  匹配所有以my开头的行
+ $	       行尾定位符	 /my$/  匹配所有以my结尾的行
+ .	       匹配除换行符以外的单个字符	 /m..y/  匹配包含字母m，后跟两个任意字符，再跟字母y的行
+ *	       匹配零个或多个前导字符	 /my*/  匹配包含字母m,后跟零个或多个y字母的行
+ []	       匹配指定字符组内的任一字符	 /[Mm]y/  匹配包含My或my的行
+ [^]	   匹配不在指定字符组内的任一字符	 /[^Mm]y/  匹配包含y，但y之前的那个字符不是M或m的行
+ ..	       保存已匹配的字符	 1,20s/youself/\1r/  标记元字符之间的模式，并将其保存为标签1，之后可以使用\1来引用它。最多可以定义9个标签，从左边开始编号，最左边的是第一个。此例中，对第1到第20行进行处理，you被保存为标签1，如果发现youself，则替换为your。
+ &	       保存查找串以便在替换串中引用	 s/my/**&**/  符号&代表查找串。my将被替换为**my**
+ \<	       词首定位符	 /\<my/  匹配包含以my开头的单词的行
+ \>	       词尾定位符	 /my\>/  匹配包含以my结尾的单词的行
+ x\{m\}	   连续m个x	 /9\{5\}/ 匹配包含连续5个9的行
+ x\{m,\}	 至少m个x	 /9\{5,\}/  匹配包含至少连续5个9的行
+ x\{m,n\}	 至少m个x，但不超过n个x	 /9\{5,7\}/  匹配包含连续5到7个9的行
+						   
+						   SED的练习用例：datafile
+Steve Blenheim:238-923-7366:95 Latham Lane, Easton，PA 83755:11/12/56:20300
+Betty Boop:245-836-8357:635 Cutesy Lane, Hollywood, CA 91464:6/23/23:14500
+Igor Chevsky:385-375-8395:3567  Populus Place, Caldwell, NJ 23875:6/18/68:23400
+Norma Corder:397-857-2735:74 Pine Street, Dearborn, MI 23874:3/28/45:245700
+Jennifer Cowan:548-834-2348:583 Laurel Ave., Kingsville, TX 83745:10/1/35:58900
+Jon DeLoach:408-253-3122:123 Park St., San Jose, CA 04086:7/25/53:85100
+Karen Evich:284-758-2857:23 Edgecliff Place,Lincoln, NB 92086:7/25/53:85100
+
+Fred Fardbarkle:674-843-1385:20 Parak Lane, DeLuth, MN 23850:4/12/23:780900
+Fred Fardbarkle:674-843-1385:20 Parak Lane, DeLuth, MN 23850:4/12/23:780900
+Lori Gortz:327-832-5728:3465 Mirlo Street, Peabody, MA 34756:10/2/65:35200
+Paco Gutierrez:835-365-1284:454 Easy Street, Decatur, IL 75732:2/28/53:123500
+Ephram Hardy:293-259-5395:235 CarltonLane, Joliet, IL 73858:8/12/20:56700
+James Ikeda:834-938-8376:23445 Aster Ave., Allentown, NJ 83745:12/1/38:45000
+Barbara Kertz:385-573-8326:832 Ponce Drive, Gary, IN 83756:12/1/46:268500
+Lesley Kirstin:408-456-1234:4 Harvard Square,Bston, MA 02133:4/22/62:52600
+William Kopf:846-836-2837:6937 Ware Road, Milton, PA 93756:9/21/46:43500
+Sir Lancelot:837-835-8257:474 Camelot Bulevard, Bath, WY 28356:5/13/69:24500
+Jesse Neal:408-233-8971:45 Rose Terrace, San Francisco, CA 92303:2/3/36:25000
+Zippy Pinhead:834-823-8319:2356 Bizarro Ave., Farmount, IL 84357:1/1/67:89500
+Arthur Putie:923-835-8745:23 Wimp Lane, Kensington, DL 38758:8/31/69:126000	
+Popeye Sailor:156-454-3322:945 Bluto Street, Anywhere, USA 29358:3/19/35:22350 
+Jose Santiago:385-898-8357:38  Fife Way, Abilene,  TX 39673:1/5/58:95600
+Tommy Savage:408-724-0140:1222  Oxbow  court, Sunnyvale, CA 94087:5/19/66:34200
+Yukio Takeshida:387-827-1095:13  Uno Lane, Ashville, NC 23556:7/1/29:57000
+Vinh Tranh:438-910-7449:8235 Maple  Street, Wilmington, VM 29085:9/23/63:68900
+                                    练习
+1：替换操作:Jon替换为Jonathon
+ sed -e  's/Jon/Jonathon/g' datafile
+2：删除前三行
+ sed -e '1,3d' datafile
+3:删除第三行
+ sed -e '3d' datafile
+4：显示5-10行
+ sed -n '5,10p' datafile
+5:删除包含Lane的行
+ sed -e '/Lane/d' datafile
+6：显示生日在11月-12月之间的行
+ sed -n '/[:::]1[1-2][:/:]/p'   匹配特殊字符 冒号: 需要将它包围起来[:::]   斜杠/  需要将它包围起来[:/:] 然后继续匹配 
+7：把3个星号*** 添加到以Fred开头的行
+sed -e 's/^Fred/***Fred/' datafile
+8:用JOSE HAS RETIRED取代包含Jose的行
+sed -e 's/^.*Jose.*$/JOSE HAS RETIRED/g'
+sed -e  '/Jose/s/.*/JOSE HAS RETIRED/g'
+9:把Popeye的生日改成11/4/46
+sed -e '/Popeye/s/:[0-9]*\/.*\/.*:/:11\/14\/46:/' datafile
+10:删除所有的空白行
+sed -e '/^$/d' datafile
+11：脚本练习  do.sed
+    1i PERSONNEL   FILE           第一行之前插入标题 PERSONNEL FILE
+	/500$ /d                     删除以500结尾的工资
+	s/^\([a-zA-Z]\+\)\([a-zA-Z]\+\)\(.*\)/\2\1\3/g           显示文件内容，把姓和名颠倒
+	$THE  END                   把文件末尾添加THE END
+	
+	执行脚本: sed -f do.sed datafile
+	
+	
+                                         进程
+	进程就是运行中的程序，一个正在运行的程序，可能有多个进程。
+	一个进程是一个程序的一次执行的过程，程序是静态的，他是一些保存在磁盘上的可执行的代码和数据集合，进程是一个动态的概念。
+	父进程和子进程的关系是管理和被管理的关系，当父进程终止时，子进程也随之终止，但子进程终止时，父进程并不一定终止。
+	在同一时间，系统里有很多进程，通过时间片的方式获得cpu资源，并一起运行。
+	pstree  查看进程树
+	ps aux  可以查看到进程对系统资源的占用情况
+	ps -ef
+	进程编号0通常被称为kernel，sched或swapper；
+	进程编号1称为init，它是所有进程的父进程或祖先进程；
+	在关机时，进程的退出是根据ID由大到小的顺序依次执行，直到init。当init进程结束后，系统便终止。
+	top  监控着一段时间内系统的运行状态，包括负载、cpu使用状况、内存使用状态、进程状况等。
+	
+	
+	                                shell命令的执行
+	shell命令分成内置命令和外部命令
+	内置命令：是shell解释程序内建的，由shell直接执行，不需要派生新的进程。
+	常见的内部命令：. (点命令） bg  cd  continue echo exec exit export fg  jobs pwd read  return set shift test times trap umask unset wait等
+	外部命令：shell会创建一个新的进程来执行命令。当命令的进程运行时，默认shell将等待直到该进程结束。
+	外部命令两种：1、二进制代码  2、shell脚本
+	常见的外部命令有：grep  more cat mkdir rmdir ls sort ftp telnet ssh ps等
+	
+	linux通过fork（）调用来创建一个新的进程，fork会创建原有进程的贮存的精确复制。
+	调用fork的进程是父进程，而由fork创建的进程是子进程，也就是说：一个父进程通过fork创造了一个和它一模一样的子进程。
+	
+	linux使用exec执行二进制的外部命令；
+	shell脚本的执行：shell解释程序会fork一个子shell进程，该进程会检查脚本的第一行（如！#/bin/sh），找到用来执行脚本的解释程序
+	  然后装入这个解释程序，由它解释执行脚本程序
+	
+	手工启动进程分为两种：前台启动和后台启动
+	   前台启动：是手工启动一个进程的最常用的方式
+	   后台进程启动：直接在命令的末尾增加一个字符&
+	 中断一个前台进程的时候，通常使用ctrl+c
+	 中断一个后台进程，需要使用kill
+	 前台进程和后台进程可以相互转换。ctrl+z 挂起前台进程，bg命令将前台程序转成后台运行。fg命令可以直接将后台程序转换为前台运行。
+	 
+	 jobs命令显示当前shell被挂起的进程和后台进程的状况。
+	 
+	                                                    信号
+	kill -l 查看系统定义的信号列表
+	kill -sigtstp 进程号     表示：挂起进程，和ctrl+z 组合键产生的信号是一样的。
+	kill -sigint  进程号     表示：中断进程的信号，相当于按ctrl+c组合键产生的信号一样的。
+	kill -sigquit 进程号     表示：这种信号和在键盘上按组合键ctrl+\产生的信号是一样的，将终止进程。
+    kill -9       进程号     表示：会强制杀死进程	
+	
+	                                             调试系统任务
+	crontab    是用于调度重复性系统任务
+	at         是用于在特定时间调度单个系统任务
+	
+	crontab -l  该命令用来显示用户的默认crontab文件的内容
+	 crontab -r   删除定时任务文件                                       
+											
+											crontab时间字段的可接受值
+    分钟：0-59
+    小时：0-23
+    月中某日：1-31
+    月份：1-12
+    星期中某日：0-6（0表示星期日）	
+	
+	 crontab -e   创建定时任务
+	 *   表示该范围内的任意时间
+     ,    表示间隔的多个不连续时间点
+     -   表示一个连续的时间范围
+     /   指定间隔的时间频率
+        我们重点应该掌握任务调度表中时间的表示方法：
+    示例：
+         0 17 * * 1-5   周一到周五每天17:00 
+         30 8 * * 1,3,5   每周一、三、五的8点30分
+         0 8-18/2 * * *   8点到18点之间每隔2小时
+         0 2 */3 * *   每隔3天2点0分
+    测试：
+     第一种情形：
+      每隔一分钟就把当前系统日期写入/tmp/mytest文件中
+      每隔二分钟把日历写入/tmp/mytest文件中
+      整个过程就如进入 vi 编辑画面一样， 
+      这里我们按题意应该编辑两行命令,
+      然后看看/var/spool/cron里生成了什么？
+      再使用tail –f /tmp/mytest查看结果
+      （tail用于查看文件的内容）
+      #crontab -e
+        */1 * * * * date>>/tmp/mytest   （>>表示添加）
+        */2 * * * * cal>>/tmp/mytest
+		
+		
+	
+ 		                                        at
+												
+	at [-m] time [date]       创建at作业
+	at -l                     显示at作业
+	at -r [job-id]            删除at作业
+  -m 在作业完成后发送邮件；
+  time 指定要调度作业的时间，如果不按24小时制指定时间，请添加am或pm，可接受的关键字包括midnight、noon、now，分钟是可选的选项
+  date 指定月份的前三个或更多字母，一周中的某日或关键字today或tomorrow  	  
+     按ctrl+d组合键，可以退出at实用从程序并保存at作业
+  
+  举例：
+   1、创建at作业 0点9分的时候删除一个文件
+   at -m 0009
+   at> rm /home/oracle/zhftest/mytest
+   at> <EOT>     注意此处的<EOT> 非手动输入，而是按快捷点ctrl+d后自动生成。
+   
+   
+   
+                                                   proc虚拟文件系统
+	grep proc /proc/mounts
+	
+	/proc 的文件可以用于访问有关内核的状态、计算机的属性、正在运行的进程的状态等信息；
+	
+	more /proc/cpuinfo  查看主机cpu信息
+	ls /proc            proc虚拟文件系统是用户和内核之间的接口，保存了系统当前的状态和进程状态。
+	                     其中每个数字就是一个系统进程
+	
+	/proc/cpuinfo   CPU的信息
+	/proc/meminfo   物理内存、交换空间等的信息
+	/proc/mounts    已加载的文件系统的列表
+	/proc/devices    可用设备的列表
+	/proc/filesystems 被支持的文件系统
+	/proc/modules    已加载的模块
+	/proc/version   内核版本
+	/proc/cmdline   系统启动时输入的内核命令行参数
+	
+	
+	                                                     线程
+	当你在一台linux pc上打开两个qq，每一个qq是一个进程，而当你在一个qq上和多人聊天时，每一个聊天窗口就是一个线程。
+	
+	线程和进程都是用于并行处理，但是他们的实现和应用场景不同。
+	
+	线程（thread）是在共享内存空间中并发的多道执行路径，他们共享一个进程的资源，如文件描述和信号处理。
+	
+	在串行程序基础上引入线程和进程是为了提高程序的并发度，从而提高程序运行效率和响应时间。
+	pthread 是一种标准化模型，它用来把一个程序分成一组能够同时执行的任务。
+	
+	进程是通过系统调用fork创建的，新的进程是原来进程的子进程；
+	linux中的线程也是通过fork创建的，是轻进程。
+	
+	
+	
+	                                             实例学习、练习
+	
+	 sh -n 调试shell
+	函数可以通过return返回。如果没有写return，则是默认返回最后一条命令的退出状态。
+	可能会发生改变的常量，我们一般在shell开始处通过变量定义赋值给某个变量，但是，在整个shell脚本中，我们往往不会通过程序去
+修改泽泻变量的值。
+	
+	1、给文件名打时间戳的函数
+	vi func1.sh
+	
+#!/bin/bash
+#append year.month.day and timestamp to file    
+echo $1                           #显示脚本传入的参数1
+filenameConvert(){                #函数1
+timestamp=$(date +%Y%m%d%H%M%S)   #时间戳变量timestamp赋值为当前系统的时间
+#return $timestamp                 
+RETVAL=$1.$timestamp              #RETVAL变量赋值为脚本传入的参数1的内容加上timestamp的值
+#return $RETVAL
+}
+#echo $timestamp
+filenameConvert $1                #调用函数1 传入的参数为脚本传入的第1个参数
+echo $RETVAL                      #打印变量的值
+   
+   2、搜索旧日志  awk默认用空格分隔
+   vi func2.sh
+
+#!/bin/bash
+#search dir to fetch the oldest log
+searchdir(){
+   oldestlog=`ls -rt |head -n 1|awk '{print $1}'`
+}
+searchdir
+echo $oldestlog
+
+  3、清除旧日志(删除大于500兆的文件）
+  vi func3.sh
+#!/bin/bash
+#this is  the directory where backup logs are kept
+working_dir=/home/oracle/zhftest            #定义常量1
+#maximum log size
+alarmrate=500                               #定义常量2
+#this function clean old logs under working dir if it reaches it's sieze limitation,say 500M.
+clear_old_log_under_working_dir(){          #定义函数
+cd $working_dir                             #进入目录
+   while true;                              #做一个while do形式的死循环
+   do
+   logsize=`du -ms $working_dir | awk '{print $1}'`  #显示当前目录下的文件大小，以m为单位
+     if [$logsize -gt $alarmrate];
+	 then 
+	 searchdir  
+	 rm -rf  $oldestlog
+	 else 
+	 break;
+	 fi
+	 done
+	 }
+                                        条件判断的一些参数
+										
+  -e filename    如果filename存在，则为真        [ –e /etc/hosts ]
+
+-d filename    如果filename为目录，则为真      [ –e /etc ]
+
+-f filename    如果filename为常规文件，则为真  [ –f /usr/bin/grep]
+
+-L filename    如果filename为符号链接，则为真  [ –L /usr/bin/grep]
+
+-r filename    如果filename可读，则为真        [ –r /etc/hosts ]
+
+-w filename    如果filename可写，则为真        [ –w /etc/hosts ]
+
+-x filename    如果filename可执行，则为真      [ –x /etc/hosts ]
+
+filename1 –nt filename2   如果filename1比filename2新，则为真 [/usr/test/file1.txt –nt /usr/test/file2.txt]
+
+filename1 –ot filename2   如果filename1比filename2旧，则为真 [/usr/test/file1.txt –ot /usr/test/file2.txt]
+  
+                                       字符串比较运算符
+	-z string      如果string长度为0,则为真        [ –z “$var”]
+
+-n string      如果string长度非0,则为真        [ –n “$var”]
+
+str1=str2      如果str1与str2相同，则为真      [ “$var”=”hello world”]
+
+str1!=str2     如果str1与str2不相同，则为真    [ “$var”!=”hello world”]
+
+                                      算数比较运算符
+	num1-eq num2      等于           [ 3 -eq $mynum ]
+num1-ne num2      不等于   [ 3 -ne $mynum ]
+num1-lt num2      小于           [ 3 -lt $mynum ]
+num1-le num2      小于或等于 [ 3 -le $mynum ]
+num1-gt num2      大于           [ 3 -gt $mynum ]
+num1-ge num2      大于或等于 [ 3 -ge $mynum ]								  
+                                                   --stdin  
+
+This option is used to indicate that passwd should read the new password from standard input, which can be a pipe.  
+
+这个选项用于从标准输入管道读入新的密码。 
+
+使用 echo 方式来重置Linux 系统用户密码：
+
+echo “新密码”|passwd --stdin 用户名
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  basename
+给basename指定一个路径，basename命令会删掉所有的前缀包括最后一个‘/’字符，
+然后将后缀的字符串显示出来
+  示例：[grid@hadoop100 opt]$ cd /home/grid/
+[grid@hadoop100 ~]$ ll
+total 0  -rw-r--r--. 1 grid root 0 Aug 18 21:52 a.txt
+[grid@hadoop100 ~]$ basename /home/grid/a.txt
+a.txt
+[grid@hadoop100 ~]$ basename /home/grid/
+grid
+[grid@hadoop100 ~]$ basename /home/grid
+grid
+
+  dirname
+dirname 命令读取指定路径名删除最后一个“/”（斜杠）及其后面的字符，保留其他部分，
+并写结果到标准输出。如果最后一个“/”后无字符，dirname 命令使用倒数第二个“/”，并忽略其后的所有字符。
+  示例：[grid@hadoop100 /]$ dirname /opt/scripts/xsync.sh
+/opt/scripts
+[grid@hadoop100 /]$ dirname /opt/scripts
+/opt
+
+linux 的    cd -P 路径名    以物理路径进入
+  解释：如果使用cd -P命令，路径名为一个链接，那直接进入到链接指向的路径下
+  
+& 符号的作用
+Linux 终端命令的末尾加上一个 & 符号表示将这个任务放到后台去执行，例如以下命令表示将复制任务放到后台执行：
+
+cp -R original/dir/ backup/dir/ &
+1
+对于需要长时间执行的任务，&符号可以使当前终端窗口不被占用，这样就能继续在同一个终端上工作，甚至关闭终端窗口也不会影响任务的正常执行。不过需要注意的是，如果要求这个任务输出内容到标准输出中（例如 echo 或 ls），即便使用了 &，也会等待这些输出任务在前台运行完毕
+
+当使用 &将一个进程放置到后台运行的时候，Bash 会提示这个进程的进程 ID。在 Linux 系统中运行的每一个进程都有一个唯一的进程 ID，我们可以使用进程 ID 来暂停、恢复或者终止对应的进程，因此进程 ID 是非常重要的
+
+
+ssh -t 参数的使用 场景: 需要从某一台中央管控机器ssh登录到其他机器,执行某个脚本(getinfo.sh)得到机器的相关信息。
+
+date +%F显示当前日期 
+例如：
+[grid@hadoop102 ~]$ date
+Sun Aug 28 16:16:17 CST 2022
+[grid@hadoop102 ~]$ date +%F
+2022-08-28
+
+
+exit 0 代表正常运行程序并退出程序,
+exit 1 代表非正常运行导致退出程序
+其实目的就是: 程序退出后, 用户可以 echo $? 来查看是 0 还是 1, 
+从而达到检测程序是正常结束退出还是产生错误而退出的目的.
+

@@ -1,0 +1,16 @@
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'
+import store from './store'
+import  ElementPlus  from 'element-plus'
+import 'element-plus/dist/index.css'
+import * as ElementPlusIcons from '@element-plus/icons-vue'
+import axios from 'axios'
+import VueAxios from 'vue-axios'
+const app = createApp(App)
+app.use(store).use(router).use(ElementPlus).use(VueAxios,axios).mount('#app')
+
+for (const [key, component] of Object.entries(ElementPlusIcons))//遍历ElementPlusIcons对象
+  {
+   app.component(key, component)
+  }

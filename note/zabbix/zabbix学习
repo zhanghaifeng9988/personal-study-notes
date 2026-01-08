@@ -1,0 +1,69 @@
+
+
+
+https://blog.csdn.net/u010230019/article/details/129009171
+
+
+Zabbix是企业级开源监控解决方案，支持实时监控数万台服务器、虚拟机和网络设备，采集百万级监控指标。
+Zabbix完全开源免费。
+
+ --监控什么东西
+监控一切需要监控的东西，只要能够想到，能够用命令实现的都能用来监控
+
+硬件监控	1.通过远程控制卡:Dell的IDRAC，HP的ILO和IBM的IMM等 
+            2.使用IPMI来完成物理设备的监控工作。通常必须要监控的包括温度、硬盘故障等 
+			3.路由器，交换机(端口，光衰，日志)，打印机，Windows等
+系统监控	cpu，内存，硬盘使用率，硬盘IO，系统负载，进程数
+服务监控	apache,nginx,php-fpm,mysql,memcache,redis,tomcat,JVM,TCP连接数
+性能监控	网站性能，服务器性能，数据库性能，存储性能
+日志监控	系统产生的系统日志，应用程序产生的应用访问日志，错误日志，服务器运行日志等，可以用ELK来进行日志监控
+安全监控	1. Nginx+Lua编写了一个WAF通过kibana可以图形化的展示不同的攻击类型的统计 
+            2.用户登录数，passwd文件变化，本地所有文件改动
+			
+网络监控	端口，web(URL),DB,ping包，IDC带宽网络流量，网络流出速率，网络入流量，网络出流量，网络使用率，SMTP,POP3
+
+硬件监控 ：Zabbix IPMI Interface
+系统监控 ：Zabbix Agent Interface
+Java 监控：Zabbix JMX Interface
+网络设备监抟：Zabbix SNMP Interface
+应用服务监控：Zabbix Agent UserParameter
+MySQL 数据库监控：percona-monitoring-pldlgins
+URL监控：Zabbix Web监控
+
+
+--概述
+zabbix 主要由2部分构成 zabbix server和 zabbix agent
+zabbix proxy是用来管理其他的agent，作为代理
+zabbix database
+zabbix web
+
+--zabbix自带nginx的配置文件目录
+/etc/opt/rh/rh-nginx116/nginx/nginx.conf
+
+
+
+mysql> create user zabbix@localhost identified by '123456';
+
+zcat  /usr/share/doc/zabbix-server-mysql-5.0.24/create.sql.gz| mysql  -uzabbix  -p'123456' zabbix
+
+
+服务端启动：
+systemctl start zabbix-server zabbix-agent rh-nginx116-nginx rh-php72-php-fpm
+
+systemctl status rh-nginx116-nginx.service
+ Permission denied while opening PID file or unsafe symlink chain: /var/opt/rh/rh-nginx116/run/nginx/nginx.pid
+
+systemctl status rh-php72-php-fpm
+systemctl status zabbix-server
+systemctl status zabbix-agent
+
+客户端启动：
+ systemctl  restart  zabbix-agent
+ 
+ 
+服务器web页面  无法连接到数据库，报错：
+Error connecting to database: No such file or directory
+
+修改 ： vi /etc/opt/rh/rh-php72/php.ini文件
+mysqli.default_socket =/tmp/mysql.sock
+

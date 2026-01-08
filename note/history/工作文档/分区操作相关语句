@@ -1,0 +1,150 @@
+--插入分区
+alter table CACHER07.E_EM_CUR_CURVE split partition PMAX
+at (TO_DATE('2023-03-01 00:00:00','SYYYY-MM-DD HH24:MI:SS','NLS_CALENDAR=GREGORIAN'))
+into (partition P202302 tablespace CACHEDATA,PARTITION PMAX);
+-- NLS_CALENDAR=GREGORIAN  指定日历系统为
+--
+--增加分区\扩展分区
+alter table 表名 add partition 分区名称\编号 values less than
+(TO_DATE('2023-03-01 00:00:00','SYYYY-MM-DD HH24:MI:SS','NLS_CALENDAR=GREGORIAN'))
+tablespace CACHEDATA
+
+2月1日问题
+OCI Error ORA-14400: inserted partition key does not map to any partition (status = 14400), 
+SQL <INSERT INTO "FDPSHARE"."A_PAYABLE_ENTRY" ("PREPAY_ID","ACCT_NO","ACCT_ID","AMT","ACCOUNTANT_NO","BOOK_TIME","BOOK_DATE",
+"ACCT_YM","RCVBL_YM","ORG_NO","DBCR_FLAG","SOURCE_CHANGE_TIME","SOURCE_CHANGE_TIME2","TARGET_WRITE_TIME","TARGET_WRITE_TIME2") 
+VALUES (:a0,:a1,:a2,:a3,:a4,:a5,:a6,:a7,:a8,:a9,:a10,:a11,:a12,:a13,:a14)>
+Aborting transaction on /goldengate/jcptogg/dirdat/yx/yx beginning at seqno 60,907 rba 154,518,617
+                         error at seqno 60907 rba 154584340
+Problem replicating SGPM.A_PAYABLE_ENTRY to FDPSHARE.A_PAYABLE_ENTRY.
+Mapping problem with insert record (target format) SCN:0.771.25.4469492...
+
+--增加分区（解决上面的问题）
+alter table FDPSHARE.A_PAYABLE_ENTRY add partition P202303 
+values less than ('202303')  tablespace  SHAREDATA ;
+
+2月2日问题
+Oracle GoldenGate Delivery for Oracle process started, group REP_YXF2 discard file opened: 2023-02-01 13:26:04.883471
+Current time: 2023-02-01 23:28:27
+Discarded record from action ABEND on error 14400
+
+
+OCI Error ORA-14400: inserted partition key does not map to any partition (status = 14400), 
+SQL <INSERT INTO "FDPSHARE"."A_CASH_ENTRY" ("FUND_ID","ACCT_NO","ACCT_ID","AMT","ACCOUNTANT_NO","BOOK_TIME","BOOK_DATE","ACCT_YM","CHARGE_EMP_NO","PAY_MODE",
+"TYPE_CODE","SETTLE_NOTE_NO","SETTLE_BANK_CODE","CASHCHK_ID","REMARK","ORG_NO","DBCR_FLAG","SOURCE_CHANGE_TIME2","SOURCE_CHANGE_TIME","TARGET_WRITE_TIME",
+"TARGET_WRITE_TIME2") VALUES (:a0,:a1,:a2,:a3,:a4,:a5,:a6,:a7,:a8,:a9,:a10,:a11,:a12,:a13,:a14,:a15,:a16,:a17,:a18,:a19,:a20)>
+Aborting transaction on /goldengate/jcptogg/dirdat/yx/yx beginning at seqno 61,121 rba 317,145,076
+                         error at seqno 61121 rba 317151419
+Problem replicating SGPM.A_CASH_ENTRY to FDPSHARE.A_CASH_ENTRY.
+Mapping problem with insert record (target format) SCN:0.864.12.2769825...
+
+--增加分区（解决上面的问题）
+alter table FDPSHARE.A_CASH_ENTRY add partition P202303 
+values less than ('202303')  tablespace  DATA_RECOVER ;
+--执行情况
+SQL> alter table FDPSHARE.A_CASH_ENTRY add partition P202303
+  2  values less than ('202303')  tablespace  DATA_RECOVER ;
+
+Table altered
+
+2月2日问题
+Discarded record from action ABEND on error 14400
+
+OCI Error ORA-14400: inserted partition key does not map to any partition (status = 14400), 
+SQL <INSERT INTO "FDPSHARE"."A_CASH_BAL_STAT" ("VOUCHER_ID","ACCT_YM","ACCT_ID","BAL_DIRECTION","INIT_BAL","PERIOD_DB_AMT","PERIOD_CR_AMT","END_BAL",
+"ORG_NO","BOOK_DATE","CHARGE_EMP_NO","PAYINTO_ID","SOURCE_CHANGE_TIME2","SOURCE_CHANGE_TIME","TARGET_WRITE_TIME","TARGET_WRITE_TIME2") 
+VALUES (:a0,:a1,:a2,:a3,:a4,:a5,:a6,:a7,:a8,:a9,:a10,:a11,:a12,:a13,:a14,:a15)>
+Aborting transaction on /goldengate/jcptogg/dirdat/yx/yx beginning at seqno 61,195 rba 163,748,180
+                         error at seqno 61195 rba 163748180
+Problem replicating SGPM.A_CASH_BAL_STAT to FDPSHARE.A_CASH_BAL_STAT.
+Mapping problem with insert record (target format) SCN:0.791.30.4344175...
+
+--增加分区（解决上面的问题）
+alter table FDPSHARE.A_CASH_BAL_STAT add partition P202303 
+values less than ('202303')  tablespace  SHAREDATA ;
+--执行情况
+SQL> alter table FDPSHARE.A_CASH_BAL_STAT add partition P202303 
+values less than ('202303')  tablespace  SHAREDATA ;
+Table altered
+
+
+
+2月3日问题
+
+
+GGSCI (yxywdbadm05.sx.sgcc.com.cn) 1> info REP_YXD5
+
+REPLICAT   REP_YXD5  Last Started 2022-12-02 09:20   Status RUNNING
+Checkpoint Lag       00:00:00 (updated 00:00:01 ago)
+Process ID           248158
+Log Read Checkpoint  File /goldengate/jcptogg/dirdat/yx/yx000061424
+                     2023-02-02 03:02:08.000094  RBA 256307778
+
+GGSCI (yxywdbadm05.sx.sgcc.com.cn) 4> info all
+
+Program     Status      Group       Lag at Chkpt  Time Since Chkpt
+
+REPLICAT    RUNNING     REP_YXD5    31:44:50      00:00:09
+
+
+
+select to_char(max(i.begin_date),'YYYY-MM-DD HH24:MI:SS') from cacher01.indywf_instances_cur i 
+where begin_date<to_date('2023-02-01 17:35:00','YYYY-MM-DD HH24:MI:SS');
+
+select max(i.begin_date) from cacher01.indywf_instances_cur i 
+where begin_date<to_date('2023-02-01 17:15:00','YYYY-MM-DD HH24:MI:SS');
+
+
+select max(i.begin_date) from indywf_instances_cur i ;
+
+ select begin_date from  cacher01.indywf_instances_cur where rownum<5;
+
+
+
+
+
+
+
+
+
+
+
+col partition_name for a20
+col high_value for a20
+
+select partition_name,high_value from  dba_tab_partitions where table_name='A_PAYABLE_ENTRY' and 
+TABLE_OWNER='FDPSHARE' order by partition_name;
+
+select partition_name,high_value from  dba_tab_partitions where table_name='A_PAYABLE_ENTRY' and 
+TABLE_OWNER='SGPM' order by partition_name;
+
+
+
+--插入分区语句
+alter table CACHER07.E_MP_DAY_UNBALANCE split partition PMAX 
+at (TO_DATE('2023-04-01 00:00:00', 'SYYYY-MM-DD HH24:MI:SS', 'NLS_CALENDAR=GREGORIAN'))
+into (
+partition P202303  tablespace  CACHEDATA,
+partition PMAX
+);
+
+alter table CACHER07.E_MP_DAY_UNBALANCE split partition PMAX 
+at (TO_DATE('2023-05-01 00:00:00', 'SYYYY-MM-DD HH24:MI:SS', 'NLS_CALENDAR=GREGORIAN'))
+into (
+partition P202304  tablespace  CACHEDATA,
+partition PMAX
+);
+
+alter table CACHER07.E_MP_DAY_UNBALANCE split partition PMAX 
+at (TO_DATE('2023-06-01 00:00:00', 'SYYYY-MM-DD HH24:MI:SS', 'NLS_CALENDAR=GREGORIAN'))
+into (
+partition P202305  tablespace  CACHEDATA,
+partition PMAX
+);
+
+alter table CACHER07.E_MP_DAY_UNBALANCE split partition PMAX 
+at (TO_DATE('2023-07-01 00:00:00', 'SYYYY-MM-DD HH24:MI:SS', 'NLS_CALENDAR=GREGORIAN'))
+into (
+partition P202306  tablespace  CACHEDATA,
+partition PMAX
+);

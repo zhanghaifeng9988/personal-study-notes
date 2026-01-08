@@ -1,0 +1,78 @@
+
+
+--查询正在运行的sql
+SELECT b.sid oracleID,
+	b.username,
+	b.serial#,
+	spid,
+	paddr,
+	sql_text,
+	b.machine,
+	c.hash_value,
+	c.sql_id
+FROM v$session b
+LEFT JOIN v$process a ON a.addr = b.paddr
+LEFT JOIN v$sqlarea c ON b.sql_hash_value = c.hash_value
+WHERE sql_text IS NOT NULL;
+
+--杀死sql
+ALTER system KILL SESSION '{ORACLEID},{SERIAL#}'  immediate;
+
+
+--os中杀进程
+
+ 获取pid
+ 
+SELECT spid, osuser, s.program
+FROM v$session s, v$process p
+WHERE s.paddr=p.addr AND s.sid={ORACLEID};
+
+  kill -9 {pid}
+  
+  
+--执行计划查看 
+  --该方法是从共享池得到，如果SQL已被age out出share pool，则查找不到
+select * from table(dbms_xplan.display_cursor('1993631751',0));
+
+'1993631751' 为hash_value 也可以为sql_id
+
+  --
+explain plan for update sys.zhf1 set id=2,name='zhb' where id=3 and name='zhf';
+select * from table(dbms_xplan.display(table_name=>'PLAN_TABLE',statement_id=>null,format=>'ALL'));
+
+
+
+explain plan for select * from (
+ select a.tablespace_name, round(c.bytes/1024/1024,1) as "Free Size M",a.bytes/1024/1024 as "Size M",
+ round((a.bytes - c.bytes)/1024/1024,1)  as "Used Size M",round(b.bytes/1024/1024 ,1) as "Max Size M",
+ cast(((a.bytes - c.bytes)/a.bytes )*100  as int ) as "Use %",cast(((a.bytes - c.bytes)/b.bytes )*100 as int ) as "Max Used%"
+ from
+ (select tablespace_name ,sum(bytes)  as bytes  from dba_data_files group by tablespace_name ) a,
+ (SELECT TABLESPACE_NAME ,SUM(BYTES) as  bytes  FROM (
+  select tablespace_name ,sum(bytes) as bytes from dba_data_files where autoextensible=upper('no') 
+ group by tablespace_name
+ union all
+ select tablespace_name ,sum(maxbytes) as bytes from dba_data_files where autoextensible=upper('yes')
+ group by tablespace_name ) GROUP BY TABLESPACE_NAME  ) b,
+ (select tablespace_name,sum(bytes) as bytes  from  dba_free_space group by tablespace_name ) c
+ WHERE a.tablespace_name = b.tablespace_name(+)
+    AND b.tablespace_name = c.tablespace_name(+)
+ UNION  ALL  /**  temp tablespace **/
+ select a.tablespace_name, round(c.bytes/1024/1024,1)as "Free Size M",round(a.bytes/1024/1024,1) as "Size M",
+ round((a.bytes - c.bytes)/1024/1024,1)  as "Used Size M" ,round(b.bytes/1024/1024 ,1)  as "Max Size M",
+ cast(((a.bytes - c.bytes)/a.bytes )*100  as int) as  "Use %",cast(((a.bytes - c.bytes)/b.bytes )*100 as int ) as "Max Used%"
+ from
+ (select tablespace_name ,sum(bytes)  as bytes  from dba_temp_files group by tablespace_name ) a,
+ (SELECT TABLESPACE_NAME ,SUM(BYTES) as bytes  FROM (
+  select tablespace_name ,sum(bytes) as bytes from dba_temp_files where autoextensible=upper('no') 
+ group by tablespace_name
+ union all
+ select tablespace_name ,sum(maxbytes) as bytes from dba_temp_files where autoextensible=upper('yes')
+ group by tablespace_name ) GROUP BY TABLESPACE_NAME ) b,
+ (select tablespace_name,sum(free_space) as bytes  from  dba_temp_free_space group by tablespace_name ) c
+ WHERE a.tablespace_name = b.tablespace_name(+)
+    AND b.tablespace_name = c.tablespace_name(+)
+    )  order by 7  desc;
+select * from table(dbms_xplan.display());
+
+

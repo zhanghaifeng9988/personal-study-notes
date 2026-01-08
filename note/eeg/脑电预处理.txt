@@ -1,0 +1,37 @@
+预处理的十个步骤：
+1、导入数据（另存为dataset）
+2、电极定位  （另存为dataset）
+3、剔除无用电极（select data ，另存文件)
+4、重参考：Tools → Re-reference data”。
+4、滤波（排除50hz市电干扰）（其他高频和低频干扰）
+  时域信号（x轴：时间，y轴：幅度） -》傅里叶转换-》频域信号（x轴：频率，y轴：幅度）
+  低通滤波：低于某hz的频率，通过  选择：30-100hz
+  高通滤波：高于某hz的频率，通过  选择：0.1-1hz
+  带通滤波：希望特定频段能够通过  
+  带阻滤波：48，52                选择：49-51hz/48-52hz
+  选择：filter the data
+  配置： 第一次低通滤波：低通：0.1hz  去掉”plot frequency response“选项
+         第二次高通滤波：高通：40hz   去掉”plot frequency response“选项
+	     第三次带阻滤波：低 48hz，高-52hz 
+		                 去掉”plot frequency response“选项 
+						 选择“notch filter the data instead of pass band”
+  最后：另存为文件
+  
+5、降采样（非必须）--减小数据量，提高计算速度，没有其他作用
+  采样率：采样点个数/单位时间，
+    采样率必须在感兴趣的频率2倍以上，比如分析60hz的波，
+   至少120hz的采样率，最好达到3-4倍
+   tools-changge  sampling  rate
+   最后：另存为文件
+   
+6、分段和基线校正--针对ERP
+   分段：静息态EEG和任务态ERP的分段
+   tools-extract epochs
+   
+    
+插值坏导和剔除坏段
+重参考
+独立成分分析
+剔除伪迹/坏段
+
+

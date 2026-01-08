@@ -1,0 +1,100 @@
+
+
+
+Performer抽象类定义内容：定义了马戏团表演者的相关信息和行为
+
+  获取表演者的信息 CircusPlayer  --属性，访问器只有 get 方法，属性的类型为接口类型，需要通过接口 ICircusPlayer 去获取数据；
+  节目表演开始 StartShow     --方法，返回值类型为接口 ICircusPlayer，无参，无方法体
+  节目表演结束 EndShow       --方法，无返回值，无参
+  
+  
+ICircusPlayer接口定义内容：规定了表演者行为
+
+   获取表演者的信息 PlayedItem  --属性，访问器只有 get 方法，类型为 IList<T> ，它是个接口类型，是c#中默认存在的接口类型
+   生成表演者猴子的信息和表演内容 MonkeysPlay()  --方法，返回值类型为 ICircusPlayer，无参，无方法体
+   生成表演者大象的信息和表演内容 ElephantsPlay()  --方法，返回值类型为 ICircusPlayer，无参，无方法体
+   生成所有表演者名称和表演内容 TogetherPlay() --方法 ，返回值类型为 Performer 抽象类
+   
+CircusPerformer派生类的创建：
+   用于存储表演者信息的的变量 _circusPlayer  --私有成员变量，ICircusPlayer 接口类型，
+                                             --这个变量用于存储与 CircusPerformer 关联的 ICircusPlayer 接口实例。
+											 
+   重写属性，CircusPlayer  --属性，ICircusPlayer 接口类型，访问器只有get方法，值对应到成员变量 _circusPlayer；
+   重写方法，StartShow     --方法，返回值类型为接口 ICircusPlayer，方法体中给 _circusPlayer 赋值，
+                             _circusPlayer=new CircusPlayer(this);
+							 实例化接口，传入的参数为当前类的实例
+							 返回这个成员变量
+	
+	重写方法，EndShow      --方法，无返回值，无参
+	
+
+CircusPlayer:ICircusPlayer 实现接口的类的创建：
+   表演者的名称 _performer   --私有成员变量，只读，私有的，类型为抽象类
+                                             用于存储与 CircusPlayer 关联的 Performer 实例。
+   表演者的名称 PlayedItem   --属性，访问器只有 get 方法，类型为 IList<T>，接口类型
+                               值对应到成员变量 _performer
+   定义表演者名称初值 CircusPlayer         --公共构造函数  参数类型为(Performer performer)，分别给_performer和PlayedItem赋值
+                                     前者值为构造函数的形参：为抽象类的实例；
+									 后者值为一个空值的列表,使用 new List() 方式赋值
+   定义表演者的名称和表演内容  --三个方法 ，前两个返回值类型为：ICircusPlayer 接口类型   
+	MonkeysPlay()                           最后一个返回值类型为：Performer 抽象类
+    ElephantsPlay()
+	TogetherPlay() 
+	
+	
+                                 --思考的逻辑和写 code 的逻辑--
+--思考逻辑
+	
+1、首先我的目的是，构建一个模拟马戏团表演的系统，获取所有节目表演者的信息和所有节目表演的内容。
+2、
+
+ --定义需求： 
+
+  确定系统需要模拟马戏团的表演。
+  识别出系统中的两个主要实体：表演者和表演项目。
+  
+  --抽象化设计：
+
+  抽象出表演者的概念，并识别出表演者的共同特征（如开始表演、结束表演等），
+这些可以形成一个抽象类Performer。
+
+  抽象出表演项目的概念，并识别出它们能够执行的操作（如猴子表演、大象表演等），
+这些可以形成一个接口ICircusPlayer。
+
+
+  --确定关系：
+  思考表演者和表演项目之间的关系。
+在这里，一个表演者（Performer）可以有一个或多个表演项目（ICircusPlayer），
+并且表演项目需要知道是哪个表演者在执行它（通过Performer参数传递给CircusPlayer的构造函数）。
+
+
+  --具体实现：
+
+  根据抽象化设计，创建具体的表演者类（如CircusPerformer）和表演项目类（如CircusPlayer）。
+在具体实现中，考虑如何初始化表演者和表演项目，以及它们如何交互。
+
+
+--写代码的逻辑：
+  --定义抽象类和接口：
+  先定义出系统的核心组件的抽象类Performer和接口ICircusPlayer。
+在这些抽象类和接口中，定义出它们需要实现或具有的方法或属性。
+
+  --实现具体类：
+  根据抽象类和接口的定义，创建具体的实现类（如CircusPerformer和CircusPlayer）。
+在实现类中，提供具体的逻辑和初始化方法。
+
+  --确保交互性：
+  在实现类中，确保它们能够按照预期进行交互。例如，在CircusPerformer的StartShow方法中，
+创建CircusPlayer对象，并将CircusPerformer对象传递给CircusPlayer的构造函数。
+
+  --测试代码：
+  编写测试用例来验证代码是否按照预期工作。这包括测试表演者的开始、结束表演，以及测试不同的表演项目。
+  --优化和重构：
+  根据测试结果和代码审查，对代码进行优化和重构。这可能包括修改类的结构、方法签名或属性，
+以提高代码的可读性、可维护性和可扩展性。
+  --文档化：
+  为代码编写文档，解释每个类、方法、属性和接口的目的和用法。
+  这有助于其他开发人员理解代码并更快地参与到项目中。
+在理解这段代码的作者时，关键是要认识到他们是从马戏团表演的实际场景中抽象出系统模型，
+并通过面向对象的设计原则来构建代码结构。通过理解这种思考逻辑和写代码逻辑，
+你可以更好地掌握如何设计和实现类似的系统。

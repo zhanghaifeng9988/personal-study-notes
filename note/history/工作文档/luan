@@ -1,0 +1,130 @@
+
+
+select count(spid) from v$process where addr not in (select paddr from v$session);
+
+@?/rdbms/admin/awrrpt
+
+EXTRACT ext_yx
+SETENV(NLS_LANG=AMERICAN.UTF8)
+SETENV(SERVICE_NAME="yxhis")
+userid ggs@yxhis, password AACAAAAAAAAAAANAYDOFUIJEPBADLAVBXAKJADVAJJMDBHRF, encryptkey default
+exttrail ./dirdat/yx
+--DYNAMICRESOLUTION
+NUMFILES 2000
+NOCOMPRESSDELETES
+NOCOMPRESSUPDATES
+getupdatebefores
+DBOPTIONS ALLOWUNUSEDCOLUMN
+TRANLOGOPTIONS INTEGRATEDPARAMS(MAX_SGA_SIZE 1024, parallelism 2)
+TranLogOptions ExcludeUser OGGDISDML
+CACHEMGR CACHESIZE 3GB, CACHEDIRECTORY ./dirtmp
+--TRANLOGOPTIONS DBLOGREADER
+--defsfile ./dirdef/ext_yx.def,purge
+
+
+[oracle@yxywdbadm05 jcptogg]$ ./logdump
+
+Oracle GoldenGate Log File Dump Utility for Oracle
+Version 19.1.0.0.1 OGGCORE_19.1.0.0.0_PLATFORMS_190524.2201
+
+Copyright (C) 1995, 2019, Oracle and/or its affiliates. All rights reserved.
+
+
+
+Logdump 279 >open /goldengate/jcptogg/dirdat/yx/yx000061449
+Current LogTrail is /goldengate/jcptogg/dirdat/yx/yx000061449
+Logdump 280 > pos (info 进程后看到的RBA信息）
+Logdump 280 >ghdr on
+
+Logdump 281 >detail on
+Logdump 282 >detail data on
+Logdump 282 >ggstokens on
+Logdump 283 >usertoken on
+
+Logdump 284 >n
+Logdump 284 >sfet  跳到事务结尾
+
+col name for a20
+set line 999
+select pool,name,round(bytes/1024/1024,2) M,CON_ID from v$sgastat where name='free memory' and pool='shared pool';
+select pool,name,round(bytes/1024/1024,2) M,CON_ID from v$sgastat where name='free memory' and pool='streams pool';
+POOL                                       NAME                          M     CON_ID
+------------------------------------------ -------------------- ---------- ----------
+streams pool                               free memory              881.89          0
+
+show parameters streams_pool
+NAME                                 TYPE                              VALUE
+------------------------------------ --------------------------------- ------------------------------
+streams_pool_size                    big integer                       8G
+
+show parameters shared_pool
+
+select pool,name,round(bytes/1024/1024,2) M,CON_ID from v$sgastat where pool='streams pool';
+
+select name,round(bytes/1024/1024,2) m ,resizeable,con_id from v$sgainfo; --所有SGA信息的显示
+
+select count(*) from  v$process; 当前进程连接数
+select count(*) from   v$session; 当前库会话数
+select value from v$parameter  where name='process'; 数据库允许的最大连接数 
+
+
+
+物理cpu的数量
+ cat /proc/cpuinfo |grep "physical id" |sort |uniq|wc -l
+ cpu的核数
+ cat /proc/cpuinfo |grep "cores"|uniq
+ 逻辑cpu的个数
+cat /proc/cpuinfo |grep "processor"|wc  -l 
+ 
+ 
+长事务的查询
+
+set line 200 pages 999 long 20000
+col transaction_duration for a30
+col USERNAME for a30
+col  PROGRAM for a20
+col TERMINAL for a15
+col STATUS for a13
+col SID for a8
+
+ with transaction_details as
+(select inst_id,ses_addr,sysdate -  start_date as diff
+from gv$transaction)
+select s.username,to_char(trunc(t.diff))
+|| ' days, '|| to_char(trunc(mod(t.diff*24,24)))
+|| ' hours, '
+|| to_char(trunc(mod(t.diff*24*60,24)))
+|| ' minutes, '
+|| to_char(trunc(mod(t.diff*24*60*60,60)))
+|| ' seconds' as transaction_duration
+,s.program,s.terminal,s.status,s.sid,s.serial#
+from gv$session s  ,transaction_details t
+where s.inst_id=t.inst_id and s.saddr=t.ses_addr
+order by  t.diff desc;
+
+select xidusn,xidslot,xidsqn from v$transaction;
+
+
+查询正在执行的SQL语句
+
+select b.sid OracleID,b.username,b.serial#,spid SYSTEMID,paddr,sql_text,b.machine
+from v$process a ,v$session b,v$sqlarea c
+where a.addr=b.paddr
+and b.sql_hash_value=c.hash_value;
+
+杀掉进程和会话
+alter system kill session '{ORACLEID},{SERIAL#}';
+
+
+ 
+每天产生的日志量查询
+
+select trunc(completiong_time) as ARC_DATE,
+ count(*) as COUNT,
+ round(sum(blocks*block_size) /1024/1024),2) as ARC_MB
+  from v$archive_log
+  group by trunc(completiong_time)
+  order by trunc(completiong_time);
+ 
+查询
+ 

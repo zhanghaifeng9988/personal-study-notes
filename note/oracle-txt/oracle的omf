@@ -1,0 +1,274 @@
+OMF,全称是Oracle_Managed Files,即Oracle文件管理，使用OMF可以简化管理员的管理工作，
+不用指定文件的名字、大小、路径，其名字，大小，路径由oracle 自动分配。
+在删除不再使用的日志、数据、控制文件时，OMF也可以自动删除其对应的OS文件。
+
+OMF支持下列文件的自动管理：
+
+    表空间
+
+    日志文件(联机)
+
+    控制文件
+
+前提条件：需要为这些类型文件设定相关参数。
+
+ 
+
+一.数据文件的OMF管理
+
+  数据文件管理参数：db_create_file_dest
+
+  db_create_file_dest：Oracle创建数据文件、临时文件时，在未明确指定路径的情况下的缺省路径，
+  当db_create_online_log_dest_n未指定时，也作为联机日志文件和控制文件的缺省路径。
+
+  假定需要创建表空间s及数据文件
+
+    SQL> CREATE TABLESPACE s;  /*收到了错误信息*/
+
+      create tablespace s
+
+                      *
+
+      ERROR at line 1:
+
+      ORA-02199: missing DATAFILE/TEMPFILE clause
+
+ 
+
+    SQL> show parameter db_create_file  /*查看db_create_file_dest参数*/
+
+ 
+
+      NAME                                TYPE        VALUE
+
+      ------------------------------------ ----------- ------------------------------
+
+      db_create_file_dest                  string
+
+ 
+
+    --设定db_create_file_dest参数
+
+    SQL> ALTER SYSTEM SET db_create_file_dest = '/u01/app/oracle/oradata/orcl';
+
+ 
+
+      System altered.
+
+ 
+
+    --设定参数后，创建成功
+
+    SQL> CREATE TABLESPACE s; 
+
+ 
+
+      Tablespace created.
+
+ 
+
+    SQL> SELECT NAME FROM v$datafile;  /*可以看到ORCL/datafile/o1_mf_s_5vrl1t7h_.dbf是Oralce自动创建的数据文件*/
+
+ 
+
+      NAME
+
+      --------------------------------------------------------------------------------
+
+      /u01/app/oracle/oradata/orcl/system01.dbf
+
+      /u01/app/oracle/oradata/orcl/undotbs01.dbf
+
+      /u01/app/oracle/oradata/orcl/sysaux01.dbf
+
+      /u01/app/oracle/oradata/orcl/users01.dbf
+
+      /u01/app/oracle/oradata/orcl/example01.dbf
+
+      /u01/app/oracle/oradata/orcl/Test.dbf
+
+      /u01/app/oracle/oradata/orcl/ORCL/datafile/o1_mf_s_5vrl1t7h_.dbf
+
+ 
+
+    /*查看物理文件，缺省为MB*/
+
+    SQL> ho ls -lh /u01/app/oracle/oradata/orcl/ORCL/datafile/o1_mf_s_5vrl1t7h_.dbf 
+
+      -rw------- 1 oracle oinstall 101M Apr  7 16:54 /u01/app/oracle/oradata/orcl/ORCL/datafile/o1_mf_s_5vrl1t7h_.dbf
+
+ 
+
+    SQL> CREATE TABLESPACE t DATAFILE SIZE 10m;  /*也可指定数据文件的大小为MB*/
+
+ 
+
+      Tablespace created.
+
+ 
+
+    SQL> SELECT NAME FROM v$datafile;
+
+ 
+
+      NAME
+
+      --------------------------------------------------------------------------------
+
+      /u01/app/oracle/oradata/orcl/system01.dbf
+
+      /u01/app/oracle/oradata/orcl/undotbs01.dbf
+
+      /u01/app/oracle/oradata/orcl/sysaux01.dbf
+
+      /u01/app/oracle/oradata/orcl/users01.dbf
+
+      /u01/app/oracle/oradata/orcl/example01.dbf
+
+      /u01/app/oracle/oradata/orcl/Test.dbf
+
+      /u01/app/oracle/oradata/orcl/ORCL/datafile/o1_mf_s_5vrl1t7h_.dbf
+
+      /u01/app/oracle/oradata/orcl/ORCL/datafile/o1_mf_t_5vrlgqtl_.dbf
+
+ 
+
+    SQL> ho ls -lh /u01/app/oracle/oradata/orcl/ORCL/datafile/o1_mf_t_5vrlgqtl_.dbf
+
+      -rw------- 1 oracle oinstall 11M Apr  7 17:01 /u01/app/oracle/oradata/orcl/ORCL/datafile/o1_mf_t_5vrlgqtl_.dbf
+
+ 
+
+    --删除表空间时，对于使用了OMF生成的数据文件将随着表空间的删除一起被删除
+
+    SQL> DROP TABLESPACE t;
+
+ 
+
+    Tablespace dropped.
+
+ 
+
+    --查看物理文件，已经不存在
+
+    SQL> ho ls -lh /u01/app/oracle/oradata/orcl/ORCL/datafile/o1_mf_t_5vrlgqtl_.dbf 
+
+      ls: /u01/app/oracle/oradata/orcl/ORCL/datafile/o1_mf_t_5vrlgqtl_.dbf: No such file or directory
+
+ 
+
+    --对于未采用OMF来创建的表空间，在删除表空间之后，其数据文件并没有删除，v$datafile视图中被删除
+
+    --下面是未使用OMF创建的x表空间及数据文件
+
+    SQL> CREATE TABLESPACE x DATAFILE '/u01/app/oracle/oradata/orcl/x.dbf' SIZE 10m;
+
+ 
+
+      Tablespace created.
+
+ 
+
+    SQL> SELECT NAME FROM v$datafile;     
+
+ 
+
+      NAME
+
+      --------------------------------------------------------------------------------
+
+      /u01/app/oracle/oradata/orcl/system01.dbf
+
+      /u01/app/oracle/oradata/orcl/undotbs01.dbf
+
+      /u01/app/oracle/oradata/orcl/sysaux01.dbf
+
+      /u01/app/oracle/oradata/orcl/users01.dbf
+
+      /u01/app/oracle/oradata/orcl/example01.dbf
+
+      /u01/app/oracle/oradata/orcl/Test.dbf
+
+      /u01/app/oracle/oradata/orcl/ORCL/datafile/o1_mf_s_5vrl1t7h_.dbf
+
+      /u01/app/oracle/oradata/orcl/x.dbf
+
+ 
+
+    SQL> DROP TABLESPACE x;
+
+ 
+
+      Tablespace dropped.
+
+ 
+
+    SQL> SELECT NAME FROM v$datafile; /*视图中已不存在x.dbf的数据文件*/
+
+ 
+
+      NAME
+
+      --------------------------------------------------------------------------------
+
+      /u01/app/oracle/oradata/orcl/system01.dbf
+
+      /u01/app/oracle/oradata/orcl/undotbs01.dbf
+
+      /u01/app/oracle/oradata/orcl/sysaux01.dbf
+
+      /u01/app/oracle/oradata/orcl/users01.dbf
+
+      /u01/app/oracle/oradata/orcl/example01.dbf
+
+      /u01/app/oracle/oradata/orcl/Test.dbf
+
+      /u01/app/oracle/oradata/orcl/ORCL/datafile/o1_mf_s_5vrl1t7h_.dbf
+
+ 
+
+    SQL> ho ls /u01/app/oracle/oradata/orcl/x.dbf  /*操作系统中依然存在*/
+
+      /u01/app/oracle/oradata/orcl/x.dbf
+
+ 
+
+    --注意：使用OMF的时候会将物理文件删除，应特别注意使用
+
+    --使用下面的方法重建x表空间，然后使用including contents and datafiles 彻底删除表空间及物理文件
+
+    SQL> CREATE TABLESPACE X DATAFILE '/u01/app/oracle/oradata/orcl/x.dbf' REUSE; 
+
+ 
+
+      Tablespace created.
+
+ 
+
+    SQL> DROP TABLESPACE x INCLUDING CONTENTS AND DATAFILES;
+
+ 
+
+      Tablespace dropped.
+
+ 
+
+    SQL> ho ls /u01/app/oracle/oradata/orcl/x.dbf
+
+      ls: /u01/app/oracle/oradata/orcl/x.dbf: No such file or directory
+
+ 
+
+总结：使用OMF管理文件的方法
+
+  1.使用ALTER SYSTEM SET db_create_file_dest = '<path>'设置路径
+
+  2.查看刚刚的设置SHOW PARAMETER db_create_file_dest;
+
+  3.创建表空间及数据文件CREATE TABLESPACE tablespace_name
+
+  4.单独创建表空间CREATE TABLESPACE <> DATAFILE '<path>' SIZE <>;
+
+  5.也可以创建undo和temporary tablespace 。CREATE UNDO TABLESPACE tablespace_name ;CREATE TEMPORARY TABLESPACE tablespace_name;
+
+  6.删除表空间DROP TABLESPACE tablespace_name ;OMF情况下则删除物理文件，等效于未使用OMF创建，使用INCLUDING CONTENTS AND DATAFILES 删除方式

@@ -1,0 +1,97 @@
+insert into normal_tb values('test','test',1,38,'1-11-2021','sadfajkljkalsdjffl;asdjfl;asdjfl;ajdsjdfasdfsajdlfkjfl;;dsfa','asdfjasdlkfals;;sdjf;asdjf;al;asdflsd;',sysdate);
+
+begin
+  for j in 2..1001 loop
+  insert into normal_tb values('zhang','haifeng',1,38,'2021-11-1','sadfajkljkalsdjffl;asdjfl;asdjfl;ajdsjdfasdfsajdlfkjfl;;dsfa','asdfjasdlkfals;;sdjf;asdjf;al;asdflsd;',sysdate);
+  exit when  j>1000;
+end loop;
+end;
+
+
+ create table range1(pruduct_id varchar2(5),count number(10,2))    范围分区，分区以数值的区间进行分类，要设定上限值 
+                                                                    
+partition by range(count)
+(partition p1 values less than(500),
+partition p2 values less than(1000),
+partition p3 values less than(2000),
+partition p4 values less than(maxvalue));
+                                                                     
+insert into liusheng values (1,'ls10',to_date('2011-01-11','yyyy-mm-dd'));一般用于日期化处理，range分区可以很好的管理基于日期来分区的数据
+
+
+
+begin
+for i in 1..100 loop
+insert into hash1 values(1,'zhanghaifeng'||i);
+end loop;
+end;
+
+ create table list1(id int,name varchar2(25),banshichu varchar2(20))  list分区，分区是可枚举值的范围,不支持多列。范围分区和哈希分区支持多列
+partition by list(banshichu)
+(partition east values('tianjin','jinan','shanghai'),
+partition  west values('xian','yinchuan','lanzhou'),
+partition  south values('guangzhou','nanchang','changsha'),
+partition  north values('taiyuan','beijing','shenyang'));
+                                                                       
+create table hash1(xuhao number,mingzi varchar2(10))                  hash分区，利用hash函数打散某列使数据均匀分布
+partition by hash(xuhao ) 
+(
+  partition p1, partition p2
+);																	   hash列上数值不能有太多的重复值，否则会导致数据分布不均匀
+begin
+ for i in 1..100 loop
+  insert into hash1 values(i,'zhanghaifeng'||i);
+ end loop;
+end;
+/
+
+
+create table fuhe1(name varchar2(20),count number(6,2))                
+partition by range(count)
+subpartition by hash(name)
+(
+partition p1 values less than(500),
+partition p2 values less than(1000),
+partition p3 values less than(2000),
+partition p4 values less than(maxvalue)
+)
+subpartition template
+(subpartition sp1 tablespace users,
+ subpartition sp2 tablespace users,
+ subpartition sp3 tablespace users,subpartition sp4 tablespace users);
+insert into fuhe1 values('lijingbing',888);
+
+
+select * from user_tab_partitions where table_name='  ';   
+
+create table compres1 as select * from scott.emp;
+insert into compres1 select * from scott.emp;
+
+
+select table_name,pct_free,COMPRESSION,COMPRESS_FOR,blocks,empty_blocks,num_rows from user_tables;
+
+alter table myemp1 compress basic;  建立一个表，然后让其成为压缩表
+
+
+                                        触发器
+create or replace trigger trig1 before insert or update or delete on  emp1 for each row
+begin 
+ dbms_output.put_line('trig1 responsed!');
+end;
+
+                                        压缩表
+建表语句：
+CREATE TABLE emp_comp compress
+AS SELECT * FROM scott.emp;
+
+Oracle支持在表空间（tablespace）、数据表（table）和分区（Partition）级别的压缩，
+如果设置为表空间级别，那么默认将该表空间中的全部的表都进行压缩。
+压缩操作可以在数据单条插入、数据修改和数据批量导入时发生。
+随着数据库不断增长，可以考虑使用表压缩。压缩可以节省磁盘空间，减少数据库buffer cache内存使用，并且可以加速查询。
+压缩对于数据装载和DML操作有一定的CPU消耗。然而，这些消耗可以为I/O的减少而抵消。
+表压缩对于应用程序完全透明。对于DSS系统、在线事务处理和归档系统都很有用处。
+你可以为表空间，表或者一个分区指定压缩。如果指定为表空间基本，那么该表空间所有表创建后默认都启用压缩。
+
+
+ SELECT table_name, compression, compress_for FROM user_tables WHERE table_name='EMP_COMP';
+ 

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Zhf_Web案例_1</title>  
+    <script>
+        var count = 0
+        var isHidden = false
+        function clickFunc() {
+            document.getElementById("h1").innerHTML = `数值:${++count}  ` }
+        function hideFunc() {
+            var textH2 = document.getElementById("h2")
+            var btnBtn1 = document.getElementById("btn1")
+            if(isHidden){
+                textH2.style.display = "block"
+                btnBtn1.innerHTML = "隐藏"
+               
+            } else {
+                textH2.style.display = "none"
+                btnBtn1.innerHTML = "显示"
+                
+            }
+            isHidden =!isHidden
+        }
+    </script>
+</head>
+<body>
+    <p>案例1：点击按钮，显示当前的点击次数。</p>
+     <div>
+        <h1 id="h1" style="font-size: 40px;">数值：0</h1>
+        <button style="font-size: 30px; background-color: burlywood;"
+        onclick="clickFunc()">单击</button>
+    </div>
+    <p>案例2：点击按钮，隐藏数字</p>
+    <div>
+        <h1 id="h2" style="font-size: 40px;">显示</h1>
+        <br>
+        <button id="btn1" style="font-size: 30px; background-color: burlywood;"
+        onclick="hideFunc()">隐藏</button>
+    </div>
+</body>
+</html> 

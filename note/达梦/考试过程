@@ -1,0 +1,406 @@
+os账号：dmdba OS账号：dmdba
+os密码：Dameng123 os密码：Dameng123
+
+数据库名：DM01  数据库名:DM01
+实例名：DMSVR01  主机实例名：DMSVR01
+端口5236 端口：5236
+
+sysdba密码：DM01SYSDBA  sysdba密码：DM01SYSDBA
+
+--创建表空间语句
+create tablespace "DMTS01" datafile '/dm8/data/DM01/DMTS01.DBF' size 500 autoextend on next 1 CACHE = NORMAL;
+create tablespace "DMTS02" datafile '/dm8/data/DM01/DMTS02.DBF' size 500 autoextend on next 1 CACHE = NORMAL;
+create tablespace "DMTS03" datafile '/dm8/data/DM01/DMTS03.DBF' size 500 autoextend on next 1 CACHE = NORMAL;
+create tablespace "DMTS04" datafile '/dm8/data/DM01/DMTS04.DBF' size 500 autoextend on next 1 CACHE = NORMAL;
+
+--用户名密码：
+DMTEST/DMTEST123
+
+dmfldr userid=dmtest/DMTEST123:5236 control=\'/opt/sales.ctl\'
+
+[dmdba@localhost ~]$ cat /opt/sales.ctl
+load data
+infile '/opt/sales.dat'
+into table DMTEST.SALES
+FIELDS ','
+(
+PKID,
+AMOUNT,
+SALE_DATE DATE FORMAT 'yyyy-mm-dd',
+PRODUCT_ID,
+REGION
+)
+
+
+--创建分区索引
+create index idx_par_product_id on DMTEST.SALES('PRODUCT_ID');
+  
+验证：DMTEST用户中执行
+select index_name,partition_name from user_ind_partitions 
+where index_name='idx_par_sales_productid';
+sysdba用户执行：
+select index_name,partition_name from dba_ind_partitions 
+where  index_name='idx_par_sales_productid';
+
+
+--拆分pmax分区，并新增分区
+alter table sales split
+partition PART_MAX at('2015-01-01') INTO (partition PART_3,PARTITION PART_MAX);
+
+--插入数据
+insert into sales  values(10001,13,to_date('2015-05-01','yyyy-mm-dd'),5733,'武汉');
+
+--给address表装载数据
+dmfldr userid=dmtest/DMTEST123:5236 control=\'/dm8/fladdress.ctl\'
+[dmdba@localhost dm8]$ cat fladdress.ctl
+
+load data
+infile '/opt/address.dat'
+into table DMTEST.ADDRESS
+FIELDS '|'
+(
+ADDRESSID,
+ADDRESS1 TERMINATED BY ' ',
+CITY TERMINATED BY ' ',
+POSTCODE
+)
+
+[dmdba@localhost dm8]$ cat /opt/address.dat
+111|'taiyuan' 'shanxi' 222
+333|'tianjin' 'beijing' 444
+555|'shanghai' 'chengdu' 666
+
+--全文索引（图形操作）
+验证：
+select * from address where contains(address1,'taiyuan');
+
+--外部表
+  --不需要建立directory的
+create  external table EMP(
+ID int ,
+SEX  CHAR(4),
+NAME  VARCHAR(20),
+EMAIL VARCHAR(50),
+TEL VARCHAR(15))
+FROM DATAFILE '/dm8/data/emp.txt'
+parms(fields delimited by ',');
+
+
+
+  --如果报错，需要建立目录信息，
+  首先授权给DMTEST用户create direcotry  和select any  directory
+  DMTEST用户登录数据库，创建目录和外部表
+create or replace directory "EXTDIR" AS '/dm8/data';  
+create  external table DMTEST.EMP(
+ID int ,
+SEX  CHAR(4),
+NAME  VARCHAR(20),
+EMAIL VARCHAR(50),
+TEL VARCHAR(15))
+FROM DATAFILE  default directory EXTDIR LOCATION ('emp.txt') 
+parms(fields delimited by ',');
+   --控制文件方式
+create or replace directory "EXTDIR" AS '/dm8/data';  
+create  external table DMTEST.EMP(
+ID int ,
+SEX  CHAR(4),
+NAME  VARCHAR(20),
+EMAIL VARCHAR(50),
+TEL VARCHAR(15))
+from default directory EXTDIR location('emp.ctl');
+
+[dmdba@localhost data]$ cat emp.ctl
+load data
+infile 'emp.txt'
+into table DMTEST.EMP
+FIELDS ','
+(
+ID ,
+SEX ,
+NAME ,
+EMAIL ,
+TEL
+)
+
+
+--审计：
+SP_SET_ENABLE_AUDIT(1);  打开审计工程
+sp_audit_stmt('TABLE','DMTEST','ALL');  粗粒度ddl审计
+SP_AUDIT_OBJECT('INSERT','DMTEST','DMTEST','SALES','ALL');  细粒度审计
+sp_audit_object('delete','DMTEST','DMTEST','SALES','ALL');  细粒度审计
+sp_audit_object('update','DMTEST','DMTEST','SALES','ALL');  细粒度审计
+  --验证：
+INSERT INTO SALES VALUES(11,20,TO_DATE('2008-09-19','YYYY-MM-DD')，1002，'武汉');
+INSERT INTO SALES VALUES(11,20,TO_DATE('2008-09-19','YYYY-MM-DD')，1002，'武汉');
+update SALES set pkid=12 where pkid=11;
+delete from SALES where  pkid=12;
+
+ [dmdba@localhost DM01]$ ll AUDIT_DMSVR01_*
+-rw-r--r-- 1 dmdba dinstall 4185  9月  9 16:07 AUDIT_DMSVR01_6D5851476D5851479EBE9D4A7841ABD7_2023-9-9-16-7-4.log
+-rw-r--r-- 1 dmdba dinstall 4676  9月  9 16:09 AUDIT_DMSVR01_CC8F4D18CC8F4D1862FB9B2F7841ABD7_2023-9-9-16-7-29.log
+
+ 通过analyzer可视化查看审计日志
+
+--备份
+
+
+--作业
+删除15天前的日志
+CALL SP_DB_BAKSET_REMOVE_BATCH('DISK',NOW()-15);
+
+  --验证：在manager中手动执行执行作业，可以右键查看作业执行情况
+  
+--物化视图和序列
+物化视图的快速刷新依赖于基表上的物化视图日志(该日志可以图形创建）
+CREATE MATERIALIZED VIEW LOG ON VENDOR WITH
+ROWID(ACCOUNTNO,NAME,ACTIVEFLAG,CREDIT) PURGE START WITH SYSDATE + 5
+REPEAT INTERVAL '1' DAY;
+CREATE MATERIALIZED VIEW MV_VENDOR_EXCELLENT1
+REFRESH FAST WITH ROWID START WITH SYSDATE NEXT SYSDATE + 1 AS
+SELECT VENDORID, ACCOUNTNO, NAME, ACTIVEFLAG, CREDIT,ROWID AS X
+FROM VENDOR
+WHERE CREDIT = 1;
+				  
+create materialized view dmtest.mv1 refresh fast on commit as select * from dmtest.sales;
+
+
+--创建自动更新的物化视图
+ create materialized view log on dmtest.sales1;
+ create materialized view dmtest.mv2 refresh complete on commit  as select * from dmtest.sales;
+ 
+ 
+ --创建手动更新的物化视图
+  create materialized view dmtest.mv3 as select * from dmtest.sales;
+  
+  refresh materialized view dmtest.mv3;
+ 
+
+--序列
+ 图形化配置
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  主备搭建 
+  主机               备机               监视器
+192.168.3.111    192.168.3.112     192.168.3.113
+DM01                 DM01
+DMSVR01            DMSVR02
+
+操作顺序
+1、备机操作：先安装数据库软件，不初始化数据库
+2、备机操作：创建数据同步需要的相关目录
+mkdir -p /dm8/data/DM01
+mkdir -p /dm8/data/DM01/bak
+mkdir -p /dm8/data/DM01/ctl_bak
+修改环境变量
+3、初始化数据库
+3.1 主库操作
+修改ARCH_INI = 1
+    cat dm.ini|grep ARCH
+
+[ARCHIVE_LOCAL1]
+        ARCH_TYPE            = LOCAL
+        ARCH_DEST            = /dm8/arch
+        ARCH_FILE_SIZE       = 128
+        ARCH_SPACE_LIMIT     = 0
+停掉主库
+      DmServiceDMSVR01 stop
+备份
+      做一个停库状态的备份，并将文件传给备机
+      用CONSOLE图形界面做
+         新建备份-》备份名称：full_db ->备份集目录：/dm8/bakcup/full_db  
+      scp -r full_db/  192.168.3.112:/dm8/bak
+
+3.2备库操作
+   打开console图形界面
+ 还原操作：
+    配置目录：/dm8/bak  -》 获取备份 --》还原 -》选择：库还原-》选择备份集目录-》选择“库目录”-》选择“库路径”
+ 恢复操作：
+    恢复-》选择INI文件路径 -》选择备份集目录--》
+ 更新magic操作：选择INI文件路径
+    
+3.3主库操作
+  
+                                                             vi  dm.ini
+
+INSTANCE_NAME = DMSVR01
+PORT_NUM          = 5236 
+DW_INACTIVE_INTERVAL = 60
+ALTER_MODE_STATUS     = 0      此处需要修改
+ENABLE_OFFLINE_TS        = 2      此处需要修改
+MAL_INI                            = 1      此处需要修改
+ARCH_INI                          = 1 
+RLOG_SEND_APPLY_MON= 64   
+
+                                                      vi  dmmal.ini（有模板）
+
+MAL_CHECK_INTERVAL                      =       5
+MAL_CONN_FAIL_INTERVAL          =       5
+[MAL_INST1]
+MAL_INST_NAME           =       DMSVR01
+MAL_HOST                =       192.168.3.111
+MAL_PORT                =       5237
+MAL_INST_HOST          =       192.168.3.111
+MAL_INST_PORT          =       5236
+MAL_DW_PORT           =       5238
+MAL_INST_DW_PORT = 5239
+[MAL_INST2]
+MAL_INST_NAME           =       DMSVR02
+MAL_HOST                 =       192.168.6.112
+MAL_PORT               =       5237
+MAL_INST_HOST          =       192.168.6.112
+MAL_INST_PORT          =       5236
+MAL_DW_PORT           =       5238
+MAL_INST_DW_PORT = 5239
+
+                                                         vi dmarch.ini
+追加：
+[ARCHIVE_REALTIME]
+        ARCH_TYPE=REALTIME
+        ARCH_DEST=DMSVR02
+
+
+                                                      vi  dmwatcher.ini （有模板）
+修改参数如下：
+[GRP1]
+DW_TYPE = GLOBAL
+DW_MODE = AUTO
+DW_ERROR_TIME = 10
+INST_ERROR_TIME = 10
+INST_OGUID = 453331
+INST_INI = /dm8/data/DM01/dm.ini
+INST_AUTO_RESTART = 1
+INST_STARTUP_CMD=/dm8/bin/dmserver
+INST_RECOVER_TIME = 60
+RLOG_SEND_THRESHOLD=0
+RLOG_APPLY_THRESHOLD=0
+
+
+
+                                                     修改OGUID并改为主库模式
+
+ DmServiceDMSVR01 start mount
+disql sysdba/DM01SYSDBA:5236
+sp_set_para_value(1,'ALTER_MODE_STATUS',1);
+
+select sf_get_para_value (2,'ALTER_MODE_STATUS');
+
+sp_set_oguid(453331);
+alter database primary;
+sp_set_para_value(1,'ALTER_MODE_STATUS',0);
+
+
+4、备库操作
+                                                            vi  dm.ini
+INSTANCE_NAME = DMSVR02
+PORT_NUM =5236 #数据库实例监听端口
+DW_INACTIVE_INTERVAL = 60 #接收守护进程消息超时时间
+ALTER_MODE_STATUS = 0 #不允许手工方式修改实例模式/状态/OGUID
+ENABLE_OFFLINE_TS = 2 #不允许备库 OFFLINE 表空间
+MAL_INI = 1 #打开 MAL 系统
+ARCH_INI = 1 #打开归档配置
+RLOG_SEND_APPLY_MON = 64 #统计最近 64 次的日志发送信息
+
+                                                            dmmal
+拷贝主库的dmmal.ini
+[dmdba@localhost DM01]$scp 192.168.3.111:/dm8/data/DM01/dmmal.ini .
+
+
+                                                            dmarch.ini
+拷贝主库的dmarch.ini
+[ARCHIVE_LOCAL1]
+        ARCH_TYPE            = LOCAL
+        ARCH_DEST            = /dm8/arch
+        ARCH_FILE_SIZE       = 128
+        ARCH_SPACE_LIMIT     = 0
+       ## ARCH_FLUSH_BUF_SIZE  = 0
+       ## ARCH_HANG_FLAG       = 1
+[ARCHIVE_REALTIME]
+        ARCH_TYPE=REALTIME
+        ARCH_DEST=DMSVR01
+
+
+
+                                                        dmwatcher.ini
+拷贝主库的dmwatcher.ini
+
+
+                                                          修改OGUID并改为备库模式
+
+a、 启动到mount状态
+dmserver /dm8/data/DM01/dm.ini mount
+b、注册备库的实例  --root用户执行
+cd /dm8/script/root/
+./dm_service_installer.sh -t dmserver -p  DMSVR02 -dm_ini /dm8/data/DM01/dm.ini
+c、执行存储u过程
+disql  sysdba/DM01SYSDBA:5236
+sp_set_para_value(1,'ALTER_MODE_STATUS',1);
+SELECT SF_GET_PARA_VALUE (2,'ALTER_MODE_STATUS');
+sp_set_oguid(453331);
+d、alter database standby;
+sp_set_para_value(1,'ALTER_MODE_STATUS',0);
+
+
+5、监视主机上配置监视器  --监视器上执行
+
+cd /dm8/data
+                                                         vi dmmonitor.ini  (有模板）
+MON_DW_CONFIRM = 1 
+MON_LOG_PATH = /dm8/data/log
+MON_LOG_INTERVAL  =60
+MON_LOG_FILE_SIZE =32
+MON_LOG_SPACE_LIMIT =0
+[GRP1]
+MON_INST_OGUID =453331
+MON_DW_IP= 192.168.3.111:5238
+MON_DW_IP= 192.168.3.112:5238
+
+6、主库、备库watcher配置操作
+6.1 启动主库watcher --主库操作
+ a、启动主库watcher
+dmwatcher /dm8/data/DM01/dmwatcher.ini
+
+ b、将watcher 服务加入到操作系统服务列表
+root用户执行：
+/dm8/script/root/dm_service_installer.sh -t dmwatcher -p DMSVR01 -watcher_ini /dm8/data/DM01/dmwatcher.ini
+
+
+6.2启动备库watcher --备库操作
+a、启动备库watcher
+ dmwatcher /dm8/data/DM01/dmwatcher.ini
+ b、将watcher 服务加入到操作系统服务列表
+root用户执行：
+/dm8/script/root/dm_service_installer.sh -t dmwatcher -p DMSVR02 -watcher_ini /dm8/data/DM01/dmwatcher.ini
+
+
+7、启动监视主机上的监视器  -监视器上执行
+su - dmdba
+dmmonitor /dm8/data/dmmonitor.ini 
+show global info
+
+6、停库 ,在监视器中执行
+show global info
+stop group GRP1
+stop dmwatcher GRP1
+7、起库，在监视器中执行
+startup dmwatcher GRP1
+show global info
+8、查看主库备库的角色状态
+select name,STATUS$,role$ from v$database;
+9、主备切换，在监视器中执行
+switchover GRP1.DMSVR02
+switchover GRP1.DMSVR01

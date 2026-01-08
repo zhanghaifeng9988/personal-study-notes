@@ -1,0 +1,287 @@
+--dg参数说明
+
+
+--1.DB_NAME
+--数据库名字，需要保持同一个Data Guard中所有数据库DB_NAME相同
+--主库和备库相同
+DB_NAME='chicago'
+DB_NAME='chicago'
+
+--2.DB_UNIQUE_NAME
+DB_UNIQUE_NAME = unique_service_provider_name_for_this_database
+--为每一个数据库指定一个唯一的名称
+--主库：
+DB_UNIQUE_NAME=chicago
+--备库：
+DB_UNIQUE_NAME=boston
+
+--3.LOG_ARCHIVE_CONFIG
+LOG_ARCHIVE_CONFIG='DG_CONFIG=(db_unique_name, db_unique_name, ...)'
+--该参数通过DG_CONFIG属性罗列同一个Data Guard中所有DB_UNIQUE_NAME(含primary db及standby db)，以逗号分隔
+--主库和备库相同
+LOG_ARCHIVE_CONFIG='DG_CONFIG=(chicago,boston)'
+LOG_ARCHIVE_CONFIG='DG_CONFIG=(chicago,boston)'
+
+--4.CONTROL_FILES
+CONTROL_FILES = 'control_file_name' , 'control_file_name', '...')
+--控制文件位置说明，注意要修改到具体的控制文件位置
+--主库：
+control_files='/u01/app/oracle/oradata/chicago/control01.ctl','/u01/app/oracle/oradata/chicago/control02.ctl','/u01/app/oracle/oradata/chicago/control03.ctl'
+--备库：
+control_files='/u01/app/oracle/oradata/boston/control01.ctl','/u01/app/oracle/oradata/boston/control02.ctl','/u01/app/oracle/oradata/boston/control03.ctl'
+
+--5.LOG_ARCHIVE_DEST_n
+LOG_ARCHIVE_DEST_n = {LOCATION=path_name| SERVICE=service_name, attribute, attribute, ... }
+--归档文件的生成路径，location代表本地机上，service指明在另一台机器上
+--主库：
+LOG_ARCHIVE_DEST_1='LOCATION=/home/oracle/arch/chicago VALID_FOR=(ALL_LOGFILES,ALL_ROLES) DB_UNIQUE_NAME=chicago'
+LOG_ARCHIVE_DEST_2='SERVICE=boston LGWR SYNC VALID_FOR=(ONLINE_LOGFILES,PRIMARY_ROLE) DB_UNIQUE_NAME=boston'
+--备库：
+LOG_ARCHIVE_DEST_1='LOCATION=/home/oracle/arch/boston VALID_FOR=(ALL_LOGFILES,ALL_ROLES) DB_UNIQUE_NAME=boston'
+--(备库进行设置，是为了在切换后主备角色互换后使用)
+LOG_ARCHIVE_DEST_2='SERVICE=chicago LGWR SYNC VALID_FOR=(ONLINE_LOGFILES,PRIMARY_ROLE) DB_UNIQUE_NAME=chicago'
+--正常格式
+log_archive_dest_2='SERVICE=dzprddg LGWR ASYNC VALID_FOR=(ONLINE_LOGFILES,PRIMARY_ROLE) DB_UNIQUE_NAME=dzprddg'
+--可以写成IP地址格式
+log_archive_dest_3='SERVICE="(description=(address_list=(address=(protocol=TCP)(host=10.9.45.4)(port=1521)))(connect_data=(sid=hftaposdg)))" ARCH ASYNC NOAFFIRM NET_TIMEOUT=30 VALID_FOR=(ONLINE_LOGFILES,PRIMARY_ROLE) DB_UNIQUE_NAME=hfposnewdg'
+
+--8.LOG_ARCHIVE_FORMAT
+LOG_ARCHIVE_FORMAT=log%t_%s_%r.arc
+--指定归档文件格式，这里在主备端应保持一样的格式
+%t -thread number
+%s -log sequence number
+%r -resetlogs ID
+--主库：
+LOG_ARCHIVE_FORMAT=log%t_%s_%r.arc
+--备库：
+LOG_ARCHIVE_FORMAT=log%t_%s_%r.arc
+
+--9.LOG_ARCHIVE_MAX_PROCESSES
+LOG_ARCHIVE_MAX_PROCESSES =integer
+--指定归档进程的数量(1-30)，默认值通常是4
+
+--10.COMPATIBLE
+COMPATIBLE = release_number.
+--主数据库和备用数据库的Oracle兼容版本信息，主备设置必须保证一致。
+--主库：
+COMPATIBLE='10.2.0.1.0'
+--备库：
+COMPATIBLE='10.2.0.1.0'
+
+--11.FAL_SERVER
+FAL_SERVER = Oracle_Net_service_name
+--备库端的参数。指定一个数据库SID，通常该库为primary 角色。(FAL 是Fetch Archived Log 的缩写)
+--主库(主库进行设置，是为了在切换后主备角色互换后使用)
+FAL_SERVER=boston
+--备库：
+FAL_SERVER=chicago
+
+--12.FAL_CLIENT
+FAL_CLIENT = Oracle_Net_service_name
+--备库端的参数。指定一个数据库SID，通常该库为standby 角色
+--主库(主库进行设置，是为了在切换后主备角色互换后使用)
+FAL_CLIENT=chicago
+--备库：
+FAL_CLIENT=boston
+
+--13.DB_FILE_NAME_CONVERT
+DB_FILE_NAME_CONVERT = ('location_of_primary_database_datafile' , 'location_of_standby_database_datafile_name' , '...'
+--主数据库和备数据库的数据文件转换目录对映（如果两数据库的目录结构不一样），如果有多个对应关系，需逐一给出
+--主库(主库进行设置，是为了在切换后主备角色互换后使用)
+DB_FILE_NAME_CONVERT='/u01/app/oracle/oradata/boston/','/u01/app/oracle/oradata/chicago/'
+--备库：
+DB_FILE_NAME_CONVERT='/u01/app/oracle/oradata/chicago/','/u01/app/oracle/oradata/boston/'
+
+--14.LOG_FILE_NAME_CONVERT
+LOG_FILE_NAME_CONVERT='location_of_primary_database_redo_logs', 'location_of_standby_database_redo_logs'
+--指明主数据库和备用数据库的log文件转换目录对应关系
+--主库(主库进行设置，是为了在切换后主备角色互换后使用)
+LOG_FILE_NAME_CONVERT='/u01/app/oracle/oradata/boston/','/u01/app/oracle/oradata/chicago/'
+--备库：
+LOG_FILE_NAME_CONVERT='/u01/app/oracle/oradata/chicago/','/u01/app/oracle/oradata/boston/'
+
+--15.STANDBY_FILE_MANAGEMENT
+STANDBY_FILE_MANAGEMENT = {AUTO|MANUAL}
+--如果主数据库数据文件发生修改（如新建，重命名等）则按照本参数的设置在备库中做相应修改。设为AUTO 表示自动管理；设为MANUAL表示需要手工管理
+--主库(主库进行设置，是为了在切换后主备角色互换后使用)
+STANDBY_FILE_MANAGEMENT=AUTO
+--备库：
+STANDBY_FILE_MANAGEMENT=AUTO
+
+--16.STANDBY_ARCHIVE_DEST
+STANDBY_ARCHIVE_DEST= filespec
+--备用数据库的归档日志归档目录（该参数，从10gR2开始已经可有可无，在11g中，被标记为废弃，不再被支持）
+--主库(主库进行设置，是为了在切换后主备角色互换后使用)
+STANDBY_ARCHIVE_DEST='/home/oracle/arch/chicago'
+--备库：
+STANDBY_ARCHIVE_DEST='/home/oracle/arch/boston'
+
+
+--按数据库的角色区分参数
+
+--与角色无关的参数
+DB_UNIQUE_NAME
+--该参数定义了数据库的唯一名称
+LOG_ARCHIVE_CONFIG    
+--该参数定义了DG配置中可用的DB_UNIQUE_NAME参数值列表
+CONTROL_FILES
+--当前数据库控制文件的位置,对于备用数据库，它指向的是备用控制文件(Standby Control File)的位置
+LOG_ARCHIVE_MAX_PROCESSES    
+--提供足够的归档进程，该参数至少要设置4，最大值为30
+DB_CREATE_FILE_DEST    
+--虽然这不是DG特有的参数，不过还是需要介绍一下的，因为如果你在备库中使用了ASM，这个参数是要定义的
+
+--角色为primary时的参数
+LOG_ARCHIVE_DEST_n
+--DG重做日志传输的主要参数，通常都是在主库中起作用，当然也会有例外，比如处理级联备库的场景
+LOG_ARCHIVE_DEST_STATE_n
+--和LOG_ARCHIVE_DEST_n配套使用的参数,因为现在这个参数默认就是ENABLE的了，不再需要为你的目标库设置它了
+
+--角色为standby时的参数
+DB_FILE_NAME_CONVERT
+--在备库中，该参数允许你逻辑上将数据文件从主库迁移到备库上，如果你使用的是基于磁盘的存储结构并且存储路径在两个系统上并不相同，那么就有必要配置它。只有在备库切换为主库这期间，该转换才会执行。一旦进行主备切换或者故障切换到备库，这些值就会被写入到控制文件和数据文件头
+LOG_FILE_NAME_CONVERT
+--它的功能和DB_FILE_NAME_CONVERT参数相同，只不过这里转换的是日志文件，包括ORL文件和任何SRL文件
+FAL_SERVER 
+--它只用于物理备库，配置它能够使得物理备库在发现问题时，从DG配置中的一个数据库(主库或备库)中获取缺失的归档日志文件
+FAL_CLIENT
+--FAL客户端就是发起间隔请求的数据库的TNS名称，间隔请求的接收方(FAL_SERVER)需要这个TNS名称以使得FAL服务器上的数据库可以反向连接至请求方
+STANDBY_FILE_MANAGEMENT
+--只用于物理备库,该参数设置成AUTO的时候,主库中添加和删除数据文件的同时,备库中也会自动的进行相应的更改
+
+
+
+
+
+--查看有无DG
+show parameter log_archive_dest
+
+--查看数据库状态
+select open_mode,protection_mode,database_role,switchover_status from v$database;
+
+NOT ALLOWED         当前的数据库不是带有备用数据库的主数据库
+
+TO STANDBY    该主数据库可以转换为备用数据库
+
+
+--查看进程的活动状态
+SELECT  PROCESS,CLIENT_PROCESS,SEQUENCE#,  STATUS  FROM V$MANAGED_STANDBY;
+select process, status, thread#,sequence#, block#, blocks from v$managed_standby;
+
+ARCH:归档进程，在Primary Database中最多可以有30个归档进程，其中有一个专门负责本地的归档，不参与Gap Resolution，而其他的进程都可以参与GaP Resolution，即向Standby传送日志
+
+LNS(LogWriter Network Service）LNS进程读取日志，并通过网络发送给Standby Database，这个进程是为了减轻LGWR的负担，LGWR进程不用再参与到网络日志的传输中了
+
+MRP(Managed Redo Process)：这个进程负责协调介质恢复管理工作，整个Physical Standby就是建立在介质恢复技术上的
+
+RFS：remote file server，该进程是standby库接受来自primary库lgwr进程触发的redo信息并且写入到standby redo log中。RFS进程无疑是要和其他进程配合的，也就是传输的进程
+
+PROCESS：进程名称，如ARCH、RFS、MRP0等。
+CLIENT_P：对应的Primary数据库中的进程，如ARCH、LGWR等。
+SEQUENCE#：归档序号。
+STATUS：进程的当前状态，值较多，常见的有：
+1）ALLOCATED：正准备连接Primary数据库。
+2）ATTACHED：正在连接Primary数据库。
+3）CONNECTED：已连接至Primary数据库。
+4）IDLE：空闲中。
+5）RECEIVING：归档文件接收中。
+6）OPENING：归档文件处理中。
+7）CLOSING：归档文件处理完，收尾中。
+8）WRITING：REDO数据库写向归档文件中。
+9）WAIT_FOR_LOG：等待新的REDO数据中。
+10）WAIT_FOR_GAP：归档有中断，正等待中断的那部分REDO数据。
+11）APPLYING_LOG：应用REDO数据中。
+
+--查看最后应用的归档
+SELECT  THREAD#,  MAX(SEQUENCE#)  AS  "LAST_APPLIED_LOG" FROM V$LOG_HISTORY GROUP BY THREAD#;
+
+--查看对应的应用状态
+SELECT THREAD#, SEQUENCE#, APPLIED FROM V$ARCHIVED_LOG;
+
+--查看物理Standby数据库未接收的日志文件（主库查询）
+日志文件的发送是通过LOG_ARHIVE_DEST_N参数来控制，因此我们只需
+要对比本地生成的归档和远端生成的归档间差异即可。例如：
+select local.thread#,  local.sequence#  from  
+(select  thread#,  sequence#  from v$archived_log  where  dest_id=1)  
+local  where  local.sequence#  not  in    
+(select sequence# from v$archived_log where dest_id=2 and    thread# = local.thread#);
+
+
+--查询当前数据库的基本信息（v$database信息）
+select database_role,db_unique_name,open_mode,protection_mode,protection_level, 
+switchover_status from v$database;  
+
+
+--物理Standby数据库查询V$ARCHIVE_DEST_STATUS视图，如果打开了实
+时应用，则RECOVERY_MODE列会显示为：MANAGED REAL TIME APPLY，
+select recovery_mode from V$ARCHIVE_DEST_STATUS;
+
+--Data Guard事件（V$DATAGUARD_STATUS）
+SELECT MESSAGE FROM V$DATAGUARD_STATUS;
+
+
+--查看归档应用情况
+select sequence#,applied from v$archived_log order by sequence# desc;
+
+用命令查看两边归档是否对得上
+select max(sequence#) from v$archived_log where applied='YES';
+
+
+
+                                              DG启停相关操作
+
+1、关闭DG
+1> 关闭主库
+SQL>shutdown immediate
+lsnrctl stop
+
+2> 关闭备库
+SQL>ALTER DATABASE RECOVER MANAGED STANDBY DATABASE CANCEL; 关闭备库同步
+SQL>SHUTDOWN IMMEDIATE;
+
+lsnrctl stop
+
+2、启动DG
+>启动备库
+--挂载
+startup nomount;
+alter database mount standby database;
+
+--打开库和MRP日志应用
+alter database open;
+alter database recover managed standby database using current logfile disconnect from session;打开日志应用
+
+lsnrctl start
+
+>启动主库
+SQL> STARTUP;
+
+lsnrctl start  
+
+启动DataGuard后的检查
+1、检查主备库的归档日志号
+在主库执行check：
+SQL> archive log list;
+在备库执行check
+SQL> archive log list;
+看到主库备库当前的Current log sequence都是1样的，备库上面最新的归档日志applied都是YES，就表明主库备库数据同步1致了
+
+2. 检查备库的归档日志同步情况
+在备库执行：检查主备库之间的日志同步情况，如是是YES表示同步成功的，如果是NO表示没同步同成的日志，
+根据主备库与具体时间来确定.
+select thread#,sequence#,first_time,next_time,applied from v$archived_log where
+applied='YES';
+
+select thread#,sequence#,first_time,next_time,applied from v$archived_log where
+applied='NO';
+
+
+       trace日志的目录
+
+主库：/u01/diag/rdbms/bj/orcl/trace
+
+备库：/u01/diag/rdbms/tj/orclstd/trace
+
+
+OGG
+logical change record ----(LCR)

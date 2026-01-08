@@ -1,0 +1,102 @@
+一 初始化注意事项
+
+1 为了提高数据同步速度，目标端数据库取消归档模式。
+SQL> startup mount
+
+SQL> alter database noarchivelog;
+
+SQL> alter database open;
+
+2 为了避免可能发生的导入错误，禁用目标端数据库的外键和check约束。
+---disable references---
+
+declare
+
+  v_sql varchar2(2000);
+
+  cursor c_ref is
+
+    select 'alter table ' || owner || '.' || table_name ||
+
+           ' disable constraint ' || constraint_name
+
+      from dba_constraints
+
+     where constraint_type in ('R', 'C')
+
+       and owner in ('CHEN');
+
+BEGIN
+
+  OPEN c_ref;
+
+  loop
+
+    fetch c_ref
+
+      into v_sql;
+
+    exit when c_ref%NOTFOUND;
+
+    EXECUTE IMMEDIATE v_sql;
+
+  end loop;
+
+  close c_ref;
+
+end;
+
+/
+3 为了避免生成重复数据，禁用目标端数据库触发器。
+---disable trigger---
+
+declare
+
+  v_sql varchar2(2000);
+
+  cursor c_trigger is
+
+    select 'alter trigger ' || owner || '.' || trigger_name || 'disable '
+
+      from dba_triggers
+
+     where owner in ('CHENT');
+
+BEGIN
+
+  OPEN c_trigger;
+
+  loop
+
+    fetch c_trigger
+
+      into v_sql;
+
+    exit when c_trigger%NOTFOUND;
+
+    execute immediate v_sql;
+
+  end loop;
+
+  close c_trigger;
+
+end;
+
+/
+
+4 为了避免生成重复数据，禁用目标端数据库有DML操作的JOB。
+---disable job---
+
+select * from dba_jobs where SCHEMA_USER='CHEN';
+
+alter system set JOB_QUEUE_PROCESSES=0;
+
+---disable scheduler job 
+
+select job_name, owner, program_name, program_owner, state, enabled
+
+  from dba_scheduler_jobs
+
+ where owner not in ('SYS', 'SYSTEM');
+
+exec dbms_scheduler.disable('xxxxxx');

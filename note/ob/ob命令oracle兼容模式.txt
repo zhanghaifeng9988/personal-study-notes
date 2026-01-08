@@ -1,0 +1,6 @@
+select OBJECT_NAME, OBJECT_TYPE from user_objects where OBJECT_TYPE='TABLE';     查询用户下的表
+find / -name oceanbase*                                                          查找ob的安装目录
+select * from v$nls_parameters  where parameter='NLS_CHARACTERSET'               字符集查询
+select CONSTRAINT_NAME,CONSTRAINT_TYPE,TABLE_NAME,STATUS,VALIDATED,INDEX_OWNER,INDEX_NAME from user_constraints;
+
+alter table cs2 disable constraint  CS2_OBPK_1645481321031818;

@@ -1,0 +1,417 @@
+
+
+
+SQL> --查询表的大小
+SQL> col OWNER for a20
+SQL> col SEGMENT_NAME for a30
+SQL> col SEGMENT_TYPE for a30
+SQL> col tablespace_name for a20
+SQL> set lines 200 pages 999 long 20000
+SQL> select  OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name ,sum(BYTES)/1024/1024/1024 
+from dba_segments
+where segment_name='E_MP_DAY_READ' and owner='FDPSHARE'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name order by sum(BYTES);
+
+OWNER                SEGMENT_NAME                   SEGMENT_TYPE                   TABLESPACE_NAME      SUM(BYTES)/1024/1024/1024
+-------------------- ------------------------------ ------------------------------ -------------------- -------------------------
+FDPSHARE             E_MP_DAY_READ                  TABLE PARTITION                DATA_A                             2031.165002
+FDPSHARE             E_MP_DAY_READ                  TABLE PARTITION                SHAREDATA                          1260.030313
+
+
+QL> --查看分区表统计信息
+SQL> col OWNER for a20
+SQL> col TABLE_NAME for a30
+SQL> set lines 200 pages 999 long 20000
+SQL> select OWNER,TABLE_NAME,PARTITIONING_TYPE,SUBPARTITIONING_TYPE,PARTITION_COUNT
+from dba_part_tables
+where OWNER='FDPSHARE' and TABLE_NAME='E_MP_DAY_READ';
+
+OWNER                TABLE_NAME                     PARTITIONING_TYPE           SUBPARTITIONING_TYPE        PARTITION_COUNT
+-------------------- ------------------------------ --------------------------- --------------------------- ---------------
+FDPSHARE             E_MP_DAY_READ                  RANGE                       NONE                                    152
+
+
+SQL> --查看子分区统计信息
+SQL> col TABLE_OWNER for a20
+SQL> col TABLE_NAME for a30
+SQL> col partition_name for a30
+SQL> set lines 200 pages 999 long 20000
+SQL> select table_owner,table_name,partition_name,subpartition_count from dba_tab_partitions where  table_owner='FDPSHARE'  
+and TABLE_NAME='E_MP_DAY_READ';
+
+TABLE_OWNER          TABLE_NAME                     PARTITION_NAME                 SUBPARTITION_COUNT
+-------------------- ------------------------------ ------------------------------ ------------------
+FDPSHARE             E_MP_DAY_READ                  P202103                                         0
+FDPSHARE             E_MP_DAY_READ                  P202104                                         0
+FDPSHARE             E_MP_DAY_READ                  P202105                                         0
+FDPSHARE             E_MP_DAY_READ                  P202106                                         0
+FDPSHARE             E_MP_DAY_READ                  P202107                                         0
+FDPSHARE             E_MP_DAY_READ                  P202108                                         0
+FDPSHARE             E_MP_DAY_READ                  P202109                                         0
+FDPSHARE             E_MP_DAY_READ                  P202110                                         0
+FDPSHARE             E_MP_DAY_READ                  P202111                                         0
+FDPSHARE             E_MP_DAY_READ                  P202112                                         0
+FDPSHARE             E_MP_DAY_READ                  P202201                                         0
+FDPSHARE             E_MP_DAY_READ                  P202202                                         0
+FDPSHARE             E_MP_DAY_READ                  P202203                                         0
+FDPSHARE             E_MP_DAY_READ                  P202204                                         0
+FDPSHARE             E_MP_DAY_READ                  P202205                                         0
+FDPSHARE             E_MP_DAY_READ                  P202206                                         0
+FDPSHARE             E_MP_DAY_READ                  P202207                                         0
+FDPSHARE             E_MP_DAY_READ                  P202208                                         0
+FDPSHARE             E_MP_DAY_READ                  P202209                                         0
+FDPSHARE             E_MP_DAY_READ                  P202210                                         0
+FDPSHARE             E_MP_DAY_READ                  P202211                                         0
+FDPSHARE             E_MP_DAY_READ                  P202212                                         0
+FDPSHARE             E_MP_DAY_READ                  P202301                                         0
+FDPSHARE             E_MP_DAY_READ                  P202302                                         0
+FDPSHARE             E_MP_DAY_READ                  P202101                                         0
+FDPSHARE             E_MP_DAY_READ                  P202102                                         0
+FDPSHARE             E_MP_DAY_READ                  P201007                                         0
+FDPSHARE             E_MP_DAY_READ                  P201008                                         0
+FDPSHARE             E_MP_DAY_READ                  P201009                                         0
+FDPSHARE             E_MP_DAY_READ                  P201010                                         0
+FDPSHARE             E_MP_DAY_READ                  P201011                                         0
+FDPSHARE             E_MP_DAY_READ                  P201012                                         0
+FDPSHARE             E_MP_DAY_READ                  P201101                                         0
+FDPSHARE             E_MP_DAY_READ                  P201102                                         0
+FDPSHARE             E_MP_DAY_READ                  P201103                                         0
+FDPSHARE             E_MP_DAY_READ                  P201104                                         0
+FDPSHARE             E_MP_DAY_READ                  P201105                                         0
+FDPSHARE             E_MP_DAY_READ                  P201106                                         0
+FDPSHARE             E_MP_DAY_READ                  P201107                                         0
+FDPSHARE             E_MP_DAY_READ                  P201108                                         0
+FDPSHARE             E_MP_DAY_READ                  P201109                                         0
+FDPSHARE             E_MP_DAY_READ                  P201110                                         0
+FDPSHARE             E_MP_DAY_READ                  P201111                                         0
+FDPSHARE             E_MP_DAY_READ                  P201112                                         0
+FDPSHARE             E_MP_DAY_READ                  P201201                                         0
+FDPSHARE             E_MP_DAY_READ                  P201202                                         0
+FDPSHARE             E_MP_DAY_READ                  P201203                                         0
+FDPSHARE             E_MP_DAY_READ                  P201204                                         0
+FDPSHARE             E_MP_DAY_READ                  P201205                                         0
+FDPSHARE             E_MP_DAY_READ                  P201206                                         0
+FDPSHARE             E_MP_DAY_READ                  P201207                                         0
+FDPSHARE             E_MP_DAY_READ                  P201208                                         0
+FDPSHARE             E_MP_DAY_READ                  P201209                                         0
+FDPSHARE             E_MP_DAY_READ                  P201210                                         0
+FDPSHARE             E_MP_DAY_READ                  P201211                                         0
+FDPSHARE             E_MP_DAY_READ                  P201212                                         0
+FDPSHARE             E_MP_DAY_READ                  P201301                                         0
+FDPSHARE             E_MP_DAY_READ                  P201302                                         0
+FDPSHARE             E_MP_DAY_READ                  P201303                                         0
+FDPSHARE             E_MP_DAY_READ                  P201304                                         0
+FDPSHARE             E_MP_DAY_READ                  P201305                                         0
+FDPSHARE             E_MP_DAY_READ                  P201306                                         0
+FDPSHARE             E_MP_DAY_READ                  P201307                                         0
+FDPSHARE             E_MP_DAY_READ                  P201308                                         0
+FDPSHARE             E_MP_DAY_READ                  P201309                                         0
+FDPSHARE             E_MP_DAY_READ                  P201310                                         0
+FDPSHARE             E_MP_DAY_READ                  P201311                                         0
+FDPSHARE             E_MP_DAY_READ                  P201312                                         0
+FDPSHARE             E_MP_DAY_READ                  P201401                                         0
+FDPSHARE             E_MP_DAY_READ                  P201402                                         0
+FDPSHARE             E_MP_DAY_READ                  P201403                                         0
+FDPSHARE             E_MP_DAY_READ                  P201404                                         0
+FDPSHARE             E_MP_DAY_READ                  P201405                                         0
+FDPSHARE             E_MP_DAY_READ                  P201406                                         0
+FDPSHARE             E_MP_DAY_READ                  P201407                                         0
+FDPSHARE             E_MP_DAY_READ                  P201408                                         0
+FDPSHARE             E_MP_DAY_READ                  P201409                                         0
+FDPSHARE             E_MP_DAY_READ                  P201410                                         0
+FDPSHARE             E_MP_DAY_READ                  P201411                                         0
+FDPSHARE             E_MP_DAY_READ                  P201412                                         0
+FDPSHARE             E_MP_DAY_READ                  P201501                                         0
+FDPSHARE             E_MP_DAY_READ                  P201502                                         0
+FDPSHARE             E_MP_DAY_READ                  P201503                                         0
+FDPSHARE             E_MP_DAY_READ                  P201504                                         0
+FDPSHARE             E_MP_DAY_READ                  P201505                                         0
+FDPSHARE             E_MP_DAY_READ                  P201506                                         0
+FDPSHARE             E_MP_DAY_READ                  P201507                                         0
+FDPSHARE             E_MP_DAY_READ                  P201508                                         0
+FDPSHARE             E_MP_DAY_READ                  P201509                                         0
+FDPSHARE             E_MP_DAY_READ                  P201510                                         0
+FDPSHARE             E_MP_DAY_READ                  P201511                                         0
+FDPSHARE             E_MP_DAY_READ                  P201512                                         0
+FDPSHARE             E_MP_DAY_READ                  P201601                                         0
+FDPSHARE             E_MP_DAY_READ                  P201602                                         0
+FDPSHARE             E_MP_DAY_READ                  P201603                                         0
+FDPSHARE             E_MP_DAY_READ                  P201604                                         0
+FDPSHARE             E_MP_DAY_READ                  P201605                                         0
+FDPSHARE             E_MP_DAY_READ                  P201606                                         0
+FDPSHARE             E_MP_DAY_READ                  P201607                                         0
+FDPSHARE             E_MP_DAY_READ                  P201608                                         0
+FDPSHARE             E_MP_DAY_READ                  P201609                                         0
+FDPSHARE             E_MP_DAY_READ                  P201610                                         0
+FDPSHARE             E_MP_DAY_READ                  P201611                                         0
+FDPSHARE             E_MP_DAY_READ                  P201612                                         0
+FDPSHARE             E_MP_DAY_READ                  P201701                                         0
+FDPSHARE             E_MP_DAY_READ                  P201702                                         0
+FDPSHARE             E_MP_DAY_READ                  P201703                                         0
+FDPSHARE             E_MP_DAY_READ                  P201704                                         0
+FDPSHARE             E_MP_DAY_READ                  P201705                                         0
+FDPSHARE             E_MP_DAY_READ                  P201706                                         0
+FDPSHARE             E_MP_DAY_READ                  P201707                                         0
+FDPSHARE             E_MP_DAY_READ                  P201708                                         0
+FDPSHARE             E_MP_DAY_READ                  P201709                                         0
+FDPSHARE             E_MP_DAY_READ                  P201710                                         0
+FDPSHARE             E_MP_DAY_READ                  P201711                                         0
+FDPSHARE             E_MP_DAY_READ                  P201712                                         0
+FDPSHARE             E_MP_DAY_READ                  P201801                                         0
+FDPSHARE             E_MP_DAY_READ                  P201802                                         0
+FDPSHARE             E_MP_DAY_READ                  P201803                                         0
+FDPSHARE             E_MP_DAY_READ                  P201804                                         0
+FDPSHARE             E_MP_DAY_READ                  P201805                                         0
+FDPSHARE             E_MP_DAY_READ                  P201806                                         0
+FDPSHARE             E_MP_DAY_READ                  P201807                                         0
+FDPSHARE             E_MP_DAY_READ                  P201808                                         0
+FDPSHARE             E_MP_DAY_READ                  P201809                                         0
+FDPSHARE             E_MP_DAY_READ                  P201810                                         0
+FDPSHARE             E_MP_DAY_READ                  P201811                                         0
+FDPSHARE             E_MP_DAY_READ                  P201812                                         0
+FDPSHARE             E_MP_DAY_READ                  P201901                                         0
+FDPSHARE             E_MP_DAY_READ                  P201902                                         0
+FDPSHARE             E_MP_DAY_READ                  P201903                                         0
+FDPSHARE             E_MP_DAY_READ                  P201904                                         0
+FDPSHARE             E_MP_DAY_READ                  P201905                                         0
+FDPSHARE             E_MP_DAY_READ                  P201906                                         0
+FDPSHARE             E_MP_DAY_READ                  P201907                                         0
+FDPSHARE             E_MP_DAY_READ                  P201908                                         0
+FDPSHARE             E_MP_DAY_READ                  P201909                                         0
+FDPSHARE             E_MP_DAY_READ                  P201910                                         0
+FDPSHARE             E_MP_DAY_READ                  P201911                                         0
+FDPSHARE             E_MP_DAY_READ                  P201912                                         0
+FDPSHARE             E_MP_DAY_READ                  P202001                                         0
+FDPSHARE             E_MP_DAY_READ                  P202002                                         0
+FDPSHARE             E_MP_DAY_READ                  P202003                                         0
+FDPSHARE             E_MP_DAY_READ                  P202004                                         0
+FDPSHARE             E_MP_DAY_READ                  P202005                                         0
+FDPSHARE             E_MP_DAY_READ                  P202006                                         0
+FDPSHARE             E_MP_DAY_READ                  P202007                                         0
+FDPSHARE             E_MP_DAY_READ                  P202008                                         0
+FDPSHARE             E_MP_DAY_READ                  P202009                                         0
+FDPSHARE             E_MP_DAY_READ                  P202010                                         0
+FDPSHARE             E_MP_DAY_READ                  P202011                                         0
+FDPSHARE             E_MP_DAY_READ                  P202012                                         0
+
+152 rows selected.
+
+
+SQL> --查询索引大小(已经在索引表空间了,不需要移动表空间)
+SQL> col INDEX_NAME for a30
+SQL> col DEGREE for a5
+SQL> col tablespace_name for a30
+SQL> col status for a10
+SQL> set lines 200 pages 999 long 20000
+SQL> select index_name,degree,status,tablespace_name 
+from dba_indexes 
+where owner='FDPSHARE' and table_name='E_MP_DAY_READ';
+
+INDEX_NAME                     DEGRE STATUS     TABLESPACE_NAME
+------------------------------ ----- ---------- ------------------------------
+PK_E_MP_DAY_READ_1             1     VALID      SHAREIDX
+
+
+SQL> col OWNER for a20
+SQL> col SEGMENT_NAME for a30
+SQL> col SEGMENT_TYPE for a20
+SQL> set lines 200 pages 999 long 20000
+SQL> select  OWNER,SEGMENT_NAME,SEGMENT_TYPE,sum(BYTES)/1024/1024/1024 
+from dba_segments
+where segment_name in ('PK_E_MP_DAY_READ_1') and owner='FDPSHARE'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE order by sum(BYTES);
+
+OWNER                SEGMENT_NAME                   SEGMENT_TYPE         SUM(BYTES)/1024/1024/1024
+-------------------- ------------------------------ -------------------- -------------------------
+FDPSHARE             PK_E_MP_DAY_READ_1             INDEX                              981.6337890
+
+
+SQL> --查看分区信息(plsql执行)
+SQL> select * from dba_tab_subpartitions where  table_owner='FDPSHARE'  and TABLE_NAME='E_MP_DAY_READ';
+
+SQL> --查询小于2022年数据量
+
+SQL> select sum(bytes)/1024/1024/1024 from dba_segments where owner='FDPSHARE' and segment_name='E_MP_DAY_READ' and partition_name in 
+(select partition_name from dba_tab_partitions where table_owner='FDPSHARE' and table_name='E_MP_DAY_READ' and  partition_name<'P202201');
+
+SUM(BYTES)/1024/1024/1024
+-------------------------
+2378.9433593
+
+SQL> --转移分区表并压缩表的语句
+SQL> select 'alter table '||table_owner||'.'||table_name||' move partition '||partition_name||' 
+tablespace HISCMPRS01 nologging parallel 8 compress;',compression,partition_name 
+from dba_tab_partitions 
+where table_owner='FDPSHARE' and table_name='E_MP_DAY_READ' and partition_name<'P202201';
+
+SQL> alter table FDPSHARE.E_MP_DAY_READ move partition P202103 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202104 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202105 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202106 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202107 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202108 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202109 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202110 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202111 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202112 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202101 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202102 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201007 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201008 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201009 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201010 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201011 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201012 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201101 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201102 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201103 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201104 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201105 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201106 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201107 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201108 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201109 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201110 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201111 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201112 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201201 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201202 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201203 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201204 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201205 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201206 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201207 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201208 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201209 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201210 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201211 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201212 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201301 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201302 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201303 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201304 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201305 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201306 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201307 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201308 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201309 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201310 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201311 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201312 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201401 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201402 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201403 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201404 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201405 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201406 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201407 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201408 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201409 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201410 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201411 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201412 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201501 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201502 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201503 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201504 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201505 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201506 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201507 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201508 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201509 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201510 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201511 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201512 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201601 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201602 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201603 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201604 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201605 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201606 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201607 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201608 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201609 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201610 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201611 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201612 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201701 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201702 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201703 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201704 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201705 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201706 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201707 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201708 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201709 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201710 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201711 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201712 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201801 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201802 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201803 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201804 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201805 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201806 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201807 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201808 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201809 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201810 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201811 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201812 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201901 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201902 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201903 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201904 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201905 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201906 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201907 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201908 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201909 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201910 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201911 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P201912 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202001 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202002 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202003 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202004 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202005 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202006 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202007 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202008 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202009 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202010 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202011 tablespace HISCMPRS01 nologging parallel 8 compress;
+alter table FDPSHARE.E_MP_DAY_READ move partition P202012 tablespace HISCMPRS01 nologging parallel 8 compress;
+
+
+SQL> --查询失效索引
+SQL> col owner for a20
+SQL> col status for a20
+SQL> col index_name for a30
+SQL> select owner,index_name,status from dba_indexes 
+where STATUS='UNUSABLE' and owner='FDPSHARE' and table_name='E_MP_DAY_READ';
+
+OWNER                INDEX_NAME                     STATUS
+-------------------- ------------------------------ --------------------
+FDPSHARE             PK_E_MP_DAY_READ_1             UNUSABLE
+
+SQL> --重建索引
+SQL> alter index CACHER01.PK_E_MP_DAY_READ_1 rebuild parallel 12  nologging;
+
+Index altered.
+
+
+SQL> --查询表的大小
+SQL> col OWNER for a20
+SQL> col SEGMENT_NAME for a30
+SQL> col SEGMENT_TYPE for a30
+SQL> col tablespace_name for a20
+SQL> set lines 200 pages 999 long 20000
+SQL> select  OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name ,sum(BYTES)/1024/1024/1024 
+from dba_segments
+where segment_name='E_MP_DAY_READ' and owner='FDPSHARE'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE,tablespace_name order by sum(BYTES);
+
+OWNER                SEGMENT_NAME                   SEGMENT_TYPE                   TABLESPACE_NAME      SUM(BYTES)/1024/1024/1024
+-------------------- ------------------------------ ------------------------------ -------------------- -------------------------
+FDPSHARE             E_MP_DAY_READ                  TABLE PARTITION                HISCMPRS01                         585.8385620

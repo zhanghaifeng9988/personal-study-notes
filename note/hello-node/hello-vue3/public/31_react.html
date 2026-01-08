@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="vue.js"></script>
+</head>
+<body>
+  <script>
+//定义对象数据
+    let a = {
+      value:1
+    }
+    let b = {
+      value:2
+    }
+//定义处理器
+    handleA = {
+//get方法会在取值时调用，其中第1个参数为要取值的对象，第2个参数为所取值的属性
+      get(target,prop) {
+        alert(`获取handleA：${prop}的值`)
+        return target[prop]
+      },
+//set方法会在设置时调用，其中第1个参数为操作的对象，第2个参数为要处理的属性
+//第3个参数为要设置的值
+      set(target,key,value){
+        alert(`设置handleA：${key}的值为${value}`)
+      }
+    }
+    handleB = {
+      get(target,prop) {
+        alert(`获取handleB：${prop}的值`)
+        return target[prop]
+      },
+      set(target,key,value){
+        alert(`设置handleB：${key}的值为${value}`)
+      }
+    }
+    let pa = new Proxy(a,handleA) //创建1个基于a对象的代理对象
+    let pb = new Proxy(b,handleB) //创建1个基于b对象的代理对象
+    pa.value = 3 //设置a的值
+    pb.value = 4 //设置b的值
+    alert(pa.value) //获取a的值
+    alert(pb.value) //获取b的值
+    alert(a.value)
+    alert(b.value)
+  </script>
+</body>
+</html>

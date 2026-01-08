@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>模板插值</title>
+  <script src="vue.js"></script>
+  <style>
+        #h1 {
+      color:blueviolet;
+    }
+  </style>
+</head>
+<body>
+  <div id="Application" style="text-align: center;">
+    <h1>这里是模板的内容：{{ count }} 次单击</h1>
+    <h1 v-once>这里是模板的内容：{{ count }} 次单击</h1>
+    <h1 ><span v-html="countHtml"></span>次单击 </h1>
+    <h1 style="color:blue;">{{ count }} 次单击</h1>
+    <!-- 将元素的属性id，绑定到组件的data中，数据的值是样式 -->
+    <h1 v-bind:id="myId1">这里是模板的内容：{{ count }}</h1>
+    <button v-on:click="clickButton">点我加1</button>
+  </div>
+  <script>
+    //这个是js代码
+    //定义1个名为App的对象，包含data和methods属性。
+    //App这个对象，就可以理解为是一个Vue组件的对象，
+    //或者叫做定义组件
+    //对象的属性(key)，类型包含：方法、嵌套对象这两种目前我已知的属性(key)类型。
+    //对象的值，类型包含：方法中返回的对象类型的属性和值，嵌套对象类型的属性(key)和值。
+    const App = {
+  //这段代码通常用于Vue 3项目中，
+  //作为单文件组件(SFC)的一部分或是在创建Vue应用时定义根组件。
+      //定义组件中的数据
+      data() { //data是一个函数，返回一个对象
+        return {
+          count: 0,
+          countHtml:"<span style='color:red'> 0 </span>",
+          myId1:'h1'
+        }
+        },
+      //定义组件中的方法
+      methods: { //methods是一个对象，包含多个函数
+        clickButton() {
+         this.count++;
+        }
+      }
+    }
+    //创建一个vue实例，并将App组件挂载到id为Application的div上
+    const app = Vue.createApp(App);
+    app.mount('#Application');
+  </script>
+</body>
+</html>

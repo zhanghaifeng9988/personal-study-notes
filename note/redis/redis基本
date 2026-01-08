@@ -1,0 +1,264 @@
+
+
+1.redis介绍： 
+
+        redis是一个 基于 内存 的  key = value 结构 的数据库
+
+端口号：6379
+
+ 2.主要特点：
+
+        1.内存存储，读写性能高 - Redis读的 速度是110000次/S
+
+        2.它存储的 value 类型比较丰富（5种数据类型），也称为结构化NoSQL数据库
+
+        3. 适合存储热点且不是时刻发生改变的数据（商品、资讯、新闻）
+
+ 3.NoSQL介绍
+
+        NoSQL（Not Only SQL ）不仅仅是SQL，泛指==非关系型数据库==
+
+关系型数据库 （Mysql,Oracle等）
+
+        优点：
+
+                1.易于维护：都是使用表结构，格式统一
+
+                2.使用方便：SQL语言通用
+
+                3.可以多表查询：可用于一个表或多个表之间非常复杂查询
+
+        缺点：
+
+                1.储存在硬盘上，所以读写能力比较差
+
+                2.固定的表结构，灵活性差
+
+                3.高并发读写需求，硬盘I/O是一个很大的瓶颈
+
+非关系型数据库（redis，MongoDB等）
+
+        优点：
+
+                1.格式灵活：储存数据的格式可以是key，value等形式的应用场景。
+
+                2.速度快：nosql可以使用硬盘或内存为载体，而非硬盘；
+
+                3.成本低：nosql数据库部署简单，基本都是免费的；
+
+        缺点：
+
+                1.不提供sql支持，学习和使用成本较高。
+
+                2.一般没有事务处理
+
+                3.复杂查询方面欠缺
+
+
+redis 使用
+
+redis-server   启动redis  不推荐使用ctrl+c 和关闭窗口会退出数据库
+redis-server /etc/redis.conf  启动redis 使用这个命令，指名配置配置文件，该文件中的daemonize参数的值需要配置成yes
+
+redis-cli  命令行
+
+info  查看redis的基本信息，Keyspace为数据库的信息
+举例：
+# Keyspace
+db0:keys=1,expires=0,avg_ttl=0
+db15:keys=1,expires=0,avg_ttl=0
+
+redis-cli info keyspace 在linux中查看
+[root@oggtarget bin]# redis-cli info keyspace
+# Keyspace
+db0:keys=1,expires=0,avg_ttl=0
+db15:keys=1,expires=0,avg_ttl=0
+
+默认16个数据库，默认选择0号库
+
+一些命令
+
+# 切换库
+select dbid(库编号)
+注意：select 0 的状态下，cli'的提示符不显示库名，初次登录的库默认也是0号库
+# 清空当前库
+flushDB   
+# 清空所有库 
+flushAll 
+
+--删除键值
+del k1  
+
+--检查键值是否存在
+exists  k1
+
+
+--keys 命令
+keys  *        匹配当前库中所有的键值
+keys  h?llo    匹配hello ，hallo 和hxllo 等
+KEYS  h*llo    匹配hllo 和heeeeello 等
+KEYS h[ae]llo：匹配hello 和hallo ，但不匹配hillo 。特殊符号用 "\" 隔开。
+
+
+
+--关闭数据库，前面有个空格
+  shutdown
+-- keys * #查询所有key
+-- flushalll / flushdb #清库（慎用）
+-- help [命令] #查看具体命令操作文档（可自动补齐）
+   help @[类型] #查看类型的操作
+
+#k=key v=value
+--  set k1 ooxx nx #如果k1不存在新增k1并赋值ooxx
+--  set k2 hello xx #如果k2存在则更新k2=hello
+--	mset k1 v1 k2 v2 #批量添加
+--	mget k1 k2 #批量获取
+
+--  将当前数据库的key 移动到给定的数据库db 当中。
+MOVE key db
+
+-----string类型 (byte：redis没有数据类型，在存储时，双方客户端应约定好编码进行数据存储【字节流】)
+
+举例：
+127.0.0.1:6379> set k1 hello nx
+OK
+127.0.0.1:6379> APPEND k1 " world"
+(integer) 11
+127.0.0.1:6379> get k1
+"hello world"
+127.0.0.1:6379> GETRANGE k1 6 10
+"world"
+127.0.0.1:6379> keys  *
+1) "k1"
+
+
+# SETRANGE（从某key索引位置覆盖新的值）
+127.0.0.1:6379> SETRANGE k1 6 ARMIN
+(integer) 11
+127.0.0.1:6379> get k1
+"hello ARMIN"
+
+# STRLEN（获取某key的字符长度）
+127.0.0.1:6379> STRLEN k1
+(integer) 11
+
+# type（获取key的类型，key前面的命令是哪个group的type即为group值）
+127.0.0.1:6379> get k1
+"111"
+127.0.0.1:6379> type k1
+string
+
+
+
+----数值类型
+# OBJECT（获取key的value类型，int类型可以做数值操作）
+
+127.0.0.1:6379> set k1 bbb
+OK
+127.0.0.1:6379> OBJECT encoding k1
+"embstr"
+
+127.0.0.1:6379> set k1 222
+OK
+127.0.0.1:6379> OBJECT encoding k1
+"int"
+127.0.0.1:6379> set k1 111aaa222
+OK
+127.0.0.1:6379>  OBJECT encoding k1
+"embstr"
+
+
+# INCR（对某key做+1操作）
+# INCRBY（对某key加指定数值）
+# DECR（某key-1）
+# DECRBY（某key减指定数值）
+# INCRBYFLOAT（对某key加指定数值的浮点数）
+
+127.0.0.1:6379> set k1 1
+OK
+127.0.0.1:6379> get k1
+"1"
+127.0.0.1:6379> incr k1
+(integer) 2
+127.0.0.1:6379> get k1
+"2"
+127.0.0.1:6379> decr k1
+(integer) 1
+127.0.0.1:6379> get k1
+"1"
+
+127.0.0.1:6379> incrby k1 2
+(integer) 3
+127.0.0.1:6379> get k1
+"3"
+127.0.0.1:6379> decrby k1 2
+(integer) 1
+127.0.0.1:6379> get k1
+"1"
+127.0.0.1:6379> INCRBYFLOAT k1 0.5
+"1.5"
+
+--清空键值
+127.0.0.1:6379> flushall
+OK
+127.0.0.1:6379> get k1\
+(nil)
+127.0.0.1:6379> type k1
+none
+
+
+# GETSET（某key设置新的值并返回老的值，相较get&set通信上面减少了一次I/O）
+127.0.0.1:6379> GETSET k1 ARMIN
+"hello"
+127.0.0.1:6379> get k1
+"ARMIN"
+
+
+# MSETNX（以k v形式批量添加，如果k存在则该条语句的所有操作均失败【保障原子性】）
+
+127.0.0.1:6379> MSETNX k1 a k2 b
+(integer) 1
+127.0.0.1:6379> mget k1 k2
+1) "a"
+2) "b"
+
+127.0.0.1:6379> MSETNX k1 c k2 d
+(integer) 0
+127.0.0.1:6379> mget k1 k2
+1) "a"
+2) "b"
+
+--bitmap
+
+# SETBIT 给某key二进制下标赋值二进制0/1(offset为某key二进制下标第几位，value值为二进制0/1)
+127.0.0.1:6379> setbit k1 1 1   # 给k1二进制位第1位（从0开始）赋值1【0100 0000】
+127.0.0.1:6379> get k1  
+"@"                            #  [0100 0000]ascii码解码后的值
+127.0.0.1:6379> setbit k1 7 1  #  [0100 0000]->[0100 0001]第七位赋值1
+(integer) 0
+127.0.0.1:6379> get k1         #   [0100 0001]->ascii=A
+"A"
+127.0.0.1:6379> setbit k1 9 1  #  [0100 0001]+[0100 0000]第九位赋值1
+(integer) 0
+127.0.0.1:6379> get k1
+"A@"
+127.0.0.1:6379> STRLEN k1
+(integer) 2
+
+# BITPOS (获取某key的二进制位在索引字符开始位与索引字符开始结束位的第几个二进制位)
+
+
+
+
+
+
+
+
+
+
+--list类型
+
+
+
+
+

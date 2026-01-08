@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="vue.js"> </script>
+  <title>限流函数</title>
+</head>
+<body>
+  <div id="Application">
+    <button v-on:click="handleClick">点击</button>
+  </div>
+  <!-- <script>
+    const App1 = {
+      data() {
+        return {
+          throttle:false //限流变量，标记当前是否触发限流
+        }
+      },
+      methods:{
+        handleClick() {
+          if (!this.throttle) {
+            console.log(Date.now())
+          }
+          else {
+            alert('提交中，请等待')
+            return
+            }
+            this.throttle = true
+            setTimeout(() => {
+              this.throttle = false
+            }, 3000)
+      }
+    }
+  }
+  Vue.createApp(App1).mount('#Application')
+
+  </script> -->
+  <script>
+    var throttle = false // 限流变量，标记当前是否触发限流
+    function throttleTool(callback,timeout) { //包装的限流函数
+      if (!throttle) {                    //如果throttle = false，未触发限流，则执行回调函数
+        callback()
+      }
+      else {
+        alert('提交中，请等待')
+        //return                         //如果触发限流，则返回空函数
+      }
+
+    throttle = true                   // 触发限流
+    setTimeout(() => {
+      throttle = false                // 解除限流
+    }, timeout)
+  }
+function logCurrentTime() {
+  alert(Date.now())
+}
+
+  const App2 = {
+    methods: {
+      handleClick() {
+        throttleTool(logCurrentTime,3000)
+      }
+    }
+  }
+  Vue.createApp(App2).mount('#Application')
+  </script>
+<!-- <script>
+  const App = {
+    handleClick:_.debounce(function() {
+      console.log(Date.now(),2000)
+    })
+  }
+</script> -->
+</body>
+</html>

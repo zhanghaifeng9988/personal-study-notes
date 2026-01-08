@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="vue.js"></script>
+</head>
+<body>
+  <div id="Application">
+    <!-- 自定义的列表组件 -->
+    <my-list :count="5"></my-list>
+  </div>
+  <script>
+    const App = Vue.createApp({})
+    const listComponent = {
+      props:
+        {count:Number},
+        template:`
+        <div style='border:black 10px solid '>
+          <my-item v-for='i in this.count' :item-count='this.count'  :item-index='i'></my-item>
+        </div>
+      `
+    }
+
+    const myItemComponent = {
+      props:{
+        itemCount:Number,
+        itemIndex:Number
+      },
+      template:`
+        <div style='border:red 10px solid'>
+          <my-label :label-index='this.itemIndex'  :label-count='this.itemCount'></my-label>
+        </div>
+      `
+    }
+    const myLabelComponent = {
+      props:{
+        labelIndex:Number,
+        labelCount:Number
+      },
+      template:`
+        <div>
+          Label {{this.labelIndex}}/{{this.labelCount}}
+        </div>
+      `
+    }
+    App.component('my-list', listComponent)
+    App.component('my-item', myItemComponent)
+    App.component('my-label', myLabelComponent)
+    App.mount('#Application')
+  </script>
+</body>
+</html>
+

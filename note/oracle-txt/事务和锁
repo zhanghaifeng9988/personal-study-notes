@@ -1,0 +1,374 @@
+
+
+
+事务具有下列基本属性(ACID):
+
+原子性( Atomicity):事务是一个不可分割的工作单元，要么都执行，要麽都不执行
+
+--sqlserver  
+　【1】隐式事务：即每个窗口系统会自动加上begin tran，但是不会自动提交，
+需要手动使用 commit 提交。
+
+  【2】显示事务：需要begin tran             commit tran/ rollback tran   配合使用
+
+  【3】自动提交事务：每一个DML、DDL都是独立的事务，并且一旦执行就自动提交/错误也会自动回滚。
+  
+   
+   事务的基本控制语句
+BEGIN TRANSACTION 表示本地事务的开始
+BEGIN DISTRIBUTED TRANSACTION表示分布式事务起始
+COMMIT TRANSACTION表示事务的提交
+ROLLBACK TRANSACTION表示事务的回滚
+COMMIT事务的提交 与COMMIT TRANSACTION功能相同
+ROLLBACK 事务的回滚与ROLLBACK TRANSACTION功能相同
+SAVE TRANSACTION设置事务保存点
+
+
+   【1】隐式事务
+
+　　　　SET IMPLICIT_TRANSACTIONS ON 语句启动隐性事务模式
+　　　　SET IMPLICIT_TRANSACTIONS OFF 语句关闭隐性事务模式
+
+　　【2】显式事务
+
+　　　　通过发出 BEGIN TRANSACTION 语句显式启动事务。
+
+　　【3】自动提交事务，默认为此项，无需设置；
+
+　　*****只要隐式事务和显式事务没有开启，就是自动提交事务。
+
+ 
+ --事务的原子性，sql举例：
+
+begin transaction
+insert into t2 values(2);
+update t2 set id=3;
+if @@error <>0
+rollback;
+else  commit;
+
+
+一致性( Consistency):即数据不会因事务的执行而遭受破环,就是说不能破坏关系数据的完整性以及业务逻辑上的一致性。
+隔离性( Isolation):在并发处理过程中，事务的先后单独执行结果不随多个事务并发执行的情况而改变
+持久性( Durability):意味着在事务完成以后，该事务所对数据库所作的更改便持久的保存在数据库之中，并不会被回滚。
+                    即使出现了任何事故比如断电等，事务一旦提交，则持久化保存在数据库中。
+					
+                                          
+										  
+										  ***事物的并发控制产生的问题***
+										  
+1. 脏读 ：脏读就是指当一个事务正在访问数据，并且对数据进行了修改，而这种修改还没有提交到数据库中，这时，
+另外一个事务也访问这个数据，然后使用了这个数据。
+ e.g.
+        1.Mary的原工资为1000, 财务人员将Mary的工资改为了8000(但未提交事务)
+        2.Mary读取自己的工资 ,发现自己的工资变为了8000，欢天喜地！
+        3.而财务发现操作有误，回滚了事务,Mary的工资又变为了1000
+          像这样,Mary记取的工资数8000是一个脏数据。
+
+ 
+
+2. 不可重复读 ：是指在一个事务内，多次读同一数据。在这个事务还没有结束时，另外一个事务也访问该同一数据。
+那么，在第一个事务中的两次读数据之间，由于第二个事务的修改，那么第一个事务两次读到的的数据可能是不一样的。这样在一个事务内两次读到的数据是不一样的，因此称为是不可重复读。
+    e.g.
+    1.在事务1中，Mary 读取了自己的工资为1000,操作并没有完成
+    2.在事务2中，这时财务人员修改了Mary的工资为2000,并提交了事务.
+    3.在事务1中，Mary 再次读取自己的工资时，工资变为了2000
+
+ 解决办法：如果只有在修改事务完全提交之后才可以读取数据，则可以避免该问题。
+
+ 
+
+3. 幻读 : 是指当事务不是独立执行时发生的一种现象，例如第一个事务对一个表中的数据进行了修改，
+这种修改涉及到表中的全部数据行。同时，第二个事务也修改这个表中的数据，这种修改是向表中插入一行新数据。
+那么，以后就会发生操作第一个事务的用户发现表中还有没有修改的数据行，就好象发生了幻觉一样。
+   e.g. 
+   目前工资为1000的员工有10人。
+   1.事务1,读取所有工资为1000的员工。
+   2.这时事务2向employee表插入了一条员工记录，工资也为1000
+   3.事务1再次读取所有工资为1000的员工 共读取到了11条记录， 
+
+ 
+
+三者的场景介绍完,但是一定仍然有很多同学搞不清楚,它们到底有什么区别，我总结一下。
+
+ 
+
+脏读：指读到了其他事务未提交的数据。
+
+不可重复读：读到了其他事务已提交的数据(update)。
+
+不可重复读与幻读都是读到其他事务已提交的数据,但是它们针对点不同。
+
+不可重复读：update。
+
+幻读：delete，insert。
+
+
+                                   悲观锁（Pessimistic Lock）
+								   
+    顾名思义，很悲观，每次去拿数据的时候都认为别人会修改，所以每次在拿数据的时候都会上锁，
+这样别人拿这个数据就会block（阻塞），直到它解锁。
+
+    ***悲观锁分类***：
+ 
+ 按照使用性质分类：
+--共享锁（Share Lock）
+
+S锁，也叫读锁，用于所有的只读数据操作。共享锁是非独占的，允许多个并发事务读取其锁定的资源。
+性质
+1. 多个事务可封锁同一个共享页；
+2. 任何事务都不能修改该页；
+3. 通常是该页被读取完毕，S锁立即被释放。
+
+
+--排他锁（Exclusive Lock）
+
+X锁，也叫写锁，表示对数据进行写操作。如果一个事务对对象加了排他锁，其他事务就不能再给它加任何锁了。
+（某个顾客把试衣间从里面反锁了，其他顾客想要使用这个试衣间，就只有等待锁从里面打开了。）
+性质
+1. 仅允许一个事务封锁此页；
+2. 其他任何事务必须等到X锁被释放才能对该页进行访问；
+3. X锁一直到事务结束才能被释放。
+
+
+产生排他锁的SQL语句如下：select * from ad_plan for update;
+
+  也叫独占锁：
+只允许进行锁定操作的程序使用，其他任何对他的操作均不会被接受。
+执行数据更新命令时，SQL Server会自动使用独占锁。当对象上有其他锁存在时，无法对其加独占锁。
+
+
+--更新锁
+U锁，在修改操作的初始化阶段用来锁定可能要被修改的资源，这样可以避免使用共享锁造成的死锁现象。
+UPDLOCK 仅对行级别或页级别的读操作采用更新锁。 如果将 UPDLOCK 与 TABLOCK 组合使用或出于一些其他原因采用表级锁，
+将采用排他 (X) 锁。
+
+begin tran
+
+select * from table1 with(rowlock,updlock) where A='a2' 
+
+waitfor delay '00:00:30' --等待30秒
+
+update table1 set B='bb' where A='a2'
+
+commit tran
+
+
+
+
+--死锁的产生和解决办法
+
+因为当使用共享锁时，修改数据的操作分为两步：
+1. 首先获得一个共享锁，读取数据，
+2. 然后将共享锁升级为排他锁，再执行修改操作。
+这样如果有两个或多个事务同时对一个事务申请了共享锁，在修改数据时，这些事务都要将共享锁升级为排他锁。
+这时，这些事务都不会释放共享锁，而是一直等待对方释放，这样就造成了死锁。
+
+如果一个数据在修改前直接申请更新锁，在数据修改时再升级为排他锁，就可以避免死锁。
+
+
+悲观锁按作用范围划分为：行锁、表锁。
+
+   --行锁
+
+锁的作用范围是行级别。
+
+
+
+   --表锁
+
+锁的作用范围是整张表。
+数据库能够确定那些行需要锁的情况下使用行锁，如果不知道会影响哪些行的时候就会使用表锁。
+
+sqlserver所指定的表级锁定提示有如下几种 
+
+1． HOLDLOCK: 在该表上保持共享锁，直到整个事务结束，而不是在语句执行完立即释放所添加的锁。
+SELECT * FROM table WITH (HOLDLOCK) 其他事务可以读取表，但不能更新删除
+
+2． NOLOCK：不添加共享锁和排它锁，当这个选项生效后，可能读到未提交读的数据或“脏数据”，这个选项仅仅应用于SELECT语句。
+
+3． PAGLOCK：指定添加页锁（否则通常可能添加表锁）
+
+4． READCOMMITTED用与运行在提交读隔离级别的事务相同的锁语义执行扫描。默认情况下，SQL Server 2000 在此隔离级别上操作。
+
+5． READPAST: 跳过已经加锁的数据行，这个选项将使事务读取数据时跳过那些已经被其他事务锁定的数据行，而不是阻塞直到其他事务释放锁，READPAST仅仅应用于READ COMMITTED隔离性级别下事务操作中的SELECT语句操作
+
+6． READUNCOMMITTED：等同于NOLOCK。
+
+7． REPEATABLEREAD：设置事务为可重复读隔离性级别。
+
+8． ROWLOCK：使用行级锁，而不使用粒度更粗的页级锁和表级锁。
+
+9． SERIALIZABLE：用与运行在可串行读隔离级别的事务相同的锁语义执行扫描。等同于 HOLDLOCK。
+
+10． TABLOCK：指定使用表级锁，而不是使用行级或页面级的锁，SQL Server在该语句执行完后释放这个锁，
+而如果同时指定了HOLDLOCK，该锁一直保持到这个事务结束。
+
+SELECT * FROM table WITH (TABLOCKX) 其他事务不能读取表,更新和删除
+
+11． TABLOCKX：指定在表上使用排它锁，这个锁可以阻止其他事务读或更新这个表的数据，
+直到这个语句或整个事务结束。
+
+
+12． UPDLOCK ：指定在读表中数据时设置更新锁（update lock）而不是设置共享锁，该锁一直保持到这个语句或整个事务结束，使用UPDLOCK的作用是允许用户先读取数据（而且不阻塞其他用户读数据），并且保证在后来再更新数据时，这一段时间内这些数据没有被其他用户修改
+
+
+
+
+--每秒死锁数量
+
+SELECT  *
+FROM    sys.dm_os_performance_counters
+WHERE   counter_name LIKE 'Number of Deadlocksc%';
+
+--查询当前阻塞
+
+WITH    CTE_SID ( BSID, SID, sql_handle )
+          AS ( SELECT   blocking_session_id ,
+                        session_id ,
+                        sql_handle
+               FROM     sys.dm_exec_requests
+               WHERE    blocking_session_id <> 0
+               UNION ALL
+               SELECT   A.blocking_session_id ,
+                        A.session_id ,
+                        A.sql_handle
+               FROM     sys.dm_exec_requests A
+                        JOIN CTE_SID B ON A.SESSION_ID = B.BSID
+             )
+    SELECT  C.BSID ,
+            C.SID ,
+            S.login_name ,
+            S.host_name ,
+            S.status ,
+            S.cpu_time ,
+            S.memory_usage ,
+            S.last_request_start_time ,
+            S.last_request_end_time ,
+            S.logical_reads ,
+            S.row_count ,
+            q.text
+    FROM    CTE_SID C 
+            JOIN sys.dm_exec_sessions S ON C.sid = s.session_id
+            CROSS APPLY sys.dm_exec_sql_text(C.sql_handle) Q
+    ORDER BY sid
+	
+	
+--查询当前数据库中存在的锁
+select 
+request_session_id spid, request_mode,request_type,request_owner_type,                        
+OBJECT_NAME(resource_associated_entity_id) tableName
+from sys.dm_tran_locks 
+where resource_type='OBJECT'
+
+
+--杀死死锁进程
+
+declare @spid int                                      //声明id
+Set     @spid = 62                                     //设置死锁id
+declare @sql varchar(1000)                             //声明sql 
+set     @sql='kill '+cast(@spid as varchar)            //设置 kill掉死锁进程
+exec    (@sql)                                         //执行
+
+
+或者
+kill 62
+
+--查询表上的锁有哪些？
+select 
+request_session_id spid, request_mode,request_type,request_owner_type,                            
+OBJECT_NAME(resource_associated_entity_id) tableName
+from sys.dm_tran_locks 
+where resource_type='OBJECT'
+and OBJECT_NAME(resource_associated_entity_id)='t2'
+
+
+--IX锁
+     是意向排他锁，是指在事务在请求X锁之前，要先获得IX锁。IX锁是表级锁，
+它表示事务要对表中的某些行进行更新操作，防止其他事务同时修改表中的其他行
+
+--IS锁是意向共享锁，是指在事务在请求S锁之前，要先获得IS锁。IS锁也是表级锁，
+它表示事务要对表中的某些行进行读取操作，防止其他事务同时修改或读取表中的其他行
+
+                                           
+										   
+										   
+										   测试锁：
+ 
+ 场景1--阻塞：
+    sqlserver A用户读一张表，此时，该表正在被B用户修改，但事务未提交，会发生什么情况？
+ 
+ 答：	
+     1、阻塞：读取操作会被阻塞，直到写入操作提交或回滚。这是因为读取操作需要获取表锁，
+而写入操作正在持有表锁（排他锁），导致读取操作无法获取锁，从而被阻塞。
+        注意：实际测试，发生了阻塞，A用户无法对该表进行查询,需要B用户回滚事务，或者提交事务。
+	其中B用户的修改包括：所有的DML语句
+	
+	2、脏读：如果读取操作在写入操作提交之前执行，那么读取操作可能会读取到写入操作尚未提交的数据，
+这会导致读取操作读到“脏数据”。
+    
+	注意：脏读不会发生。
+	
+    3、不可重复读：如果读取操作在写入操作提交之前执行，并且在写入操作提交后再次读取该表，
+那么两次读取的结果可能不同，因为写入操作可能在第一次读取后修改了表数据。
+
+    此处，理解不深，暂不下结论
+	
+ 
+ 场景2--死锁1：
+    create table t2(id int)
+	create table t3(id int)
+	insert into t2 values(1);
+	insert into t3 values(1);
+
+两个窗口下分别执行	
+ --query01
+
+Begin Tran
+Update t2 Set id=id+1;
+WaitFor Delay '00:03:00';
+SELECT * FROM t3;
+
+ --query02
+
+Begin Tran
+Update t3 Set id=id+1;
+WaitFor Delay '00:03:00';
+SELECT * FROM t2; 
+
+  发现两个窗口都是查询执行状态，此时查询两张表的锁，发现都上了IX锁，此时的状态就为死锁状态，
+可以不用去手动干预，sqlserver会自动放弃一个会话中的update，执行另一个会话的update，并且解除
+死锁状态。
+   
+   
+   死锁2：
+两个窗口下分别执行   
+ --query01
+Begin Tran
+WaitFor Delay '00:01:00';
+Update t2 Set id=id+1;
+WaitFor Delay '00:01:00';
+Update t3 Set id=id+1;
+commit;
+
+ --query02
+Begin Tran
+WaitFor Delay '00:01:00';
+Update t3 Set id=id+1;
+WaitFor Delay '00:01:00';
+Update t2 Set id=id+1;
+commit;
+
+  报错如下：
+  消息 1205，级别 13，状态 45，第 42 行
+事务(进程 ID 63)与另一个进程被死锁在 锁 资源上，并且已被选作死锁牺牲品。请重新运行该事务。
+
+  id63进程上执行的事务被牺牲了，只保留query01的事务。
+  
+  #####需要特别注意的地方：如果当前数据的事务类型是：隐式事务或者显示事务
+  当SQL Server发生死锁后，事务会被中止并返回一个错误信息。
+此时，需要手动提交或回滚事务，以确保数据的一致性和完整性。SQL Server不会自动提交或回滚事务，
+需要开发人员或数据库管理员进行干预。在发生死锁时，可以通过跟踪和诊断问题来避免问题的发生，
+并确保事务的正确提交和回滚。
+
+  

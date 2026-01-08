@@ -1,0 +1,58 @@
+FDPSHARE             ARC_E_CONS_PRC_AMT             TABLE SUBPARTITION                       208.485352
+FDPSHARE             ARC_E_CONSPRC_SNAP             TABLE SUBPARTITION                       219.596741
+FDPSHARE             P_ENGINE_LOG                   TABLE                                    224.493164
+FDPSHARE             ARC_A_RCVBL_FLOW               TABLE SUBPARTITION                       237.430298
+FDPSHARE             DM_JCJK_LJF_DDQC_BIGPQ_INFO    TABLE                                    256.032227
+FDPSHARE             ARC_E_MP_PARA_SNAP             TABLE SUBPARTITION                       281.216797
+FDPSHARE             ARC_R_DATA                     TABLE SUBPARTITION                       318.387695
+FDPSHARE             ARC_ES_MP_PQ                   TABLE SUBPARTITION                       348.349609
+FDPSHARE             ARC_E_CONS_SNAP                TABLE SUBPARTITION                       383.658203
+FDPSHARE             A_PAY_FLOW                     TABLE SUBPARTITION                       443.046875
+FDPSHARE             ARC_ES_MP_PARA_SNAP            TABLE SUBPARTITION                       443.867188
+FDPSHARE             ARC_ES_CONSPRC_TACT_SNAP       TABLE SUBPARTITION                       469.447266
+FDPSHARE             ARC_ES_KWH_AMT                 TABLE SUBPARTITION                       511.254883
+FDPSHARE             A_RCVED_PL_FLOW                TABLE SUBPARTITION                       581.953125
+FDPSHARE             ARC_ES_CONS_PRC_AMT            TABLE SUBPARTITION                       606.864258
+FDPSHARE             ARC_ES_CONSPRC_SNAP            TABLE SUBPARTITION                       616.361328
+FDPSHARE             ARC_A_RCVBL_PL_FLOW            TABLE SUBPARTITION                       644.163086
+FDPSHARE             E_MP_FACTOR_CURVE              TABLE SUBPARTITION                       788.695313
+FDPSHARE             ARC_ES_CONS_SNAP               TABLE SUBPARTITION                       791.995117
+FDPSHARE             ARC_E_PL_AMT                   TABLE SUBPARTITION                        910.80957
+FDPSHARE             G_TG_CONS_DAY_PQ               TABLE PARTITION                          1213.95801
+FDPSHARE             TB_DAYPQ_L                     TABLE                                    1313.86914
+FDPSHARE             E_MP_DAY_READ                  TABLE PARTITION                           1357.9834
+FDPSHARE             A_RCVBL_ENTRY                  TABLE PARTITION                          2937.57031
+FDPSHARE             E_MP_CUR_CURVE                 TABLE PARTITION                          3549.07227
+FDPSHARE             E_MP_POWER_CURVE               TABLE SUBPARTITION                       4735.23535
+FDPSHARE             E_MP_READ_CURVE                TABLE PARTITION                          5127.31836
+
+
+./rep19.prm:MAP FDPSHARE.G_TG_CONS_DAY_PQ TARGET FDPSHARE.G_TG_CONS_DAY_PQ;
+./rep19.prm:MAP FDPSHARE.G_TG_CONS_DAY_PQ_BAK_20190523 TARGET FDPSHARE.G_TG_CONS_DAY_PQ_BAK_20190523;
+./rep20.prm:MAP FDPSHARE.G_TG_CONS_DAY_PQ_TEMP         TARGET FDPSHARE.G_TG_CONS_DAY_PQ_TEMP;
+./rep_cjj4.prm:MAP SXDL_MID.G_TG_CONS_DAY_PQ, TARGET FDPSHARE.G_TG_CONS_DAY_PQ,
+
+FDPSHARE.G_TG_CONS_DAY_PQ 
+
+
+column INDEX_OWNER format a15
+column INDEX_NAME format a35
+column TABLE_OWNER format a15
+column TABLE_NAME format a35
+select INDEX_OWNER,INDEX_NAME,TABLE_OWNER,TABLE_NAME from dba_ind_columns where INDEX_OWNER='FDPSHARE' and INDEX_NAME='PK_G_TG_CONS_DAY_PQ';
+
+select  OWNER,SEGMENT_NAME,SEGMENT_TYPE,sum(BYTES)/1024/1024/1024 
+from dba_segments
+where segment_name in ('IDX_G_TG_CONS_DAY_PQ_1','PK_G_TG_CONS_DAY_PQ') and owner='FDPSHARE'
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE order by sum(BYTES);
+
+select OWNER,SEGMENT_NAME,SEGMENT_TYPE,sum(BYTES)/1024/1024/1024 from dba_segments 
+where TABLESPACE_NAME='HISCMPRS01' and segment_name='G_TG_CONS_DAY_PQ' and owner='FDPSHARE'   
+group by OWNER,SEGMENT_NAME,SEGMENT_TYPE order by sum(BYTES);
+
+select 'alter table '||table_owner||'.'||table_name||' move partition '||partition_name||' tablespace HISCMPRS01 nologging parallel 4 compress;',compression from dba_tab_partitions where table_owner='FDPSHARE' and table_name='G_TG_CONS_DAY_PQ'
+select 'alter index ' ||OWNER || '.' || index_name || ' REBUILD  parallel 12 tablespace SHAREIDX nologging;' from dba_indexes where  owner='FDPSHARE' and table_name='G_TG_CONS_DAY_PQ'
+
+select table_name,partition_name,subpartition_name,compression from dba_tab_subpartitions where table_owner='FDPSHARE' and table_name='G_TG_CONS_DAY_PQ'
+select count(*) from dba_tab_partitions where TABLE_OWNER='FDPSHARE' and TABLE_NAME='G_TG_CONS_DAY_PQ' and compression='ENABLED';
+
