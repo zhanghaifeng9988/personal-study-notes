@@ -7,7 +7,10 @@ groupadd postgres
 useradd  -g postgres  postgres
 
 密码：postgres
+
+安装依赖
 yum install -y perl-ExtUtils-Embed readline-devel zlib-devel pam-devel libxml2-devel libxslt-devel openldap-devel python-devel gcc-c++ openssl-devel cmake gcc* readline-devel
+
 
 [root@oggtarget postgresql-14.4]# pwd
 /opt/postgresql-14.4
