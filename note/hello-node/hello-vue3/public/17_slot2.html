@@ -8,7 +8,7 @@
 </head>
 <body>
   <div id="Application">
-    <my-container>
+    <my-container> //具名插槽（必须用 template）
       <template v-slot:header>
         <h1>This is the Header</h1>
       </template>
@@ -23,7 +23,8 @@
   </div>
   <script>
     const App = Vue.createApp({})
-    const container2Component = {
+    const container2Component = {//这个组件定义了一个容器组件，它有三个独立的区域（header、main、footer）。
+      /*<slot> 是占位符，表示"这里将由父组件传入的内容填充"  name="header" 是具名插槽，指定这个插槽的名字*/
       template: `<div style="border: 1px solid black; padding: 10px;">
         <slot name="header" ></slot>
         </div>`
