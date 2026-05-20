@@ -4,6 +4,7 @@
 用户名：zhf
 密码：ZHF@4933807
 
+sudo -i  切换到root用户，root用户默认没有密码。
 
 sudo su - root
 chmod 750 /etc/sudoers

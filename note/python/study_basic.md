@@ -1,4 +1,11 @@
 vscode中的编码
+数值	int, float, bool, complex
+序列	list, tuple, range
+文本	str
+映射	dict
+集合	set, frozenset
+空值	None
+
 
 --行注释   #
 --块注释   Alt+Shift+A
@@ -171,8 +178,8 @@ UnboundLocalError: local variable 'eggs' referenced before assignment
 
 
 
-                              列表（个人理解 就是：数组）
-	举例：个人认为可以叫做二维数组
+                             list 列表
+	举例：
 	列表的索引是整数
 >>> spam=[[1,2,3,4,5],['a','b','c','d','e']]
 >>> spam[0]
@@ -300,6 +307,7 @@ print(meta_dat[1])
 print(meta_dat[1][0])
 4
 
+元组确实是不可变的，但它只保证自己“直接装着”的东西不变，不保证“间接装着”的东西不变。
 >>> t = ('a', 'b', ['A', 'B'])
 >>> t[2][0] = 'X'
 >>> t[2][1] = 'Y'
@@ -320,7 +328,7 @@ print(meta_dat[1][0])
 	
 	字典是不排序的，不能像列表那样切片。
 --举例：
-   序列比较
+   列表比较
 >>> spam=['a','b','c','d']
 >>> bacon=['b','c','d','a']
 >>> spam==bacon
@@ -439,7 +447,7 @@ KeyError: 'Bob'
 
 
                                     字符串
---f字符串格式化输出：
+--**f**字符串格式化输出：
 >>> name='zhf'
 >>> age=8
 >>> f'my name is {name},age is {age}'
@@ -520,6 +528,15 @@ GitHub Copilot: 在Python中，`list`、`tuple`、`dict`和`set`是四种常见�
 
 
                                           函数
+在 Python 中，函数是一等公民。
+一个东西如果是一等公民，意味着它和整数、字符串、列表一样，可以被：
+✅ 赋值给变量
+✅ 作为参数传给函数
+✅ 作为函数的返回值
+✅ 放在列表、字典等容器里
+✅ 在运行时动态创建
+
+换句话说：**函数可以像数据一样被操作。**
 										  
 --位置参数
 def power(x, n):
@@ -570,6 +587,7 @@ def calc(*numbers):
         sum = sum + n * n
     return sum
 
+可变参数，它的核心特点就是：允许你传入任意数量的参数，这些参数会被自动打包成一个元组。
 在函数内部，参数numbers接收到的是一个tuple
 
   --如果已经有一个list或者tuple，要调用一个可变参数
@@ -950,9 +968,123 @@ for function in filtered_functions:
     print(function)
 
 
-                                  	
-						   
-						   
-						
+# 一个常见的用法
+if __name__ == "__main__":
+    main()
+## 举例
+### calculator.py
+def add(a, b):
+    return a + b
 
-1,2,4,8,16,32
+def main():
+    print("测试：1 + 2 =", add(1, 2))
+
+if __name__ == "__main__":
+    main()
+
+- 场景 A：直接运行
+python calculator.py
+# 输出：测试：1 + 2 = 3
+
+- 场景 B：被别人导入
+# 另一个文件
+from calculator import add
+print(add(5, 3))  # 只想用 add 函数
+
+这时 __name__ 是 "calculator"，不等于 "__main__"，所以不会执行 main()，不会打印测试信息。
+如果没有 if __name__ == "__main__": 保护，导入时测试代码也会被执行，这显然不是我们想要的。
+
+这种设计的精妙之处在于：一个文件既能作为独立脚本运行，又能作为模块被其他代码安全导入，两种用途互不干扰。
+——————————————                                  	
+# 类
+## __init__ 方法：初始化每个对象的独特数据
+这是最常用的，用于给每个创建的对象设置自己独有的属性。
+
+class Dog:
+    def __init__(self, name, age):
+        self.name = name    # 实例属性（每个对象自己的名字）
+        self.age = age      # 实例属性（每个对象自己的年龄）
+    
+    def bark(self):
+        return f"{self.name} 叫了一声"
+
+## 创建两个不同的实例
+dog1 = Dog("旺财", 3)
+dog2 = Dog("小黑", 5)
+
+print(dog1.name)  # 旺财
+print(dog2.name)  # 小黑
+
+- **self** 代表实例本身，通过它给每个对象绑定自己的属性
+self 是你创建的那个具体的对象自己，类似于其他语言中的 this。
+- __init__ 不是构造函数，而是初始化方法（对象已经创建好后调用）
+
+## 构造函数和初始化方法
+Python 类的真正构造函数是 __new__，__init__ 只是初始化方法。
+
+__new__：负责创建对象（分配内存、返回对象实例）
+
+__init__：负责初始化对象（给属性赋值）
+
+
+
+## 实例属性和类属性
+class Student:
+    school = "清华"   # **类属性**（所有学生共享）
+    
+    def __init__(self, name):
+        self.name = name   # **实例属性**（每个学生自己的名字）
+
+s1 = Student("张三")
+s2 = Student("李四")
+
+print(s1.school)  # 清华
+print(s2.school)  # 清华
+
+修改类属性会影响所有实例
+Student.school = "北大"
+print(s1.school)  # 北大
+print(s2.school)  # 北大
+
+
+## 封装
+把数据和操作数据的方法放在一起，对外隐藏内部细节。
+class BankAccount:
+    def __init__(self):
+        self.__balance = 0   # 私有属性（双下划线）
+    
+    def deposit(self, amount):
+        if amount > 0:
+            self.__balance += amount
+    
+    def get_balance(self):
+        return self.__balance   # 通过方法来访问
+
+## 继承
+class Animal:
+    def eat(self):
+        print("吃东西")
+
+class Dog(Animal):   # Dog 继承 Animal
+    def bark(self):
+        print("汪汪")
+
+dog = Dog()
+dog.eat()   # 继承了父类的方法
+dog.bark()
+
+## 多态
+同一个方法在不同的子类中有不同的表现。
+class Cat(Animal):
+    def sound(self):
+        print("喵喵")
+
+class Dog(Animal):
+    def sound(self):
+        print("汪汪")
+
+animals = [Cat(), Dog()]
+for a in animals:
+    a.sound()   # 同一个调用，不同输出
+
+
