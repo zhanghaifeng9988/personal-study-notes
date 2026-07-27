@@ -23,3 +23,5 @@ source activate myenv
 
 --退出环境
 conda deactivate
+
+永远再激活了虚拟环境以后，再安装所需依赖库依赖包。
