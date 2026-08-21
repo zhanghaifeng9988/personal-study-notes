@@ -255,3 +255,16 @@ dockerd
 #守护进程事件信息
 docker  events
 
+
+# docker常用命令
+序号	     命令	                                         用途
+1	      docker ps -a	                               看所有容器
+2	      docker images	                               看所有镜像
+3	      docker run -it --rm <镜像> bash	           临时进容器调试
+4	      docker run -d --name <名> <镜像>	           后台跑服务
+5	      docker logs -f <容器>	                       看实时日志
+6	      docker exec -it <容器> bash	              进运行中的容器
+7	      docker stop <容器>	                           停容器
+8	      docker rm <容器>	                             删容器
+9	      docker rmi <镜像>	                             删镜像
+10      	docker system prune	                        清理垃圾

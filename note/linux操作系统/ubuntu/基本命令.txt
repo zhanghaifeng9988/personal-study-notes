@@ -13,6 +13,12 @@ chmod 750 /etc/sudoers
 移动光标，到一行root ALL=(ALL:ALL) ALL的下一行，
 添加：your_user_name     ALL=(ALL:ALL) ALL
 
+-- wsl环境的话，提前做如下配置
+ cat /etc/wsl.conf
+[boot]
+systemd=true
+
+
 
 --安装docker
   --卸载旧版本
@@ -24,7 +30,6 @@ sudo apt-get remove docker docker-engine docker.io containerd runc
 sudo apt update
 
 sudo  apt list --upgradable
-
 
 sudo apt-get install ca-certificates curl gnupg lsb-release
 
